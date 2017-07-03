@@ -12,15 +12,16 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>MIT License.</PackageReleaseNotes>
+    <PackageReleaseNotes></PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>1.0.3.0</FileVersion>
-    <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <Version>1.0.3</Version>
+    <FileVersion>1.0.5.0</FileVersion>
+    <AssemblyVersion>1.0.5.0</AssemblyVersion>
+    <Version>1.0.5</Version>
     <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
+    <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />

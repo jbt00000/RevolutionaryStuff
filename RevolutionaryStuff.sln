@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Core", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.SSIS", "src\RevolutionaryStuff.SSIS\RevolutionaryStuff.SSIS.csproj", "{0FD20B12-8248-40AA-89D2-E9109F0D6E88}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Core.Tests", "tests\RevolutionaryStuff.Core.Tests\RevolutionaryStuff.Core.Tests.csproj", "{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -26,6 +28,12 @@ Global
 		{0FD20B12-8248-40AA-89D2-E9109F0D6E88}.Release|Any CPU.Build.0 = Release|Any CPU
 		{0FD20B12-8248-40AA-89D2-E9109F0D6E88}.VSTS-CI|Any CPU.ActiveCfg = VSTS-CI|Any CPU
 		{0FD20B12-8248-40AA-89D2-E9109F0D6E88}.VSTS-CI|Any CPU.Build.0 = VSTS-CI|Any CPU
+		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.VSTS-CI|Any CPU.ActiveCfg = VSTS-CI|Any CPU
+		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.VSTS-CI|Any CPU.Build.0 = VSTS-CI|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
