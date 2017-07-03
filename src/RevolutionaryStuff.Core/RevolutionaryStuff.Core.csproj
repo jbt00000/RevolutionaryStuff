@@ -16,8 +16,11 @@
     <Authors>jason@jasonthomas.com</Authors>
     <FileVersion>1.0.3.0</FileVersion>
     <AssemblyVersion>1.0.3.0</AssemblyVersion>
-    <Version>1.0.2</Version>
+    <Version>1.0.3</Version>
     <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />

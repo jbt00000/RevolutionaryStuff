@@ -8,4 +8,6 @@
 /.vs/
 *.user
 *.suo
+*.snk
 *.vspscc
+/src/RevolutionaryStuff.SSIS/deploy.bat
