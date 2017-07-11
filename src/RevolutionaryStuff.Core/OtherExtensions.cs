@@ -39,6 +39,15 @@ namespace RevolutionaryStuff.Core
             return age;
         }
 
+        public static bool IsBetween(this short n, short lowerInclusive, short upperInclusive)
+            => n >= lowerInclusive && n <= upperInclusive;
+
+        public static bool IsBetween(this int n, int lowerInclusive, int upperInclusive)
+            => n >= lowerInclusive && n <= upperInclusive;
+
+        public static bool IsBetween(this long n, long lowerInclusive, long upperInclusive)
+            => n >= lowerInclusive && n <= upperInclusive;
+
         public static bool IsOdd(this Int32 i)
         {
             return ((i & 0x1) == 1);

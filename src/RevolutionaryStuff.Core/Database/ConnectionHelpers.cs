@@ -113,8 +113,8 @@ namespace RevolutionaryStuff.Core.Database
             IEnumerable<SqlParameter> parameters
             )
         {
-            Requires.NonNull(conn, "conn");
-            Requires.Text(sql, "sql");
+            Requires.NonNull(conn, nameof(conn));
+            Requires.Text(sql, nameof(sql));
             conn.OpenIfNeeded();
             using (var cmd = new SqlCommand(sql, (SqlConnection)conn)
             {
@@ -137,8 +137,8 @@ namespace RevolutionaryStuff.Core.Database
             IEnumerable<SqlParameter> parameters
             )
         {
-            Requires.NonNull(conn, "conn");
-            Requires.Text(sql, "sql");
+            Requires.NonNull(conn, nameof(conn));
+            Requires.Text(sql, nameof(sql));
             conn.OpenIfNeeded();
             using (var cmd = new SqlCommand(sql, (SqlConnection)conn)
             {
@@ -172,8 +172,8 @@ namespace RevolutionaryStuff.Core.Database
             IEnumerable<SqlParameter> parameters,
             params Action<IDataReader>[] actions)
         {
-            Requires.NonNull(conn, "conn");
-            Requires.Text(sql, "sql");
+            Requires.NonNull(conn, nameof(conn));
+            Requires.Text(sql, nameof(sql));
             conn.OpenIfNeeded();
             try
             {

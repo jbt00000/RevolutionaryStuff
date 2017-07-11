@@ -275,6 +275,13 @@ namespace RevolutionaryStuff.Core
             if (t.IsFaulted) throw task.Exception;
         }
 
+        public static void TaskWaitAllForEach<TSource>(IEnumerable<TSource> items, Func<TSource, Task> body)
+        {
+            var tasks = new List<Task>();
+            items.ForEach(z => tasks.Add(body(z)));
+            Task.WaitAll(tasks.ToArray());
+        }
+
         private static readonly ICache<string, string> GetPathFromSerializedPathCache = Cache.CreateSynchronized<string, string>();
 
         public static string GetPathFromSerializedPath(Type t, string serializedPath)
