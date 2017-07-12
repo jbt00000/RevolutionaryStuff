@@ -11,18 +11,15 @@ namespace RevolutionaryStuff.Core
         private static readonly ICache<Type, DataContractJsonSerializer> JsonSerializerCache = Cache.CreateSynchronized<Type, DataContractJsonSerializer>();
 
         public static DataContractJsonSerializer GetJsonSerializer(this Type t)
-        {
-            return JsonSerializerCache.Do(t, () => new DataContractJsonSerializer(t));
-        }
+            => JsonSerializerCache.Do(t, () => new DataContractJsonSerializer(t));
+
         public static DataContractJsonSerializer GetJsonSerializer<TSerializationType>()
-        {
-            return GetJsonSerializer(typeof(TSerializationType));
-        }
+            => GetJsonSerializer(typeof(TSerializationType));
 
         public static T ReadObjectFromString<T>(this DataContractJsonSerializer ser, string json) where T : class
         {
             if (string.IsNullOrEmpty(json)) return null;
-            using (var st = new MemoryStream(Raw.String2Buf(json)))
+            using (var st = StreamHelpers.Create(json))
             {
                 return (T)ser.ReadObject(st);
             }
@@ -35,6 +32,25 @@ namespace RevolutionaryStuff.Core
                 ser.WriteObject(st, o);
                 st.Position = 0;
                 return st.ReadToEnd();
+            }
+        }
+
+        public static T ReadObjectFromString<T>(this DataContractSerializer ser, string xml) where T : class
+        {
+            if (string.IsNullOrEmpty(xml)) return null;
+            try
+            {
+                using (var st = StreamHelpers.Create(xml, System.Text.Encoding.UTF8))
+                {
+                    return (T)ser.ReadObject(st);
+                }
+            }
+            catch (System.Xml.XmlException)
+            {
+                using (var st = StreamHelpers.Create(xml, System.Text.Encoding.Unicode))
+                {
+                    return (T)ser.ReadObject(st);
+                }
             }
         }
 

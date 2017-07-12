@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RevolutionaryStuff.Core")]
-[assembly: AssemblyDescription("Helpers libraries I've developed and use in all my projects dating back to .NET v1.0 beta 2.\r\nFeel free to use these, but really, they're just for projects developed by jason@jasonthomas.com")]
+[assembly: AssemblyDescription("Helpers libraries I've developed and use in all my projects dating back to .NET v1.0 beta 2.\r\n\r\n... most have been refactored over time...\r\n\r\nFeel free to use these, I'll try to keep them fairly stable, but really, they're just for projects developed by me.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Revolutionary Stuff, LLC")]
 [assembly: AssemblyProduct("RevolutionaryStuff.Core")]
