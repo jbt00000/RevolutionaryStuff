@@ -1,10 +1,10 @@
-﻿using System;
+﻿using RevolutionaryStuff.Core.Collections;
+using System;
 using System.Collections;
 using System.Collections.Generic;
-using RevolutionaryStuff.Core.Collections;
 using System.Linq;
-using System.Text;
 using System.Linq.Expressions;
+using System.Text;
 
 namespace RevolutionaryStuff.Core
 {
@@ -16,88 +16,6 @@ namespace RevolutionaryStuff.Core
             {
                 yield return e;
             }
-        }
-
-        private static Expression NestedProperty(Expression arg, string fieldName)
-        {
-            var left = fieldName.LeftOf(".");
-            var right = StringHelpers.TrimOrNull(fieldName.RightOf("."));
-            var leftExp = Expression.Property(arg, left);
-            if (right == null) return leftExp;
-            return NestedProperty(leftExp, right);
-        }
-
-        private static Expression NullCheckNestedProperty(Expression arg, string fieldName)
-        {
-            var left = fieldName.LeftOf(".");
-            var right = StringHelpers.TrimOrNull(fieldName.RightOf("."));
-            if (right == null) return null;
-            var leftNameExp = Expression.Property(arg, left);
-            var leftExp = Expression.NotEqual(leftNameExp, Expression.Constant(null));
-            var rightExp = NullCheckNestedProperty(leftNameExp, right);
-            if (rightExp == null) return leftExp;
-            return Expression.AndAlso(leftExp, rightExp);
-        }
-
-        public static IQueryable<TSource> ApplyFilters<TSource>(this IQueryable<TSource> q, IEnumerable<KeyValuePair<string, string>> filters)
-        {
-            if (filters==null) return q;
-
-            var mfilters = filters.ToMultipleValueDictionary(f => f.Key, f=>f.Value);
-
-            ParameterExpression argParam = Expression.Parameter(typeof(TSource), "s");
-
-            var ands = new List<Expression>();
-            foreach (var fieldName in mfilters.Keys)
-            {
-                var expressions = new List<Expression>();
-                foreach (var val in mfilters[fieldName])
-                {
-                    Expression nullCheckProperty = NullCheckNestedProperty(argParam, fieldName);
-                    Expression nameProperty = NestedProperty(argParam, fieldName);
-                    var val1 = Expression.Constant(val);
-                    Expression e1 = Expression.Equal(nameProperty, val1);
-                    if (nullCheckProperty != null)
-                    {
-                        e1 = Expression.AndAlso(nullCheckProperty, e1);
-                    }
-                    expressions.Add(e1);
-                }
-                while (expressions.Count > 1)
-                {
-                    expressions[0] = Expression.Or(expressions[0], expressions[1]);
-                    expressions.RemoveAt(1);
-                }
-                ands.Add(expressions[0]);
-            }
-            if (ands.Count > 0)
-            {
-                while (ands.Count > 1)
-                {
-                    ands[0] = Expression.AndAlso(ands[0], ands[1]);
-                    ands.RemoveAt(1);
-                }
-
-                var lambda = Expression.Lambda<Func<TSource, bool>>(ands[0], argParam);
-
-                q = q.Where(lambda);
-            }
-
-            return q;
-        }
-
-        /// <remarks>http://stackoverflow.com/questions/12284085/sort-using-linq-expressions-expression</remarks>
-        public static IQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, bool asc)
-        {
-            if (string.IsNullOrEmpty(sortColumn)) return q;
-            //Requires.Match(RegexHelpers.Common.CSharpIdentifier, sortColumn, nameof(sortColumn));
-            var param = Expression.Parameter(typeof(T), "p");
-            var prop = NestedProperty(param, sortColumn);
-            var exp = Expression.Lambda(prop, param);
-            string method = asc ? "OrderBy" : "OrderByDescending";
-            Type[] types = new[] { q.ElementType, exp.Body.Type };
-            var mce = Expression.Call(typeof(Queryable), method, types, q.Expression, exp);
-            return q.Provider.CreateQuery<T>(mce);
         }
 
         public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, bool isAscending)
@@ -434,58 +352,6 @@ namespace RevolutionaryStuff.Core
             }
             return ret;
         }
-
-#if false
-        public static void Batch<T>(this IEnumerable<T> col, int batchSize, Action<IEnumerable<T>> action, InvokeQueueAsyncCall iqac = null, bool waitUntilFinished = true)
-        {
-            Validate.NonNullArg(action, "action");
-            Action<IEnumerable<T>> a = delegate (IEnumerable<T> q)
-            {
-                try
-                {
-                    action(q);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(ex);
-                    throw;
-                }
-            };
-            var chunk = new List<T>();
-            foreach (var item in col)
-            {
-                chunk.Add(item);
-                if (chunk.Count == batchSize)
-                {
-                    if (iqac == null)
-                    {
-                        a(chunk);
-                        chunk.Clear();
-                    }
-                    else
-                    {
-                        iqac.QueueUserWorkItem(delegate (object z) { a((IEnumerable<T>)z); }, chunk);
-                        chunk = new List<T>();
-                    }
-                }
-            }
-            if (chunk.Count > 0)
-            {
-                if (iqac == null)
-                {
-                    a(chunk);
-                }
-                else
-                {
-                    iqac.QueueUserWorkItem(delegate (object z) { a((IEnumerable<T>)z); }, chunk);
-                }
-            }
-            if (iqac != null && waitUntilFinished)
-            {
-                iqac.WaitUntilFinished();
-            }
-        }
-#endif
 
         public static int Increment<K>(this IDictionary<K, int> d, K key)
         {
