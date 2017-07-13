@@ -1,24 +1,39 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.6;netcoreapp1.1;net462</TargetFrameworks>
+    <TargetFrameworks>net462</TargetFrameworks>
     <AssemblyName>RevolutionaryStuff.ETL</AssemblyName>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Authors>jason@jasonthomas.com</Authors>
+    <Company>Revolutionary Stuff, LLC</Company>
+    <Description>Utility library to help with ETL.
+These were formerly used in the standalone UploadTable command line program.</Description>
+    <Copyright>Copyright ©  2017</Copyright>
+    <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
+    <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
+    <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
+    <RepositoryType>GIT</RepositoryType>
+    <FileVersion>1.0.1.0</FileVersion>
+    <AssemblyVersion>1.0.1.0</AssemblyVersion>
+    <Version>1.0.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
-    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;dnxcore50;portable-net451+win8</PackageTargetFallback>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
-  </ItemGroup>
-
   <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="SpreadsheetResources\Styles.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="SpreadsheetResources\Styles.xml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.7.2" />
   </ItemGroup>
 
   <ItemGroup>

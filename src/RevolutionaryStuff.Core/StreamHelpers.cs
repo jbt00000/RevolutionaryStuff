@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Text;
 
 namespace RevolutionaryStuff.Core
@@ -62,6 +63,19 @@ namespace RevolutionaryStuff.Core
             }
             st.Position = p;
             return p;
+        }
+
+        public static void ReadExactSize(this Stream st, byte[] buf, int offset = 0, int? size = null)
+        {
+            var remaining = size.GetValueOrDefault(buf.Length);
+            while (remaining > 0)
+            {
+                int amtRead = st.Read(buf, offset, remaining);
+                if (amtRead <= 0) break;
+                remaining -= amtRead;
+                offset += amtRead;
+            }
+            if (remaining > 0) throw new IndexOutOfRangeException($"{nameof(st)} was too small.  could not read remaining {remaining} bytes");
         }
     }
 }
