@@ -14,9 +14,9 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes></PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>1.0.11.0</FileVersion>
-    <AssemblyVersion>1.0.11.0</AssemblyVersion>
-    <Version>1.0.11</Version>
+    <FileVersion>1.0.12.0</FileVersion>
+    <AssemblyVersion>1.0.12.0</AssemblyVersion>
+    <Version>1.0.12</Version>
     <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>

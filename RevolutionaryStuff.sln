@@ -1,13 +1,15 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26430.13
+VisualStudioVersion = 15.0.26430.15
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Core", "src\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj", "{1D5979C8-2F75-4F8F-9288-3938F6D92BE2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.SSIS", "src\RevolutionaryStuff.SSIS\RevolutionaryStuff.SSIS.csproj", "{0FD20B12-8248-40AA-89D2-E9109F0D6E88}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Core.Tests", "tests\RevolutionaryStuff.Core.Tests\RevolutionaryStuff.Core.Tests.csproj", "{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.ETL", "src\RevolutionaryStuff.ETL\RevolutionaryStuff.ETL.csproj", "{A7622E2B-255A-4C84-A8AA-B34B96678189}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +36,12 @@ Global
 		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.VSTS-CI|Any CPU.ActiveCfg = VSTS-CI|Any CPU
 		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}.VSTS-CI|Any CPU.Build.0 = VSTS-CI|Any CPU
+		{A7622E2B-255A-4C84-A8AA-B34B96678189}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7622E2B-255A-4C84-A8AA-B34B96678189}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7622E2B-255A-4C84-A8AA-B34B96678189}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7622E2B-255A-4C84-A8AA-B34B96678189}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7622E2B-255A-4C84-A8AA-B34B96678189}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7622E2B-255A-4C84-A8AA-B34B96678189}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -126,15 +126,20 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-        public static string GenerateCreateTableSQL(this IDataTable dt, string schema = "dbo", string extraColumnSql=null)
+        public static string GenerateCreateTableSQL(this IDataTable dt, string schema = null, IDictionary<Type, string> typeMap = null, string extraColumnSql = null)
         {
+            schema = schema ?? "dbo";
             var sb = new StringBuilder();
             sb.AppendFormat("create table {0}.{1}\n(\n", schema, dt.TableName);
             for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
             {
                 var dc = dt.Columns[colNum];
                 string sqlType;
-                if (dc.DataType == typeof(int))
+                if (typeMap != null && typeMap.ContainsKey(dc.DataType))
+                {
+                    sqlType = typeMap[dc.DataType];
+                }
+                else if (dc.DataType == typeof(int))
                 {
                     sqlType = "int";
                 }
