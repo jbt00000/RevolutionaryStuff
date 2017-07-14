@@ -90,7 +90,16 @@ namespace RevolutionaryStuff.Core
             return q;
         }
 
-        public static IOrderedQueryable<T> OrderByFieldWithValueMapping<T>(IQueryable<T> q, string sortColumn, Type enumType, bool isAscending)
+        /// <summary>
+        /// Perform an ordering based on a field name given the field value is a whole number that can be mapped to an enumeration
+        /// </summary>
+        /// <typeparam name="T">The element being sorted</typeparam>
+        /// <param name="q">The queryable</param>
+        /// <param name="sortColumn">The name of the column to be sorted</param>
+        /// <param name="enumType">An enumeration which serves as the type mapping.  Respects the DisplayAttribute</param>
+        /// <param name="isAscending">When true, sort ascending else sort descending</param>
+        /// <returns>The sorted input</returns>
+        public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, Type enumType, bool isAscending = true)
         {
             var items = new List<Tuple<Enum, int, int?, string>>();
             foreach (var name in Enum.GetNames(enumType))
@@ -116,10 +125,20 @@ namespace RevolutionaryStuff.Core
             {
                 d[item.Item2] = pos++;
             }
-            return OrderByFieldWithValueMapping(q, sortColumn, d, isAscending);
+            return OrderByField(q, sortColumn, d, isAscending);
         }
 
-        public static IOrderedQueryable<T> OrderByFieldWithValueMapping<T, TMappedVal>(IQueryable<T> q, string sortColumn, IDictionary<int, TMappedVal> sortPosByfieldVal, bool isAscending)
+        /// <summary>
+        /// Perform an ordering based on a field name given the field value is a whole number that can be mapped to an alternate value supplied by a dictionary
+        /// </summary>
+        /// <typeparam name="T">The element being sorted</typeparam>
+        /// <typeparam name="TMappedVal">The type of the resulting mapped value</typeparam>
+        /// <param name="q">The queryable</param>
+        /// <param name="sortColumn">The name of the column to be sorted</param>
+        /// <param name="sortPosByfieldVal">The dictionary that performs the mapping</param>
+        /// <param name="isAscending">When true, sort ascending else sort descending</param>
+        /// <returns>The sorted input</returns>
+        public static IOrderedQueryable<T> OrderByField<T, TMappedVal>(this IQueryable<T> q, string sortColumn, IDictionary<int, TMappedVal> sortPosByfieldVal, bool isAscending=true) where TMappedVal : IComparable<TMappedVal>
         {
             Requires.Text(sortColumn, nameof(sortColumn));
             Requires.NonNull(sortPosByfieldVal, nameof(sortPosByfieldVal));
@@ -150,8 +169,16 @@ namespace RevolutionaryStuff.Core
             return (IOrderedQueryable<T>)q.Provider.CreateQuery<T>(mce);
         }
 
+        /// <summary>
+        /// Perform an ordering based on a field name
+        /// </summary>
+        /// <typeparam name="T">The element being sorted</typeparam>
+        /// <param name="q">The queryable</param>
+        /// <param name="sortColumn">The name of the column to be sorted</param>
+        /// <param name="isAscending">When true, sort ascending else sort descending</param>
+        /// <returns></returns>
         /// <remarks>http://stackoverflow.com/questions/12284085/sort-using-linq-expressions-expression</remarks>
-        public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, bool isAscending)
+        public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, bool isAscending=true)
         {
             Requires.Text(sortColumn, nameof(sortColumn));
 
