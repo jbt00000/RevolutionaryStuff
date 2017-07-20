@@ -47,6 +47,76 @@ namespace RevolutionaryStuff.Core
             return IsWholeNumber(t) || IsRealNumber(t);
         }
 
+        /// <summary>
+        /// Gets the max and min values for the given numeric type
+        /// </summary>
+        /// <param name="t">The given numeric type</param>
+        /// <param name="max">The maximum possible value</param>
+        /// <param name="min">The minimum possible value</param>
+        public static void NumericMaxMin(Type t, out double max, out double min)
+        {
+            max = min = 0;
+            if (t == typeof(Int16))
+            {
+                max = Int16.MaxValue;
+                min = Int16.MinValue;
+            }
+            else if (t == typeof(Int32))
+            {
+                max = Int32.MaxValue;
+                min = Int32.MinValue;
+            }
+            else if (t == typeof(Int64))
+            {
+                max = Int64.MaxValue;
+                min = Int64.MinValue;
+            }
+            else if (t == typeof(UInt16))
+            {
+                max = UInt16.MaxValue;
+                min = UInt16.MinValue;
+            }
+            else if (t == typeof(UInt32))
+            {
+                max = UInt32.MaxValue;
+                min = UInt32.MinValue;
+            }
+            else if (t == typeof(UInt64))
+            {
+                max = UInt64.MaxValue;
+                min = UInt64.MinValue;
+            }
+            else if (t == typeof(SByte))
+            {
+                max = SByte.MaxValue;
+                min = SByte.MinValue;
+            }
+            else if (t == typeof(Byte))
+            {
+                max = Byte.MaxValue;
+                min = Byte.MinValue;
+            }
+            else if (t == typeof(Single))
+            {
+                max = Single.MaxValue;
+                min = Single.MinValue;
+            }
+            else if (t == typeof(Double))
+            {
+                max = Double.MaxValue; //who knew!?!?!  decimals are smale
+                min = Double.MinValue;
+            }
+            else if (t == typeof(Decimal))
+            {
+                max = Convert.ToDouble(Decimal.MaxValue);
+                min = Convert.ToDouble(Decimal.MinValue);
+            }
+            else
+            {
+                throw new ArgumentOutOfRangeException(nameof(t), $"{t?.Name} was not numeric");
+            }
+        }
+
         private static void RequiresIsPropertyInfoOrFieldInfo(MemberInfo mi)
         {
             Requires.NonNull(mi, nameof(mi));

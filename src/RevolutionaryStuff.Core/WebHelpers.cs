@@ -51,6 +51,22 @@ namespace RevolutionaryStuff.Core
             public const string WWWAuthenticate = "WWW-Authenticate";
         }
 
+        public static class CommonSchemes
+        {
+            public const string File = "file";
+            public const string Http = "http";
+            public const string Https = "https";
+            public const string Ftp = "ftp";
+            public const string SFtp = "sftp";
+            public const string Ftps = "ftps";
+
+            public static bool IsSecure(string scheme)
+                => scheme == Https || scheme == SFtp || scheme == Ftps;
+
+            public static bool IsInsecure(string scheme)
+                => !IsSecure(scheme);
+        }
+
         public static class Methods
         {
             public const string Get = "GET";
@@ -79,6 +95,29 @@ namespace RevolutionaryStuff.Core
             public static bool IsGetOrHead(string s)
             {
                 return s == Get || s == Head;
+            }
+        }
+
+        public static class WebDAVVerbs
+        {
+            public const string PropFind = "PROPFIND";
+            public const string PropPatch = "PROPPATCH";
+            public const string MkCol = "MKCOL";
+            public const string Delete = "DELETE";
+            public const string Copy = "COPY";
+            public const string Move = "MOVE";
+            public const string Lock = "LOCK";
+            public const string Unlock = "UNLOCK";
+
+            private static readonly Regex VerbExpr = new Regex(string.Format(
+                "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
+                PropFind, PropPatch, MkCol, Delete, Copy, Move, Lock, Unlock
+                ), RegexOptions.Compiled);
+
+            public static bool IsStandardVerb(string s)
+            {
+                if (s == null) return false;
+                return VerbExpr.IsMatch(s);
             }
         }
 
@@ -118,10 +157,8 @@ namespace RevolutionaryStuff.Core
             return m;
         }
 
-        public static Uri AppendParameters(Uri uri, IEnumerable<KeyValuePair<string, string>> nameVals)
-        {
-            return new Uri(AppendParameters(uri.ToString(), nameVals));
-        }
+        public static Uri AppendParameters(this Uri uri, IEnumerable<KeyValuePair<string, string>> nameVals)
+            => new Uri(AppendParameters(uri.ToString(), nameVals));
 
         public static string AppendParameters(string url, IEnumerable<KeyValuePair<string, string>> nameVals)
         {
@@ -165,20 +202,6 @@ namespace RevolutionaryStuff.Core
             var url = AppendParameter(u.ToString(), paramName, val);
             return new Uri(url, u.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative);
         }
-#if false
-        public static string DownloadBodyToText(Uri uri)
-        {
-            Requires.NonNull(uri, nameof(uri));
-            var req = WebRequest.Create(uri);
-            using (var resp = req.GetResponse())
-            {
-                using (var st = resp.GetResponseStream())
-                {
-                    return st.ReadToEnd();
-                }
-            }
-        }
-#endif
 
         public static string GetValueOrDefault(this HttpResponseHeaders headers, string headerName, string missing=null)
         {

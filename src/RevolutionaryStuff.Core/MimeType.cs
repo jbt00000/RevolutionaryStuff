@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Http.Headers;
 using System.Text.RegularExpressions;
@@ -24,6 +25,7 @@ namespace RevolutionaryStuff.Core
             public static readonly MimeType OctetStream = "application/octet-stream";
             public static readonly MimeType SqlServerIntegrationServicesEtlPackage = new MimeType(OctetStream, ".dtsx");
             public static readonly MimeType Pdf = new MimeType("application/pdf", ".pdf");
+            public static readonly MimeType Zip = new MimeType("application/zip", ".zip");
             public static class SpreadSheet
             {
                 public static readonly MimeType Xlsx = new MimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
@@ -103,6 +105,13 @@ namespace RevolutionaryStuff.Core
                     }
                 }
             }
+        }
+
+        public bool DoesExtensionMatch(string filename)
+        {
+            if (filename == null) return false;
+            var ext = Path.GetExtension(filename).ToLower();
+            return FileExtensions.Contains(ext);
         }
 
         /// <summary>
