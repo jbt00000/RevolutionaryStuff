@@ -14,9 +14,9 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes></PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>1.0.16.0</FileVersion>
-    <AssemblyVersion>1.0.16.0</AssemblyVersion>
-    <Version>1.0.16</Version>
+    <FileVersion>1.0.19.0</FileVersion>
+    <AssemblyVersion>1.0.19.0</AssemblyVersion>
+    <Version>1.0.19</Version>
     <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
@@ -26,18 +26,42 @@
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
 
-  <PropertyGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
-    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;dnxcore50;portable-net451+win8</PackageTargetFallback>
-  </PropertyGroup>
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
+      <PropertyGroup>
+        <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+        <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;dnxcore50;portable-net451+win8</PackageTargetFallback>
+        <DefineConstants>NETCOREAPP1_1</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <Compile Remove="SpreadsheetHelpers.cs" />
+        <Compile Remove="XmlHelpers.NET462.cs" />
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net462'">
+      <PropertyGroup>
+        <DefineConstants>NET462</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <Reference Include="System.Data">
+          <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Data.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'netstandard1.6'">
+      <ItemGroup>
+        <Compile Remove="SpreadsheetHelpers.cs" />
+        <Compile Remove="XmlHelpers.NET462.cs" />
+      </ItemGroup>
+    </When>
+  </Choose>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
+  <ItemGroup>
+    <None Remove="Template.xlsx" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.6'">
-  </ItemGroup>
-
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
+  <ItemGroup>
+    <EmbeddedResource Include="Template.xlsx" />
   </ItemGroup>
 
   <ItemGroup>
@@ -54,6 +78,7 @@
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
     <PackageReference Include="System.Data.SqlClient" Version="4.3.1" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
+    <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Json" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Serialization.Xml" Version="4.3.0" />

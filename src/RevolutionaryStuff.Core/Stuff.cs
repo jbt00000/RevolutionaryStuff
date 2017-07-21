@@ -166,8 +166,7 @@ namespace RevolutionaryStuff.Core
         /// <returns>The name of the temp file</returns>
         public static string GetTempFileName(string extension, string tempPath = null, bool deleteAfterReservation = false)
         {
-            Requires.Text(extension, nameof(extension));
-            if (extension[0] != '.') throw new ArgumentException("Not a valid extension", "extension");
+            Requires.FileExtension(extension, nameof(extension));
             string fn = $"{ApplicationInstanceId}.{Math.Abs(Environment.TickCount)}{extension}";
             if (string.IsNullOrEmpty(tempPath))
             {

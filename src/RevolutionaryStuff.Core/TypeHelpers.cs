@@ -1,11 +1,34 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Reflection;
 
 namespace RevolutionaryStuff.Core
 {
     public static class TypeHelpers
     {
+        public static IDictionary<string, object> ToPropertyValueDictionary(object o)
+        {
+            if (o != null)
+            {
+                if (o is ExpandoObject)
+                {
+                    return (ExpandoObject)o;
+                }
+                IDictionary<string, object> d = null;
+                foreach (var prop in o.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
+                {
+                    if (d == null)
+                    {
+                        d = new Dictionary<string, object>();
+                    }
+                    d[prop.Name] = prop.GetValue(o, null);
+                }
+                if (d!=null) return d.AsReadOnly();
+            }
+            return Empty.StringObjectDictionary;
+        }
+
         /// <summary>
         /// Determines whether or not the object is a whole number
         /// </summary>

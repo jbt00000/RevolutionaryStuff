@@ -31,6 +31,8 @@ namespace RevolutionaryStuff.Core
 
             public static readonly Regex Space = new Regex(" ", RegexOptions.Compiled);
 
+            public static readonly Regex WordChars = new Regex(@"\w", RegexOptions.Compiled);
+            public static readonly Regex NonWordChars = new Regex(@"\W", RegexOptions.Compiled);
             public static readonly Regex Whitespace = new Regex(@"\s", RegexOptions.Compiled);
             public static readonly Regex N = new Regex("\n", RegexOptions.Compiled);
             public static readonly Regex NN = new Regex("\n\n", RegexOptions.Compiled);

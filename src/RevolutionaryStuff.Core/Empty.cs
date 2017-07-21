@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Net;
 using System.Text.RegularExpressions;
 
@@ -6,6 +7,7 @@ namespace RevolutionaryStuff.Core
 {
     public static class Empty
     {
+        public static readonly IDictionary<string, object> StringObjectDictionary = new Dictionary<string, object>().AsReadOnly();
         public static readonly Attribute[] AttributeArray = new Attribute[0];
         public static readonly byte[] ByteArray = new byte[0];
         public static readonly Guid[] GuidArray = new Guid[0];

@@ -9,7 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.SSIS", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Core.Tests", "tests\RevolutionaryStuff.Core.Tests\RevolutionaryStuff.Core.Tests.csproj", "{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.ETL", "src\RevolutionaryStuff.ETL\RevolutionaryStuff.ETL.csproj", "{A7622E2B-255A-4C84-A8AA-B34B96678189}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.ETL", "src\RevolutionaryStuff.ETL\RevolutionaryStuff.ETL.csproj", "{A7622E2B-255A-4C84-A8AA-B34B96678189}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "src\ConsoleApp1\ConsoleApp1.csproj", "{81DFA3A5-F000-4C94-A236-2152604DE587}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -42,6 +44,12 @@ Global
 		{A7622E2B-255A-4C84-A8AA-B34B96678189}.Release|Any CPU.Build.0 = Release|Any CPU
 		{A7622E2B-255A-4C84-A8AA-B34B96678189}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
 		{A7622E2B-255A-4C84-A8AA-B34B96678189}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
+		{81DFA3A5-F000-4C94-A236-2152604DE587}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{81DFA3A5-F000-4C94-A236-2152604DE587}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{81DFA3A5-F000-4C94-A236-2152604DE587}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{81DFA3A5-F000-4C94-A236-2152604DE587}.Release|Any CPU.Build.0 = Release|Any CPU
+		{81DFA3A5-F000-4C94-A236-2152604DE587}.VSTS-CI|Any CPU.ActiveCfg = Release|Any CPU
+		{81DFA3A5-F000-4C94-A236-2152604DE587}.VSTS-CI|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

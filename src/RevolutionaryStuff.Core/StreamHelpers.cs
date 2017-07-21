@@ -1,11 +1,54 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core
 {
     public static class StreamHelpers
     {
+        public static async Task CopyFromAsync(this Stream st, string path)
+        {
+            Requires.ReadableStreamArg(st, nameof(st));
+            Requires.FileExists(path, nameof(path));
+
+            using (var src = File.OpenRead(path))
+            {
+                await src.CopyToAsync(st);
+            }
+        }
+
+        public static void CopyFrom(this Stream st, string path)
+        {
+            Requires.ReadableStreamArg(st, nameof(st));
+            Requires.FileExists(path, nameof(path));
+
+            using (var src = File.OpenRead(path))
+            {
+                src.CopyTo(st);
+            }
+        }
+
+        public static void CopyTo(this Stream st, string path)
+        {
+            Requires.ReadableStreamArg(st, nameof(st));
+
+            using (var dst = File.Create(path))
+            {
+                st.CopyTo(dst);
+            }
+        }
+
+        public static async Task CopyToAsync(this Stream st, string path)
+        {
+            Requires.ReadableStreamArg(st, nameof(st));
+
+            using (var dst = File.Create(path))
+            {
+                await st.CopyToAsync(dst);
+            }
+        }
+
         public static Stream Create(string s, Encoding e=null)
         {            
             var st = new MemoryStream();

@@ -56,6 +56,16 @@ namespace RevolutionaryStuff.Core
             if (arg == true) return;
             throw new ArgumentOutOfRangeException(argName, message);
         }
+
+        public static void FileExtension(string arg, string argName)
+        {
+            Requires.Text(arg, argName);
+            if (Path.GetExtension(arg) != arg)
+            {
+                throw new ArgumentException("Not a valid extension", argName);
+            }
+        }
+
         public static void FileExists(string arg, string argName)
         {
             Text(arg, argName);

@@ -1,19 +1,48 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>1.1.0</VersionPrefix>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFrameworks>net462</TargetFrameworks>
+    <!--
+    <TargetFrameworks>net462;netcoreapp1.1</TargetFrameworks>
+    -->
     <AssemblyName>RevolutionaryStuff.Core.Tests</AssemblyName>
     <PackageId>RevolutionaryStuff.Core.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
-    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
-    <PackageTargetFallback>$(PackageTargetFallback);dnxcore50;portable-net451+win8</PackageTargetFallback>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
+
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
+      <PropertyGroup>
+        <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+        <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;dnxcore50;portable-net451+win8</PackageTargetFallback>
+        <DefineConstants>NETCOREAPP1_1</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <Compile Remove="SpreadsheetHelperTests.cs" />
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net462'">
+      <PropertyGroup>
+        <DefineConstants>NET462</DefineConstants>
+      </PropertyGroup>
+      <ItemGroup>
+        <Reference Include="System.Data">
+          <HintPath>..\..\..\..\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.6.2\System.Data.dll</HintPath>
+        </Reference>
+      </ItemGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'netstandard1.6'">
+      <ItemGroup>
+        <Compile Remove="SpreadsheetHelperTests.cs" />
+      </ItemGroup>
+    </When>
+  </Choose>
+
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
