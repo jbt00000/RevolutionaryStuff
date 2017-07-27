@@ -390,6 +390,7 @@ namespace RevolutionaryStuff.SSIS
                         buf.SetDate(i, (DateTime)val);
                         break;
                     case DataType.DT_DECIMAL:
+                    case DataType.DT_NUMERIC:
                         buf.SetDecimal(i, (decimal)val);
                         break;
                     default:

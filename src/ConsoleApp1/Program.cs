@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,10 +12,37 @@ namespace ConsoleApp1
 {
     class Program
     {
+        private static Task Yo()
+        {
+            return Task.Run(async () => {
+                await Task.Delay(TimeSpan.FromSeconds(10));
+                throw new NotNowException();
+            });
+        }
+
+        private static async Task<string> Mama()
+        {
+            await Task.Delay(TimeSpan.FromSeconds(10));
+            return "Mama";
+        }
+
+        private static async Task<string> Drama()
+        {
+            await Task.Delay(TimeSpan.FromSeconds(10));
+            throw new Exception("loads going on");
+        }
+
         static void Main(string[] args)
         {
             try
             {
+                Task.CompletedTask.ExecuteSynchronously();
+                Yo().ExecuteSynchronously();
+                //                Yo().ExecuteSynchronously();
+                Trace.WriteLine(Mama().ExecuteSynchronously());
+                Trace.WriteLine(Drama().ExecuteSynchronously());
+
+
                 var ds = new DataSet();
                 var dt = new DataTable("Sheet2");
                 ds.Tables.Add(dt);

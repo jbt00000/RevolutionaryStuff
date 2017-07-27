@@ -96,6 +96,9 @@ namespace RevolutionaryStuff.SSIS
                 case DataType.DT_NTEXT:
                 case DataType.DT_TEXT:
                     return buffer.GetString(n);
+                case DataType.DT_NUMERIC:
+                case DataType.DT_DECIMAL:
+                    return buffer.GetDecimal(n);
             }
             bool cancel = true;
             ComponentMetaData.FireError(123, "GetObject", string.Format("GetObject(colName={0}, colDataType={1}) is not yet supported", colName, colDataType), "", 0, out cancel);

@@ -261,17 +261,27 @@ namespace RevolutionaryStuff.Core
 
         public static TResult ExecuteSynchronously<TResult>(this Task<TResult> task)
         {
-            var t = Task.Run(async () => await task);
-            t.Wait();
-            if (t.IsFaulted) throw task.Exception;
-            return t.Result;
+            try
+            {
+                Task.WaitAll(task);
+            }
+            catch (AggregateException ae)
+            {
+                throw ae.InnerException;
+            }
+            return task.Result;
         }
 
         public static void ExecuteSynchronously(this Task task)
         {
-            var t = Task.Run(async () => await task);
-            t.Wait();
-            if (t.IsFaulted) throw task.Exception;
+            try
+            {
+                Task.WaitAll(task);
+            }
+            catch (AggregateException ae)
+            {
+                throw ae.InnerException;
+            }
         }
 
         public static void TaskWaitAllForEach<TSource>(IEnumerable<TSource> items, Func<TSource, Task> body)
