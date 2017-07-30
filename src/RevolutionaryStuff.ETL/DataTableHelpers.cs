@@ -28,14 +28,13 @@ namespace RevolutionaryStuff.ETL
             }
         }
 
-        public static string GenerateCreateTableSQL(this DataTable dt, string schema = "dbo", IDictionary<Type, string> typeMap = null)
+        public static string GenerateCreateTableSQL(this DataTable dt, string schema = null, IDictionary<Type, string> typeMap = null)
         {
             Requires.NonNull(dt, nameof(dt));
             Requires.Text(dt.TableName, nameof(dt.TableName));
-            Requires.Text(schema, nameof(schema));
 
             var sb = new StringBuilder();
-            sb.AppendFormat("create table [{0}].[{1}]\n(\n", schema, dt.TableName);
+            sb.AppendFormat("create table [{0}].[{1}]\n(\n", schema??"dbo", dt.TableName);
             for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
             {
                 var dc = (DataColumn)dt.Columns[colNum];
@@ -166,6 +165,12 @@ namespace RevolutionaryStuff.ETL
             if (dt.Rows.Count > 0) throw new ArgumentException("dt must not already have any rows", nameof(dt));
         }
 
+        public static void RequiresZeroColumns(DataTable dt, string argName = null)
+        {
+            Requires.NonNull(dt, argName ?? nameof(dt));
+            if (dt.Columns.Count > 0) throw new ArgumentException("dt must not already have any columns", nameof(dt));
+        }
+
         public static void RowAddErrorIgnore(Exception ex, int rowNum)
         {
             Trace.WriteLine(string.Format("Problem adding row {0} because [{1}]", rowNum, ex.Message));
@@ -190,11 +195,64 @@ namespace RevolutionaryStuff.ETL
             Trace.WriteLine(string.Format("Problem adding row {0}.  Will Skip.\n{1}", rowNum, ex));
         }
 
-        public static void LoadRowsFromDelineatedText(this DataTable dt, Stream st, LoadRowsFromDelineatedTextSettings settings)
+        public static DataTable LoadRowsFromFixedWidthText(Stream st, LoadRowsFromFixedWidthTextSettings settings)
+            => new DataTable().LoadRowsFromFixedWidthText(st, settings);
+
+        public static DataTable LoadRowsFromFixedWidthText(this DataTable dt, Stream st, LoadRowsFromFixedWidthTextSettings settings)
         {
+            dt = dt ?? new DataTable();
+            RequiresZeroColumns(dt, nameof(dt));
             RequiresZeroRows(dt, nameof(dt));
             Requires.ReadableStreamArg(st, nameof(st));
-            Requires.NonNull(settings, nameof(settings));
+            Requires.Valid(settings, nameof(settings));
+
+            foreach (var f in settings.ColumnInfos)
+            {
+                dt.Columns.Add(f.ColumnName, f.DataType ?? typeof(string));
+            }
+            IList<string[]> rows = null;
+            using (var sr = new StreamReader(st))
+            {
+                for (;;)
+                {
+                    var line = sr.ReadLine();
+                    if (line == null) break;
+                    var row = new string[settings.ColumnInfos.Count];
+                    int x = 0;
+                    foreach (var f in settings.ColumnInfos)
+                    {
+                        string s;
+                        if (f.Length != null)
+                        {
+                            s = line.Substring(f.StartAt, f.Length.Value);
+                        }
+                        else if (f.EndAt != null)
+                        {
+                            s = line.Substring(f.StartAt, f.EndAt.Value - f.StartAt + 1);
+                        }
+                        else
+                        {
+                            s = line.Substring(f.StartAt);
+                        }
+                        row[x++] = s;
+                    }
+                    rows.Add(row);
+                }
+            }
+            GC.Collect();
+            return dt.LoadRowsInternal(rows, settings, false);
+        }
+
+        public static DataTable LoadRowsFromDelineatedText(Stream st, LoadRowsFromDelineatedTextSettings settings)
+            => new DataTable().LoadRowsFromDelineatedText(st, settings);
+
+        public static DataTable LoadRowsFromDelineatedText(this DataTable dt, Stream st, LoadRowsFromDelineatedTextSettings settings)
+        {
+            dt = dt ?? new DataTable();
+            RequiresZeroColumns(dt, nameof(dt));
+            RequiresZeroRows(dt, nameof(dt));
+            Requires.ReadableStreamArg(st, nameof(st));
+            Requires.Valid(settings, nameof(settings));
 
             IList<string[]> rows = null;
             if (settings.Format == LoadRowsFromDelineatedTextFormats.PipeSeparatedValues)
@@ -242,20 +300,38 @@ namespace RevolutionaryStuff.ETL
                 throw new UnexpectedSwitchValueException(settings.Format);
             }
             GC.Collect();
-            dt.LoadRows(rows.Skip(settings.SkipRawRows), settings);
+            if (settings.ColumnNames != null && settings.ColumnNames.Length > 0)
+            {
+                return dt.LoadRowsInternal(PrependColumnNames(settings.ColumnNames, rows.Skip(settings.SkipRawRows)), settings);
+            }
+            else
+            {
+                return dt.LoadRowsInternal(rows.Skip(settings.SkipRawRows), settings);
+            }
         }
 
-        public static void LoadRows(this DataTable dt, IEnumerable<IList<object>> rows, LoadRowsSettings settings = null)
+        private static IEnumerable<IList<object>> PrependColumnNames(IEnumerable<string> columnNames, IEnumerable<IList<object>> rows)
+        {
+            var cn = columnNames.OfType<object>().ToList();
+            yield return cn;
+            foreach (var row in rows)
+            {
+                yield return row;
+            }
+        }
+
+        internal static DataTable LoadRowsInternal(this DataTable dt, IEnumerable<IList<object>> rows, LoadRowsSettings settings, bool headerRowEmbedded=true)
         {
             RequiresZeroRows(dt, nameof(dt));
             Requires.NonNull(rows, nameof(rows));
             settings = settings ?? new LoadRowsSettings();
+            if (!((headerRowEmbedded && dt.Columns.Count == 0) || (!headerRowEmbedded && dt.Columns.Count > 0)))
+            {
+                throw new InvalidOperationException("Header row must be embedded or table must already have columns");
+            }
 
             var e = rows.GetEnumerator();
-            if (!e.MoveNext())
-            {
-                return;
-            }
+            if (!e.MoveNext()) return dt;
 
             bool createColumns = dt.Columns.Count == 0;
             DataColumn rowNumberColumn = null;
@@ -276,47 +352,56 @@ namespace RevolutionaryStuff.ETL
                 }
             }
 
-            var headerRow = e.Current;
-            var columnMapper = settings.ColumnMapper ?? DataTableHelpers.OneToOneColumnNameMapper;
-            var duplicateColumnRenamer = settings.DuplicateColumnRenamer ?? DataTableHelpers.OnDuplicateColumnNameThrow;
-            var columnMap = new DataColumn[headerRow.Count];
-            for (int z = 0; z < headerRow.Count(); ++z)
+            DataColumn[] columnMap;
+            if (headerRowEmbedded)
             {
-                var colName = StringHelpers.TrimOrNull(Stuff.ObjectToString(headerRow[z]));
-                if (colName == null)
+                var headerRow = e.Current;
+                var columnMapper = settings.ColumnMapper ?? DataTableHelpers.OneToOneColumnNameMapper;
+                var duplicateColumnRenamer = settings.DuplicateColumnRenamer ?? DataTableHelpers.OnDuplicateColumnNameThrow;
+                columnMap = new DataColumn[headerRow.Count];
+                for (int z = 0; z < headerRow.Count(); ++z)
                 {
-                    continue;
-                }
-                colName = columnMapper(colName);
-                if (colName == null)
-                {
-                    continue;
-                }
-                var c = dt.Columns[colName];
-                if (createColumns)
-                {
-                    if (c == null)
+                    var colName = StringHelpers.TrimOrNull(Stuff.ObjectToString(headerRow[z]));
+                    if (colName == null)
                     {
-                        c = new DataColumn(colName);
-                        dt.Columns.Add(c);
+                        continue;
                     }
-                    else
+                    colName = columnMapper(colName);
+                    if (colName == null)
                     {
-                        colName = duplicateColumnRenamer(dt, colName);
-                        c = new DataColumn(colName);
-                        dt.Columns.Add(c);
+                        continue;
                     }
+                    var c = dt.Columns[colName];
+                    if (createColumns)
+                    {
+                        if (c == null)
+                        {
+                            c = new DataColumn(colName);
+                            dt.Columns.Add(c);
+                        }
+                        else
+                        {
+                            colName = duplicateColumnRenamer(dt, colName);
+                            c = new DataColumn(colName);
+                            dt.Columns.Add(c);
+                        }
+                    }
+                    else if (c == null)
+                    {
+                        Trace.WriteLine(string.Format("Will ignore source column #{0} with name=[{1}]", z, colName));
+                    }
+                    columnMap[z] = c;
                 }
-                else if (c == null)
-                {
-                    Trace.WriteLine(string.Format("Will ignore source column #{0} with name=[{1}]", z, colName));
-                }
-                columnMap[z] = c;
+                if (!e.MoveNext()) return dt;
+            }
+            else
+            {
+                columnMap = dt.Columns.OfType<DataColumn>().ToArray();
             }
 
             int rowNum = -1;
             var onRowAddError = settings.RowAddErrorHandler ?? RowAddErrorRethrow;
-            while (e.MoveNext())
+            do
             {
                 ++rowNum;
                 var row = e.Current;
@@ -353,6 +438,9 @@ namespace RevolutionaryStuff.ETL
                     onRowAddError(ex, rowNum);
                 }
             }
+            while (e.MoveNext());
+
+            return dt;
         }
 
         public static DataColumn CloneToUnbound(this DataColumn c)

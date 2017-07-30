@@ -1,9 +1,10 @@
-﻿using System;
+﻿using RevolutionaryStuff.Core.ApplicationParts;
+using System;
 using System.Data;
 
 namespace RevolutionaryStuff.ETL
 {
-    public class LoadRowsSettings
+    public class LoadRowsSettings : IValidate
     {
         public Action<Exception, int> RowAddErrorHandler { get; set; }
         public string RowNumberColumnName { get; set; }
@@ -37,5 +38,8 @@ namespace RevolutionaryStuff.ETL
             }
             return false;
         }
+
+        public void Validate()
+        { }
     }
 }

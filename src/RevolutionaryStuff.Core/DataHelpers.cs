@@ -221,5 +221,16 @@ namespace RevolutionaryStuff.Core
             if (r.IsDBNull(col)) return null;
             return r.GetBoolean(col);
         }
+
+        public static void ExecuteNonQuerySql(this IDbConnection conn, string sql)
+        {
+            Requires.NonNull(sql, nameof(sql));
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = sql;
+                cmd.CommandType = CommandType.Text;
+                cmd.ExecuteNonQuery();
+            }
+        }
     }
 }

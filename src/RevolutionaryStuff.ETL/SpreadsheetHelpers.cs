@@ -313,7 +313,7 @@ namespace RevolutionaryStuff.ETL
                     {
                         positionnedRows = rows;
                     }
-                    dt.LoadRows(positionnedRows, settings);
+                    dt.LoadRowsInternal(positionnedRows, settings);
                     return;
                 }
                 ++sheetNumber;

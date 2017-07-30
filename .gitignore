@@ -11,3 +11,5 @@
 *.snk
 *.vspscc
 /src/RevolutionaryStuff.SSIS/deploy.bat
+/src/RevolutionaryStuff.TheLoader/App.config
+/src/RevolutionaryStuff.TheLoader/App.config

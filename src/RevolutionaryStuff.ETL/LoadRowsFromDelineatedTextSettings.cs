@@ -16,5 +16,7 @@
         public char? CustomQuoteChar { get; set; }
 
         public int SkipRawRows { get; set; }
+
+        public string[] ColumnNames { get; set; }
     }
 }
