@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>net462;netstandard2.0</TargetFrameworks>
     <AssemblyName>RevolutionaryStuff.ETL</AssemblyName>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>jason@jasonthomas.com</Authors>
@@ -14,15 +14,26 @@ These were formerly used in the standalone UploadTable command line program.</De
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>1.0.1.0</FileVersion>
-    <AssemblyVersion>1.0.1.0</AssemblyVersion>
-    <Version>1.0.1</Version>
+    <FileVersion>1.0.24.0</FileVersion>
+    <AssemblyVersion>1.0.24.0</AssemblyVersion>
+    <Version>1.0.24</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net462'">
-  </ItemGroup>
+  <Choose>
+    <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
+      <PropertyGroup>
+        <RuntimeFrameworkVersion>2.0.0-preview2-006497</RuntimeFrameworkVersion>
+        <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+      </PropertyGroup>
+    </When>
+    <When Condition="'$(TargetFramework)' == 'net462'">
+      <PropertyGroup>
+        <DefineConstants>NET462</DefineConstants>
+      </PropertyGroup>
+    </When>
+  </Choose>
 
   <ItemGroup>
     <None Remove="SpreadsheetResources\Styles.xml" />

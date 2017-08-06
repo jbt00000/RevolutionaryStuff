@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462</TargetFrameworks>
     <!--
-    <TargetFrameworks>net462;netcoreapp1.1</TargetFrameworks>
+    <TargetFrameworks>net462</TargetFrameworks>
+    <TargetFrameworks>net462;netcoreapp1.1;netstandard2.0</TargetFrameworks>
     -->
+    <TargetFrameworks>net462</TargetFrameworks>
     <AssemblyName>RevolutionaryStuff.Core.Tests</AssemblyName>
     <PackageId>RevolutionaryStuff.Core.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
@@ -16,6 +17,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
 
   <Choose>
+    <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
+      <PropertyGroup>
+        <RuntimeFrameworkVersion>2.0.0-preview2-006497</RuntimeFrameworkVersion>
+        <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+      </PropertyGroup>
+    </When>
     <When Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
       <PropertyGroup>
         <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
@@ -50,8 +57,8 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
-    <PackageReference Include="MSTest.TestAdapter" Version="1.1.17" />
-    <PackageReference Include="MSTest.TestFramework" Version="1.1.17" />
+    <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
+    <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
   </ItemGroup>
 
   <ItemGroup>

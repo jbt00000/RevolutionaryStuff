@@ -304,6 +304,16 @@ namespace RevolutionaryStuff.ETL
             {
                 return dt.LoadRowsInternal(PrependColumnNames(settings.ColumnNames, rows.Skip(settings.SkipRawRows)), settings);
             }
+            else if (!string.IsNullOrEmpty(settings.ColumnNameTemplate))
+            {
+                var names = new List<string>();
+                for (int z = 0; z < rows[0].Length; ++z)
+                {
+                    var name = string.Format(settings.ColumnNameTemplate, z);
+                    names.Add(name);
+                }
+                return dt.LoadRowsInternal(PrependColumnNames(names, rows.Skip(settings.SkipRawRows)), settings);
+            }
             else
             {
                 return dt.LoadRowsInternal(rows.Skip(settings.SkipRawRows), settings);

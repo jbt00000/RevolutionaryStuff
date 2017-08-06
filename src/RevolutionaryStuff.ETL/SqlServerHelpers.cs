@@ -79,7 +79,8 @@ namespace RevolutionaryStuff.ETL
                         b.Abort = e.Abort;
                     };
                 }
-                copy.WriteToServer(dt);
+                var dtr = dt.CreateDataReader();
+                copy.WriteToServer(dtr);
                 copy.Close();
             }
             Trace.WriteLine(string.Format("Uploaded {0} rows", dt.Rows.Count));

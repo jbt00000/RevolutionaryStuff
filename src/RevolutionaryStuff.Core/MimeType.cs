@@ -30,6 +30,14 @@ namespace RevolutionaryStuff.Core
             {
                 public static readonly MimeType Xlsx = new MimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
             }
+
+            public static class Encryption
+            {
+                public static class PGP
+                {
+                    public static readonly MimeType PgpEncrypted = new MimeType("application/pgp-encrypted", ".pgp");
+                }
+            }
         }
 
         public static class Image

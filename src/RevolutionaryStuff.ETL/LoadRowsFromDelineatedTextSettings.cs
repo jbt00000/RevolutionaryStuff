@@ -18,5 +18,7 @@
         public int SkipRawRows { get; set; }
 
         public string[] ColumnNames { get; set; }
+
+        public string ColumnNameTemplate { get; set; }
     }
 }

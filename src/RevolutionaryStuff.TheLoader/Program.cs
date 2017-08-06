@@ -57,6 +57,9 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("CSN", Mandatory = true)]
         public string ConnectionStringName;
 
+        [CommandLineSwitch("ColumnNameFormat", Mandatory = false, Mode = NameofModeImport)]
+        public ColumnNameFormats ColumnNameFormat = ColumnNameFormats.Auto;
+
         [CommandLineSwitch("FileFormat", Mandatory = false, Mode = NameofModeImport)]
         public FileFormats FileFormat = FileFormats.Auto;
 
@@ -71,6 +74,9 @@ namespace RevolutionaryStuff.TheLoader
 
         [CommandLineSwitch("ColumnNames", Mandatory = false, Translator = CommandLineSwitchAttributeTranslators.Csv)]
         public string[] ColumnNames;
+
+        [CommandLineSwitch("ColumnNameTemplate", Mandatory = false)]
+        public string ColumnNameTemplate;
 
         [CommandLineSwitch("SkipRawRows", Mandatory = false, Description = "When a CSVish file, the number of raw rows to skip.  These should be prior to even the header row.")]
         public int SkipRawRows = 0;
@@ -323,6 +329,7 @@ namespace RevolutionaryStuff.TheLoader
                     Format = FileFormat == FileFormats.CSV ? LoadRowsFromDelineatedTextFormats.CommaSeparatedValues : LoadRowsFromDelineatedTextFormats.PipeSeparatedValues,
                     DuplicateColumnRenamer = DataTableHelpers.OnDuplicateAppendSeqeuntialNumber,
                     ColumnNames = ColumnNames,
+                    ColumnNameTemplate = ColumnNameTemplate,
                     RowNumberColumnName = RowNumberColumnName,
                 });
             }
@@ -335,6 +342,7 @@ namespace RevolutionaryStuff.TheLoader
                     CustomQuoteChar = CsvQuoteChar,
                     DuplicateColumnRenamer = DataTableHelpers.OnDuplicateAppendSeqeuntialNumber,
                     ColumnNames = ColumnNames,
+                    ColumnNameTemplate = ColumnNameTemplate,
                     RowNumberColumnName = RowNumberColumnName,
                 });
             }

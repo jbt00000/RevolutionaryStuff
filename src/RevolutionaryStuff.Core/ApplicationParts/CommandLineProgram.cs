@@ -80,6 +80,9 @@ namespace RevolutionaryStuff.Core.ApplicationParts
 
         public static void Main<TCommandLineProgram>(string[] args) where TCommandLineProgram : CommandLineProgram
         {
+#if NET462
+            Trace.Listeners.Add(new ConsoleTraceListener());
+#endif
             CommandLineProgram p = null;
             bool programInOperation = false;
             try
