@@ -15,7 +15,6 @@
   <Choose>
     <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
       <PropertyGroup>
-        <RuntimeFrameworkVersion>2.0.0-preview2-006497</RuntimeFrameworkVersion>
         <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
       </PropertyGroup>
     </When>

@@ -19,19 +19,8 @@
   <Choose>
     <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
       <PropertyGroup>
-        <RuntimeFrameworkVersion>2.0.0-preview2-006497</RuntimeFrameworkVersion>
         <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
       </PropertyGroup>
-    </When>
-    <When Condition="'$(TargetFramework)' == 'netcoreapp1.1'">
-      <PropertyGroup>
-        <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
-        <PackageTargetFallback>$(PackageTargetFallback);dotnet5.6;dnxcore50;portable-net451+win8</PackageTargetFallback>
-        <DefineConstants>NETCOREAPP1_1</DefineConstants>
-      </PropertyGroup>
-      <ItemGroup>
-        <Compile Remove="SpreadsheetHelperTests.cs" />
-      </ItemGroup>
     </When>
     <When Condition="'$(TargetFramework)' == 'net462'">
       <PropertyGroup>
@@ -43,11 +32,6 @@
         </Reference>
       </ItemGroup>
     </When>
-    <When Condition="'$(TargetFramework)' == 'netstandard1.6'">
-      <ItemGroup>
-        <Compile Remove="SpreadsheetHelperTests.cs" />
-      </ItemGroup>
-    </When>
   </Choose>
 
 
@@ -56,7 +40,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" />
     <PackageReference Include="MSTest.TestAdapter" Version="1.1.18" />
     <PackageReference Include="MSTest.TestFramework" Version="1.1.18" />
   </ItemGroup>
