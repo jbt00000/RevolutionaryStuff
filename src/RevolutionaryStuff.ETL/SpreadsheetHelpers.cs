@@ -260,7 +260,7 @@ namespace RevolutionaryStuff.ETL
 
         private static void LoadRowsFromExcel(this DataTable dt, SpreadsheetDocument sd, LoadRowsFromSpreadsheetSettings settings)
         {
-            DataTableHelpers.RequiresZeroRows(dt, nameof(dt));
+            Requires.ZeroRows(dt, nameof(dt));
             Requires.NonNull(sd, nameof(sd));
             Requires.NonNull(settings, nameof(settings));
 

@@ -1,5 +1,4 @@
 ﻿using RevolutionaryStuff.Core.Caching;
-using RevolutionaryStuff.Core.Data;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -66,7 +65,7 @@ namespace RevolutionaryStuff.Core.Database
             }
         }
 
-        public static void BulkUpload(this SqlConnection conn, IDataTable dt, string schema, string table, Action<long, long> notificationCallback = null, int notifyIncrement = 1000, TimeSpan? timeout = null)
+        public static void BulkUpload(this SqlConnection conn, DataTable dt, string schema, string table, Action<long, long> notificationCallback = null, int notifyIncrement = 1000, TimeSpan? timeout = null)
         {
             Requires.NonNull(conn, nameof(conn));
             Requires.NonNull(dt, nameof(dt));
@@ -84,7 +83,7 @@ namespace RevolutionaryStuff.Core.Database
             {
                 copy.SqlRowsCopied += (sender, e) => notificationCallback(e.RowsCopied, dt.Rows.Count);
             }
-            copy.WriteToServer(dt.CreateReader());
+            copy.WriteToServer(dt.CreateDataReader());
             copy.Close();
         }
 

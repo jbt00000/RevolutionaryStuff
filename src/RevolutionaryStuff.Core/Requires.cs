@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using System.Reflection;
 using RevolutionaryStuff.Core.ApplicationParts;
 using System.Collections;
+using System.Data;
 
 namespace RevolutionaryStuff.Core
 {
@@ -237,6 +238,18 @@ namespace RevolutionaryStuff.Core
         public static void PortNumber(int portNumber, string argName, bool allowZero=false)
         {
             Requires.Between(portNumber, argName, allowZero?0:1, 65536);
+        }
+
+        public static void ZeroRows(DataTable dt, string argName = null)
+        {
+            Requires.NonNull(dt, argName ?? nameof(dt));
+            if (dt.Rows.Count > 0) throw new ArgumentException("dt must not already have any rows", nameof(dt));
+        }
+
+        public static void ZeroColumns(DataTable dt, string argName = null)
+        {
+            Requires.NonNull(dt, argName ?? nameof(dt));
+            if (dt.Columns.Count > 0) throw new ArgumentException("dt must not already have any columns", nameof(dt));
         }
     }
 }

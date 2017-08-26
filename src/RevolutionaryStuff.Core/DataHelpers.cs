@@ -1,5 +1,4 @@
-﻿using RevolutionaryStuff.Core.Data;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
@@ -28,10 +27,10 @@ namespace RevolutionaryStuff.Core
             Trace.WriteLine($"Problem adding row {rowNum}.  Will Skip.\n{ex}");
         }
 
-        public static IDataTable ToDataTableWithColumnHeaders(this IEnumerable<IList<object>> rows, string name = null, Func<IDataTable, string, string> duplicateColumnRenamer = null, Action<Exception, int> onRowAddError = null)
+        public static DataTable ToDataTableWithColumnHeaders(this IEnumerable<IList<object>> rows, string name = null, Func<DataTable, string, string> duplicateColumnRenamer = null, Action<Exception, int> onRowAddError = null)
         {
             onRowAddError = onRowAddError ?? RowAddErrorRethrow;
-            var dt = new SimpleDataTable();
+            var dt = new DataTable();
             if (!string.IsNullOrEmpty(name)) dt.TableName = name;
             var headerRow = rows.First();
             var positions = new int?[headerRow.Count];
@@ -50,7 +49,7 @@ namespace RevolutionaryStuff.Core
                 {
                     colName = duplicateColumnRenamer(dt, colName);
                 }
-                dt.Columns.Add(new SimpleDataColumn(colName));
+                dt.Columns.Add(new DataColumn(colName));
             }
             int rowNum = 1;
             foreach (var row in rows.Skip(1))
@@ -83,13 +82,14 @@ namespace RevolutionaryStuff.Core
             return dt;
         }
 
-        public static void IdealizeStringColumns(this IDataTable dt, bool trimAndNullifyStringData = false)
+        public static void IdealizeStringColumns(this DataTable dt, bool trimAndNullifyStringData = false)
         {
             Requires.NonNull(dt, nameof(dt));
             for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
             {
-                var dc = (IDataColumn)dt.Columns[colNum];
+                var dc = dt.Columns[colNum];
                 if (dc.DataType != typeof(string)) continue;
+                Trace.WriteLine($"IdealizeStringColumns table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
                 var len = 0;
                 bool hasNulls = false;
                 for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
@@ -121,12 +121,12 @@ namespace RevolutionaryStuff.Core
                         len = Stuff.Max(len, s.Length);
                     }
                 }
-                dc.IsNullable = hasNulls;
+                dc.AllowDBNull = hasNulls;
                 dc.MaxLength = Math.Max(1, len);
             }
         }
 
-        public static string GenerateCreateTableSQL(this IDataTable dt, string schema = null, IDictionary<Type, string> typeMap = null, string extraColumnSql = null)
+        public static string GenerateCreateTableSQL(this DataTable dt, string schema = null, IDictionary<Type, string> typeMap = null, string extraColumnSql = null)
         {
             schema = schema ?? "dbo";
             var sb = new StringBuilder();
@@ -176,7 +176,7 @@ namespace RevolutionaryStuff.Core
                 sb.AppendFormat("\t[{0}] {1} {2}{3}\n",
                     dc.ColumnName,
                     sqlType,
-                    dc.IsNullable ? "NULL" : "NOT NULL",
+                    dc.AllowDBNull ? "NULL" : "NOT NULL",
                     colNum == dt.Columns.Count - 1 ? "" : ",");
             }
             if (extraColumnSql != null)

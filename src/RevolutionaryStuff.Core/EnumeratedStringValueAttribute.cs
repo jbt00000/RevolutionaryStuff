@@ -3,7 +3,6 @@ using System.Linq;
 
 namespace RevolutionaryStuff.Core
 {
-    [Obsolete("Use System.ComponentModel.DataAnnotations.DisplayAttribute instead", true)]
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = true)]
     public class EnumeratedStringValueAttribute : Attribute
     {

@@ -27,118 +27,7 @@ namespace RevolutionaryStuff.ETL
                 dt.Columns.Add(colName);
             }
         }
-
-        public static string GenerateCreateTableSQL(this DataTable dt, string schema = null, IDictionary<Type, string> typeMap = null)
-        {
-            Requires.NonNull(dt, nameof(dt));
-            Requires.Text(dt.TableName, nameof(dt.TableName));
-
-            var sb = new StringBuilder();
-            sb.AppendFormat("create table [{0}].[{1}]\n(\n", schema??"dbo", dt.TableName);
-            for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
-            {
-                var dc = (DataColumn)dt.Columns[colNum];
-                string sqlType;
-                if (typeMap != null && typeMap.ContainsKey(dc.DataType))
-                {
-                    sqlType = typeMap[dc.DataType];
-                }
-                else if (dc.DataType == typeof(int))
-                {
-                    sqlType = "int";
-                }
-                else if (dc.DataType == typeof(bool))
-                {
-                    sqlType = "bit";
-                }
-                else if (dc.DataType == typeof(float) ||
-                         dc.DataType == typeof(double))
-                {
-                    sqlType = "float";
-                }
-                else if (dc.DataType == typeof(DateTime))
-                {
-                    sqlType = "datetime";
-                }
-                else if (dc.DataType == typeof(Decimal))
-                {
-                    sqlType = "money";
-                }
-                else if (dc.DataType == typeof(Byte))
-                {
-                    sqlType = "tinyint";
-                }
-                else if (dc.DataType == typeof(Int16))
-                {
-                    sqlType = "smallint";
-                }
-                else if (dc.DataType == typeof(Int64))
-                {
-                    sqlType = "bigint";
-                }
-                else if (dc.DataType == typeof(string))
-                {
-                    sqlType = string.Format("nvarchar({0})",
-                        (dc.MaxLength <= 0 || dc.MaxLength > 4000) ? "max" : dc.MaxLength.ToString());
-                }
-                else
-                {
-                    throw new ArgumentException(string.Format("cannot translate type {0} to sql", dc.DataType.Name), dc.ColumnName);
-                }
-                sb.AppendFormat("\t[{0}] {1} {2}{3}\n",
-                    dc.ColumnName,
-                    sqlType,
-                    dc.AllowDBNull ? "NULL" : "NOT NULL",
-                    colNum == dt.Columns.Count - 1 ? "" : ",");
-            }
-            sb.AppendFormat(")\n");
-            return sb.ToString();
-        }
-
-        public static void IdealizeStringColumns(this DataTable dt, bool trimAndNullifyStringData = false)
-        {
-            Requires.NonNull(dt, nameof(dt));
-
-            for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
-            {
-                var dc = (DataColumn)dt.Columns[colNum];
-                Trace.WriteLine($"IdealizeStringColumns table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
-                if (dc.DataType != typeof(string)) continue;
-                var len = 0;
-                bool hasNulls = false;
-                for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
-                {
-                    var o = dt.Rows[rowNum][dc];
-                    var s = o as string;
-                    if (s == null)
-                    {
-                        hasNulls = true;
-                    }
-                    else
-                    {
-                        if (trimAndNullifyStringData)
-                        {
-                            var ts = StringHelpers.TrimOrNull(s);
-                            if (ts != s)
-                            {
-                                if (ts == null)
-                                {
-                                    hasNulls = true;
-                                    dt.Rows[rowNum][dc] = DBNull.Value;
-                                    continue;
-                                }
-                                s = ts;
-                                dt.Rows[rowNum][dc] = s;
-                            }
-                        }
-                        len = Math.Max(len, s.Length);
-                    }
-                }
-                dc.AllowDBNull = hasNulls;
-                dc.MaxLength = Math.Max(1, len);
-            }
-        }
-
+          
         public static void SetColumnWithValue<T>(this DataTable dt, string columnName, T value)
         {
             dt.SetColumnWithValue(columnName, (a, b) => value);
@@ -157,18 +46,6 @@ namespace RevolutionaryStuff.ETL
                 var val = valueGenerator(dr, z);
                 dr[pos] = val;
             }
-        }
-
-        public static void RequiresZeroRows(DataTable dt, string argName = null)
-        {
-            Requires.NonNull(dt, argName ?? nameof(dt));
-            if (dt.Rows.Count > 0) throw new ArgumentException("dt must not already have any rows", nameof(dt));
-        }
-
-        public static void RequiresZeroColumns(DataTable dt, string argName = null)
-        {
-            Requires.NonNull(dt, argName ?? nameof(dt));
-            if (dt.Columns.Count > 0) throw new ArgumentException("dt must not already have any columns", nameof(dt));
         }
 
         public static void RowAddErrorIgnore(Exception ex, int rowNum)
@@ -201,8 +78,8 @@ namespace RevolutionaryStuff.ETL
         public static DataTable LoadRowsFromFixedWidthText(this DataTable dt, Stream st, LoadRowsFromFixedWidthTextSettings settings)
         {
             dt = dt ?? new DataTable();
-            RequiresZeroColumns(dt, nameof(dt));
-            RequiresZeroRows(dt, nameof(dt));
+            Requires.ZeroColumns(dt, nameof(dt));
+            Requires.ZeroRows(dt, nameof(dt));
             Requires.ReadableStreamArg(st, nameof(st));
             Requires.Valid(settings, nameof(settings));
 
@@ -249,8 +126,8 @@ namespace RevolutionaryStuff.ETL
         public static DataTable LoadRowsFromDelineatedText(this DataTable dt, Stream st, LoadRowsFromDelineatedTextSettings settings)
         {
             dt = dt ?? new DataTable();
-            RequiresZeroColumns(dt, nameof(dt));
-            RequiresZeroRows(dt, nameof(dt));
+            Requires.ZeroColumns(dt, nameof(dt));
+            Requires.ZeroRows(dt, nameof(dt));
             Requires.ReadableStreamArg(st, nameof(st));
             Requires.Valid(settings, nameof(settings));
 
@@ -332,7 +209,7 @@ namespace RevolutionaryStuff.ETL
 
         internal static DataTable LoadRowsInternal(this DataTable dt, IEnumerable<IList<object>> rows, LoadRowsSettings settings, bool headerRowEmbedded=true)
         {
-            RequiresZeroRows(dt, nameof(dt));
+            Requires.ZeroRows(dt, nameof(dt));
             Requires.NonNull(rows, nameof(rows));
             settings = settings ?? new LoadRowsSettings();
             if (!((headerRowEmbedded && dt.Columns.Count == 0) || (!headerRowEmbedded && dt.Columns.Count > 0)))
