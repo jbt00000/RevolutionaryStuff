@@ -199,7 +199,7 @@ namespace RevolutionaryStuff.SSIS
             GetComparisonColumnKeys(true);
         }
 
-        public override void ProcessInput(int inputID, PipelineBuffer buffer)
+        protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
         {
             var input = ComponentMetaData.InputCollection.GetObjectByID(inputID);
             switch (input.Name)
@@ -244,8 +244,8 @@ namespace RevolutionaryStuff.SSIS
                 for (int z = 0; z < input.InputColumnCollection.Count; ++z)
                 {
                     var col = input.InputColumnCollection[z];
-                    var colFingerprint = CreateColumnFingerprint(col);
-                    var o = GetObject(col.Name, col.DataType, z, buffer, InputComparisonBufferColumnIndicees);
+                    var colFingerprint = CreateColumnFingerprint(col);                    
+                    var o = GetObject(col.Name, col.DataType, z, buffer, InputRootBufferColumnIndicees);
                     if (commonFingerprints.Contains(colFingerprint))
                     {
                         fingerprinter.Include(col.Name, o);
@@ -281,7 +281,7 @@ namespace RevolutionaryStuff.SSIS
                     ++InputFingerprintsSampled;
                     FireInformation(InformationMessageCodes.ExampleFingerprint, fingerprint);
                 }
-                if (rowsProcessed % 100 == 0)
+                if (rowsProcessed % StatusNotifyIncrement == 0)
                 {
                     FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, fanoutHits={ProcessInputRootFanoutHits}, misses={ProcessInputRootMisses}");
                 }

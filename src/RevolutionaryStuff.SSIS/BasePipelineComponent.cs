@@ -15,25 +15,37 @@ namespace RevolutionaryStuff.SSIS
             WaitingForDebuggerAttachment,
         }
 
+
+        protected int StatusNotifyIncrement = 1000;
+
         private bool DebuggerAttachmentWaitDone;
 
-        protected void DebuggerAttachmentWait()
+        private void DebuggerAttachmentWait()
         {
             lock (this)
             {
                 if (!DebuggerAttachmentWaitDone)
                 {
-#if false
+#if true
                     for (int z = 0; z < 60; ++z)
                     {
                         System.Threading.Thread.Sleep(1000);
-                        FireInformation(BasePipelineInfoMessages.WaitingForDebuggerAttachment, $"{z}/60");
+                        FireInformation(BasePipelineInfoMessages.WaitingForDebuggerAttachment, $"{this.GetType().Name} {z}/60");
                     }
 #endif
                 }
                 DebuggerAttachmentWaitDone = true;
             }
         }
+
+        public override void ProcessInput(int inputID, PipelineBuffer buffer)
+        {
+            DebuggerAttachmentWait();
+//            base.ProcessInput(inputID, buffer);
+            OnProcessInput(inputID, buffer);
+        }
+
+        protected abstract void OnProcessInput(int inputID, PipelineBuffer buffer);
 
         protected BasePipelineComponent()
         {
@@ -77,7 +89,7 @@ namespace RevolutionaryStuff.SSIS
 
         protected object GetObject(string colName, DataType colDataType, int colIndex, PipelineBuffer buffer, ColumnBufferMapping cbm)
         {
-            var n = colIndex;
+            var n = cbm.ByColumnPosition[colIndex];
             if (buffer.IsNull(n)) return null;
             switch (colDataType)
             {

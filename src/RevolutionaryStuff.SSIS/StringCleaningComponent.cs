@@ -47,14 +47,9 @@ namespace RevolutionaryStuff.SSIS
             InputCbm = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
         }
 
-        // this is the bit that actually does all the work.
-        public override void ProcessInput(int inputID, PipelineBuffer buffer)
+        protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
         {
             var input = ComponentMetaData.InputCollection.GetObjectByID(inputID);
-
-            DebuggerAttachmentWait();
-
-            base.ProcessInput(inputID, buffer);
 
             if (buffer != null)
             {
