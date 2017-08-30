@@ -360,17 +360,8 @@ namespace RevolutionaryStuff.SSIS
                     case DataType.DT_BOOL:
                         buf.SetBoolean(i, (bool)val);
                         break;
-                    case DataType.DT_UI2:
-                        buf.SetUInt16(i, (System.UInt16)val);
-                        break;
-                    case DataType.DT_UI4:
-                        buf.SetUInt32(i, (System.UInt32)val);
-                        break;
-                    case DataType.DT_UI8:
-                        buf.SetUInt64(i, (System.UInt64)val);
-                        break;
                     case DataType.DT_I1:
-                        buf.SetByte(i, (byte)val);
+                        buf.SetSByte(i, (sbyte)val);
                         break;
                     case DataType.DT_I2:
                         buf.SetInt16(i, (System.Int16)val);
@@ -381,16 +372,39 @@ namespace RevolutionaryStuff.SSIS
                     case DataType.DT_I8:
                         buf.SetInt64(i, (System.Int64)val);
                         break;
-                    case DataType.DT_WSTR:
+                    case DataType.DT_UI1:
+                        buf.SetByte(i, (byte)val);
+                        break;
+                    case DataType.DT_UI2:
+                        buf.SetUInt16(i, (System.UInt16)val);
+                        break;
+                    case DataType.DT_UI4:
+                        buf.SetUInt32(i, (System.UInt32)val);
+                        break;
+                    case DataType.DT_UI8:
+                        buf.SetUInt64(i, (System.UInt64)val);
+                        break;
+                    case DataType.DT_R4:
+                        buf.SetSingle(i, (float)val);
+                        break;
+                    case DataType.DT_R8:
+                        buf.SetDouble(i, (double)val);
+                        break;
                     case DataType.DT_STR:
+                    case DataType.DT_WSTR:
+                    case DataType.DT_NTEXT:
                     case DataType.DT_TEXT:
                         buf.SetString(i, (string)val);
                         break;
                     case DataType.DT_DATE:
-                        buf.SetDate(i, (DateTime)val);
+                    case DataType.DT_DBTIMESTAMP:
+                    case DataType.DT_DBTIMESTAMP2:
+                    case DataType.DT_FILETIME:
+                        buf.SetDateTime(i, (DateTime)val);
                         break;
-                    case DataType.DT_DECIMAL:
                     case DataType.DT_NUMERIC:
+                    case DataType.DT_DECIMAL:
+                    case DataType.DT_CY:
                         buf.SetDecimal(i, (decimal)val);
                         break;
                     default:
