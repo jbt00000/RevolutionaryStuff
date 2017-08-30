@@ -26,7 +26,7 @@ namespace RevolutionaryStuff.SSIS
             {
                 if (!DebuggerAttachmentWaitDone)
                 {
-#if true
+#if false
                     for (int z = 0; z < 60; ++z)
                     {
                         System.Threading.Thread.Sleep(1000);
@@ -87,6 +87,7 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
+        /// <remarks>https://technet.microsoft.com/en-us/library/ms345165(v=sql.110).aspx</remarks>
         protected object GetObject(string colName, DataType colDataType, int colIndex, PipelineBuffer buffer, ColumnBufferMapping cbm)
         {
             var n = cbm.ByColumnPosition[colIndex];
@@ -95,14 +96,31 @@ namespace RevolutionaryStuff.SSIS
             {
                 case DataType.DT_BOOL:
                     return buffer.GetBoolean(n);
-                case DataType.DT_I4:
-                    return buffer.GetInt32(n);
+                case DataType.DT_I1:
+                    return buffer.GetSByte(n);
                 case DataType.DT_I2:
                     return buffer.GetInt16(n);
+                case DataType.DT_I4:
+                    return buffer.GetInt32(n);
                 case DataType.DT_I8:
                     return buffer.GetInt64(n);
+                case DataType.DT_UI1:
+                    return buffer.GetByte(n);
+                case DataType.DT_UI2:
+                    return buffer.GetUInt16(n);
+                case DataType.DT_UI4:
+                    return buffer.GetUInt32(n);
+                case DataType.DT_UI8:
+                    return buffer.GetUInt64(n);
+                case DataType.DT_R4:
+                    return buffer.GetSingle(n);
+                case DataType.DT_R8:
+                    return buffer.GetDouble(n);
                 case DataType.DT_DATE:
-                    return buffer.GetDate(n);
+                case DataType.DT_DBTIMESTAMP:
+                case DataType.DT_DBTIMESTAMP2:
+                case DataType.DT_FILETIME:
+                    return buffer.GetDateTime(n);
                 case DataType.DT_STR:
                 case DataType.DT_WSTR:
                 case DataType.DT_NTEXT:
@@ -110,7 +128,10 @@ namespace RevolutionaryStuff.SSIS
                     return buffer.GetString(n);
                 case DataType.DT_NUMERIC:
                 case DataType.DT_DECIMAL:
+                case DataType.DT_CY:
                     return buffer.GetDecimal(n);
+                case DataType.DT_GUID:
+                    return buffer.GetGuid(n);
             }
             bool cancel = true;
             ComponentMetaData.FireError(123, "GetObject", string.Format("GetObject(colName={0}, colDataType={1}) is not yet supported", colName, colDataType), "", 0, out cancel);
