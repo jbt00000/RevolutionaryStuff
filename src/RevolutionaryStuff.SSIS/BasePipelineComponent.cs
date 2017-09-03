@@ -20,13 +20,13 @@ namespace RevolutionaryStuff.SSIS
 
         private bool DebuggerAttachmentWaitDone;
 
-        private void DebuggerAttachmentWait()
+        protected void DebuggerAttachmentWait()
         {
             lock (this)
             {
                 if (!DebuggerAttachmentWaitDone)
                 {
-#if false
+#if true
                     for (int z = 0; z < 60; ++z)
                     {
                         System.Threading.Thread.Sleep(1000);
@@ -87,10 +87,13 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
+        protected object GetObject(string colName, PipelineBuffer buffer, ColumnBufferMapping cbm)
+            => GetObject(colName, cbm.ColumnByColumnName[colName].DataType, cbm.PositionByColumnName[colName], buffer, cbm);
+
         /// <remarks>https://technet.microsoft.com/en-us/library/ms345165(v=sql.110).aspx</remarks>
         protected object GetObject(string colName, DataType colDataType, int colIndex, PipelineBuffer buffer, ColumnBufferMapping cbm)
         {
-            var n = cbm.ByColumnPosition[colIndex];
+            var n = cbm.PositionByColumnPosition[colIndex];
             if (buffer.IsNull(n)) return null;
             switch (colDataType)
             {
@@ -116,6 +119,8 @@ namespace RevolutionaryStuff.SSIS
                     return buffer.GetSingle(n);
                 case DataType.DT_R8:
                     return buffer.GetDouble(n);
+                case DataType.DT_DBDATE:
+                    return buffer.GetDate(n);
                 case DataType.DT_DATE:
                 case DataType.DT_DBTIMESTAMP:
                 case DataType.DT_DBTIMESTAMP2:
@@ -145,7 +150,7 @@ namespace RevolutionaryStuff.SSIS
             {
                 var column = input.InputColumnCollection[x];
                 var offset = BufferManager.FindColumnByLineageID(input.Buffer, column.LineageID);
-                cbm.Add(column.Name, offset);
+                cbm.Add(column, offset);
             }
 
             return cbm;
@@ -158,25 +163,9 @@ namespace RevolutionaryStuff.SSIS
             {
                 var column = output.OutputColumnCollection[x];
                 var offset = BufferManager.FindColumnByLineageID(output.Buffer, column.LineageID);
-                cbm.Add(column.Name, offset);
+                cbm.Add(column, offset);
             }
             return cbm;
-        }
-
-        protected static void CopyColumnDefinition(IDTSOutputColumnCollection100 output, IDTSInputColumn100 inCol)
-        {
-            var outCol = output.New();
-            outCol.Name = inCol.Name;
-            outCol.SetDataTypeProperties(inCol.DataType, inCol.Length, inCol.Precision, inCol.Scale, inCol.CodePage);
-        }
-
-        protected static void AddOutputColumns(IDTSInputColumnCollection100 root, IDTSOutputColumnCollection100 output)
-        {
-            for (int z = 0; z < root.Count; ++z)
-            {
-                var inCol = root[z];
-                CopyColumnDefinition(output, inCol);
-            }
         }
     }
 }

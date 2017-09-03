@@ -1,4 +1,5 @@
 ﻿using RevolutionaryStuff.Core.Crypto;
+using RevolutionaryStuff.Core;
 using System;
 using System.Collections;
 using System.Reflection;
@@ -33,6 +34,10 @@ namespace RevolutionaryStuff.Core.Caching
                 else if (o is Type)
                 {
                     o = ((Type)o).FullName;
+                }
+                else if (o is DateTime)
+                {
+                    o = ((DateTime)o).ToRfc7231();
                 }
                 else if (o is TimeSpan)
                 {

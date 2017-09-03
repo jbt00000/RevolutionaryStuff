@@ -1,6 +1,7 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 
-namespace RevolutionaryStuff.SSIS.RsllcCore
+namespace RevolutionaryStuff.Core
 {
     public static class Stuff
     {
@@ -12,5 +13,9 @@ namespace RevolutionaryStuff.SSIS.RsllcCore
         public static void Noop(params object[] args)
         {
         }
+
+        public static string ToRfc7231(this DateTime dt)
+            => dt.ToUniversalTime().ToString("r");
+
     }
 }

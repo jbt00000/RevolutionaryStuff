@@ -62,10 +62,10 @@ namespace RevolutionaryStuff.SSIS
             switch (propertyName)
             {
                 case PropertyNames.OutputProperties.Matches:
-                    AddOutputColumns(ComponentMetaData.InputCollection[0].InputColumnCollection, ComponentMetaData.OutputCollection[0].OutputColumnCollection);
+                    ComponentMetaData.OutputCollection[0].OutputColumnCollection.AddOutputColumns(ComponentMetaData.InputCollection[0].InputColumnCollection);
                     break;
                 case PropertyNames.OutputProperties.Orphans:
-                    AddOutputColumns(ComponentMetaData.InputCollection[0].InputColumnCollection, ComponentMetaData.OutputCollection[1].OutputColumnCollection);
+                    ComponentMetaData.OutputCollection[1].OutputColumnCollection.AddOutputColumns(ComponentMetaData.InputCollection[0].InputColumnCollection);
                     break;
             }
             return base.SetComponentProperty(propertyName, propertyValue);
@@ -133,18 +133,18 @@ namespace RevolutionaryStuff.SSIS
             var commonDefs = GetComparisonColumnKeys();
             var matchedOutputColumns = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
             matchedOutputColumns.RemoveAll();
-            AddOutputColumns(leftCols, matchedOutputColumns);
+            matchedOutputColumns.AddOutputColumns(leftCols);
             for (int z = 0; z < rightCols.Count; ++z)
             {
                 var col = rightCols[z];
                 if (!commonDefs.Contains(CreateColumnFingerprint(col)))
                 {
-                    CopyColumnDefinition(matchedOutputColumns, col);
+                    matchedOutputColumns.AddOutputColumn(col);
                 }
             }
             var orphanOutputColumns = ComponentMetaData.OutputCollection[1].OutputColumnCollection;
             orphanOutputColumns.RemoveAll();
-            AddOutputColumns(leftCols, orphanOutputColumns);
+            orphanOutputColumns.AddOutputColumns(leftCols);
         }
 
         public override DTSValidationStatus Validate()
@@ -338,80 +338,10 @@ namespace RevolutionaryStuff.SSIS
             for (int z = 0; z < vals.Count; ++z)
             {
                 var col = cc[z + offset];
-                var i = cbm.ByColumnPosition[z+offset];
+                var i = cbm.PositionByColumnPosition[z+offset];
                 var o = vals[z];
-                SetObject(buf, col.DataType, i, o);
+                buf.SetObject(col.DataType, i, o);
             }            
-        }
-
-        private static void SetObject(PipelineBuffer buf, DataType dt, int i, object val)
-        {
-            if (val == null)
-            {
-                buf.SetNull(i);
-            }
-            else
-            {
-                switch (dt)
-                {
-                    case DataType.DT_GUID:
-                        buf.SetGuid(i, (Guid)val);
-                        break;
-                    case DataType.DT_BOOL:
-                        buf.SetBoolean(i, (bool)val);
-                        break;
-                    case DataType.DT_I1:
-                        buf.SetSByte(i, (sbyte)val);
-                        break;
-                    case DataType.DT_I2:
-                        buf.SetInt16(i, (System.Int16)val);
-                        break;
-                    case DataType.DT_I4:
-                        buf.SetInt32(i, (System.Int32)val);
-                        break;
-                    case DataType.DT_I8:
-                        buf.SetInt64(i, (System.Int64)val);
-                        break;
-                    case DataType.DT_UI1:
-                        buf.SetByte(i, (byte)val);
-                        break;
-                    case DataType.DT_UI2:
-                        buf.SetUInt16(i, (System.UInt16)val);
-                        break;
-                    case DataType.DT_UI4:
-                        buf.SetUInt32(i, (System.UInt32)val);
-                        break;
-                    case DataType.DT_UI8:
-                        buf.SetUInt64(i, (System.UInt64)val);
-                        break;
-                    case DataType.DT_R4:
-                        buf.SetSingle(i, (float)val);
-                        break;
-                    case DataType.DT_R8:
-                        buf.SetDouble(i, (double)val);
-                        break;
-                    case DataType.DT_STR:
-                    case DataType.DT_WSTR:
-                    case DataType.DT_NTEXT:
-                    case DataType.DT_TEXT:
-                        buf.SetString(i, (string)val);
-                        break;
-                    case DataType.DT_DATE:
-                    case DataType.DT_DBTIMESTAMP:
-                    case DataType.DT_DBTIMESTAMP2:
-                    case DataType.DT_FILETIME:
-                        buf.SetDateTime(i, (DateTime)val);
-                        break;
-                    case DataType.DT_NUMERIC:
-                    case DataType.DT_DECIMAL:
-                    case DataType.DT_CY:
-                        buf.SetDecimal(i, (decimal)val);
-                        break;
-                    default:
-                        buf.SetNull(i);
-                        break;
-                }
-            }
         }
 
         PipelineBuffer MatchedOutputBuffer;

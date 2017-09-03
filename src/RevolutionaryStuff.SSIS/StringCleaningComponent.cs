@@ -69,7 +69,7 @@ namespace RevolutionaryStuff.SSIS
                                     sOut = sOut == "" ? null : sOut;
                                     if (sIn != sOut)
                                     {
-                                        buffer.SetString(InputCbm.ByColumnPosition[z], sOut);
+                                        buffer.SetString(InputCbm.PositionByColumnPosition[z], sOut);
                                     }
                                 }
                             }

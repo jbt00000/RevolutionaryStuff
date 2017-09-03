@@ -1,4 +1,5 @@
-﻿using RevolutionaryStuff.Core.Crypto;
+﻿using Newtonsoft.Json;
+using RevolutionaryStuff.Core.Crypto;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -218,25 +219,41 @@ namespace RevolutionaryStuff.Core.Caching
                 {
                     Stuff.Noop();
                 }
-                else if (o is bool)
+                else
                 {
-                    o = (bool)o ? 1 : 0;
-                }
-                else if (o.GetType().GetTypeInfo().IsEnum)
-                {
-                    o = Convert.ToUInt64(o);
-                }
-                else if (o is IEnumerable)
-                {
-                    o = (o as IEnumerable).Format(",");
-                }
-                else if (o is Type)
-                {
-                    o = ((Type)o).FullName;
-                }
-                else if (o is TimeSpan)
-                {
-                    o = ((TimeSpan)o).TotalMilliseconds;
+                    var ot = o.GetType();
+                    if (o is bool)
+                    {
+                        o = (bool)o ? 1 : 0;
+                    }
+                    else if (o is DateTime)
+                    {
+                        o = ((DateTime)o).ToRfc7231();
+                    }
+                    else if (o.GetType().GetTypeInfo().IsEnum)
+                    {
+                        o = Convert.ToUInt64(o);
+                    }
+                    else if (o is IEnumerable)
+                    {
+                        o = (o as IEnumerable).Format(",");
+                    }
+                    else if (o is Type)
+                    {
+                        o = ((Type)o).FullName;
+                    }
+                    else if (o is TimeSpan)
+                    {
+                        o = ((TimeSpan)o).TotalMilliseconds;
+                    }
+                    else if (ot.IsNumber())
+                    {
+                        Stuff.Noop();
+                    }
+                    else
+                    {
+                        o = JsonConvert.ToString(o);
+                    }
                 }
                 sb.AppendFormat("{0}: {1}\n", pos, o);
             }

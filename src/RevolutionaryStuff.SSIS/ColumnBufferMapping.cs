@@ -1,16 +1,25 @@
-﻿using System.Collections.Generic;
+﻿using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
+using System.Collections.Generic;
 
 namespace RevolutionaryStuff.SSIS
 {
     public class ColumnBufferMapping
     {
-        public IList<int> ByColumnPosition = new List<int>();
-        public IDictionary<string, int> ByColumnName = new Dictionary<string, int>();
+        public IList<int> PositionByColumnPosition { get; }  = new List<int>();
+        public IDictionary<string, int> PositionByColumnName { get; } = new Dictionary<string, int>();
+        public IDictionary<string, IDtsColumn> ColumnByColumnName { get; } = new Dictionary<string, IDtsColumn>();
 
-        public void Add(string columnName, int offset)
+        public void Add(IDTSInputColumn100 column, int offset)
+            => Add(new DtsColumn(column), offset);
+
+        public void Add(IDTSOutputColumn100 column, int offset)
+            => Add(new DtsColumn(column), offset);
+
+        public void Add(IDtsColumn column, int offset)
         {
-            ByColumnPosition.Add(offset);
-            ByColumnName[columnName] = offset;
+            PositionByColumnPosition.Add(offset);
+            PositionByColumnName[column.Name] = offset;
+            ColumnByColumnName[column.Name] = column;
         }
     }
 }
