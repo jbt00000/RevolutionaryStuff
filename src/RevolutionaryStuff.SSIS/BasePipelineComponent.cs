@@ -1,6 +1,7 @@
 ﻿using Microsoft.SqlServer.Dts.Pipeline;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using Microsoft.SqlServer.Dts.Runtime.Wrapper;
+using RevolutionaryStuff.Core;
 using System;
 using System.Runtime.CompilerServices;
 
@@ -10,6 +11,30 @@ namespace RevolutionaryStuff.SSIS
     /// <remarks>https://docs.microsoft.com/en-us/sql/integration-services/extending-packages-custom-objects-data-flow-types/developing-a-custom-transformation-component-with-synchronous-outputs</remarks>
     public abstract class BasePipelineComponent : PipelineComponent
     {
+        protected static class CommonPropertyNames
+        {
+            public const string IgnoreCase = "IgnoreCase";
+            public const string OutputColumnName = "OutputColumnName";
+        }
+
+        protected int GetCustomPropertyAsInt(string propertyName, int fallback = 0)
+            => Parse.ParseInt32(GetCustomPropertyAsString(propertyName), fallback);
+
+        protected bool GetCustomPropertyAsBool(string propertyName, bool fallback = false)
+            => Parse.ParseBool(GetCustomPropertyAsString(propertyName), fallback);
+
+        protected string GetCustomPropertyAsString(string propertyName, string fallback = null)
+            => StringHelpers.Coalesce(ComponentMetaData.CustomPropertyCollection[propertyName].Value as string, fallback);
+
+        protected IDTSCustomProperty100 CreateCustomProperty(string name, string defaultValue, string description)
+        {
+            var p = ComponentMetaData.CustomPropertyCollection.New();
+            p.Name = name;
+            p.Description = description;
+            p.Value = defaultValue;
+            return p;
+        }
+
         private enum BasePipelineInfoMessages
         {
             WaitingForDebuggerAttachment,

@@ -17,6 +17,9 @@ namespace RevolutionaryStuff.SSIS
     {
         private static class PropertyNames
         {
+            public const string IgnoreCase = CommonPropertyNames.IgnoreCase;
+            public const string Mappings = "Mappings";
+
             public static class InputProperties
             {
                 public const string Root = "Left Input";
@@ -38,9 +41,8 @@ namespace RevolutionaryStuff.SSIS
             ComponentMetaData.Name = "The Mapper";
             ComponentMetaData.Description = "A SSIS Data Flow Transformation Component that maps keys from the right table onto the left based off of join conditions.";
 
-            var p = ComponentMetaData.CustomPropertyCollection.New();
-            p.Name = "Mappings";
-            p.Description = "Lookup1ResultFieldName,Lookup1Key1,...Lookup1KeyN;LookupNResultFieldName,LookupNKey1,...LookupNKeyN;";
+            CreateCustomProperty(PropertyNames.Mappings, null, "Lookup1ResultFieldName,Lookup1Key1,...Lookup1KeyN;LookupNResultFieldName,LookupNKey1,...LookupNKeyN;");
+            CreateCustomProperty(PropertyNames.IgnoreCase, "1", "When {1,true} the match is case insensitive, when {0,false} it is case sensitive.");
 
             var left = ComponentMetaData.InputCollection.New();
             left.Name = PropertyNames.InputProperties.Root;
@@ -54,7 +56,7 @@ namespace RevolutionaryStuff.SSIS
         
         IDictionary<string, IList<string>> ParseMappings()
         {
-            var p = ComponentMetaData.CustomPropertyCollection["Mappings"];
+            var p = ComponentMetaData.CustomPropertyCollection[PropertyNames.Mappings];
             var d = new Dictionary<string, IList<string>>();
             var csv = (p.Value as string ?? "").Replace(";", "\n");
             foreach (var row in CSV.ParseText(csv))
@@ -64,8 +66,6 @@ namespace RevolutionaryStuff.SSIS
             }
             return d;
         }
-
-
 
         public override IDTSCustomProperty100 SetComponentProperty(string propertyName, object propertyValue)
         {
@@ -77,7 +77,6 @@ namespace RevolutionaryStuff.SSIS
             }
             return base.SetComponentProperty(propertyName, propertyValue);
         }
-
 
         public override void OnInputPathAttached(int inputID)
         {
@@ -149,6 +148,14 @@ namespace RevolutionaryStuff.SSIS
         public override void PreExecute()
         {
             base.PreExecute();
+            if (GetCustomPropertyAsBool(PropertyNames.IgnoreCase, true))
+            {
+                ValByKey = new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
+            }
+            else
+            {
+                ValByKey = new Dictionary<string, object>();
+            }
             InputRootBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
             InputComparisonBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.InputCollection[1]);
             OutputBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.OutputCollection[0]);
@@ -178,20 +185,8 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-
         private int ProcessInputRootHits = 0;
         private int ProcessInputRootMisses = 0;
-
-        private void CopyValsToBuffer(PipelineBuffer buf, IDTSOutputColumnCollection100 cc, IList<object> vals, int offset, ColumnBufferMapping cbm)
-        {
-            for (int z = 0; z < vals.Count; ++z)
-            {
-                var col = cc[z + offset];
-                var i = cbm.PositionByColumnPosition[z + offset];
-                var o = vals[z];
-                buf.SetObject(col.DataType, i, o);
-            }
-        }
 
         private void ProcessLeftInput(IDTSInput100 input, PipelineBuffer buffer)
         {
@@ -276,7 +271,6 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-
         PipelineBuffer MatchedOutputBuffer;
 
         public override void PrimeOutput(int outputs, int[] outputIDs, PipelineBuffer[] buffers)
@@ -286,7 +280,6 @@ namespace RevolutionaryStuff.SSIS
                 MatchedOutputBuffer = buffers[0];
             }
         }
-
 
         public override void PrepareForExecute()
         {
@@ -300,8 +293,7 @@ namespace RevolutionaryStuff.SSIS
         private bool InputRootProcessed = false;
         private int ComparisonFingerprintsSampled = 0;
         private const int FingerprintSampleSize = 10;
-
-        private readonly IDictionary<string, object> ValByKey = new Dictionary<string, object>();
+        private IDictionary<string, object> ValByKey;
 
         private void ProcessRightInput(IDTSInput100 input, PipelineBuffer buffer)
         {

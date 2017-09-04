@@ -15,6 +15,12 @@ namespace RevolutionaryStuff.SSIS
         IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
     public class JsonTemplateColumnTransformComponent : BasePipelineComponent
     {
+        private static class PropertyNames
+        {
+            public const string OutputColumnName = CommonPropertyNames.OutputColumnName;
+            public const string Template = "Template";
+        }
+
         public override void ProvideComponentProperties()
         {
             base.ProvideComponentProperties();
@@ -23,13 +29,8 @@ namespace RevolutionaryStuff.SSIS
             ComponentMetaData.Name = "JSON Text Template Column";
             ComponentMetaData.Description = "Creates a JSON column based on the given template and input rows.";
 
-            var p = ComponentMetaData.CustomPropertyCollection.New();
-            p.Name = "OutputColumnName";
-            p.Description = "Name of the new derived column";
-
-            p = ComponentMetaData.CustomPropertyCollection.New();
-            p.Name = "Template";
-            p.Description = "The template";
+            CreateCustomProperty(PropertyNames.OutputColumnName, "Json", "Name of the new derived column");
+            CreateCustomProperty(PropertyNames.Template, null, "The template.  use @ColumnName or @(Column Name)");
 
             var left = ComponentMetaData.InputCollection.New();
             left.Name = "Input";
@@ -38,10 +39,6 @@ namespace RevolutionaryStuff.SSIS
             matched.Name = "Output";
             matched.Description = "The output with the new column.";
         }
-
-        private string OutputColumnName => ComponentMetaData.CustomPropertyCollection["OutputColumnName"].Value as string;
-
-        private string Template => ComponentMetaData.CustomPropertyCollection["Template"].Value as string;
 
         public override IDTSCustomProperty100 SetComponentProperty(string propertyName, object propertyValue)
         {
@@ -107,6 +104,12 @@ namespace RevolutionaryStuff.SSIS
 
         private ColumnBufferMapping InputRootBufferColumnIndicees;
         private ColumnBufferMapping OutputBufferColumnIndicees;
+
+        private string OutputColumnName 
+            => GetCustomPropertyAsString(PropertyNames.OutputColumnName);
+
+        private string Template 
+            => GetCustomPropertyAsString(PropertyNames.Template);
 
         public override void PreExecute()
         {

@@ -5,11 +5,13 @@ using Microsoft.SqlServer.Dts.Pipeline;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using Microsoft.SqlServer.Dts.Runtime.Wrapper;
 using RevolutionaryStuff.Core.Collections;
+using RevolutionaryStuff.Core;
 
 namespace RevolutionaryStuff.SSIS
 {
+    /// <remarks>Ugh... Can't rename this class without breaking existing packages</remarks>
     [DtsPipelineComponent(
-        DisplayName = "The Matcher", 
+        DisplayName = "The Joiner",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
         IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
@@ -17,6 +19,8 @@ namespace RevolutionaryStuff.SSIS
     {
         private static class PropertyNames
         {
+            public const string IgnoreCase = CommonPropertyNames.IgnoreCase;
+
             public static class InputProperties
             {
                 public const string Root = "Left Input";
@@ -24,6 +28,7 @@ namespace RevolutionaryStuff.SSIS
                 public const string Comparison = "Right Input";
                 public const int ComparisonId = 1;
             }
+
             public static class OutputProperties
             {
                 public const string Matches = "Match Output";
@@ -40,7 +45,7 @@ namespace RevolutionaryStuff.SSIS
             base.ProvideComponentProperties();
             base.RemoveAllInputsOutputsAndCustomProperties();
 
-            ComponentMetaData.Name = "The Matcher";
+            ComponentMetaData.Name = "The Joiner";
             ComponentMetaData.Description = "A SSIS Data Flow Transformation Component that auto joins 2 inputs (based on field name / data type) and returns the matched (union of all columns, same rows as an inner join) and orphanned (* from the left table and unmatched rows from left table) tables.";
 
             var left = ComponentMetaData.InputCollection.New();
@@ -55,6 +60,8 @@ namespace RevolutionaryStuff.SSIS
             notMatched.SynchronousInputID = 0;
             notMatched.Name = PropertyNames.OutputProperties.Orphans;
             notMatched.Description = "Root rows that have no corresponding matches in the Comparison";
+
+            CreateCustomProperty(PropertyNames.IgnoreCase, "1", "When {1,true} the match is case insensitive, when {0,false} it is case sensitive.");
         }
 
         public override IDTSCustomProperty100 SetComponentProperty(string propertyName, object propertyValue)
@@ -71,19 +78,17 @@ namespace RevolutionaryStuff.SSIS
             return base.SetComponentProperty(propertyName, propertyValue);
         }
 
-
         public override void OnInputPathAttached(int inputID)
         {
             base.OnInputPathAttached(inputID);
-            if (this.ComponentMetaData.InputCollection[0].IsAttached && 
+            if (this.ComponentMetaData.InputCollection[0].IsAttached &&
                 this.ComponentMetaData.InputCollection[1].IsAttached)
             {
                 DefineOutputs();
             }
         }
 
-
-        private IList<string> GetComparisonColumnKeys(bool fireInformationMessages=false)
+        private IList<string> GetComparisonColumnKeys(bool fireInformationMessages = false)
         {
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var rightCols = ComponentMetaData.InputCollection[1].InputColumnCollection;
@@ -192,6 +197,14 @@ namespace RevolutionaryStuff.SSIS
         public override void PreExecute()
         {
             base.PreExecute();
+            if (GetCustomPropertyAsBool(PropertyNames.IgnoreCase, true))
+            {
+                AppendsByCommonFieldHash = new MultipleValueDictionary<string, object[]>(Comparers.CaseInsensitiveStringComparer);
+            }
+            else
+            {
+                AppendsByCommonFieldHash = new MultipleValueDictionary<string, object[]>();
+            }
             InputRootBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
             InputComparisonBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.InputCollection[1]);
             OutputMatchesBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.OutputCollection[0]);
@@ -244,7 +257,7 @@ namespace RevolutionaryStuff.SSIS
                 for (int z = 0; z < input.InputColumnCollection.Count; ++z)
                 {
                     var col = input.InputColumnCollection[z];
-                    var colFingerprint = CreateColumnFingerprint(col);                    
+                    var colFingerprint = CreateColumnFingerprint(col);
                     var o = GetObject(col.Name, col.DataType, z, buffer, InputRootBufferColumnIndicees);
                     if (commonFingerprints.Contains(colFingerprint))
                     {
@@ -338,10 +351,10 @@ namespace RevolutionaryStuff.SSIS
             for (int z = 0; z < vals.Count; ++z)
             {
                 var col = cc[z + offset];
-                var i = cbm.PositionByColumnPosition[z+offset];
+                var i = cbm.PositionByColumnPosition[z + offset];
                 var o = vals[z];
                 buf.SetObject(col.DataType, i, o);
-            }            
+            }
         }
 
         PipelineBuffer MatchedOutputBuffer;
@@ -356,16 +369,14 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-
         public override void PrepareForExecute()
         {
             base.PrepareForExecute();
-            AppendsByCommonFieldHash.Clear();
             InputRootProcessed = false;
             InputComparisonProcessed = false;
         }
 
-        private MultipleValueDictionary<string, object[]> AppendsByCommonFieldHash = new MultipleValueDictionary<string, object[]>();
+        private MultipleValueDictionary<string, object[]> AppendsByCommonFieldHash;
         private bool InputComparisonProcessed = false;
         private bool InputRootProcessed = false;
         private int ComparisonFingerprintsSampled = 0;
@@ -411,16 +422,16 @@ namespace RevolutionaryStuff.SSIS
 
         private enum InformationMessageCodes
         {
-            RowsProcessed=1,
-            ExampleFingerprint=2,
-            AppendsByCommonFieldHash=3,
+            RowsProcessed = 1,
+            ExampleFingerprint = 2,
+            AppendsByCommonFieldHash = 3,
             MatchStats = 4,
             CommonColumns = 5,
             LeftColumns = 6,
             RightColumns = 7,
         }
 
-#region Helpers
+        #region Helpers
 
         private static string CreateColumnFingerprint(IDTSInputColumn100 col)
         {
@@ -457,6 +468,6 @@ namespace RevolutionaryStuff.SSIS
             def = col.Name + ";" + def;
             return def.ToLower();
         }
-#endregion
+        #endregion
     }
 }

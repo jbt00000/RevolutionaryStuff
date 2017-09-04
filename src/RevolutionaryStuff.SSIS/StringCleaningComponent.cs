@@ -18,7 +18,7 @@ namespace RevolutionaryStuff.SSIS
         {
             base.ProvideComponentProperties();
             ComponentMetaData.Name = "String Cleaning";
-            ComponentMetaData.Description = "Cleans all string columns";
+            ComponentMetaData.Description = "Trims all string columns and replaces with null when empty.";
         }
 
         public override void OnInputPathAttached(int inputID)

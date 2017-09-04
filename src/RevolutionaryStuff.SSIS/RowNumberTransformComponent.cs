@@ -10,6 +10,13 @@ namespace RevolutionaryStuff.SSIS
         IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
     public class RowNumberTransformComponent : BasePipelineComponent
     {
+        private static class PropertyNames
+        {
+            public const string OutputColumnName = CommonPropertyNames.OutputColumnName;
+            public const string InitialValue = "InitialValue";
+            public const string Increment = "Increment";
+        }
+
         public override void ProvideComponentProperties()
         {
             base.ProvideComponentProperties();
@@ -18,20 +25,9 @@ namespace RevolutionaryStuff.SSIS
             ComponentMetaData.Name = "Row Number Column";
             ComponentMetaData.Description = "Add a row number column to each row.";
 
-            var p = ComponentMetaData.CustomPropertyCollection.New();
-            p.Name = "OutputColumnName";
-            p.Description = "Name of the new derived column";
-            p.Value = "RowNumber";
-
-            p = ComponentMetaData.CustomPropertyCollection.New();
-            p.Name = "InitialValue";
-            p.Description = "The initial value of the row number";
-            p.Value = "1";
-
-            p = ComponentMetaData.CustomPropertyCollection.New();
-            p.Name = "Increment";
-            p.Description = "The amount to increment";
-            p.Value = "1";
+            CreateCustomProperty(PropertyNames.OutputColumnName, "RowNumber", "Name of the new derived column");
+            CreateCustomProperty(PropertyNames.InitialValue, "1", "The initial value of the row number");
+            CreateCustomProperty(PropertyNames.Increment, "1", "The amount to increment");
 
             var left = ComponentMetaData.InputCollection.New();
             left.Name = "Input";
@@ -40,14 +36,6 @@ namespace RevolutionaryStuff.SSIS
             matched.Name = "Output";
             matched.Description = "The output with the new column.";
         }
-
-        private string OutputColumnName => ComponentMetaData.CustomPropertyCollection["OutputColumnName"].Value as string;
-
-        private int InitialValue
-            => int.TryParse(ComponentMetaData.CustomPropertyCollection["InitialValue"].Value as string, out var i) ? i : 1;
-
-        private int Incremement
-            => int.TryParse(ComponentMetaData.CustomPropertyCollection["Increment"].Value as string, out var i) ? i : 1;
 
         public override IDTSCustomProperty100 SetComponentProperty(string propertyName, object propertyValue)
         {
@@ -112,10 +100,18 @@ namespace RevolutionaryStuff.SSIS
 
         private ColumnBufferMapping InputRootBufferColumnIndicees;
         private ColumnBufferMapping OutputBufferColumnIndicees;
+        private int InitialValue;
+        private int Incremement;
+        private int RowNumber;
+
+        private string OutputColumnName => GetCustomPropertyAsString(PropertyNames.OutputColumnName);
 
         public override void PreExecute()
         {
             base.PreExecute();
+            InitialValue = GetCustomPropertyAsInt(PropertyNames.InitialValue);
+            Incremement = GetCustomPropertyAsInt(PropertyNames.Increment);
+            RowNumber = InitialValue;
             InputRootBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
             OutputBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.OutputCollection[0], ComponentMetaData.InputCollection[0].Buffer);
         }
@@ -144,14 +140,6 @@ namespace RevolutionaryStuff.SSIS
             {
                 OuputBuffer = buffers[0];
             }
-        }
-
-        private int RowNumber;
-
-        public override void PrepareForExecute()
-        {
-            base.PrepareForExecute();
-            RowNumber = InitialValue;
         }
     }
 }

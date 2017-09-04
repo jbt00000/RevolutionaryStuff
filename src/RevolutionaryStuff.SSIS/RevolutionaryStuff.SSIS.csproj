@@ -107,6 +107,7 @@
     <Compile Include="RsllcCore\IValidate.cs" />
     <Compile Include="RsllcCore\Modifyable.cs" />
     <Compile Include="RsllcCore\MultipleValueDictionary.cs" />
+    <Compile Include="RsllcCore\Parse.cs" />
     <Compile Include="RsllcCore\Raw.cs" />
     <Compile Include="RsllcCore\RegexHelpers.cs" />
     <Compile Include="RsllcCore\Requires.cs" />
