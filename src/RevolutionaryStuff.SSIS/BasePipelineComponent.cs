@@ -26,7 +26,7 @@ namespace RevolutionaryStuff.SSIS
             {
                 if (!DebuggerAttachmentWaitDone)
                 {
-#if true
+#if false
                     for (int z = 0; z < 60; ++z)
                     {
                         System.Threading.Thread.Sleep(1000);
@@ -143,26 +143,29 @@ namespace RevolutionaryStuff.SSIS
             return null;
         }
 
-        protected ColumnBufferMapping GetBufferColumnIndicees(IDTSInput100 input)
+        protected ColumnBufferMapping GetBufferColumnIndicees(IDTSInput100 input, int? overrideBuffer=null)
         {
+            var bufferId = overrideBuffer.GetValueOrDefault(input.Buffer);
             var cbm = new ColumnBufferMapping();
             for (int x = 0; x < input.InputColumnCollection.Count; x++)
             {
                 var column = input.InputColumnCollection[x];
-                var offset = BufferManager.FindColumnByLineageID(input.Buffer, column.LineageID);
+                var offset = BufferManager.FindColumnByLineageID(bufferId, column.LineageID);
                 cbm.Add(column, offset);
             }
 
             return cbm;
         }
 
-        protected ColumnBufferMapping GetBufferColumnIndicees(IDTSOutput100 output)
+        protected ColumnBufferMapping GetBufferColumnIndicees(IDTSOutput100 output, int? overrideBuffer = null)
         {
+            //done via ternary operator instead of GetValueOrDefault so as to not dereference output.Buffer unless critical
+            var bufferId = overrideBuffer.HasValue ? overrideBuffer.Value : output.Buffer;
             var cbm = new ColumnBufferMapping();
             for (int x = 0; x < output.OutputColumnCollection.Count; x++)
             {
                 var column = output.OutputColumnCollection[x];
-                var offset = BufferManager.FindColumnByLineageID(output.Buffer, column.LineageID);
+                var offset = BufferManager.FindColumnByLineageID(bufferId, column.LineageID);
                 cbm.Add(column, offset);
             }
             return cbm;

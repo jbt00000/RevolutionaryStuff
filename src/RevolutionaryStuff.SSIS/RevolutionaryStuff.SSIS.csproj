@@ -86,6 +86,7 @@
     <Compile Include="DtsColumn.cs" />
     <Compile Include="Fingerprinter.cs" />
     <Compile Include="IDtsColumn.cs" />
+    <Compile Include="JsonTemplateColumnTransformComponent.cs" />
     <Compile Include="MapperTransformComponent.cs" />
     <Compile Include="MatcherTransformComponent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

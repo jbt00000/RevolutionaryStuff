@@ -37,7 +37,7 @@ namespace RevolutionaryStuff.Core.Caching
                 }
                 else if (o is DateTime)
                 {
-                    o = ((DateTime)o).ToRfc7231();
+                    o = ((DateTime)o).ToRfc8601();
                 }
                 else if (o is TimeSpan)
                 {

@@ -27,8 +27,17 @@ namespace RevolutionaryStuff.Core
         public static string ToHHMMSS(this DateTime dt)
             => dt.ToString("HHmmss");
 
-        public static string ToRfc7231(this DateTime dt) 
+        /// <summary>
+        /// Wed, 01 Oct 2008 17:04:32 GMT
+        /// </summary>
+        public static string ToRfc7231(this DateTime dt)
             => dt.ToUniversalTime().ToString("r");
+
+        /// <summary>
+        /// 2008-10-01T17:04:32.0000000Z
+        /// </summary>
+        public static string ToRfc8601(this DateTime dt)
+            => dt.ToUniversalTime().ToString("o") + "Z";
 
         public static int Age(this DateTime dt)
         {

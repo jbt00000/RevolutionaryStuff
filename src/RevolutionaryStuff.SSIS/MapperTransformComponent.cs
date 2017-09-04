@@ -91,7 +91,6 @@ namespace RevolutionaryStuff.SSIS
 
         private void DefineOutputs()
         {
-            DebuggerAttachmentWait();
             for (int z = 0; z < 2; ++z)
             {
                 var input = ComponentMetaData.InputCollection[z].GetVirtualInput();
@@ -180,7 +179,6 @@ namespace RevolutionaryStuff.SSIS
         }
 
 
-        private int InputFingerprintsSampled;
         private int ProcessInputRootHits = 0;
         private int ProcessInputRootMisses = 0;
 
@@ -221,7 +219,15 @@ namespace RevolutionaryStuff.SSIS
                     keys.Clear();
                     foreach (var fn in kvp.Value)
                     {
-                        var o = GetObject(fn, buffer, InputRootBufferColumnIndicees);
+                        object o;
+                        if (fn.StartsWith(":"))
+                        {
+                            o = fn.Substring(1);
+                        }
+                        else
+                        {
+                            o = GetObject(fn, buffer, InputRootBufferColumnIndicees);
+                        }
                         keys.Add(o);
                     }
                     var key = Cache.CreateKey(keys);
