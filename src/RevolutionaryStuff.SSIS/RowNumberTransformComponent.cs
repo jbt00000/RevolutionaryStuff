@@ -1,35 +1,37 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-using Microsoft.SqlServer.Dts.Pipeline;
+﻿using Microsoft.SqlServer.Dts.Pipeline;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
-using RevolutionaryStuff.Core;
 using Microsoft.SqlServer.Dts.Runtime.Wrapper;
-using System.Text.RegularExpressions;
-using System;
 
 namespace RevolutionaryStuff.SSIS
 {
     [DtsPipelineComponent(
-        DisplayName = "JSON Text Template Column",
+        DisplayName = "Row Number Column",
         ComponentType = ComponentType.Transform,
         IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
-    public class JsonTemplateColumnTransformComponent : BasePipelineComponent
+    public class RowNumberTransformComponent : BasePipelineComponent
     {
         public override void ProvideComponentProperties()
         {
             base.ProvideComponentProperties();
             base.RemoveAllInputsOutputsAndCustomProperties();
 
-            ComponentMetaData.Name = "JSON Text Template Column";
-            ComponentMetaData.Description = "Creates a JSON column based on the given template and input rows.";
+            ComponentMetaData.Name = "Row Number Column";
+            ComponentMetaData.Description = "Add a row number column to each row.";
 
             var p = ComponentMetaData.CustomPropertyCollection.New();
             p.Name = "OutputColumnName";
             p.Description = "Name of the new derived column";
+            p.Value = "RowNumber";
 
             p = ComponentMetaData.CustomPropertyCollection.New();
-            p.Name = "Template";
-            p.Description = "The template";
+            p.Name = "InitialValue";
+            p.Description = "The initial value of the row number";
+            p.Value = "1";
+
+            p = ComponentMetaData.CustomPropertyCollection.New();
+            p.Name = "Increment";
+            p.Description = "The amount to increment";
+            p.Value = "1";
 
             var left = ComponentMetaData.InputCollection.New();
             left.Name = "Input";
@@ -41,7 +43,11 @@ namespace RevolutionaryStuff.SSIS
 
         private string OutputColumnName => ComponentMetaData.CustomPropertyCollection["OutputColumnName"].Value as string;
 
-        private string Template => ComponentMetaData.CustomPropertyCollection["Template"].Value as string;
+        private int InitialValue
+            => int.TryParse(ComponentMetaData.CustomPropertyCollection["InitialValue"].Value as string, out var i) ? i : 1;
+
+        private int Incremement
+            => int.TryParse(ComponentMetaData.CustomPropertyCollection["Increment"].Value as string, out var i) ? i : 1;
 
         public override IDTSCustomProperty100 SetComponentProperty(string propertyName, object propertyValue)
         {
@@ -70,10 +76,9 @@ namespace RevolutionaryStuff.SSIS
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
             outCols.RemoveAll();
-//            outCols.AddOutputColumns(leftCols);
             var outCol = outCols.New();
             outCol.Name = OutputColumnName;
-            outCol.SetDataTypeProperties(DataType.DT_NTEXT, 0, 0, 0, 0);
+            outCol.SetDataTypeProperties(DataType.DT_I4, 0, 0, 0, 0);
         }
 
         public override DTSValidationStatus Validate()
@@ -123,39 +128,15 @@ namespace RevolutionaryStuff.SSIS
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
             int outputColumnPosition = OutputBufferColumnIndicees.PositionByColumnName[OutputColumnName];
-            var vals = new object[JT.Fieldnames.Count];
+            var inc = Incremement;
             while (buffer.NextRow())
             {
-                for (int z=0;z<JT.Fieldnames.Count;++z)
-                {
-                    var fieldName = JT.Fieldnames[z];
-                    var o = GetObject(fieldName, buffer, InputRootBufferColumnIndicees);
-                    o = ToJson(o);
-                    vals[z] = o;
-                }
-                var val = JT.Format(vals);
-                buffer.SetObject(DataType.DT_NTEXT, outputColumnPosition, val);
+                buffer.SetObject(DataType.DT_I4, outputColumnPosition, RowNumber);
+                RowNumber += inc;
             }
-        }
-
-        private static string ToJson(object o)
-        {
-            if (o == null) return "null";
-            if (o is bool)
-            {
-                return (bool)o ? "true" : "false";
-            }
-            else if (o is DateTime)
-            {
-                return "\"" + ((DateTime)o).ToRfc8601() + "\"";
-            }
-            var s = o.ToString();
-            return "\"" + s.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";
-
         }
 
         PipelineBuffer OuputBuffer;
-        JsonTemplate JT;
 
         public override void PrimeOutput(int outputs, int[] outputIDs, PipelineBuffer[] buffers)
         {
@@ -165,59 +146,12 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
+        private int RowNumber;
+
         public override void PrepareForExecute()
         {
             base.PrepareForExecute();
-            JT = new JsonTemplate(Template);
+            RowNumber = InitialValue;
         }
-
-        private class JsonTemplate
-        {
-            public readonly string Template;
-            public readonly string StringFormat;
-            public readonly IList<string> Fieldnames;
-            private static readonly Regex TemplateParseExpr = new Regex("@(\\w+)|@\\((\\w+)\\)", RegexOptions.Compiled | RegexOptions.Singleline);
-
-            public string Format(object[] args)
-                => string.Format(StringFormat, args);
-
-            public JsonTemplate(string template)
-            {
-                var fieldPosByFieldName = new Dictionary<string, int>(Comparers.CaseInsensitiveStringComparer);
-                Template = template = (template ?? "");
-                template = template.Replace("{", "{{").Replace("}", "}}");
-                StringFormat = "";
-                int startAt = 0;
-                Again:
-                var m = TemplateParseExpr.Match(template, startAt);
-                if (m.Success)
-                {
-                    StringFormat += template.Substring(startAt, m.Index - startAt);
-                    if (m.Index > 0 && template[m.Index - 1] == '@')
-                    {
-                        StringFormat += m.Value.Substring(1);
-                    }
-                    else
-                    {
-                        var fieldName = StringHelpers.Coalesce(m.Groups[1].Value, m.Groups[2].Value);
-                        int pos;
-                        if (!fieldPosByFieldName.TryGetValue(fieldName, out pos))
-                        {
-                            pos = fieldPosByFieldName.Count;
-                            fieldPosByFieldName[fieldName] = pos;
-                        }
-                        StringFormat += "{" + pos.ToString() + "}";
-                    }
-                    startAt = m.Index + m.Length;
-                    goto Again;
-                }
-                else
-                {
-                    StringFormat += template.Substring(startAt);
-                }
-                Fieldnames = fieldPosByFieldName.OrderBy(kvp => kvp.Value).Select(kvp => kvp.Key).ToList().AsReadOnly();
-            }
-        }
-
     }
 }
