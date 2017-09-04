@@ -24,7 +24,19 @@ namespace RevolutionaryStuff.SSIS
             => Parse.ParseBool(GetCustomPropertyAsString(propertyName), fallback);
 
         protected string GetCustomPropertyAsString(string propertyName, string fallback = null)
-            => StringHelpers.Coalesce(ComponentMetaData.CustomPropertyCollection[propertyName].Value as string, fallback);
+        {
+            try
+            {
+                var p = ComponentMetaData.CustomPropertyCollection[propertyName];
+                if (p != null)
+                {
+                    return (string)p.Value;
+                }
+            }
+            catch (Exception)
+            { }
+            return fallback;
+        }
 
         protected IDTSCustomProperty100 CreateCustomProperty(string name, string defaultValue, string description)
         {
