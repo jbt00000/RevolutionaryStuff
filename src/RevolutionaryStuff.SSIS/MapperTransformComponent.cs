@@ -148,6 +148,8 @@ namespace RevolutionaryStuff.SSIS
         public override void PreExecute()
         {
             base.PreExecute();
+            InputRootProcessed = false;
+            InputComparisonProcessed = false;
             if (GetCustomPropertyAsBool(PropertyNames.IgnoreCase, true))
             {
                 ValByKey = new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
@@ -279,14 +281,6 @@ namespace RevolutionaryStuff.SSIS
             {
                 MatchedOutputBuffer = buffers[0];
             }
-        }
-
-        public override void PrepareForExecute()
-        {
-            base.PrepareForExecute();
-            ValByKey.Clear();
-            InputRootProcessed = false;
-            InputComparisonProcessed = false;
         }
 
         private bool InputComparisonProcessed = false;
