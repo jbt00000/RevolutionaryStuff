@@ -289,7 +289,7 @@ namespace RevolutionaryStuff.SSIS
                 fingerprinter.Clear();
                 sourceVals.Clear();
                 ++rowsProcessed;
-                if (InputFingerprintsSampled < FingerprintSampleSize)
+                if (InputFingerprintsSampled < SampleSize)
                 {
                     ++InputFingerprintsSampled;
                     FireInformation(InformationMessageCodes.ExampleFingerprint, fingerprint);
@@ -380,7 +380,6 @@ namespace RevolutionaryStuff.SSIS
         private bool InputComparisonProcessed = false;
         private bool InputRootProcessed = false;
         private int ComparisonFingerprintsSampled = 0;
-        private const int FingerprintSampleSize = 10;
 
         private void ProcessRightInput(IDTSInput100 input, PipelineBuffer buffer)
         {
@@ -409,7 +408,7 @@ namespace RevolutionaryStuff.SSIS
                 fingerprinter.Clear();
                 appends.Clear();
                 ++rowsProcessed;
-                if (ComparisonFingerprintsSampled < FingerprintSampleSize)
+                if (ComparisonFingerprintsSampled < SampleSize)
                 {
                     ++ComparisonFingerprintsSampled;
                     FireInformation(InformationMessageCodes.ExampleFingerprint, fingerprint);

@@ -7,6 +7,15 @@ namespace RevolutionaryStuff.SSIS
 {
     public static class SsisHelpers
     {
+        public static IDTSInputColumn100 FindByName(this IDTSInputColumnCollection100 cols, string name)
+        {
+            foreach (IDTSInputColumn100 c in cols)
+            {
+                if (0 == string.Compare(c.Name, name, true)) return c;
+            }
+            return null;
+        }
+
         public static IDTSOutputColumn100 AddOutputColumn(this IDTSOutputColumnCollection100 output, IDTSInputColumn100 inCol, string newName = null)
         {
             var outCol = output.New();
@@ -23,6 +32,9 @@ namespace RevolutionaryStuff.SSIS
                 AddOutputColumn(output, inCol);
             }
         }
+
+        public static void SetObject(this PipelineBuffer buffer, string colName, ColumnBufferMapping cbm, object val)
+            => buffer.SetObject(cbm.ColumnByColumnName[colName].DataType, cbm.PositionByColumnName[colName], val);
 
         public static void SetObject(this PipelineBuffer buffer, DataType dt, int i, object val)
         {

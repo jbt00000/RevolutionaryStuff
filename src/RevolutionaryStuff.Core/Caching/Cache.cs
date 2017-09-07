@@ -210,11 +210,16 @@ namespace RevolutionaryStuff.Core.Caching
             => new SynchronizedCache<K, D>(inner);
 
         public static string CreateKey(params object[] args)
+            => CreateKey((IEnumerable<string>)args);
+
+        public static string CreateKey(IEnumerable<object> args)
         {
             var sb = new StringBuilder();
-            for (int pos = 0; pos < args.Length; ++pos)
+            args = args ?? Empty.ObjectArray;
+            int pos = 0;
+            foreach (var a in args)
             {
-                object o = args[pos];
+                var o = a;
                 if (o == null || o is string)
                 {
                     Stuff.Noop();
@@ -255,7 +260,8 @@ namespace RevolutionaryStuff.Core.Caching
                         o = JsonConvert.ToString(o);
                     }
                 }
-                sb.AppendFormat("{0}: {1}\n", pos, o);
+                sb.AppendFormat("{1}`", pos, o);
+                ++pos;
             }
             return CanonicalizeCacheKey(sb.ToString());
         }

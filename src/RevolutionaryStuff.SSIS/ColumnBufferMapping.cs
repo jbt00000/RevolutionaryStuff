@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.SSIS
     public class ColumnBufferMapping
     {
         public IList<int> PositionByColumnPosition { get; }  = new List<int>();
-        public IDictionary<string, int> PositionByColumnName { get; } = new Dictionary<string, int>();
+        public IDictionary<string, int> PositionByColumnName { get; } = new Dictionary<string, int>(Comparers.CaseInsensitiveStringComparer);
         public IDictionary<string, IDtsColumn> ColumnByColumnName { get; } = new Dictionary<string, IDtsColumn>(Comparers.CaseInsensitiveStringComparer);
 
         public void Add(IDTSInputColumn100 column, int offset)

@@ -1,20 +1,25 @@
 ﻿using RevolutionaryStuff.Core.Crypto;
-using RevolutionaryStuff.Core;
 using System;
 using System.Collections;
 using System.Reflection;
 using System.Text;
+using System.Collections.Generic;
 
 namespace RevolutionaryStuff.Core.Caching
 {
     public static class Cache
     {
         public static string CreateKey(params object[] args)
+            => CreateKey((IEnumerable<string>)args);
+
+        public static string CreateKey(IEnumerable<object> args)
         {
             var sb = new StringBuilder();
-            for (int pos = 0; pos < args.Length; ++pos)
+            args = args ?? Empty.ObjectArray;
+            int pos = 0;
+            foreach (var a in args)
             {
-                object o = args[pos];
+                var o = a;
                 if (o == null || o is string)
                 {
                     Stuff.Noop();
@@ -29,7 +34,7 @@ namespace RevolutionaryStuff.Core.Caching
                 }
                 else if (o is IEnumerable)
                 {
-                    o = (o as IEnumerable).Format(",");
+                    o = "["+(o as IEnumerable).Format(",")+"]";
                 }
                 else if (o is Type)
                 {
@@ -43,7 +48,8 @@ namespace RevolutionaryStuff.Core.Caching
                 {
                     o = ((TimeSpan)o).TotalMilliseconds;
                 }
-                sb.AppendFormat("{0}: {1}\n", pos, o);
+                sb.AppendFormat("{1}`", pos, o);
+                ++pos;
             }
             return CanonicalizeCacheKey(sb.ToString());
         }

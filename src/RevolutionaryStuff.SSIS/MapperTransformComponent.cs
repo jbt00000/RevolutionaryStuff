@@ -19,6 +19,7 @@ namespace RevolutionaryStuff.SSIS
         {
             public const string IgnoreCase = CommonPropertyNames.IgnoreCase;
             public const string Mappings = "Mappings";
+            public const string RightMap = "RightMap";
 
             public static class InputProperties
             {
@@ -41,6 +42,7 @@ namespace RevolutionaryStuff.SSIS
             ComponentMetaData.Name = "The Mapper";
             ComponentMetaData.Description = "A SSIS Data Flow Transformation Component that maps keys from the right table onto the left based off of join conditions.";
 
+            CreateCustomProperty(PropertyNames.RightMap, null, "LookupVal,LookupKey1,...LookupKeyN");
             CreateCustomProperty(PropertyNames.Mappings, null, "Lookup1ResultFieldName,Lookup1Key1,...Lookup1KeyN;LookupNResultFieldName,LookupNKey1,...LookupNKeyN;");
             CreateCustomProperty(PropertyNames.IgnoreCase, "1", "When {1,true} the match is case insensitive, when {0,false} it is case sensitive.");
 
@@ -53,8 +55,11 @@ namespace RevolutionaryStuff.SSIS
             matched.Name = PropertyNames.OutputProperties.Matches;
             matched.Description = "Root rows that have have corresponding matches in the Comparison";
         }
+
+        IList<string> GetRightMap()
+            => CSV.ParseLine(GetCustomPropertyAsString(PropertyNames.RightMap) ?? "").Select(z => StringHelpers.TrimOrNull(z)).Where(z => z != null).ToList();
         
-        IDictionary<string, IList<string>> ParseMappings()
+        IDictionary<string, IList<string>> GetLeftMaps()
         {
             var p = ComponentMetaData.CustomPropertyCollection[PropertyNames.Mappings];
             var d = new Dictionary<string, IList<string>>();
@@ -92,18 +97,19 @@ namespace RevolutionaryStuff.SSIS
         {
             for (int z = 0; z < 2; ++z)
             {
-                var input = ComponentMetaData.InputCollection[z].GetVirtualInput();
-                foreach (IDTSVirtualInputColumn100 vcol in input.VirtualInputColumnCollection)
+                var virtualInputs = ComponentMetaData.InputCollection[z].GetVirtualInput();
+                foreach (IDTSVirtualInputColumn100 vcol in virtualInputs.VirtualInputColumnCollection)
                 {
-                    input.SetUsageType(vcol.LineageID, DTSUsageType.UT_READONLY);
+                    virtualInputs.SetUsageType(vcol.LineageID, DTSUsageType.UT_READONLY);
                 }
             }
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
-            var rightKeyCol = ComponentMetaData.InputCollection[1].InputColumnCollection[0];
+            var rmap = GetRightMap();
+            var rightKeyCol = ComponentMetaData.InputCollection[1].InputColumnCollection.FindByName(rmap[0]);
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
             outCols.RemoveAll();
             outCols.AddOutputColumns(leftCols);
-            var m = ParseMappings();
+            var m = GetLeftMaps();
             foreach (var key in m.Keys)
             {
                 outCols.AddOutputColumn(rightKeyCol, key);
@@ -124,10 +130,13 @@ namespace RevolutionaryStuff.SSIS
                     {
                         var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
                         var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
-                        var m = ParseMappings();
-                        if (outCols.Count != leftCols.Count + m.Count)
+                        var m = GetLeftMaps();
+                        if (
+                            outCols.Count != leftCols.Count + m.Count ||
+                            GetRightMap().Count != ComponentMetaData.InputCollection[1].InputColumnCollection.Count
+                            )
                         {
-                            ret = DTSValidationStatus.VS_NEEDSNEWMETADATA;
+                            ret = DTSValidationStatus.VS_ISBROKEN;
                         }
                     }
                     break;
@@ -148,6 +157,16 @@ namespace RevolutionaryStuff.SSIS
         public override void PreExecute()
         {
             base.PreExecute();
+
+            foreach (var kvp in GetLeftMaps())
+            {
+                FireInformation(InformationMessageCodes.LeftMap, $"{kvp.Key}=>{CSV.FormatLine(kvp.Value, false)}");
+            }
+            var r = GetRightMap();
+            FireInformation(InformationMessageCodes.RightMap, $"{r[0]}=>{CSV.FormatLine(r.Skip(1), false)}");
+
+            LeftSamples = 0;
+            RightSamples = 0;
             InputRootProcessed = false;
             InputComparisonProcessed = false;
             if (GetCustomPropertyAsBool(PropertyNames.IgnoreCase, true))
@@ -193,10 +212,9 @@ namespace RevolutionaryStuff.SSIS
         private void ProcessLeftInput(IDTSInput100 input, PipelineBuffer buffer)
         {
             if (!ComponentMetaData.OutputCollection[0].IsAttached) return;
-            var m = ParseMappings();
+            var m = GetLeftMaps();
 
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
-            var rightKeyCol = ComponentMetaData.InputCollection[1].InputColumnCollection[0];
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
             var outputBuffer = MatchedOutputBuffer;
 
@@ -229,16 +247,25 @@ namespace RevolutionaryStuff.SSIS
                     }
                     var key = Cache.CreateKey(keys);
                     object val;
+                    bool hit;
                     if (ValByKey.TryGetValue(key, out val))
                     {
+                        hit = true;
                         ++ProcessInputRootHits;
                     }
                     else
                     {
+                        hit = false;
                         ++ProcessInputRootMisses;
                         val = null;
                     }
-                    outputBuffer.SetObject(rightKeyCol.DataType, OutputBufferColumnIndicees.PositionByColumnName[kvp.Key], val);
+                    var outCol = OutputBufferColumnIndicees.ColumnByColumnName[kvp.Key];
+                    outputBuffer.SetObject(outCol.DataType, OutputBufferColumnIndicees.PositionByColumnName[kvp.Key], val);
+                    if (LeftSamples*m.Count < SampleSize)
+                    {
+                        ++LeftSamples;
+                        FireInformation(InformationMessageCodes.LeftSample, hit ? $"{val}=>{key}" : $"<MISS>=>{key}");
+                    }
                 }
                 ++rowsProcessed;
             }
@@ -285,32 +312,32 @@ namespace RevolutionaryStuff.SSIS
 
         private bool InputComparisonProcessed = false;
         private bool InputRootProcessed = false;
-        private int ComparisonFingerprintsSampled = 0;
-        private const int FingerprintSampleSize = 10;
+        private int RightSamples;
+        private int LeftSamples;
         private IDictionary<string, object> ValByKey;
 
         private void ProcessRightInput(IDTSInput100 input, PipelineBuffer buffer)
         {
             int rowsProcessed = 0;
             var keys = new List<object>();
+            var rmap = GetRightMap();
             while (buffer.NextRow())
             {
                 keys.Clear();
-                var idCol = input.InputColumnCollection[0];
-                var idVal = GetObject(idCol.Name, idCol.DataType, 0, buffer, InputComparisonBufferColumnIndicees);
-                for (int z = 1; z < input.InputColumnCollection.Count; ++z)
+                var idCol = rmap.First();
+                var idVal = GetObject(rmap[0], buffer, InputComparisonBufferColumnIndicees);
+                for (int z = 1; z < rmap.Count; ++z)
                 {
-                    var col = input.InputColumnCollection[z];
-                    var o = GetObject(col.Name, buffer, InputComparisonBufferColumnIndicees);
+                    var o = GetObject(rmap[z], buffer, InputComparisonBufferColumnIndicees);
                     keys.Add(o);
                 }
                 var key = Cache.CreateKey(keys);
                 ValByKey[key] = idVal;
                 ++rowsProcessed;
-                if (ComparisonFingerprintsSampled < FingerprintSampleSize)
+                if (RightSamples < SampleSize)
                 {
-                    ++ComparisonFingerprintsSampled;
-                    FireInformation(InformationMessageCodes.ExampleFingerprint, $"{idVal}<={key}");
+                    ++RightSamples;
+                    FireInformation(InformationMessageCodes.RightSample, $"{idVal}=>{key}");
                 }
             }
             FireInformation(InformationMessageCodes.RowsProcessed, $"{rowsProcessed}");
@@ -320,11 +347,14 @@ namespace RevolutionaryStuff.SSIS
         private enum InformationMessageCodes
         {
             RowsProcessed = 1,
-            ExampleFingerprint = 2,
+            RightSample = 2,
+            LeftSample = 3,
             MatchStats = 4,
             CommonColumns = 5,
             LeftColumns = 6,
             RightColumns = 7,
+            LeftMap = 8,
+            RightMap = 9,
         }
     }
 }

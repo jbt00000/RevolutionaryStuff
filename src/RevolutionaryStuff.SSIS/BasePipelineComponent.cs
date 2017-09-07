@@ -38,6 +38,8 @@ namespace RevolutionaryStuff.SSIS
             return fallback;
         }
 
+        protected const int SampleSize = 25;
+
         protected IDTSCustomProperty100 CreateCustomProperty(string name, string defaultValue, string description)
         {
             var p = ComponentMetaData.CustomPropertyCollection.New();
@@ -57,14 +59,17 @@ namespace RevolutionaryStuff.SSIS
 
         private bool DebuggerAttachmentWaitDone;
 
+        private static bool DebuggerAttachmentWaitDone_s = false;
+
         protected void DebuggerAttachmentWait()
         {
             lock (this)
             {
+                DebuggerAttachmentWaitDone_s = DebuggerAttachmentWaitDone_s && true; //to get rid of compiler warning and worse yet, optimizations...
                 if (!DebuggerAttachmentWaitDone)
                 {
-#if false
-                    for (int z = 0; z < 60; ++z)
+#if false || true
+                    for (int z = 0; z < 60 && !DebuggerAttachmentWaitDone_s; ++z)
                     {
                         System.Threading.Thread.Sleep(1000);
                         FireInformation(BasePipelineInfoMessages.WaitingForDebuggerAttachment, $"{this.GetType().Name} {z}/60");

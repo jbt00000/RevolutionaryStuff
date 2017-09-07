@@ -13,6 +13,9 @@ namespace RevolutionaryStuff.SSIS
 
         public DataType DataType { get; private set; }
 
+        private readonly IDTSInputColumn100 InnerInputColumn;
+        private readonly IDTSOutputColumn100 InnerOutputColumn;
+
         private DtsColumn(bool isInputColumn, string name, DataType dataType)
         {
             IsInputColumn = isInputColumn;
@@ -22,10 +25,14 @@ namespace RevolutionaryStuff.SSIS
 
         public DtsColumn(IDTSInputColumn100 column)
             : this(true, column.Name, column.DataType)
-        { }
+        {
+            InnerInputColumn = column;
+        }
 
         public DtsColumn(IDTSOutputColumn100 column)
             : this(false, column.Name, column.DataType)
-        { }
+        {
+            InnerOutputColumn = column;
+        }
     }
 }
