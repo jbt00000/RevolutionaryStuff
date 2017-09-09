@@ -22,6 +22,9 @@ namespace RevolutionaryStuff.SSIS
             public const string OutputColumnNames = "OutputColumnNames";
         }
 
+        private const char StringConstantPrefix = ':';
+        private const char IntConstantPrefix = '=';
+
         public override void ProvideComponentProperties()
         {
             base.ProvideComponentProperties();
@@ -59,7 +62,7 @@ namespace RevolutionaryStuff.SSIS
         }
 
         private bool IsLiteralColumn(string colName)
-            => colName.StartsWith(":");
+            => colName.StartsWith(":")|| colName.StartsWith("=");
 
         IList<string> GetOutputColumnNames()
             => CSV.ParseLine(GetCustomPropertyAsString(PropertyNames.OutputColumnNames) ?? "").Select(z => StringHelpers.TrimOrNull(z)).Where(z => z != null).ToList();
@@ -108,7 +111,18 @@ namespace RevolutionaryStuff.SSIS
                 {
                     var outCol = outCols.New();
                     outCol.Name = outName;
-                    outCol.SetDataTypeProperties(DataType.DT_WSTR, 80, 0, 0, 0);
+                    var t = inName[0];
+                    switch (t)
+                    {
+                        case IntConstantPrefix:
+                            outCol.SetDataTypeProperties(DataType.DT_I4, 0, 0, 0, 0);
+                            break;
+                        case StringConstantPrefix:
+                            outCol.SetDataTypeProperties(DataType.DT_WSTR, 80, 0, 0, 0);
+                            break;
+                        default:
+                            throw new UnexpectedSwitchValueException(t);
+                    }
                 }
                 else
                 {
@@ -170,7 +184,6 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
         {
             var m = GetMappings();
@@ -187,9 +200,21 @@ namespace RevolutionaryStuff.SSIS
                     {
                         var inColName = row[z];
                         object o;
-                        if (inColName.StartsWith(":"))
+                        if (IsLiteralColumn(inColName))
                         {
-                            o = inColName.Substring(1);
+                            var sval = inColName.Substring(1);
+                            var t = inColName[0];
+                            switch (t)
+                            {
+                                case IntConstantPrefix:
+                                    o = int.Parse(sval);
+                                    break;
+                                case StringConstantPrefix:
+                                    o = sval;
+                                    break;
+                                default:
+                                    throw new UnexpectedSwitchValueException(t);
+                            }
                         }
                         else
                         {

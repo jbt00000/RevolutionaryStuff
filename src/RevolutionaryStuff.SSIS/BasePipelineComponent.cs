@@ -68,7 +68,7 @@ namespace RevolutionaryStuff.SSIS
                 DebuggerAttachmentWaitDone_s = DebuggerAttachmentWaitDone_s && true; //to get rid of compiler warning and worse yet, optimizations...
                 if (!DebuggerAttachmentWaitDone)
                 {
-#if false || true
+#if false 
                     for (int z = 0; z < 60 && !DebuggerAttachmentWaitDone_s; ++z)
                     {
                         System.Threading.Thread.Sleep(1000);
@@ -129,13 +129,11 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-        protected object GetObject(string colName, PipelineBuffer buffer, ColumnBufferMapping cbm)
-            => GetObject(colName, cbm.ColumnByColumnName[colName].DataType, cbm.PositionByColumnName[colName], buffer, cbm);
-
         /// <remarks>https://technet.microsoft.com/en-us/library/ms345165(v=sql.110).aspx</remarks>
-        protected object GetObject(string colName, DataType colDataType, int colIndex, PipelineBuffer buffer, ColumnBufferMapping cbm)
+        protected object GetObject(string colName, PipelineBuffer buffer, ColumnBufferMapping cbm)
         {
-            var n = cbm.PositionByColumnPosition[colIndex];
+            var colDataType = cbm.GetColumnFromColumnName(colName).DataType;
+            var n = cbm.GetPositionFromColumnName(colName);
             if (buffer.IsNull(n)) return null;
             switch (colDataType)
             {

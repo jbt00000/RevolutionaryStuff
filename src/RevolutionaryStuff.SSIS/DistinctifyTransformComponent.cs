@@ -75,7 +75,7 @@ namespace RevolutionaryStuff.SSIS
                         for (int z = 0; z < input.InputColumnCollection.Count; ++z)
                         {
                             var col = input.InputColumnCollection[z];
-                            var o = GetObject(col.Name, col.DataType, z, buffer, InputCbm);
+                            var o = GetObject(col.Name, buffer, InputCbm);
                             data.Add(o);
                         }
                         var key = Cache.CreateKey(data);

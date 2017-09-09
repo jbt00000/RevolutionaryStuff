@@ -25,7 +25,7 @@ namespace RevolutionaryStuff.SSIS
             foreach (var kvp in ValsByKey)
             {
                 var sVal = (kvp.Value ?? "").ToString().Trim();
-                Strings.Append($"{kvp.Key.ToLower()}={sVal}|");
+                Strings.Append($"{kvp.Key.ToLower().Trim()}={sVal}|");
             }
             var s = Strings.ToString();
             if (s.Length > 200)

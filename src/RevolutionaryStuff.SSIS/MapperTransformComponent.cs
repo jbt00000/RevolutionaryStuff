@@ -226,8 +226,8 @@ namespace RevolutionaryStuff.SSIS
                 for (int z = 0; z < input.InputColumnCollection.Count; ++z)
                 {
                     var col = input.InputColumnCollection[z];
-                    var o = GetObject(col.Name, col.DataType, z, buffer, InputRootBufferColumnIndicees);
-                    outputBuffer.SetObject(col.DataType, OutputBufferColumnIndicees.PositionByColumnName[col.Name], o);
+                    var o = GetObject(col.Name, buffer, InputRootBufferColumnIndicees);
+                    outputBuffer.SetObject(col.DataType, OutputBufferColumnIndicees.GetPositionFromColumnName(col.Name), o);
                 }
                 foreach (var kvp in m)
                 {
@@ -259,8 +259,8 @@ namespace RevolutionaryStuff.SSIS
                         ++ProcessInputRootMisses;
                         val = null;
                     }
-                    var outCol = OutputBufferColumnIndicees.ColumnByColumnName[kvp.Key];
-                    outputBuffer.SetObject(outCol.DataType, OutputBufferColumnIndicees.PositionByColumnName[kvp.Key], val);
+                    var outCol = OutputBufferColumnIndicees.GetColumnFromColumnName(kvp.Key);
+                    outputBuffer.SetObject(outCol.DataType, OutputBufferColumnIndicees.GetPositionFromColumnName(kvp.Key), val);
                     if (LeftSamples*m.Count < SampleSize)
                     {
                         ++LeftSamples;

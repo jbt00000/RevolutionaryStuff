@@ -92,8 +92,8 @@ namespace RevolutionaryStuff.SSIS
         {
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var rightCols = ComponentMetaData.InputCollection[1].InputColumnCollection;
-            var leftDefs = new HashSet<string>();
-            var rightDefs = new HashSet<string>();
+            var leftDefs = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
+            var rightDefs = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
             for (int z = 0; z < leftCols.Count; ++z)
             {
                 var col = leftCols[z];
@@ -112,7 +112,7 @@ namespace RevolutionaryStuff.SSIS
                 }
                 rightDefs.Add(CreateColumnFingerprint(rightCols[z]));
             }
-            var commonDefs = new HashSet<string>(leftDefs.Intersect(rightDefs));
+            var commonDefs = new HashSet<string>(leftDefs.Intersect(rightDefs), Comparers.CaseInsensitiveStringComparer);
             if (fireInformationMessages)
             {
                 foreach (var c in commonDefs)
@@ -135,7 +135,7 @@ namespace RevolutionaryStuff.SSIS
             }
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var rightCols = ComponentMetaData.InputCollection[1].InputColumnCollection;
-            var commonDefs = GetComparisonColumnKeys();
+            var commonDefs = GetComparisonColumnKeys(true);
             var matchedOutputColumns = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
             matchedOutputColumns.RemoveAll();
             matchedOutputColumns.AddOutputColumns(leftCols);
@@ -258,7 +258,7 @@ namespace RevolutionaryStuff.SSIS
                 {
                     var col = input.InputColumnCollection[z];
                     var colFingerprint = CreateColumnFingerprint(col);
-                    var o = GetObject(col.Name, col.DataType, z, buffer, InputRootBufferColumnIndicees);
+                    var o = GetObject(col.Name, buffer, InputRootBufferColumnIndicees);
                     if (commonFingerprints.Contains(colFingerprint))
                     {
                         fingerprinter.Include(col.Name, o);
@@ -393,7 +393,7 @@ namespace RevolutionaryStuff.SSIS
                 {
                     var col = input.InputColumnCollection[z];
                     var colFingerprint = CreateColumnFingerprint(col);
-                    var o = GetObject(col.Name, col.DataType, z, buffer, InputComparisonBufferColumnIndicees);
+                    var o = GetObject(col.Name, buffer, InputComparisonBufferColumnIndicees);
                     if (commonFingerprints.Contains(colFingerprint))
                     {
                         fingerprinter.Include(col.Name, o);
@@ -464,7 +464,7 @@ namespace RevolutionaryStuff.SSIS
                     def = col.DataType.ToString();
                     break;
             }
-            def = col.Name + ";" + def;
+            def = col.Name.Trim() + ";" + def;
             return def.ToLower();
         }
         #endregion

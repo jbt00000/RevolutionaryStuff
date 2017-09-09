@@ -34,7 +34,7 @@ namespace RevolutionaryStuff.SSIS
         }
 
         public static void SetObject(this PipelineBuffer buffer, string colName, ColumnBufferMapping cbm, object val)
-            => buffer.SetObject(cbm.ColumnByColumnName[colName].DataType, cbm.PositionByColumnName[colName], val);
+            => buffer.SetObject(cbm.GetColumnFromColumnName(colName).DataType, cbm.GetPositionFromColumnName(colName), val);
 
         public static void SetObject(this PipelineBuffer buffer, DataType dt, int i, object val)
         {

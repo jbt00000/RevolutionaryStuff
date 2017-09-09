@@ -62,7 +62,7 @@ namespace RevolutionaryStuff.SSIS
                             var col = input.InputColumnCollection[z];
                             if (IsStringDataType(col.DataType))
                             {
-                                var sIn = GetObject(col.Name, col.DataType, z, buffer, InputCbm) as string;
+                                var sIn = GetObject(col.Name, buffer, InputCbm) as string;
                                 if (sIn != null)
                                 {
                                     var sOut = sIn.ToString();

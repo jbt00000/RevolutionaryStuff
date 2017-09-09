@@ -125,7 +125,7 @@ namespace RevolutionaryStuff.SSIS
 
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
-            int outputColumnPosition = OutputBufferColumnIndicees.PositionByColumnName[OutputColumnName];
+            int outputColumnPosition = OutputBufferColumnIndicees.GetPositionFromColumnName(OutputColumnName);
             var vals = new object[JT.Fieldnames.Count];
             while (buffer.NextRow())
             {
