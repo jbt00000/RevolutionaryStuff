@@ -16,10 +16,10 @@ namespace RevolutionaryStuff.SSIS
         private readonly IDictionary<string, IDtsColumn> ColumnByColumnName = new Dictionary<string, IDtsColumn>(Comparers.CaseInsensitiveStringComparer);
 
         public IDtsColumn GetColumnFromColumnName(string columnName)
-            => ColumnByColumnName[NormalizeColumnName(columnName)];
+            => ColumnByColumnName.TryGetValue(columnName, out var z) ? z : ColumnByColumnName[NormalizeColumnName(columnName)];
 
         public int GetPositionFromColumnName(string columnName)
-            => PositionByColumnName[NormalizeColumnName(columnName)];
+            => PositionByColumnName.TryGetValue(columnName, out var z) ? z : PositionByColumnName[NormalizeColumnName(columnName)];
 
         public void Add(IDTSInputColumn100 column, int offset)
             => Add(new DtsColumn(column), offset);
@@ -29,10 +29,13 @@ namespace RevolutionaryStuff.SSIS
 
         public void Add(IDtsColumn column, int offset)
         {
-            var name = NormalizeColumnName(column.Name);
+            var name = column.Name;
+            var normalizedName = name.Trim();
             PositionByColumnPosition.Add(offset);
             PositionByColumnName[name] = offset;
+            PositionByColumnName[normalizedName] = offset;
             ColumnByColumnName[name] = column;
+            ColumnByColumnName[normalizedName] = column;
         }
     }
 }

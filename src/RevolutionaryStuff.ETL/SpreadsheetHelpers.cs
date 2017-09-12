@@ -17,12 +17,22 @@ namespace RevolutionaryStuff.ETL
         {
             try
             {
-                if (t == typeof(DateTime) && val is string)
+                var sval = val as string;
+                if (t == typeof(DateTime) && sval != null)
                 {
                     double d;
-                    if (double.TryParse((string)val, out d))
+                    if (double.TryParse(sval, out d))
                     {
                         return DateTime.FromOADate(d);
+                    }
+                }
+                else if (t == typeof(Decimal) && sval != null)
+                {
+                    Decimal d;
+                    //https://stackoverflow.com/questions/22291165/parsing-decimal-in-scientific-notation
+                    if (Decimal.TryParse(sval, System.Globalization.NumberStyles.Float, null, out d))
+                    {
+                        return d;
                     }
                 }
                 return Convert.ChangeType(val, t);
