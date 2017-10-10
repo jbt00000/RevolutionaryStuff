@@ -81,6 +81,9 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("SkipRawRows", Mandatory = false, Description = "When a CSVish file, the number of raw rows to skip.  These should be prior to even the header row.")]
         public int SkipRawRows = 0;
 
+        [CommandLineSwitch("Parallelism", Mandatory = false, Mode = NameofModeImport)]
+        public bool Parallelism = true;
+
         [CommandLineSwitch("NotifyIncrement", Mandatory = false, Mode = NameofModeImport)]
         public int NotifyIncrement = 1000;
 
@@ -361,13 +364,15 @@ namespace RevolutionaryStuff.TheLoader
                 {
                     loadSettings.SheetSettings = SheetNames.Distinct().ConvertAll(sheetName => new LoadRowsFromSpreadsheetSettings
                     {
+                        UseSheetNameForTableName = true,
                         SheetName = sheetName,
                     }).ToList();
                 }
                 else
                 {
                     loadSettings.SheetSettings = new List<LoadRowsFromSpreadsheetSettings> { new LoadRowsFromSpreadsheetSettings {
-                         SheetNumber = 0
+                        UseSheetNameForTableName = true,
+                        SheetNumber = 0
                     } };
                 }
                 foreach (var rs in loadSettings.SheetSettings)
@@ -375,6 +380,7 @@ namespace RevolutionaryStuff.TheLoader
                     rs.DuplicateColumnRenamer = DataTableHelpers.OnDuplicateAppendSeqeuntialNumber;
                     rs.RowNumberColumnName = RowNumberColumnName;
                 }
+                ds = new DataSet();
                 ETL.SpreadsheetHelpers.LoadSheetsFromExcel(ds, File.OpenRead(FilePath), loadSettings);
             }
             else
@@ -426,7 +432,12 @@ namespace RevolutionaryStuff.TheLoader
         private void Load(DataSet ds)
         {
             int tableNum = 0;
-            Parallel.ForEach(ds.Tables.OfType<DataTable>(), dt => 
+            var po = new ParallelOptions { };
+            if (!Parallelism)
+            {
+                po.MaxDegreeOfParallelism = 1;
+            }
+            Parallel.ForEach(ds.Tables.OfType<DataTable>(), po, dt => 
             {
                 Interlocked.Increment(ref tableNum);
                 foreach (var colName in SkipCols)

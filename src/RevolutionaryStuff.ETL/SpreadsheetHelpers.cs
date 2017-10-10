@@ -239,6 +239,9 @@ namespace RevolutionaryStuff.ETL
 
         public static void LoadSheetsFromExcel(this DataSet ds, Stream st, LoadTablesFromSpreadsheetSettings settings = null)
         {
+            Requires.NonNull(ds, nameof(ds));
+            Requires.ReadableStreamArg(st, nameof(st));
+
             settings = settings ?? new LoadTablesFromSpreadsheetSettings();
             using (var sd = SpreadsheetDocument.Open(st, false))
             {
@@ -262,6 +265,9 @@ namespace RevolutionaryStuff.ETL
 
         public static void LoadRowsFromExcel(this DataTable dt, Stream st, LoadRowsFromSpreadsheetSettings settings)
         {
+            Requires.NonNull(dt, nameof(dt));
+            Requires.ReadableStreamArg(st, nameof(st));
+
             using (var sd = SpreadsheetDocument.Open(st, false))
             {
                 dt.LoadRowsFromExcel(sd, settings ?? new LoadRowsFromSpreadsheetSettings { SheetNumber = 0 });

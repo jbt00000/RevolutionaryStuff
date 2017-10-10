@@ -24,12 +24,12 @@ These were formerly used in the standalone UploadTable command line program.</De
   <Choose>
     <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
       <PropertyGroup>
-        <DefineConstants>NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
+        <DefineConstants>TRACE;NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
       </PropertyGroup>
     </When>
     <When Condition="'$(TargetFramework)' == 'net462'">
       <PropertyGroup>
-        <DefineConstants>NET462</DefineConstants>
+        <DefineConstants>TRACE;NET462;DEBUG</DefineConstants>
       </PropertyGroup>
     </When>
   </Choose>
