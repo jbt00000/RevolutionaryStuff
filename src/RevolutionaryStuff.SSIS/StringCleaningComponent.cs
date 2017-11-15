@@ -1,5 +1,7 @@
 ﻿using Microsoft.SqlServer.Dts.Pipeline;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
+using System.Runtime.InteropServices;
+using Microsoft.SqlServer.Dts.Runtime.Wrapper;
 
 namespace RevolutionaryStuff.SSIS
 {
@@ -7,13 +9,9 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "String Cleaning",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = false,
-        IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
+        IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class StringCleaningComponent : BasePipelineComponent
     {
-        public StringCleaningComponent()
-            : base()
-        { }
-
         public override void ProvideComponentProperties()
         {
             base.ProvideComponentProperties();

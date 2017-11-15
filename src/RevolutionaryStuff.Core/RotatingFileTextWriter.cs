@@ -94,18 +94,14 @@ namespace RevolutionaryStuff.Core
         }
 
         public override void Flush()
-        {
-            if (null != Writer)
-            {
-                Writer.Flush();
-            }
-        }
+            => Writer?.Flush();
 
-        private void Close()
+        public override void Close()
         {
             if (null != Writer)
             {
                 Flush();
+                Writer.Close();
                 Writer = null;
             }
         }

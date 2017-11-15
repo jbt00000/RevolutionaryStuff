@@ -14,7 +14,7 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "The Joiner",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
-        IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
+        IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class MatcherTransformComponent : BasePipelineComponent
     {
         private static class PropertyNames

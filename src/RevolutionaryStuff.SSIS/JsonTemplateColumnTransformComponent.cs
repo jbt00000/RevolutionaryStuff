@@ -12,7 +12,7 @@ namespace RevolutionaryStuff.SSIS
     [DtsPipelineComponent(
         DisplayName = "JSON Text Template Column",
         ComponentType = ComponentType.Transform,
-        IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
+        IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class JsonTemplateColumnTransformComponent : BasePipelineComponent
     {
         private static class PropertyNames

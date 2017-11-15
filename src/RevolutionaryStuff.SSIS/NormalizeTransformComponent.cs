@@ -13,7 +13,7 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "Normalize",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
-        IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
+        IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class NormalizeTransformComponent : BasePipelineComponent
     {
         private static class PropertyNames

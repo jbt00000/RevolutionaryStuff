@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Extensions xmlns="http://www.microsoft.com/SqlServer/Dts/Extensions.xsd">
+  <PipelineComponents>
+    <PipelineComponent Identifier="StringCleaningComponent" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.StringCleaningComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="RowNumberTransformComponent" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.RowNumberTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="Normalize" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.NormalizeTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="MatcherTransformComponent" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.MatcherTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="MapperTransformComponent" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.MapperTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="JsonTemplateColumnTransformComponent" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.JsonTemplateColumnTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="Distinctify" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.DistinctifyTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="NullDestination" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.NullDestination, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+  </PipelineComponents>
+</Extensions>

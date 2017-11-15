@@ -12,7 +12,7 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "The Mapper",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
-        IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
+        IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class MapperTransformComponent : BasePipelineComponent
     {
         private static class PropertyNames

@@ -9,7 +9,7 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "Distinctify",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = false,
-        IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
+        IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class DistinctifyTransformComponent : BasePipelineComponent
     {
         public DistinctifyTransformComponent()

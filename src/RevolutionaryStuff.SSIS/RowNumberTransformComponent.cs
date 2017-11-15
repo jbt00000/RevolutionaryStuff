@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.SSIS
     [DtsPipelineComponent(
         DisplayName = "Row Number Column",
         ComponentType = ComponentType.Transform,
-        IconResource = "RevolutionaryStuff.SSIS.Resources.Icon1.ico")]
+        IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class RowNumberTransformComponent : BasePipelineComponent
     {
         private static class PropertyNames

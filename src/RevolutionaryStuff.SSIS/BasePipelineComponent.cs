@@ -38,6 +38,11 @@ namespace RevolutionaryStuff.SSIS
             return fallback;
         }
 
+        private enum BasePipelineComponentCodes
+        {
+            Error,
+        };
+
         protected const int SampleSize = 25;
 
         protected IDTSCustomProperty100 CreateCustomProperty(string name, string defaultValue, string description)
