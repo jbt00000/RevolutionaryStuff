@@ -32,10 +32,12 @@ namespace RevolutionaryStuff.SSIS
             output.Name = "Distinct Rows";
             output.SynchronousInputID = input.ID;
 
+            /*
             output = ComponentMetaData.OutputCollection.New();
             output.ExclusionGroup = 1;
             output.Name = "Duplicate Rows";
             output.SynchronousInputID = input.ID;
+            */
         }
 
         public override void OnInputPathAttached(int inputID)
@@ -54,14 +56,14 @@ namespace RevolutionaryStuff.SSIS
         public override void PreExecute()
         {
             base.PreExecute();
-            InputCbm = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
+            InputCbm = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
         }
 
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
         {
             var input = ComponentMetaData.InputCollection.GetObjectByID(inputID);
             var distinctOutput = ComponentMetaData.OutputCollection[0];
-            var duplicateOutput = ComponentMetaData.OutputCollection[1];
+            //var duplicateOutput = ComponentMetaData.OutputCollection[1];
 
             if (buffer != null)
             {
@@ -81,18 +83,18 @@ namespace RevolutionaryStuff.SSIS
                         var key = Cache.CreateKey(data);
                         if (Fingerprints.Contains(key))
                         {
-                            ++DuplicateRows;
-                            buffer.DirectRow(duplicateOutput.ID);
+                            ++DuplicateRowCount;
+                            //buffer.DirectRow(duplicateOutput.ID);
                         }
                         else
                         {
                             Fingerprints.Add(key);
-                            ++OutputRows;
+                            ++DistinctRowCount;
                             buffer.DirectRow(distinctOutput.ID);
                         }
                         if (InputRows % StatusNotifyIncrement == 0)
                         {
-                            FireInformation(InformationMessageCodes.MatchStats, $"InputRows={InputRows}, OutputRows={OutputRows}, DuplicateRows={DuplicateRows}, Fingerprints={Fingerprints.Count}");
+                            FireInformation(InformationMessageCodes.MatchStats, $"InputRows={InputRows}, OutputRows={DistinctRowCount}, DuplicateRows={DuplicateRowCount}, Fingerprints={Fingerprints.Count}");
                         }
                     }
                 }
@@ -100,7 +102,7 @@ namespace RevolutionaryStuff.SSIS
         }
 
         private readonly HashSet<string> Fingerprints = new HashSet<string>();
-        private int InputRows, OutputRows, DuplicateRows;
+        private int InputRows, DistinctRowCount, DuplicateRowCount;
 
 
         private enum InformationMessageCodes

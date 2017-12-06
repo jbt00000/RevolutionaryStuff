@@ -83,6 +83,10 @@ namespace RevolutionaryStuff.Core.Database
             {
                 copy.SqlRowsCopied += (sender, e) => notificationCallback(e.RowsCopied, dt.Rows.Count);
             }
+            foreach (DataColumn dc in dt.Columns)
+            {
+                copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
+            }
             copy.WriteToServer(dt.CreateDataReader());
             copy.Close();
         }

@@ -12,28 +12,41 @@ namespace RevolutionaryStuff.SSIS
         public void Include(string name, object o)
         {
             ValsByKey.Add(name, o);
+            Dirty = true;
         }
 
         public void Clear()
         {
             ValsByKey.Clear();
             Strings.Clear();
+            Dirty = true;
         }
 
-        public string GetFingerPrint()
+        private bool Dirty = true;
+        private string FingerPrint_p;
+
+        public string FingerPrint
         {
-            foreach (var kvp in ValsByKey)
+            get
             {
-                var sVal = (kvp.Value ?? "").ToString().Trim();
-                Strings.Append($"{kvp.Key.ToLower().Trim()}={sVal}|");
+                if (Dirty)
+                {
+                    foreach (var kvp in ValsByKey)
+                    {
+                        var sVal = (kvp.Value ?? "").ToString().Trim();
+                        Strings.Append($"{kvp.Key.ToLower().Trim()}={sVal}|");
+                    }
+                    var s = Strings.ToString();
+                    if (s.Length > 200)
+                    {
+                        var buf = Encoding.Unicode.GetBytes(s);
+                        s = Hash.Compute(buf, Hash.CommonHashAlgorithmNames.Sha1).Urn;
+                    }
+                    FingerPrint_p = s;
+                    Dirty = false;
+                }
+                return FingerPrint_p;
             }
-            var s = Strings.ToString();
-            if (s.Length > 200)
-            {
-                var buf = Encoding.Unicode.GetBytes(s);
-                s = Hash.Compute(buf, Hash.CommonHashAlgorithmNames.Sha1).Urn;
-            }
-            return "[" + s + "]";
         }
     }
 }

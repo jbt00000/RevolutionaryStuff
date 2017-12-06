@@ -188,7 +188,7 @@ namespace RevolutionaryStuff.SSIS
             return null;
         }
 
-        protected ColumnBufferMapping GetBufferColumnIndicees(IDTSInput100 input, int? overrideBuffer=null)
+        protected ColumnBufferMapping CreateColumnBufferMapping(IDTSInput100 input, int? overrideBuffer=null)
         {
             var bufferId = overrideBuffer.GetValueOrDefault(input.Buffer);
             var cbm = new ColumnBufferMapping();
@@ -202,7 +202,7 @@ namespace RevolutionaryStuff.SSIS
             return cbm;
         }
 
-        protected ColumnBufferMapping GetBufferColumnIndicees(IDTSOutput100 output, int? overrideBuffer = null)
+        protected ColumnBufferMapping CreateColumnBufferMapping(IDTSOutput100 output, int? overrideBuffer = null)
         {
             //done via ternary operator instead of GetValueOrDefault so as to not dereference output.Buffer unless critical
             var bufferId = overrideBuffer.HasValue ? overrideBuffer.Value : output.Buffer;

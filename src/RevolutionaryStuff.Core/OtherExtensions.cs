@@ -4,6 +4,9 @@ namespace RevolutionaryStuff.Core
 {
     public static class OtherExtensions
     {
+        public static DateTime ToTimeZone(this DateTime dt, TimeZoneInfo zoneInfo)
+            => TimeZoneInfo.ConvertTime(dt, zoneInfo);
+
         public static bool IsWeekday(this DateTime dt)
         {
             switch (dt.DayOfWeek)

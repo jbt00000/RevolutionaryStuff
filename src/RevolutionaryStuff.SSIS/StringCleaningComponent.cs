@@ -42,7 +42,7 @@ namespace RevolutionaryStuff.SSIS
         public override void PreExecute()
         {
             base.PreExecute();
-            InputCbm = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
+            InputCbm = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
         }
 
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
@@ -63,7 +63,7 @@ namespace RevolutionaryStuff.SSIS
                                 var sIn = GetObject(col.Name, buffer, InputCbm) as string;
                                 if (sIn != null)
                                 {
-                                    var sOut = sIn.ToString();
+                                    var sOut = sIn.ToString().Trim();
                                     sOut = sOut == "" ? null : sOut;
                                     if (sIn != sOut)
                                     {

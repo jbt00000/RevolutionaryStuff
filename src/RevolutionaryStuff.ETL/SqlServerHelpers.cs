@@ -70,6 +70,10 @@ namespace RevolutionaryStuff.ETL
                     e.RowsCopied,
                     dt.Rows.Count
                     ));
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
+                }
                 if (settings.RowsTransferredEventHandler != null)
                 {
                     copy.SqlRowsCopied += (a, b) =>

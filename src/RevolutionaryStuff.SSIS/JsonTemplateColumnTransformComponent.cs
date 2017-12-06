@@ -114,8 +114,8 @@ namespace RevolutionaryStuff.SSIS
         public override void PreExecute()
         {
             base.PreExecute();
-            InputRootBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
-            OutputBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.OutputCollection[0], ComponentMetaData.InputCollection[0].Buffer);
+            InputRootBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
+            OutputBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.OutputCollection[0], ComponentMetaData.InputCollection[0].Buffer);
         }
 
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)

@@ -18,8 +18,14 @@ namespace RevolutionaryStuff.Core
             public const string Select = "Select";
             public const string Skip = "Skip";
             public const string Take = "Take";
+            public const string Concat = "Concat";
             public static string GetSortOrder(bool isAscending)
                 => isAscending ? OrderBy : OrderByDescending;
+        }
+
+        public static Expression GenerateStringConcat(Expression left, Expression right)
+        {
+            return BinaryExpression.Add(left, right, typeof(string).GetMethod(StandardMethodNames.Concat, new[] { typeof(object), typeof(object) }));
         }
 
         private static Expression NestedProperty(Expression arg, string fieldName)
@@ -188,6 +194,84 @@ namespace RevolutionaryStuff.Core
             var exp = Expression.Lambda(prop, param);
             Type[] types = new[] { q.ElementType, exp.Body.Type };
             var mce = Expression.Call(typeof(Queryable), StandardMethodNames.GetSortOrder(isAscending), types, q.Expression, exp);
+            return (IOrderedQueryable<T>)q.Provider.CreateQuery<T>(mce);
+        }
+
+        public enum OrderByFieldUnmappedBehaviors
+        {
+            UpFront,
+            InPlace,
+            AtEnd,
+        }
+
+        public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IEnumerable<string> orderedValues, bool isAscending = true)
+        {
+            var d = new Dictionary<string, string>();
+            string mapped = "o";
+            foreach (var v in orderedValues)
+            {
+                d[v] = mapped;
+                mapped = mapped + "o";
+            }
+            return q.OrderByField(sortColumn, d, isAscending, OrderByFieldUnmappedBehaviors.AtEnd);
+        }
+
+        public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IDictionary<string, string> valueMapper, bool isAscending = true, OrderByFieldUnmappedBehaviors unmappedValueBehavior = OrderByFieldUnmappedBehaviors.InPlace)
+        {
+            Requires.Text(sortColumn, nameof(sortColumn));
+            valueMapper = valueMapper ?? new Dictionary<string, string>();
+
+            var param = Expression.Parameter(typeof(T), "p");
+            var prop = NestedProperty(param, sortColumn);
+
+            var last = valueMapper.Values.OrderBy().LastOrDefault() ?? "";
+
+            Expression expr;
+            switch (unmappedValueBehavior)
+            {
+                case OrderByFieldUnmappedBehaviors.UpFront:
+                    expr = GenerateStringConcat(Expression.Constant("UpFront_a_"), prop);
+                    break;
+                case OrderByFieldUnmappedBehaviors.InPlace:
+                    expr = (Expression)prop;
+                    break;
+                case OrderByFieldUnmappedBehaviors.AtEnd:
+                    expr = GenerateStringConcat(Expression.Constant(last + "_AtEnd_"), prop);
+                    break;
+                default:
+                    throw new UnexpectedSwitchValueException(unmappedValueBehavior);
+            }
+            foreach (var kvp in valueMapper)
+            {
+                Expression mapped;
+                switch (unmappedValueBehavior)
+                {
+                    case OrderByFieldUnmappedBehaviors.UpFront:
+                        mapped = Expression.Constant("UpFront_b_" + kvp.Value);
+                        break;
+                    case OrderByFieldUnmappedBehaviors.InPlace:
+                        mapped = Expression.Constant(kvp.Value);
+                        break;
+                    case OrderByFieldUnmappedBehaviors.AtEnd:
+                        mapped = Expression.Constant(kvp.Value);
+                        break;
+                    default:
+                        throw new UnexpectedSwitchValueException(unmappedValueBehavior);
+                }
+                expr = Expression.Condition(
+                    Expression.Equal(prop, Expression.Constant(kvp.Key)),
+                    mapped,
+                    expr);
+            }
+
+            var types = new[] { q.ElementType, prop.Type };
+            var mce = Expression.Call(
+                typeof(Queryable),
+                StandardMethodNames.GetSortOrder(isAscending),
+                new[] { q.ElementType, typeof(string) },
+                q.Expression,
+                Expression.Lambda<Func<T, string>>(expr, new ParameterExpression[] { param })
+                );
             return (IOrderedQueryable<T>)q.Provider.CreateQuery<T>(mce);
         }
 

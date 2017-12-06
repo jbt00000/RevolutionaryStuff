@@ -483,6 +483,10 @@ namespace RevolutionaryStuff.TheLoader
                 copy.DestinationTableName = $"[{Schema}].[{dt.TableName}]";
                 copy.NotifyAfter = NotifyIncrement;
                 copy.SqlRowsCopied += (sender, e) => Trace.WriteLine($"{copy.DestinationTableName} uploaded {e.RowsCopied}/{dt.Rows.Count} rows...");
+                foreach (DataColumn dc in dt.Columns)
+                {
+                    copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
+                }
                 copy.WriteToServer(dt);
                 copy.Close();
                 Trace.WriteLine($"{copy.DestinationTableName} uploaded {dt.Rows.Count}/{dt.Rows.Count} rows.  Upload is complete.");

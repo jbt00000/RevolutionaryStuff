@@ -177,9 +177,9 @@ namespace RevolutionaryStuff.SSIS
             {
                 ValByKey = new Dictionary<string, object>();
             }
-            InputRootBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
-            InputComparisonBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.InputCollection[1]);
-            OutputBufferColumnIndicees = GetBufferColumnIndicees(ComponentMetaData.OutputCollection[0]);
+            InputRootBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
+            InputComparisonBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[1]);
+            OutputBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.OutputCollection[0]);
         }
 
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)

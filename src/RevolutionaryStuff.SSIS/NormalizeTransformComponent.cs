@@ -170,8 +170,8 @@ namespace RevolutionaryStuff.SSIS
         public override void PreExecute()
         {
             base.PreExecute();
-            InputCbm = GetBufferColumnIndicees(ComponentMetaData.InputCollection[0]);
-            OutputCbm = GetBufferColumnIndicees(ComponentMetaData.OutputCollection[0]);
+            InputCbm = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
+            OutputCbm = CreateColumnBufferMapping(ComponentMetaData.OutputCollection[0]);
         }
 
         PipelineBuffer OutputBuffer;
