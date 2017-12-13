@@ -87,10 +87,8 @@ namespace RevolutionaryStuff.SSIS
             var virtualInputs = ComponentMetaData.InputCollection[0].GetVirtualInput();
             foreach (IDTSVirtualInputColumn100 vcol in virtualInputs.VirtualInputColumnCollection)
             {
-                if (allInputColumnNames.Contains(vcol.Name))
-                {
-                    virtualInputs.SetUsageType(vcol.LineageID, DTSUsageType.UT_READONLY);
-                }
+                var usageType = allInputColumnNames.Contains(vcol.Name) ? DTSUsageType.UT_READONLY : DTSUsageType.UT_IGNORED;
+                virtualInputs.SetUsageType(vcol.LineageID, usageType);
             }
 
             var inputColumnsByName = new Dictionary<string, IDTSInputColumn100>(Comparers.CaseInsensitiveStringComparer);
@@ -103,6 +101,11 @@ namespace RevolutionaryStuff.SSIS
 
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
             outCols.RemoveAll();
+            if (outNames.Count != inNames.Count)
+            {
+                FireInformation(InformationMessageCodes.ColumnCountMismatch, $"Input Column Count({inNames.Count}) != Output Column Count({outNames.Count}) ");
+                return;
+            }
             for (int z = 0; z < inNames.Count; ++z)
             {
                 var outName = outNames[z];
@@ -126,8 +129,15 @@ namespace RevolutionaryStuff.SSIS
                 }
                 else
                 {
-                    var inCol = inputColumnsByName[inName];
-                    outCols.AddOutputColumn(inCol, outName);
+                    if (inputColumnsByName.ContainsKey(inName))
+                    {
+                        var inCol = inputColumnsByName[inName];
+                        outCols.AddOutputColumn(inCol, outName);
+                    }
+                    else
+                    {
+                        FireInformation(InformationMessageCodes.InputColumnDoesNotExist, $"Could not find input column [{inName}]");
+                    }
                 }
             }
         }
@@ -210,7 +220,7 @@ namespace RevolutionaryStuff.SSIS
                                     o = int.Parse(sval);
                                     break;
                                 case StringConstantPrefix:
-                                    o = sval;
+                                    o = StringHelpers.TrimOrNull(sval);
                                     break;
                                 default:
                                     throw new UnexpectedSwitchValueException(t);
@@ -252,6 +262,8 @@ namespace RevolutionaryStuff.SSIS
         private enum InformationMessageCodes
         {
             Sample = 1,
+            ColumnCountMismatch,
+            InputColumnDoesNotExist,
         }
     }
 }

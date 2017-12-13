@@ -1,7 +1,5 @@
 ﻿using Microsoft.SqlServer.Dts.Pipeline;
 using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
-using System.Runtime.InteropServices;
-using Microsoft.SqlServer.Dts.Runtime.Wrapper;
 
 namespace RevolutionaryStuff.SSIS
 {
@@ -33,7 +31,7 @@ namespace RevolutionaryStuff.SSIS
             var input = ComponentMetaData.InputCollection[0].GetVirtualInput();
             foreach (IDTSVirtualInputColumn100 vcol in input.VirtualInputColumnCollection)
             {
-                input.SetUsageType(vcol.LineageID, IsStringDataType(vcol.DataType) ? DTSUsageType.UT_READWRITE : DTSUsageType.UT_READONLY);
+                input.SetUsageType(vcol.LineageID, IsStringDataType(vcol.DataType) ? DTSUsageType.UT_READWRITE : DTSUsageType.UT_IGNORED);
             }
         }
 
@@ -65,9 +63,14 @@ namespace RevolutionaryStuff.SSIS
                                 {
                                     var sOut = sIn.ToString().Trim();
                                     sOut = sOut == "" ? null : sOut;
-                                    if (sIn != sOut)
+                                    var pos = InputCbm.PositionByColumnPosition[z];
+                                    if (sOut == null)
                                     {
-                                        buffer.SetString(InputCbm.PositionByColumnPosition[z], sOut);
+                                        buffer.SetNull(pos);
+                                    }
+                                    else
+                                    {
+                                        buffer.SetString(pos, sOut);
                                     }
                                 }
                             }

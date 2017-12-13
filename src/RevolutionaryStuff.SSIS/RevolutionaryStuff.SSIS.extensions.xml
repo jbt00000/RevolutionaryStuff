@@ -25,5 +25,8 @@
     <PipelineComponent Identifier="NullDestination" Model=".NET">
       <CreationName>RevolutionaryStuff.SSIS.NullDestination, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
     </PipelineComponent>
+    <PipelineComponent Identifier="RankTransformComponent" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.RankTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
   </PipelineComponents>
 </Extensions>

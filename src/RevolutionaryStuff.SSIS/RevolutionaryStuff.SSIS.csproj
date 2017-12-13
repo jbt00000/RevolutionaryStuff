@@ -82,6 +82,7 @@
     <Compile Include="NormalizeTransformComponent.cs" />
     <Compile Include="NullDestination.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RankTransformComponent.cs" />
     <Compile Include="RowNumberTransformComponent.cs" />
     <Compile Include="RsllcCore\BaseDisposable.cs" />
     <Compile Include="RsllcCore\BaseX.cs" />
