@@ -12,6 +12,14 @@ namespace RevolutionaryStuff.SSIS
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class DistinctifyTransformComponent : BasePipelineComponent
     {
+        private static class PropertyNames
+        {
+            public const string IgnoreCase = "Ignore Case";
+        }
+
+        bool IgnoreCase
+            => GetCustomPropertyAsBool(PropertyNames.IgnoreCase);
+
         public DistinctifyTransformComponent()
             : base()
         { }
@@ -38,6 +46,8 @@ namespace RevolutionaryStuff.SSIS
             output.Name = "Duplicate Rows";
             output.SynchronousInputID = input.ID;
             */
+
+            CreateCustomProperty(PropertyNames.IgnoreCase, "0", "When 1, the comparisons are case insensitive; When 0, case is used");
         }
 
         public override void OnInputPathAttached(int inputID)
@@ -63,6 +73,7 @@ namespace RevolutionaryStuff.SSIS
         {
             var input = ComponentMetaData.InputCollection.GetObjectByID(inputID);
             var distinctOutput = ComponentMetaData.OutputCollection[0];
+            var ignoreCase = this.IgnoreCase;
             //var duplicateOutput = ComponentMetaData.OutputCollection[1];
 
             if (buffer != null)
@@ -78,6 +89,10 @@ namespace RevolutionaryStuff.SSIS
                         {
                             var col = input.InputColumnCollection[z];
                             var o = GetObject(col.Name, buffer, InputCbm);
+                            if (ignoreCase && o is string && o != null)
+                            {
+                                o = ((string)o).ToLower();
+                            }
                             data.Add(o);
                         }
                         var key = Cache.CreateKey(data);
