@@ -11,6 +11,7 @@ namespace RevolutionaryStuff.SSIS
     /// <remarks>https://docs.microsoft.com/en-us/sql/integration-services/extending-packages-custom-objects-data-flow-types/developing-a-custom-transformation-component-with-synchronous-outputs</remarks>
     public abstract class BasePipelineComponent : PipelineComponent
     {
+        public const int EnUsCodePage = 1252;
         protected static class CommonPropertyNames
         {
             public const string IgnoreCase = "IgnoreCase";
@@ -118,6 +119,13 @@ namespace RevolutionaryStuff.SSIS
         {
             bool fireAgain = true;
             ComponentMetaData.FireInformation((int)(object)code, $"{ComponentMetaData.Name}.{caller}", $"{code}: {message}", "", 0, ref fireAgain);
+        }
+
+        protected void FireError<TMessageCode>(TMessageCode code, string message, [CallerMemberName] string caller = null) where TMessageCode : struct
+        {
+            bool cancel = true;
+            ComponentMetaData.FireError((int)(object)code, $"{ComponentMetaData.Name}.{caller}", $"{code}: {message}", "", 0, out cancel);
+            throw new Exception(message);
         }
 
         protected static bool IsStringDataType(DataType dt)

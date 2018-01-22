@@ -60,9 +60,10 @@ namespace RevolutionaryStuff.SSIS
             if (string.IsNullOrEmpty(OutputColumnName)) return;
             DebuggerAttachmentWait();
             var input = ComponentMetaData.InputCollection[0].GetVirtualInput();
+            var tf = new HashSet<string>(new JsonTemplate(Template).Fieldnames, Comparers.CaseInsensitiveStringComparer);
             foreach (IDTSVirtualInputColumn100 vcol in input.VirtualInputColumnCollection)
             {
-                input.SetUsageType(vcol.LineageID, DTSUsageType.UT_READONLY);
+                input.SetUsageType(vcol.LineageID, tf.Contains(vcol.Name) ? DTSUsageType.UT_READONLY : DTSUsageType.UT_IGNORED);
             }
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
@@ -111,11 +112,27 @@ namespace RevolutionaryStuff.SSIS
         private string Template 
             => GetCustomPropertyAsString(PropertyNames.Template);
 
+        private enum InformationMessageCodes
+        {
+            TemplateFieldMissing = 1,
+            FieldMapInformation = 2,
+        }
+
         public override void PreExecute()
         {
             base.PreExecute();
             InputRootBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
             OutputBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.OutputCollection[0], ComponentMetaData.InputCollection[0].Buffer);
+            int missingCount = 0;
+            foreach (var fieldName in JT.Fieldnames)
+            {
+                if (!InputRootBufferColumnIndicees.ColumnExists(fieldName))
+                {
+                    FireInformation(InformationMessageCodes.TemplateFieldMissing, $"[{fieldName}] cannot be found. Processing will be {Stuff.Qbert}");
+                    ++missingCount;
+                }
+            }
+            FireInformation(InformationMessageCodes.FieldMapInformation, $"There are {JT.Fieldnames.Count}. {missingCount} are missing");
         }
 
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
@@ -151,6 +168,10 @@ namespace RevolutionaryStuff.SSIS
             else if (o is DateTime)
             {
                 return "\"" + ((DateTime)o).ToRfc8601() + "\"";
+            }
+            else if (o is int)
+            {
+                return o.ToString();
             }
             var s = o.ToString();
             return "\"" + s.Replace("\\", "\\\\").Replace("\"", "\\\"") + "\"";

@@ -51,7 +51,7 @@ namespace RevolutionaryStuff.SSIS
             var right = ComponentMetaData.InputCollection.New();
             right.Name = PropertyNames.InputProperties.Comparison;
             var matched = ComponentMetaData.OutputCollection.New();
-            matched.SynchronousInputID = 0;
+            matched.SynchronousInputID = left.ID;
             matched.Name = PropertyNames.OutputProperties.Matches;
             matched.Description = "Root rows that have have corresponding matches in the Comparison";
         }
@@ -95,12 +95,21 @@ namespace RevolutionaryStuff.SSIS
 
         private void DefineOutputs()
         {
+            var m = GetLeftMaps();
+            var inputColNames = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
+            foreach (var kvp in m)
+            {
+                foreach (var colName in kvp.Value)
+                {
+                    inputColNames.Add(colName);
+                }
+            }
             for (int z = 0; z < 2; ++z)
             {
                 var virtualInputs = ComponentMetaData.InputCollection[z].GetVirtualInput();
                 foreach (IDTSVirtualInputColumn100 vcol in virtualInputs.VirtualInputColumnCollection)
                 {
-                    virtualInputs.SetUsageType(vcol.LineageID, DTSUsageType.UT_READONLY);
+                    virtualInputs.SetUsageType(vcol.LineageID, inputColNames.Contains(vcol.Name) || z==1 ? DTSUsageType.UT_READONLY : DTSUsageType.UT_IGNORED);
                 }
             }
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
@@ -108,8 +117,6 @@ namespace RevolutionaryStuff.SSIS
             var rightKeyCol = ComponentMetaData.InputCollection[1].InputColumnCollection.FindByName(rmap[0]);
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
             outCols.RemoveAll();
-            outCols.AddOutputColumns(leftCols);
-            var m = GetLeftMaps();
             foreach (var key in m.Keys)
             {
                 outCols.AddOutputColumn(rightKeyCol, key);
@@ -131,10 +138,7 @@ namespace RevolutionaryStuff.SSIS
                         var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
                         var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
                         var m = GetLeftMaps();
-                        if (
-                            outCols.Count != leftCols.Count + m.Count ||
-                            GetRightMap().Count != ComponentMetaData.InputCollection[1].InputColumnCollection.Count
-                            )
+                        if (outCols.Count != m.Count)
                         {
                             ret = DTSValidationStatus.VS_ISBROKEN;
                         }
@@ -179,7 +183,7 @@ namespace RevolutionaryStuff.SSIS
             }
             InputRootBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
             InputComparisonBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[1]);
-            OutputBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.OutputCollection[0]);
+            OutputBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.OutputCollection[0], ComponentMetaData.InputCollection[0].Buffer);
         }
 
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
@@ -215,20 +219,11 @@ namespace RevolutionaryStuff.SSIS
             var m = GetLeftMaps();
 
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
-            var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
-            var outputBuffer = MatchedOutputBuffer;
 
             int rowsProcessed = 0;
             var keys = new List<object>();
             while (buffer.NextRow())
             {
-                outputBuffer.AddRow();
-                for (int z = 0; z < input.InputColumnCollection.Count; ++z)
-                {
-                    var col = input.InputColumnCollection[z];
-                    var o = GetObject(col.Name, buffer, InputRootBufferColumnIndicees);
-                    outputBuffer.SetObject(col.DataType, OutputBufferColumnIndicees.GetPositionFromColumnName(col.Name), o);
-                }
                 foreach (var kvp in m)
                 {
                     keys.Clear();
@@ -252,15 +247,16 @@ namespace RevolutionaryStuff.SSIS
                     {
                         hit = true;
                         ++ProcessInputRootHits;
+                        var outCol = OutputBufferColumnIndicees.GetColumnFromColumnName(kvp.Key);
+                        buffer.SetObject(outCol.DataType, OutputBufferColumnIndicees.GetPositionFromColumnName(kvp.Key), val);
                     }
                     else
                     {
                         hit = false;
                         ++ProcessInputRootMisses;
+                        buffer.SetNull(OutputBufferColumnIndicees.GetPositionFromColumnName(kvp.Key));
                         val = null;
                     }
-                    var outCol = OutputBufferColumnIndicees.GetColumnFromColumnName(kvp.Key);
-                    outputBuffer.SetObject(outCol.DataType, OutputBufferColumnIndicees.GetPositionFromColumnName(kvp.Key), val);
                     if (LeftSamples*m.Count < SampleSize)
                     {
                         ++LeftSamples;
@@ -273,8 +269,8 @@ namespace RevolutionaryStuff.SSIS
             FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, misses={ProcessInputRootMisses}");
             if (buffer.EndOfRowset)
             {
-                MatchedOutputBuffer.SetEndOfRowset();
                 InputRootProcessed = true;
+                ValByKey.Clear();
             }
         }
 
@@ -297,16 +293,6 @@ namespace RevolutionaryStuff.SSIS
                         break;
                 }
                 canProcess[i] = can;
-            }
-        }
-
-        PipelineBuffer MatchedOutputBuffer;
-
-        public override void PrimeOutput(int outputs, int[] outputIDs, PipelineBuffer[] buffers)
-        {
-            if (buffers.Length == 1)
-            {
-                MatchedOutputBuffer = buffers[0];
             }
         }
 

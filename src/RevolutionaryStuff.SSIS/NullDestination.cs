@@ -83,6 +83,7 @@ namespace RevolutionaryStuff.SSIS
                 ComponentMetaData.FireError(0, ComponentMetaData.Name, "The input collection count is not 1.", String.Empty, 0, out cancel);
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
+            /*
 
             if (ComponentMetaData.OutputCollection.Count != 0)
             {
@@ -113,6 +114,7 @@ namespace RevolutionaryStuff.SSIS
                 }
             }
             //return base.Validate();
+            */
             return DTSValidationStatus.VS_ISVALID;
         }
 

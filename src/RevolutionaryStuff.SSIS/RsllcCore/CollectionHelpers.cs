@@ -38,5 +38,39 @@ namespace RevolutionaryStuff.Core
             }
             return sb.ToString();
         }
+
+        public static V FindOrCreate<K, V>(this IDictionary<K, V> d, K key, Func<V> creator)
+        {
+            if (!d.TryGetValue(key, out V ret))
+            {
+                ret = creator();
+                d[key] = ret;
+            }
+            return ret;
+        }
+
+        public static int Increment<K>(this IDictionary<K, int> d, K key)
+        {
+            return d.Increment(key, 1);
+        }
+
+        public static int Increment<K>(this IDictionary<K, int> d, K key, int incrementAmount)
+        {
+            return d.Increment(key, incrementAmount, incrementAmount);
+        }
+
+        public static int Increment<K>(this IDictionary<K, int> d, K key, int incrementAmount, int initialAmount)
+        {
+            if (d.TryGetValue(key, out int val))
+            {
+                val += incrementAmount;
+            }
+            else
+            {
+                val = initialAmount;
+            }
+            d[key] = val;
+            return val;
+        }
     }
 }

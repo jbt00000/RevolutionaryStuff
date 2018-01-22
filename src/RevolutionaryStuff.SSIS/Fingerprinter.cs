@@ -1,4 +1,5 @@
-﻿using RevolutionaryStuff.Core.Crypto;
+﻿using RevolutionaryStuff.Core;
+using RevolutionaryStuff.Core.Crypto;
 using System.Text;
 using System.Collections.Generic;
 
@@ -7,11 +8,31 @@ namespace RevolutionaryStuff.SSIS
     internal class Fingerprinter
     {
         private readonly StringBuilder Strings = new StringBuilder(8000);
-        private readonly SortedDictionary<string, object> ValsByKey = new SortedDictionary<string, object>();
+        private readonly SortedDictionary<string, string> ValsByKey = new SortedDictionary<string, string>();
+
+        private readonly bool IgnoreCase;
+        private readonly bool TrimThenNullifyEmptyStrings;
+
+        public Fingerprinter(bool ignoreCase, bool trimThenNullifyEmptyStrings)
+        {
+            IgnoreCase = ignoreCase;
+            TrimThenNullifyEmptyStrings = trimThenNullifyEmptyStrings;
+        }
 
         public void Include(string name, object o)
         {
-            ValsByKey.Add(name, o);
+            name = name.Trim().ToLower();
+            if (o != null && o is string)
+            {
+                var s = (string)o;
+                s = IgnoreCase ? s.ToLower() : s;
+                s = TrimThenNullifyEmptyStrings ? StringHelpers.TrimOrNull(s) : s;
+                ValsByKey.Add(name, s);
+            }
+            else
+            {
+                ValsByKey.Add(name, $"{o}");
+            }
             Dirty = true;
         }
 
@@ -34,7 +55,7 @@ namespace RevolutionaryStuff.SSIS
                     foreach (var kvp in ValsByKey)
                     {
                         var sVal = (kvp.Value ?? "").ToString().Trim();
-                        Strings.Append($"{kvp.Key.ToLower().Trim()}={sVal}|");
+                        Strings.Append($"{kvp.Key}={sVal}`");
                     }
                     var s = Strings.ToString();
                     if (s.Length > 200)

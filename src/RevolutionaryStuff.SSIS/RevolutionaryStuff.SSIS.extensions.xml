@@ -28,5 +28,14 @@
     <PipelineComponent Identifier="RankTransformComponent" Model=".NET">
       <CreationName>RevolutionaryStuff.SSIS.RankTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
     </PipelineComponent>
+    <PipelineComponent Identifier="ErrorAppender" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.ErrorAppenderTransfromComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="MatchlessJoinComponennt" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.MatchlessJoinComponennt, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
+    <PipelineComponent Identifier="InnerJoinComponennt" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.InnerJoinComponennt, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
   </PipelineComponents>
 </Extensions>

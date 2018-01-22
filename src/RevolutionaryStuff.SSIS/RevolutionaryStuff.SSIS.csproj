@@ -70,15 +70,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseJoinerComponent.cs" />
     <Compile Include="BasePipelineComponent.cs" />
     <Compile Include="ColumnBufferMapping.cs" />
     <Compile Include="DistinctifyTransformComponent.cs" />
     <Compile Include="DtsColumn.cs" />
+    <Compile Include="ErrorAppenderTransform.cs" />
     <Compile Include="Fingerprinter.cs" />
     <Compile Include="IDtsColumn.cs" />
+    <Compile Include="InnerJoinComponent.cs" />
     <Compile Include="JsonTemplateColumnTransformComponent.cs" />
     <Compile Include="MapperTransformComponent.cs" />
     <Compile Include="MatcherTransformComponent.cs" />
+    <Compile Include="MatchlessJoinComponent.cs" />
     <Compile Include="NormalizeTransformComponent.cs" />
     <Compile Include="NullDestination.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

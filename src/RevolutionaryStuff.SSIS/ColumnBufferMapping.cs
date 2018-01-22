@@ -1,5 +1,6 @@
 ﻿using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 using RevolutionaryStuff.Core;
+using System;
 using System.Collections.Generic;
 
 namespace RevolutionaryStuff.SSIS
@@ -19,11 +20,32 @@ namespace RevolutionaryStuff.SSIS
 
         public int ColumnCount { get; private set; }
 
+        public bool ColumnExists(string columnName)
+            => ColumnByColumnName.ContainsKey(columnName);
+
         public IDtsColumn GetColumnFromColumnName(string columnName)
-            => ColumnByColumnName.TryGetValue(columnName, out var z) ? z : ColumnByColumnName[NormalizeColumnName(columnName)];
+        {
+            try
+            {
+                return ColumnByColumnName.TryGetValue(columnName, out var z) ? z : ColumnByColumnName[NormalizeColumnName(columnName)];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Problem fetching column [{columnName}]", ex);
+            }
+        }
 
         public int GetPositionFromColumnName(string columnName)
-            => PositionByColumnName.TryGetValue(columnName, out var z) ? z : PositionByColumnName[NormalizeColumnName(columnName)];
+        {
+            try
+            {
+                return PositionByColumnName.TryGetValue(columnName, out var z) ? z : PositionByColumnName[NormalizeColumnName(columnName)];
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Problem fetching column position for [{columnName}]", ex);
+            }
+        }
 
         public string GetColumnNameFromPosition(int pos)
             => ColumnNameByPosition[pos];

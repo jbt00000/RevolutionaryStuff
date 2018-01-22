@@ -56,22 +56,20 @@ namespace RevolutionaryStuff.SSIS
                         for (int z = 0; z < input.InputColumnCollection.Count; ++z)
                         {
                             var col = input.InputColumnCollection[z];
-                            if (IsStringDataType(col.DataType))
+                            var sIn = (string) GetObject(col.Name, buffer, InputCbm);
+                            if (sIn != null)
                             {
-                                var sIn = GetObject(col.Name, buffer, InputCbm) as string;
-                                if (sIn != null)
+                                var sOut = sIn.Trim();
+                                sOut = sOut == "" ? null : sOut;
+                                if (sIn == sOut) continue;
+                                var pos = InputCbm.PositionByColumnPosition[z];
+                                if (sOut == null)
                                 {
-                                    var sOut = sIn.ToString().Trim();
-                                    sOut = sOut == "" ? null : sOut;
-                                    var pos = InputCbm.PositionByColumnPosition[z];
-                                    if (sOut == null)
-                                    {
-                                        buffer.SetNull(pos);
-                                    }
-                                    else
-                                    {
-                                        buffer.SetString(pos, sOut);
-                                    }
+                                    buffer.SetNull(pos);
+                                }
+                                else
+                                {
+                                    buffer.SetString(pos, sOut);
                                 }
                             }
                         }

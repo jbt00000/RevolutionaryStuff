@@ -5,6 +5,8 @@ namespace RevolutionaryStuff.Core
 {
     public static class Stuff
     {
+        public const string Qbert = "@!#?@!";
+
         /// <summary>
         /// Does nothing.  It is simply used as a line where one can set breakpoints
         /// </summary>

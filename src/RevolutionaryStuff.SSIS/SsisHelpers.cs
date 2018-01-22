@@ -7,6 +7,48 @@ namespace RevolutionaryStuff.SSIS
 {
     public static class SsisHelpers
     {
+        public static string CreateFingerprint(this IDTSVirtualInputColumn100 col)
+            => CreateColumnFingerprint(col.Name, col.DataType);
+
+        public static string CreateFingerprint(this IDTSInputColumn100 col)
+            => CreateColumnFingerprint(col.Name, col.DataType);
+
+        public static string CreateColumnFingerprint(string columnName, DataType dataType)
+        {
+            string def;
+            switch (dataType)
+            {
+                case DataType.DT_CY:
+                case DataType.DT_DECIMAL:
+                case DataType.DT_NUMERIC:
+                case DataType.DT_R4:
+                case DataType.DT_R8:
+                    def = "decimal";
+                    break;
+                case DataType.DT_UI1:
+                case DataType.DT_UI2:
+                case DataType.DT_UI4:
+                case DataType.DT_UI8:
+                case DataType.DT_I1:
+                case DataType.DT_I2:
+                case DataType.DT_I4:
+                case DataType.DT_I8:
+                    def = "num";
+                    break;
+                case DataType.DT_STR:
+                case DataType.DT_WSTR:
+                case DataType.DT_NTEXT:
+                case DataType.DT_TEXT:
+                    def = "string";
+                    break;
+                default:
+                    def = dataType.ToString();
+                    break;
+            }
+            def = columnName.Trim() + ";" + def;
+            return def.ToLower();
+        }
+
         public static IDTSInputColumn100 FindByName(this IDTSInputColumnCollection100 cols, string name)
         {
             foreach (IDTSInputColumn100 c in cols)

@@ -56,6 +56,9 @@ namespace RevolutionaryStuff.SSIS
         IDTSInputColumnCollection100 TheInputColumns => TheInput.InputColumnCollection;
         IDTSOutput100 TheOutput => ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.TheOutputId];
         IDTSOutputColumnCollection100 TheOutputColumns => TheOutput.OutputColumnCollection;
+        bool IgnoreCase
+            => GetCustomPropertyAsBool(PropertyNames.IgnoreCase);
+
 
         IList<string> GetPartitionColumnNames()
             => CSV.ParseLine(GetCustomPropertyAsString(PropertyNames.ParitionByFields) ?? "").Select(z => StringHelpers.TrimOrNull(z)).Where(z => z != null).ToList().AsReadOnly();
@@ -160,7 +163,7 @@ namespace RevolutionaryStuff.SSIS
             base.PreExecute();
             TheInputCbm = CreateColumnBufferMapping(TheInput);
             TheOutputCbm = CreateColumnBufferMapping(TheOutput);
-            P = new Purgatory(this, TheInputCbm, this.GetPartitionColumnNames(), this.GetOrderedColumns());
+            P = new Purgatory(this, TheInputCbm, this.GetPartitionColumnNames(), this.GetOrderedColumns(), IgnoreCase);
         }
 
         protected override void OnProcessInput(int inputId, PipelineBuffer buffer)
@@ -210,7 +213,7 @@ namespace RevolutionaryStuff.SSIS
         public override void PrepareForExecute()
         {
             base.PrepareForExecute();
-            P = new Purgatory(this, TheInputCbm, this.GetPartitionColumnNames(), this.GetOrderedColumns());
+            P = new Purgatory(this, TheInputCbm, this.GetPartitionColumnNames(), this.GetOrderedColumns(), this.IgnoreCase);
         }
 
         private int ComparisonFingerprintsSampled = 0;
@@ -292,6 +295,7 @@ namespace RevolutionaryStuff.SSIS
             public readonly List<RowData> Rows = new List<RowData>();
             private readonly string RankFieldName;
             private readonly bool HasRankField;
+            private readonly bool IgnoreCase;
 
             public class RowData
             {
@@ -300,7 +304,7 @@ namespace RevolutionaryStuff.SSIS
                 public object[] AllValsByInputPos;
             }
 
-            public Purgatory(RankTransformComponent component, ColumnBufferMapping cbm, IList<string> partitionColumnNames, IList<OrderedColumn> orderedColumns)
+            public Purgatory(RankTransformComponent component, ColumnBufferMapping cbm, IList<string> partitionColumnNames, IList<OrderedColumn> orderedColumns, bool ignoreCase)
             {
                 Component = component;
                 Cbm = cbm;
@@ -308,6 +312,7 @@ namespace RevolutionaryStuff.SSIS
                 OrderedColumns = orderedColumns;
                 RankFieldName = component.RankFieldName;
                 HasRankField = component.HasRankField;
+                IgnoreCase = ignoreCase;
             }
 
             public void Emit(RowData row, PipelineBuffer outputBuffer, ColumnBufferMapping outputCbm, int rank)
@@ -371,7 +376,7 @@ namespace RevolutionaryStuff.SSIS
                     var v = Component.GetObject(name, buffer, Cbm);
                     PkSb.Append($"{v};");
                 }
-                rd.PartitionKey = PkSb.ToString();
+                rd.PartitionKey = IgnoreCase ? PkSb.ToString().ToLower() : PkSb.ToString();
                 int pos = 0;
                 foreach (var oc in OrderedColumns)
                 {
