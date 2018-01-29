@@ -18,6 +18,10 @@ namespace RevolutionaryStuff.SSIS
             string def;
             switch (dataType)
             {
+                case DataType.DT_DATE:
+                case DataType.DT_DBDATE:
+                    def = "date";
+                    break;
                 case DataType.DT_CY:
                 case DataType.DT_DECIMAL:
                 case DataType.DT_NUMERIC:

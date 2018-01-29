@@ -223,7 +223,7 @@ namespace RevolutionaryStuff.SSIS
                 }
             }
             FireInformation(InformationMessageCodes.RowsProcessed, $"{rowsProcessed}");
-            FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, fanoutHits={ProcessInputRootFanoutHits}, misses={ProcessInputRootMisses}");
+            FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, fanoutHits={ProcessInputRootFanoutHits}, misses={ProcessInputRootMisses}, isFinal={buffer.EndOfRowset}");
             if (buffer.EndOfRowset)
             {
                 InnerJoinBuffer.SetEndOfRowset();

@@ -5,7 +5,6 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 
 namespace RevolutionaryStuff.SSIS
 {
-    /// <remarks>Ugh... Can't rename this class without breaking existing packages</remarks>
     [DtsPipelineComponent(
         DisplayName = "Joiner - Matchless",
         ComponentType = ComponentType.Transform,

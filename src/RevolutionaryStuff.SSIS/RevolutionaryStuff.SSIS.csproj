@@ -80,6 +80,7 @@
     <Compile Include="IDtsColumn.cs" />
     <Compile Include="InnerJoinComponent.cs" />
     <Compile Include="JsonTemplateColumnTransformComponent.cs" />
+    <Compile Include="LeftJoinComponent.cs" />
     <Compile Include="MapperTransformComponent.cs" />
     <Compile Include="MatcherTransformComponent.cs" />
     <Compile Include="MatchlessJoinComponent.cs" />

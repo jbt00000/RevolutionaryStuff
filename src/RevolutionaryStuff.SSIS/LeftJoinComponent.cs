@@ -7,11 +7,11 @@ using Microsoft.SqlServer.Dts.Pipeline.Wrapper;
 namespace RevolutionaryStuff.SSIS
 {
     [DtsPipelineComponent(
-        DisplayName = "Joiner - Inner",
+        DisplayName = "Joiner - Left",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
-    public class InnerJoinComponennt : BaseJoinerComponent
+    public class LeftJoinComponennt : BaseJoinerComponent
     {
         private static class PropertyNames
         {
@@ -24,20 +24,20 @@ namespace RevolutionaryStuff.SSIS
         IDTSOutput100 InnerJoinOutput => ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.MatchlessId];
         IDTSOutputColumnCollection100 InnerJoinColumns => InnerJoinOutput.OutputColumnCollection;
 
-        public InnerJoinComponennt()
+        public LeftJoinComponennt()
             : base()
         { }
 
         protected override void ProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
         {
-            ComponentMetaData.Name = "Joiner - Inner";
-            ComponentMetaData.Description = "Performs an inner join of the 2 inputs.  Returns all rows from the left merged with matching rows on the right. No fanout!";
+            ComponentMetaData.Name = "Joiner - Left";
+            ComponentMetaData.Description = "Performs an left join of the 2 inputs.  Returns all rows from the left merged with matching rows on the right (null columns when missing). No fanout!";
 
             var output = ComponentMetaData.OutputCollection.New();
             output.ExclusionGroup = 1;
             output.SynchronousInputID = leftInput.ID;
-            output.Name = "Inner Join";
-            output.Description = "Left rows when there is no match in the right table";
+            output.Name = "Left Join";
+            output.Description = "Left rows with right columns when matched, and null right columns on a miss";
         }
 
         protected override void DefineOutputs()
@@ -112,12 +112,12 @@ namespace RevolutionaryStuff.SSIS
                 if (AppendsByCommonFieldHash.Count > 0)
                 {
                     fingerprint = fingerprinter.FingerPrint;
-                    if (AppendsByCommonFieldHash.ContainsKey(fingerprint))
+                    if (isOutputAttached)
                     {
-                        ++ProcessInputRootHits;
-                        if (isOutputAttached)
+                        var appends = AppendsByCommonFieldHash[fingerprint].SingleOrDefault();
+                        if (appends != null)
                         {
-                            var appends = AppendsByCommonFieldHash[fingerprint].Single();
+                            ++ProcessInputRootHits;
                             for (int z = 0; z < OrderedAppendedColumnNames.Count; ++z)
                             {
                                 var o = appends[z];
@@ -125,8 +125,12 @@ namespace RevolutionaryStuff.SSIS
                                 buffer[index] = o;
                                 //buffer.SetObject(col.DataType, z, o);
                             }
-                            buffer.DirectRow(matchlessOutput.ID);
                         }
+                        else
+                        {
+                            ++ProcessInputRootMisses;
+                        }
+                        buffer.DirectRow(matchlessOutput.ID);
                     }
                 }
                 sourceVals.Clear();

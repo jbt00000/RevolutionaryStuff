@@ -54,16 +54,15 @@ namespace RevolutionaryStuff.SSIS
             return ret;
         }
 
-        public override void OnOutputPathAttached(int outputID)
+        public override void OnInputPathAttached(int inputID)
         {
-            base.OnOutputPathAttached(outputID);
+            base.OnInputPathAttached(inputID);
             DefineOutputs();
         }
 
         private void DefineOutputs()
         {
             if (!ComponentMetaData.InputCollection[0].IsAttached) return;
-            if (!ComponentMetaData.OutputCollection[0].IsAttached) return;
             DebuggerAttachmentWait();
             var input = ComponentMetaData.InputCollection[0].GetVirtualInput();
             var inErrorCode = GetCustomPropertyAsString(PropertyNames.Inputs.ErrorCodeColumnName).ToLower();
