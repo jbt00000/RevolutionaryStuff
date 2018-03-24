@@ -128,6 +128,12 @@ namespace RevolutionaryStuff.SSIS
                         else
                         {
                             ++ProcessInputRootMisses;
+                            for (int z = 0; z < OrderedAppendedColumnNames.Count; ++z)
+                            {
+                                var index = InnerJoinCbm.GetPositionFromColumnName(OrderedAppendedColumnNames[z]);
+                                buffer.SetNull(index);
+                                //buffer.SetObject(col.DataType, z, o);
+                            }
                         }
                         buffer.DirectRow(matchlessOutput.ID);
                     }

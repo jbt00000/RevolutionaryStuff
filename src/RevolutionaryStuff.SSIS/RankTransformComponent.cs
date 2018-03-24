@@ -95,7 +95,7 @@ namespace RevolutionaryStuff.SSIS
             CreateCustomProperty(PropertyNames.OrderByClause, "", "A csv list of fields that we're ordering by for the rank within the parition with a prefix of [A:] for ascending or [D:] for descending: [A:Field2,D:Field8]");
             CreateCustomProperty(PropertyNames.RankFieldName, "R", "The name of the the field in which the rank will be stored.  When empty, do not include the rank as an output column.");
             CreateCustomProperty(PropertyNames.ReturnOnlyRank1, "0", "When {1,true} only rows with rank=1 are returned;  When {0,false} all rows are returned");            
-    }
+        }
 
         public override void OnInputPathAttached(int inputID)
         {

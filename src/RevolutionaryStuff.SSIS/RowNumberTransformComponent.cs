@@ -59,7 +59,7 @@ namespace RevolutionaryStuff.SSIS
             var input = ComponentMetaData.InputCollection[0].GetVirtualInput();
             foreach (IDTSVirtualInputColumn100 vcol in input.VirtualInputColumnCollection)
             {
-                input.SetUsageType(vcol.LineageID, DTSUsageType.UT_READONLY);
+                input.SetUsageType(vcol.LineageID, DTSUsageType.UT_IGNORED);
             }
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;

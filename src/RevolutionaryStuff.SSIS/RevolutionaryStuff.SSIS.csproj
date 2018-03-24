@@ -73,6 +73,7 @@
     <Compile Include="BaseJoinerComponent.cs" />
     <Compile Include="BasePipelineComponent.cs" />
     <Compile Include="ColumnBufferMapping.cs" />
+    <Compile Include="CondenserTransformComponent.cs" />
     <Compile Include="DistinctifyTransformComponent.cs" />
     <Compile Include="DtsColumn.cs" />
     <Compile Include="ErrorAppenderTransform.cs" />

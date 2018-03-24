@@ -7,6 +7,9 @@ namespace RevolutionaryStuff.SSIS
 {
     public static class SsisHelpers
     {
+        public static bool IsColumnNameMatch(string columnNameA, string columnNameB)
+            => columnNameA.ToLower().Trim() == columnNameB.ToLower().Trim();
+
         public static string CreateFingerprint(this IDTSVirtualInputColumn100 col)
             => CreateColumnFingerprint(col.Name, col.DataType);
 

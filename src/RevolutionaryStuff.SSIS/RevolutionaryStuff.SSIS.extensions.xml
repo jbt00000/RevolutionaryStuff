@@ -40,5 +40,8 @@
     <PipelineComponent Identifier="LeftJoinComponennt" Model=".NET">
       <CreationName>RevolutionaryStuff.SSIS.LeftJoinComponennt, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
     </PipelineComponent>
+    <PipelineComponent Identifier="CondenserComponent" Model=".NET">
+      <CreationName>RevolutionaryStuff.SSIS.CondenserTransformComponent, RevolutionaryStuff.SSIS, Version=1.0.0.0, Culture=neutral, PublicKeyToken=5785f99871e9978d</CreationName>
+    </PipelineComponent>
   </PipelineComponents>
 </Extensions>

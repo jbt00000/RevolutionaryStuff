@@ -14,6 +14,8 @@ namespace RevolutionaryStuff.SSIS
     {
         private static class PropertyNames
         {
+            public const string ErrorOnMisses = "ErrorOnMisses";
+
             public static class OutputProperties
             {
                 public const int MatchlessId = 0;
@@ -22,6 +24,9 @@ namespace RevolutionaryStuff.SSIS
 
         IDTSOutput100 InnerJoinOutput => ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.MatchlessId];
         IDTSOutputColumnCollection100 InnerJoinColumns => InnerJoinOutput.OutputColumnCollection;
+
+        bool ErrorOnMisses
+            => GetCustomPropertyAsBool(PropertyNames.ErrorOnMisses, true);
 
         public InnerJoinComponennt()
             : base()
@@ -37,6 +42,8 @@ namespace RevolutionaryStuff.SSIS
             output.SynchronousInputID = leftInput.ID;
             output.Name = "Inner Join";
             output.Description = "Left rows when there is no match in the right table";
+
+            CreateCustomProperty(PropertyNames.ErrorOnMisses, "1", "When {1,true} throw an error when there is no right match on a left row.");
         }
 
         protected override void DefineOutputs()
@@ -92,6 +99,7 @@ namespace RevolutionaryStuff.SSIS
 
         protected override void ProcessLeftInput(IDTSInput100 input, PipelineBuffer buffer)
         {
+            var errorOnMisses = ErrorOnMisses;
             var matchlessOutput = ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.MatchlessId];
             var isOutputAttached = InnerJoinOutput.IsAttached;
             var fingerprinter = new Fingerprinter(IgnoreCase, TrimThenNullifyEmptyStrings);
@@ -127,6 +135,18 @@ namespace RevolutionaryStuff.SSIS
                             buffer.DirectRow(matchlessOutput.ID);
                         }
                     }
+                    else if (errorOnMisses)
+                    {
+                        FireError(InformationMessageCodes.Miss, $"No right match for {fingerprint}");
+                    }
+                    else
+                    {
+                        ++ProcessInputRootMisses;
+                        if (isOutputAttached)
+                        {
+                            buffer.DirectRow(matchlessOutput.ID);
+                        }
+                    }
                 }
                 sourceVals.Clear();
                 ++rowsProcessed;
@@ -154,7 +174,9 @@ namespace RevolutionaryStuff.SSIS
             ExampleFingerprint = 2,
             AppendsByCommonFieldHash = 3,
             MatchStats = 4,
+            Miss = 5,
             FanoutOnInnerJoinWhenProhibited = 8,
+
         }
     }
 }

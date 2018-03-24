@@ -82,6 +82,12 @@ namespace RevolutionaryStuff.Core
             return sb.ToString();
         }
 
+        public static string Right(this string s, int lastNChars)
+        {
+            if (s == null || s.Length<= lastNChars) return s;
+            return s.Substring(s.Length - lastNChars);
+        }
+
         public static string Left(this string s, int firstNChars)
         {
             if (s == null) return null;

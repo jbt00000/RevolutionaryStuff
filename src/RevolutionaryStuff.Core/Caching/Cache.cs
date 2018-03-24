@@ -31,16 +31,16 @@ namespace RevolutionaryStuff.Core.Caching
         public static Task<CacheEntry<TVal>> FindOrCreateAsync<TVal>(this ICacher inner, string key, Func<string, Task<CacheEntry<TVal>>> asynccreator)
             => Task.FromResult(inner.FindOrCreate(key, k => asynccreator(k).ExecuteSynchronously()));
 
-        public static TVal FindOrCreateValWithSimpleKey<TVal>(this ICacher inner, object key, Func<TVal> creator, TimeSpan? expiresIn = null)
+        public static TVal FindOrCreateValWithSimpleKey<TVal>(this ICacher inner, object key, Func<TVal> creator, TimeSpan? timeout = null)
             => inner.FindOrCreate(
                 CreateKey(typeof(TVal), key),
-                _ => new CacheEntry<TVal>(creator(), expiresIn)
+                _ => new CacheEntry<TVal>(creator(), timeout),false, timeout
                 ).Value;
 
-        public static async Task<TVal> FindOrCreateValWithSimpleKeyAsync<TVal>(this ICacher inner, object key, Func<Task<TVal>> asynccreator, TimeSpan? expiresIn = null)
+        public static async Task<TVal> FindOrCreateValWithSimpleKeyAsync<TVal>(this ICacher inner, object key, Func<Task<TVal>> asynccreator, TimeSpan? timeout = null)
             => (await inner.FindOrCreateAsync(
                 CreateKey(typeof(TVal), key),
-                async _ => new CacheEntry<TVal>(await asynccreator(), expiresIn)
+                async _ => new CacheEntry<TVal>(await asynccreator(), timeout)
                 )).Value;
 
         public static CacheEntry<TVal> FindOrCreate<TVal>(this ICacher inner, string key, Func<IEnumerable<Tuple<string, CacheEntry<TVal>>>> creator)
@@ -210,7 +210,7 @@ namespace RevolutionaryStuff.Core.Caching
             => new SynchronizedCache<K, D>(inner);
 
         public static string CreateKey(params object[] args)
-            => CreateKey((IEnumerable<string>)args);
+            => CreateKey((IEnumerable<object>)args);
 
         public static string CreateKey(IEnumerable<object> args)
         {
