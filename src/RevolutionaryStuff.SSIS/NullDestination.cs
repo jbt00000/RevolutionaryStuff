@@ -12,7 +12,9 @@ namespace RevolutionaryStuff.SSIS
            Description = "Destination that just dumps all the records into a null output.",
            IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico",
            ComponentType = ComponentType.DestinationAdapter,
-           CurrentVersion = 0)]
+           NoEditor = false,
+           CurrentVersion = BasePipelineComponent.AssemblyComponentVersion
+           )]
     public class NullDestination : PipelineComponent
     {
         /// <summary>

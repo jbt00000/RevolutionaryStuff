@@ -2,11 +2,16 @@
 using RevolutionaryStuff.Core;
 using System;
 using System.Collections.Generic;
+using System.Threading;
 
 namespace RevolutionaryStuff.SSIS
 {
     public class ColumnBufferMapping
     {
+        private static int ID_s = 1;
+
+        public readonly string ID = $"CMB{Interlocked.Increment(ref ID_s)}Z";
+
         private static string NormalizeColumnName(string columnName)
             => columnName.Trim().ToLower();
 
@@ -31,7 +36,7 @@ namespace RevolutionaryStuff.SSIS
             }
             catch (Exception ex)
             {
-                throw new Exception($"Problem fetching column [{columnName}]", ex);
+                throw new Exception($"Problem fetching column [{columnName}] in cbm.ID={this.ID}", ex);
             }
         }
 
@@ -43,7 +48,7 @@ namespace RevolutionaryStuff.SSIS
             }
             catch (Exception ex)
             {
-                throw new Exception($"Problem fetching column position for [{columnName}]", ex);
+                throw new Exception($"Problem fetching column position for [{columnName}] in cbm.ID={this.ID}", ex);
             }
         }
 

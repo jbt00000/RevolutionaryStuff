@@ -27,5 +27,28 @@ namespace RevolutionaryStuff.Core
         /// </summary>
         public static string ToRfc8601(this DateTime dt)
             => dt.ToUniversalTime().ToString("o") + "Z";
+
+        /// <summary>
+        /// Dispose an object if it has an IDisposable interface
+        /// </summary>
+        /// <param name="o">The object</param>
+        public static void Dispose(params object[] os)
+        {
+            if (os == null) return;
+            foreach (object o in os)
+            {
+                var d = o as IDisposable;
+                if (d == null) return;
+                try
+                {
+                    d.Dispose();
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                }
+            }
+        }
+
     }
 }

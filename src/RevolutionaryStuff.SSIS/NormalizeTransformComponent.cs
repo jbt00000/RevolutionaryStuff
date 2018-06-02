@@ -11,6 +11,8 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "Normalize",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class NormalizeTransformComponent : BasePipelineComponent
     {
@@ -22,6 +24,10 @@ namespace RevolutionaryStuff.SSIS
 
         private const char StringConstantPrefix = ':';
         private const char IntConstantPrefix = '=';
+
+        public NormalizeTransformComponent()
+            : base(false)
+        { }
 
         public override void ProvideComponentProperties()
         {
@@ -140,9 +146,9 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-        public override DTSValidationStatus Validate()
+        protected override DTSValidationStatus OnValidate()
         {
-            var ret = base.Validate();
+            var ret = base.OnValidate();
             switch (ret)
             {
                 case DTSValidationStatus.VS_ISVALID:

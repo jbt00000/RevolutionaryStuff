@@ -12,6 +12,8 @@ namespace RevolutionaryStuff.SSIS
     [DtsPipelineComponent(
         DisplayName = "JSON Text Template Column",
         ComponentType = ComponentType.Transform,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class JsonTemplateColumnTransformComponent : BasePipelineComponent
     {
@@ -20,6 +22,10 @@ namespace RevolutionaryStuff.SSIS
             public const string OutputColumnName = CommonPropertyNames.OutputColumnName;
             public const string Template = "Template";
         }
+
+        public JsonTemplateColumnTransformComponent()
+            : base(true)
+        { }
 
         public override void ProvideComponentProperties()
         {
@@ -74,9 +80,9 @@ namespace RevolutionaryStuff.SSIS
             outCol.SetDataTypeProperties(DataType.DT_NTEXT, 0, 0, 0, 0);
         }
 
-        public override DTSValidationStatus Validate()
+        protected override DTSValidationStatus OnValidate()
         {
-            var ret = base.Validate();
+            var ret = base.OnValidate();
             switch (ret)
             {
                 case DTSValidationStatus.VS_ISVALID:

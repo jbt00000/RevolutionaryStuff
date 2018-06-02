@@ -9,10 +9,12 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "Joiner - Multitype",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class MatcherTransformComponent : BaseJoinerComponent
     {
-        private static class PropertyNames
+        private static new class PropertyNames
         {
             public const string ThrowOnInnerJoinWithFanout = "ThrowOnInnerJoinWithFanout";
 
@@ -24,6 +26,25 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
+        private class MyRuntimeData : JoinerRuntimeData
+        {
+            public int InputFingerprintsSampled;
+            public int ProcessInputRootHits = 0;
+            public int ProcessInputRootMisses = 0;
+            public int ProcessInputRootFanoutHits = 0;
+
+            public MyRuntimeData(MatcherTransformComponent parent)
+                : base(parent, true)
+            {
+            }
+        }
+
+        protected override RuntimeData ConstructRuntimeData()
+            => new MyRuntimeData(this);
+
+        private new MyRuntimeData RD
+            => (MyRuntimeData)base.RD;
+
         bool ThrowOnInnerJoinWithFanout => GetCustomPropertyAsBool(PropertyNames.ThrowOnInnerJoinWithFanout, true);
 
         IDTSOutput100 MatchesOutput => ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.InnerJoinId];
@@ -34,10 +55,10 @@ namespace RevolutionaryStuff.SSIS
         IDTSOutputColumnCollection100 LeftJoinColumns => UnionsOutput.OutputColumnCollection;
 
         public MatcherTransformComponent()
-            : base()
+            : base(false)
         { }
 
-        protected override void ProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
+        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
         {
             ComponentMetaData.Name = "Joiner - Multitype";
             ComponentMetaData.Description = "Performs a join of the 2 inputs (based on field name / simple data type) and the joined outputs (left/inner/left where right null).";
@@ -60,22 +81,19 @@ namespace RevolutionaryStuff.SSIS
             CreateCustomProperty(PropertyNames.ThrowOnInnerJoinWithFanout, "1", "When {1,true} on the Inner Join output throw if there is fanout, when {0,false} follow normal inner join semantics.");
         }
 
-        protected override void DefineOutputs()
+        protected override void DefineOutputs(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IList<string> commonFingerprints)
         {
             SetInputColumnUsage(DTSUsageType.UT_READONLY); //to preserve original semantics of this component
-            var leftCols = LeftColumns;
-            var rightCols = RightColumns;
-            var commonDefs = GetCommonInputFingerprints(true);
             var matchedOutputColumns = InnerJoinColumns;
             matchedOutputColumns.RemoveAll();
-            matchedOutputColumns.AddOutputColumns(leftCols);
+            matchedOutputColumns.AddOutputColumns(leftColumns);
             var unionedOutputColumns = LeftJoinColumns;
             unionedOutputColumns.RemoveAll();
-            unionedOutputColumns.AddOutputColumns(leftCols);
-            for (int z = 0; z < rightCols.Count; ++z)
+            unionedOutputColumns.AddOutputColumns(leftColumns);
+            for (int z = 0; z < rightColumns.Count; ++z)
             {
-                var col = rightCols[z];
-                if (!commonDefs.Contains(col.CreateFingerprint()))
+                var col = rightColumns[z];
+                if (!commonFingerprints.Contains(col.CreateFingerprint()))
                 {
                     matchedOutputColumns.AddOutputColumn(col);
                     unionedOutputColumns.AddOutputColumn(col);
@@ -83,46 +101,26 @@ namespace RevolutionaryStuff.SSIS
             }
             var orphanOutputColumns = MatchlessColumns;
             orphanOutputColumns.RemoveAll();
-            orphanOutputColumns.AddOutputColumns(leftCols);
+            orphanOutputColumns.AddOutputColumns(leftColumns);
         }
 
-        public override DTSValidationStatus Validate()
+        protected override DTSValidationStatus OnValidate(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IDTSOutputColumnCollection100 outputColumns, IList<string> commonFingerprints)
         {
-            var ret = base.Validate();
-            switch (ret)
+            DTSValidationStatus ret = base.OnValidate(leftColumns, rightColumns, outputColumns, commonFingerprints);
+            if (ret != DTSValidationStatus.VS_ISVALID) return ret;
+            if (InnerJoinColumns.Count != leftColumns.Count + rightColumns.Count - commonFingerprints.Count)
             {
-                case DTSValidationStatus.VS_ISVALID:
-                    if (!LeftInput.IsAttached || !RightInput.IsAttached)
-                    {
-                        ret = DTSValidationStatus.VS_ISBROKEN;
-                    }
-                    else
-                    {
-                        var leftCols = LeftColumns;
-                        var rightCols = RightColumns;
-                        var commonDefs = GetCommonInputFingerprints();
-                        if (InnerJoinColumns.Count != leftCols.Count + rightCols.Count - commonDefs.Count)
-                        {
-                            ret = DTSValidationStatus.VS_NEEDSNEWMETADATA;
-                        }
-                        else if (MatchlessColumns.Count != leftCols.Count)
-                        {
-                            ret = DTSValidationStatus.VS_NEEDSNEWMETADATA;
-                        }
-                        if (LeftJoinColumns.Count != leftCols.Count + rightCols.Count - commonDefs.Count)
-                        {
-                            ret = DTSValidationStatus.VS_NEEDSNEWMETADATA;
-                        }
-                    }
-                    break;
+                ret = DTSValidationStatus.VS_ISCORRUPT;
+            }
+            else if (MatchlessColumns.Count != leftColumns.Count)
+            {
+                ret = DTSValidationStatus.VS_ISCORRUPT;
+            }
+            if (LeftJoinColumns.Count != leftColumns.Count + rightColumns.Count - commonFingerprints.Count)
+            {
+                ret = DTSValidationStatus.VS_ISCORRUPT;
             }
             return ret;
-        }
-
-        public override void ReinitializeMetaData()
-        {
-            base.ReinitializeMetaData();
-            DefineOutputs();
         }
 
         private ColumnBufferMapping InnerJoinCbm;
@@ -138,18 +136,13 @@ namespace RevolutionaryStuff.SSIS
             GetCommonInputFingerprints(true);
         }
 
-        private int InputFingerprintsSampled;
-        private int ProcessInputRootHits = 0;
-        private int ProcessInputRootMisses = 0;
-        private int ProcessInputRootFanoutHits = 0;
-
         protected override void ProcessLeftInput(IDTSInput100 input, PipelineBuffer buffer)
         {
             var isInnerJoinAttached = MatchesOutput.IsAttached;
             var isMatchlessAttached = OrphansOutput.IsAttached;
             var isLeftJoinAttached = UnionsOutput.IsAttached;
             var commonFingerprints = GetCommonInputFingerprints();
-            var fingerprinter = new Fingerprinter(IgnoreCase, TrimThenNullifyEmptyStrings);
+            var fingerprinter = new Fingerprinter(RD.IgnoreCase, RD.TrimThenNullifyEmptyStrings);
             var sourceVals = new List<object>();
             int rowsProcessed = 0;
             var throwOnInnerJoinWithFanout = ThrowOnInnerJoinWithFanout;
@@ -161,7 +154,7 @@ namespace RevolutionaryStuff.SSIS
                     var col = input.InputColumnCollection[z];
                     var colFingerprint = col.CreateFingerprint();
 //                    var o = buffer[z];
-                    var o = GetObject(col.Name, buffer, LeftInputCbm);
+                    var o = GetObject(col.Name, buffer, RD.LeftInputCbm);
                     if (commonFingerprints.Contains(colFingerprint))
                     {
                         fingerprinter.Include(col.Name, o);
@@ -175,7 +168,7 @@ namespace RevolutionaryStuff.SSIS
                 }
                 if (fingerprint!=null && AppendsByCommonFieldHash.ContainsKey(fingerprint))
                 {
-                    ++ProcessInputRootHits;
+                    ++RD.ProcessInputRootHits;
                     if (isInnerJoinAttached|| isLeftJoinAttached)
                     {
                         var appendRows = AppendsByCommonFieldHash[fingerprint];
@@ -185,7 +178,7 @@ namespace RevolutionaryStuff.SSIS
                         }
                         foreach (var appends in appendRows)
                         {
-                            ++ProcessInputRootFanoutHits;
+                            ++RD.ProcessInputRootFanoutHits;
                             if (isInnerJoinAttached)
                             {
                                 CopyToMatchedOutput(InnerJoinColumns, sourceVals, appends, InnerJoinBuffer, InnerJoinCbm);
@@ -199,7 +192,7 @@ namespace RevolutionaryStuff.SSIS
                 }
                 else
                 {
-                    ++ProcessInputRootMisses;
+                    ++RD.ProcessInputRootMisses;
                     if (isMatchlessAttached)
                     {
                         CopyToOrphannedOutput(MatchlessColumns, sourceVals, MatchlessBuffer, MatchlessCbm);
@@ -211,25 +204,26 @@ namespace RevolutionaryStuff.SSIS
                 }
                 sourceVals.Clear();
                 ++rowsProcessed;
-                if (InputFingerprintsSampled < SampleSize)
+                if (RD.InputFingerprintsSampled < SampleSize)
                 {
-                    ++InputFingerprintsSampled;
+                    ++RD.InputFingerprintsSampled;
                     FireInformation(InformationMessageCodes.ExampleFingerprint, fingerprinter.FingerPrint);
                 }
                 if (rowsProcessed % StatusNotifyIncrement == 0)
                 {
-                    FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, fanoutHits={ProcessInputRootFanoutHits}, misses={ProcessInputRootMisses}");
+                    FireInformation(InformationMessageCodes.MatchStats, $"hits={RD.ProcessInputRootHits}, fanoutHits={RD.ProcessInputRootFanoutHits}, misses={RD.ProcessInputRootMisses}");
                 }
             }
             FireInformation(InformationMessageCodes.RowsProcessed, $"{rowsProcessed}");
-            FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, fanoutHits={ProcessInputRootFanoutHits}, misses={ProcessInputRootMisses}, isFinal={buffer.EndOfRowset}");
-            if (buffer.EndOfRowset)
-            {
-                InnerJoinBuffer.SetEndOfRowset();
-                MatchlessBuffer.SetEndOfRowset();
-                LeftJoinBuffer.SetEndOfRowset();
-                AllDone();
-            }
+            FireInformation(InformationMessageCodes.MatchStats, $"hits={RD.ProcessInputRootHits}, fanoutHits={RD.ProcessInputRootFanoutHits}, misses={RD.ProcessInputRootMisses}, isFinal={buffer.EndOfRowset}");
+        }
+
+        protected override void OnProcessInputEndOfRowset(int inputID)
+        {
+            base.OnProcessInputEndOfRowset(inputID);
+            InnerJoinBuffer.SetEndOfRowset();
+            MatchlessBuffer.SetEndOfRowset();
+            LeftJoinBuffer.SetEndOfRowset();
         }
 
         private static void CopyToMatchedOutput(IDTSOutputColumnCollection100 cc, IList<object> sources, IList<object> appends, PipelineBuffer buf, ColumnBufferMapping cbm)

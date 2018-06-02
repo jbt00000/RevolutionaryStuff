@@ -12,6 +12,8 @@ namespace RevolutionaryStuff.SSIS
     [DtsPipelineComponent(
         DisplayName = "Error Appender",
         ComponentType = ComponentType.Transform,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class ErrorAppenderTransfromComponent : BasePipelineComponent
     {
@@ -46,6 +48,11 @@ namespace RevolutionaryStuff.SSIS
             matched.SynchronousInputID = left.ID;
             matched.Name = "Out";
         }
+
+        public ErrorAppenderTransfromComponent()
+            : base(true)
+        { }
+
 
         public override IDTSCustomProperty100 SetComponentProperty(string propertyName, object propertyValue)
         {
@@ -98,9 +105,9 @@ namespace RevolutionaryStuff.SSIS
             outCol.SetDataTypeProperties(outputType, 2000, 0, 0, outputCodePage);
         }
 
-        public override DTSValidationStatus Validate()
+        protected override DTSValidationStatus OnValidate()
         {
-            var ret = base.Validate();
+            var ret = base.OnValidate();
             switch (ret)
             {
                 case DTSValidationStatus.VS_ISVALID:

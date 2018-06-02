@@ -9,6 +9,8 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "Distinctify",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = false,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class DistinctifyTransformComponent : BasePipelineComponent
     {
@@ -17,11 +19,27 @@ namespace RevolutionaryStuff.SSIS
             public const string IgnoreCase = "Ignore Case";
         }
 
-        bool IgnoreCase
-            => GetCustomPropertyAsBool(PropertyNames.IgnoreCase);
+        private class MyRuntimeData : RuntimeData
+        {
+            public readonly bool IgnoreCase;
+            public readonly HashSet<string> Fingerprints = new HashSet<string>();
+            public int InputRows, DistinctRowCount, DuplicateRowCount;
+
+            public MyRuntimeData(DistinctifyTransformComponent parent)
+                : base(parent)
+            {
+                IgnoreCase = GetCustomPropertyAsBool(PropertyNames.IgnoreCase);
+            }
+        }
+
+        protected override RuntimeData ConstructRuntimeData()
+            => new MyRuntimeData(this);
+
+        private new MyRuntimeData RD 
+            => (MyRuntimeData)base.RD;
 
         public DistinctifyTransformComponent()
-            : base()
+            : base(true)
         { }
 
         public override void ProvideComponentProperties()
@@ -73,7 +91,6 @@ namespace RevolutionaryStuff.SSIS
         {
             var input = ComponentMetaData.InputCollection.GetObjectByID(inputID);
             var distinctOutput = ComponentMetaData.OutputCollection[0];
-            var ignoreCase = this.IgnoreCase;
             //var duplicateOutput = ComponentMetaData.OutputCollection[1];
 
             if (buffer != null)
@@ -84,41 +101,37 @@ namespace RevolutionaryStuff.SSIS
                     while (buffer.NextRow())
                     {
                         data.Clear();
-                        ++InputRows;
+                        ++RD.InputRows;
                         for (int z = 0; z < input.InputColumnCollection.Count; ++z)
                         {
                             var col = input.InputColumnCollection[z];
                             var o = GetObject(col.Name, buffer, InputCbm);
-                            if (ignoreCase && o is string && o != null)
+                            if (RD.IgnoreCase && o is string && o != null)
                             {
                                 o = ((string)o).ToLower();
                             }
                             data.Add(o);
                         }
                         var key = Cache.CreateKey(data);
-                        if (Fingerprints.Contains(key))
+                        if (RD.Fingerprints.Contains(key))
                         {
-                            ++DuplicateRowCount;
+                            ++RD.DuplicateRowCount;
                             //buffer.DirectRow(duplicateOutput.ID);
                         }
                         else
                         {
-                            Fingerprints.Add(key);
-                            ++DistinctRowCount;
+                            RD.Fingerprints.Add(key);
+                            ++RD.DistinctRowCount;
                             buffer.DirectRow(distinctOutput.ID);
                         }
-                        if (InputRows % StatusNotifyIncrement == 0)
+                        if (RD.InputRows % StatusNotifyIncrement == 0)
                         {
-                            FireInformation(InformationMessageCodes.MatchStats, $"InputRows={InputRows}, OutputRows={DistinctRowCount}, DuplicateRows={DuplicateRowCount}, Fingerprints={Fingerprints.Count}");
+                            FireInformation(InformationMessageCodes.MatchStats, $"InputRows={RD.InputRows}, OutputRows={RD.DistinctRowCount}, DuplicateRows={RD.DuplicateRowCount}, Fingerprints={RD.Fingerprints.Count}");
                         }
                     }
                 }
             }
         }
-
-        private readonly HashSet<string> Fingerprints = new HashSet<string>();
-        private int InputRows, DistinctRowCount, DuplicateRowCount;
-
 
         private enum InformationMessageCodes
         {

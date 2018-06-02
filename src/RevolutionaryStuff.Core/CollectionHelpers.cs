@@ -42,6 +42,17 @@ namespace RevolutionaryStuff.Core
             }
         }
 
+        public static void AddRange<T>(this HashSet<T> hs, IEnumerable<T> items)
+        {
+            if (items != null)
+            {
+                foreach (var item in items)
+                {
+                    hs.Add(item);
+                }
+            }
+        }
+
         public static IList<V> Map<TInput, K, V>(this IEnumerable<TInput> items, IDictionary<K, V> map, Func<TInput, K> keyGetter, bool omitMissing = false)
         {
             return items.Map(map, keyGetter, z => z, omitMissing);

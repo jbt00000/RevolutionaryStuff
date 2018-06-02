@@ -7,6 +7,8 @@ namespace RevolutionaryStuff.SSIS
     [DtsPipelineComponent(
         DisplayName = "Row Number Column",
         ComponentType = ComponentType.Transform,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class RowNumberTransformComponent : BasePipelineComponent
     {
@@ -16,6 +18,10 @@ namespace RevolutionaryStuff.SSIS
             public const string InitialValue = "InitialValue";
             public const string Increment = "Increment";
         }
+
+        public RowNumberTransformComponent()
+            : base(true)
+        { }
 
         public override void ProvideComponentProperties()
         {
@@ -69,9 +75,9 @@ namespace RevolutionaryStuff.SSIS
             outCol.SetDataTypeProperties(DataType.DT_I4, 0, 0, 0, 0);
         }
 
-        public override DTSValidationStatus Validate()
+        protected override DTSValidationStatus OnValidate()
         {
-            var ret = base.Validate();
+            var ret = base.OnValidate();
             switch (ret)
             {
                 case DTSValidationStatus.VS_ISVALID:
@@ -98,8 +104,6 @@ namespace RevolutionaryStuff.SSIS
             DefineOutputs();
         }
 
-        private ColumnBufferMapping InputRootBufferColumnIndicees;
-        private ColumnBufferMapping OutputBufferColumnIndicees;
         private int InitialValue;
         private int Incremement;
         private int RowNumber;
@@ -112,8 +116,6 @@ namespace RevolutionaryStuff.SSIS
             InitialValue = GetCustomPropertyAsInt(PropertyNames.InitialValue);
             Incremement = GetCustomPropertyAsInt(PropertyNames.Increment);
             RowNumber = InitialValue;
-            InputRootBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
-            OutputBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.OutputCollection[0], ComponentMetaData.InputCollection[0].Buffer);
         }
 
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
@@ -123,22 +125,12 @@ namespace RevolutionaryStuff.SSIS
 
             var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
             var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
-            int outputColumnPosition = OutputBufferColumnIndicees.GetPositionFromColumnName(OutputColumnName);
+            int outputColumnPosition = RD.OutputColumnBufferMappings[0].GetPositionFromColumnName(OutputColumnName);
             var inc = Incremement;
             while (buffer.NextRow())
             {
                 buffer.SetObject(DataType.DT_I4, outputColumnPosition, RowNumber);
                 RowNumber += inc;
-            }
-        }
-
-        PipelineBuffer OuputBuffer;
-
-        public override void PrimeOutput(int outputs, int[] outputIDs, PipelineBuffer[] buffers)
-        {
-            if (buffers.Length == 1)
-            {
-                OuputBuffer = buffers[0];
             }
         }
     }

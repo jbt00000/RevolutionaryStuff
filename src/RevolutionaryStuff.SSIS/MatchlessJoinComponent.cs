@@ -8,25 +8,42 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "Joiner - Matchless",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class MatchlessJoinComponennt : BaseJoinerComponent
     {
-        private static class PropertyNames
+        private static new class PropertyNames
         {
             public static class OutputProperties
             {
-                public const int MatchlessId = 0;
+                public const int MatchlessId = BaseJoinerComponent.PropertyNames.OutputProperties.PrimaryOutputId;
             }
         }
 
-        IDTSOutput100 OrphansOutput => ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.MatchlessId];
-        IDTSOutputColumnCollection100 MatchlessColumns => OrphansOutput.OutputColumnCollection;
+        private class MyRuntimeData : JoinerRuntimeData
+        {
+            public int InputFingerprintsSampled;
+            public int ProcessInputRootHits = 0;
+            public int ProcessInputRootMisses = 0;
+            public int ProcessInputRootFanoutHits = 0;
+
+            public MyRuntimeData(MatchlessJoinComponennt parent)
+                : base(parent, false)
+            { }
+        }
+
+        protected override RuntimeData ConstructRuntimeData()
+            => new MyRuntimeData(this);
+
+        private new MyRuntimeData RD
+            => (MyRuntimeData)base.RD;
 
         public MatchlessJoinComponennt()
-            : base()
+            : base(true)
         { }
 
-        protected override void ProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
+        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
         {
             ComponentMetaData.Name = "Joiner - Matchless";
             ComponentMetaData.Description = "Performs a join of the 2 inputs.  Returns all rows from the left for which there were no matches on the right.";
@@ -38,53 +55,24 @@ namespace RevolutionaryStuff.SSIS
             output.Description = "Left rows when there is no match in the right table";
         }
 
-        protected override void DefineOutputs()
+        protected override void DefineOutputs(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IList<string> commonFingerprints)
         {
-            SetInputColumnUsage(DTSUsageType.UT_IGNORED); 
+            SetInputColumnUsage(DTSUsageType.UT_IGNORED);
+            SetPrimaryOutputColumnsToLeftInputColumns();
         }
-
-        public override DTSValidationStatus Validate()
-        {
-            var ret = base.Validate();
-            switch (ret)
-            {
-                case DTSValidationStatus.VS_ISVALID:
-                    if (!LeftInput.IsAttached || !RightInput.IsAttached)
-                    {
-                        ret = DTSValidationStatus.VS_ISBROKEN;
-                    }
-                    break;
-            }
-            return ret;
-        }
-
-        public override void ReinitializeMetaData()
-        {
-            base.ReinitializeMetaData();
-            DefineOutputs();
-        }
-
-        private int InputFingerprintsSampled;
-        private int ProcessInputRootHits = 0;
-        private int ProcessInputRootMisses = 0;
-        private int ProcessInputRootFanoutHits = 0;
 
         protected override void ProcessLeftInput(IDTSInput100 input, PipelineBuffer buffer)
         {
-            var matchlessOutput = ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.MatchlessId];
-            var isMatchlessAttached = OrphansOutput.IsAttached;
-            var fingerprinter = new Fingerprinter(IgnoreCase, TrimThenNullifyEmptyStrings);
-            var sourceVals = new List<object>();
+            var fingerprinter = RD.CreateFingerprinter();
             int rowsProcessed = 0;
             while (buffer.NextRow())
             {
                 fingerprinter.Clear();
-                for (int z = 0; z < OrderedCommonColumnNames.Count; ++z)
+                for (int z = 0; z < RD.OrderedCommonColumnNames.Count; ++z)
                 {
-                    var colName = OrderedCommonColumnNames[z];
-                    var o = buffer[LeftInputCbm.GetPositionFromColumnName(colName)];
+                    var colName = RD.OrderedCommonColumnNames[z];
+                    var o = buffer[RD.LeftInputCbm.GetPositionFromColumnName(colName)];
                     fingerprinter.Include(colName, o);
-                    sourceVals.Add(o);
                 }
                 string fingerprint = null;
                 if (AppendsByCommonFieldHash.Count > 0)
@@ -93,30 +81,25 @@ namespace RevolutionaryStuff.SSIS
                 }
                 if (fingerprint == null || !AppendsByCommonFieldHash.ContainsKey(fingerprint))
                 {
-                    ++ProcessInputRootMisses;
-                    if (isMatchlessAttached)
+                    ++RD.ProcessInputRootMisses;
+                    if (RD.PrimaryOutputIsAttached)
                     {
-                        buffer.DirectRow(matchlessOutput.ID);
+                        buffer.DirectRow(RD.PrimaryOutputId);
                     }
                 }
-                sourceVals.Clear();
                 ++rowsProcessed;
-                if (InputFingerprintsSampled < SampleSize)
+                if (RD.InputFingerprintsSampled < SampleSize)
                 {
-                    ++InputFingerprintsSampled;
+                    ++RD.InputFingerprintsSampled;
                     FireInformation(InformationMessageCodes.ExampleFingerprint, fingerprinter.FingerPrint);
                 }
                 if (rowsProcessed % StatusNotifyIncrement == 0)
                 {
-                    FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, fanoutHits={ProcessInputRootFanoutHits}, misses={ProcessInputRootMisses}");
+                    FireInformation(InformationMessageCodes.MatchStats, $"hits={RD.ProcessInputRootHits}, fanoutHits={RD.ProcessInputRootFanoutHits}, misses={RD.ProcessInputRootMisses}");
                 }
             }
             FireInformation(InformationMessageCodes.RowsProcessed, $"{rowsProcessed}");
-            FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, fanoutHits={ProcessInputRootFanoutHits}, misses={ProcessInputRootMisses}");
-            if (buffer.EndOfRowset)
-            {
-                AllDone();
-            }
+            FireInformation(InformationMessageCodes.MatchStats, $"hits={RD.ProcessInputRootHits}, fanoutHits={RD.ProcessInputRootFanoutHits}, misses={RD.ProcessInputRootMisses}");
         }
 
         private enum InformationMessageCodes

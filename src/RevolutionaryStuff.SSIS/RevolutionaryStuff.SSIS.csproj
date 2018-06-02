@@ -114,6 +114,7 @@
     <Compile Include="RsllcCore\Stuff.cs" />
     <Compile Include="SsisHelpers.cs" />
     <Compile Include="StringCleaningComponent.cs" />
+    <Compile Include="TestComponent.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Icon1.ico" />

@@ -7,6 +7,12 @@ namespace RevolutionaryStuff.Core
 {
     public static class CollectionHelpers
     {
+        public static IList<T> AsReadOnly<T>(this IEnumerable<T> items)
+        {
+            if (items == null) return new T[0];
+            return new List<T>(items).AsReadOnly();
+        }
+
         public static string Format(this IEnumerable e, string sep = "", string format = "{0}")
         {
             if (null == e) return "";

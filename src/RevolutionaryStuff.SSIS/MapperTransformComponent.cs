@@ -12,6 +12,8 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "The Mapper",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class MapperTransformComponent : BasePipelineComponent
     {
@@ -33,6 +35,10 @@ namespace RevolutionaryStuff.SSIS
                 public const string Matches = "Match Output";
             }
         }
+
+        public MapperTransformComponent()
+            : base(true)
+        { }
 
         public override void ProvideComponentProperties()
         {
@@ -123,9 +129,9 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-        public override DTSValidationStatus Validate()
+        protected override DTSValidationStatus OnValidate()
         {
-            var ret = base.Validate();
+            var ret = base.OnValidate();
             switch (ret)
             {
                 case DTSValidationStatus.VS_ISVALID:

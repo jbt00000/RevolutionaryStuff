@@ -7,6 +7,20 @@ namespace RevolutionaryStuff.SSIS
 {
     public static class SsisHelpers
     {
+        public static bool IsStringDataType(this DataType dt)
+        {
+            switch (dt)
+            {
+                case DataType.DT_STR:
+                case DataType.DT_WSTR:
+                case DataType.DT_NTEXT:
+                case DataType.DT_TEXT:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
         public static bool IsColumnNameMatch(string columnNameA, string columnNameB)
             => columnNameA.ToLower().Trim() == columnNameB.ToLower().Trim();
 
@@ -65,11 +79,16 @@ namespace RevolutionaryStuff.SSIS
             return null;
         }
 
-        public static IDTSOutputColumn100 AddOutputColumn(this IDTSOutputColumnCollection100 output, IDTSInputColumn100 inCol, string newName = null)
+        public static IDTSOutputColumn100 AddOutputColumn(this IDTSOutputColumnCollection100 output, IDTSInputColumn100 inCol, string newName = null, bool linkToInputColumn=false)
         {
             var outCol = output.New();
             outCol.Name = newName ?? inCol.Name;
             outCol.SetDataTypeProperties(inCol.DataType, inCol.Length, inCol.Precision, inCol.Scale, inCol.CodePage);
+            if (linkToInputColumn)
+            {
+                outCol.MappedColumnID = inCol.ID;
+                outCol.LineageID = inCol.LineageID;
+            }
             return outCol;
         }
 

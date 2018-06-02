@@ -6,10 +6,15 @@ namespace RevolutionaryStuff.SSIS
     [DtsPipelineComponent(
         DisplayName = "String Cleaning",
         ComponentType = ComponentType.Transform,
-        SupportsBackPressure = false,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class StringCleaningComponent : BasePipelineComponent
     {
+        public StringCleaningComponent()
+            : base(true)
+        { }
+
         public override void ProvideComponentProperties()
         {
             base.ProvideComponentProperties();
@@ -31,51 +36,56 @@ namespace RevolutionaryStuff.SSIS
             var input = ComponentMetaData.InputCollection[0].GetVirtualInput();
             foreach (IDTSVirtualInputColumn100 vcol in input.VirtualInputColumnCollection)
             {
-                input.SetUsageType(vcol.LineageID, IsStringDataType(vcol.DataType) ? DTSUsageType.UT_READWRITE : DTSUsageType.UT_IGNORED);
+                input.SetUsageType(vcol.LineageID, vcol.DataType.IsStringDataType() ? DTSUsageType.UT_READWRITE : DTSUsageType.UT_IGNORED);
             }
         }
 
-        private ColumnBufferMapping InputCbm;
-
-        public override void PreExecute()
-        {
-            base.PreExecute();
-            InputCbm = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
-        }
+        int RowsProcessed = 0;
+        int CellsProcessed = 0;
+        int CellsUpdated = 0;
 
         protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
         {
+            var cbm = RD.InputColumnBufferMappings[0];
             var input = ComponentMetaData.InputCollection.GetObjectByID(inputID);
-
-            if (buffer != null)
+            var colCount = input.InputColumnCollection.Count;
+            while (buffer.NextRow())
             {
-                if (!buffer.EndOfRowset)
+                for (int z = 0; z < colCount; ++z)
                 {
-                    while (buffer.NextRow())
+                    var pos = cbm.PositionByColumnPosition[z];
+                    ++CellsProcessed;
+                    if (buffer.IsNull(pos)) continue;
+                    var sIn = buffer[pos] as string;
+                    if (sIn == null) continue;
+                    if (sIn.Length == 0)
                     {
-                        for (int z = 0; z < input.InputColumnCollection.Count; ++z)
+                        buffer.SetNull(pos);
+                        ++CellsUpdated;
+                    }
+                    else
+                    {
+                        var sOut = sIn.Trim();
+                        if (sOut.Length == 0)
                         {
-                            var col = input.InputColumnCollection[z];
-                            var sIn = (string) GetObject(col.Name, buffer, InputCbm);
-                            if (sIn != null)
-                            {
-                                var sOut = sIn.Trim();
-                                sOut = sOut == "" ? null : sOut;
-                                if (sIn == sOut) continue;
-                                var pos = InputCbm.PositionByColumnPosition[z];
-                                if (sOut == null)
-                                {
-                                    buffer.SetNull(pos);
-                                }
-                                else
-                                {
-                                    buffer.SetString(pos, sOut);
-                                }
-                            }
+                            buffer.SetNull(pos);
+                            ++CellsUpdated;
+                        }
+                        else if (sIn != sOut)
+                        {
+                            buffer.SetString(pos, sOut);
+                            ++CellsUpdated;
                         }
                     }
                 }
+                ++RowsProcessed;
             }
+        }
+
+        protected override void OnProcessInputEndOfRowset(int inputID)
+        {
+            FireInformation(4324, $"rowsProcessed={RowsProcessed} cellsProcessed={CellsProcessed} cellsUpdated={CellsUpdated}");
+            base.OnProcessInputEndOfRowset(inputID);
         }
     }
 }

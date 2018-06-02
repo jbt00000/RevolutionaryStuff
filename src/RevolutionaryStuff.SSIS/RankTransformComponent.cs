@@ -13,6 +13,8 @@ namespace RevolutionaryStuff.SSIS
         DisplayName = "Rank",
         ComponentType = ComponentType.Transform,
         SupportsBackPressure = true,
+        NoEditor = false,
+        CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class RankTransformComponent : BasePipelineComponent
     {
@@ -55,9 +57,6 @@ namespace RevolutionaryStuff.SSIS
         IDTSInputColumnCollection100 TheInputColumns => TheInput.InputColumnCollection;
         IDTSOutput100 TheOutput => ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.TheOutputId];
         IDTSOutputColumnCollection100 TheOutputColumns => TheOutput.OutputColumnCollection;
-        bool IgnoreCase
-            => GetCustomPropertyAsBool(PropertyNames.IgnoreCase);
-
 
         IList<string> GetPartitionColumnNames()
             => CSV.ParseLine(GetCustomPropertyAsString(PropertyNames.ParitionByFields) ?? "").Select(z => StringHelpers.TrimOrNull(z)).Where(z => z != null).ToList().AsReadOnly();
@@ -72,7 +71,7 @@ namespace RevolutionaryStuff.SSIS
             => RankFieldName != null;
 
         public RankTransformComponent()
-            : base()
+            : base(false)
         { }
 
         public override void ProvideComponentProperties()
@@ -100,14 +99,18 @@ namespace RevolutionaryStuff.SSIS
         public override void OnInputPathAttached(int inputID)
         {
             base.OnInputPathAttached(inputID);
-            if (TheInput.IsAttached)
-            {
-                DefineOutputs();
-            }
+            DefineOutputs();
+        }
+
+        public override void ReinitializeMetaData()
+        {
+            base.ReinitializeMetaData();
+            DefineOutputs();
         }
 
         private void DefineOutputs()
         {
+            if (!TheInput.IsAttached) return;
             var input = ComponentMetaData.InputCollection[PropertyNames.InputProperties.TheInputId].GetVirtualInput();
             foreach (IDTSVirtualInputColumn100 vcol in input.VirtualInputColumnCollection)
             {
@@ -130,40 +133,42 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-        public override DTSValidationStatus Validate()
+        protected override DTSValidationStatus OnValidate()
         {
-            var ret = base.Validate();
-            switch (ret)
+            var ret = base.OnValidate();
+            if (ret != DTSValidationStatus.VS_ISVALID) return ret;
+            if (!TheInput.IsAttached)
             {
-                case DTSValidationStatus.VS_ISVALID:
-                    if (!TheInput.IsAttached)
+                return DTSValidationStatus.VS_ISBROKEN;
+            }
+            else
+            {
+                var rightCols = TheInputColumns;
+                if (TheOutputColumns.Count != (TheInputColumns.Count + (HasRankField ? 1 : 0)))
+                {
+                    ret = DTSValidationStatus.VS_NEEDSNEWMETADATA;
+                }
+                else
+                {
+                    for (int z = 0; z < TheInputColumns.Count; ++z)
                     {
-                        ret = DTSValidationStatus.VS_ISBROKEN;
-                    }
-                    else
-                    {
-                        var rightCols = TheInputColumns;
-                        if (TheOutputColumns.Count != (TheInputColumns.Count + (HasRankField ? 1 : 0)))
+                        var inc = TheInputColumns[z];
+                        var outc = TheOutputColumns[z];
+                        if (inc.Name != outc.Name || inc.DataType != outc.DataType)
                         {
                             ret = DTSValidationStatus.VS_NEEDSNEWMETADATA;
                         }
                     }
-                    break;
+                }
             }
-            return ret;
+            return DTSValidationStatus.VS_ISVALID;
         }
 
-        private ColumnBufferMapping TheInputCbm;
-        private ColumnBufferMapping TheOutputCbm;
-        private Purgatory P;
+        protected override RuntimeData ConstructRuntimeData()
+            => new MyRuntimeData(this);
 
-        public override void PreExecute()
-        {
-            base.PreExecute();
-            TheInputCbm = CreateColumnBufferMapping(TheInput);
-            TheOutputCbm = CreateColumnBufferMapping(TheOutput);
-            P = new Purgatory(this, TheInputCbm, this.GetPartitionColumnNames(), this.GetOrderedColumns(), IgnoreCase);
-        }
+        private new MyRuntimeData RD
+            => (MyRuntimeData)base.RD;
 
         protected override void OnProcessInput(int inputId, PipelineBuffer buffer)
         {
@@ -203,16 +208,14 @@ namespace RevolutionaryStuff.SSIS
 
         public override void PrimeOutput(int outputs, int[] outputIDs, PipelineBuffer[] buffers)
         {
-            if (buffers.Length == 1)
+            using (CreateTraceRegion($"outputs={outputs}"))
             {
-                TheOutputBuffer = buffers[PropertyNames.OutputProperties.TheOutputId];
+                base.PrimeOutput(outputs, outputIDs, buffers);
+                if (buffers.Length == 1)
+                {
+                    TheOutputBuffer = buffers[PropertyNames.OutputProperties.TheOutputId];
+                }
             }
-        }
-
-        public override void PrepareForExecute()
-        {
-            base.PrepareForExecute();
-            P = new Purgatory(this, TheInputCbm, this.GetPartitionColumnNames(), this.GetOrderedColumns(), this.IgnoreCase);
         }
 
         private int ComparisonFingerprintsSampled = 0;
@@ -222,7 +225,7 @@ namespace RevolutionaryStuff.SSIS
         {
             while (buffer.NextRow())
             {
-                var rd = P.Add(input, buffer);
+                var rd = RD.P.Add(input, buffer);
                 ++InputRowsProcessed;
                 if (ComparisonFingerprintsSampled < SampleSize)
                 {
@@ -231,28 +234,26 @@ namespace RevolutionaryStuff.SSIS
                 }
             }
             FireInformation(InformationMessageCodes.InputRowsProcessed, $"{InputRowsProcessed}");
-            if (buffer.EndOfRowset)
-            {
-                Dump();
-            }
         }
 
-        private void Dump()
+        protected override void OnProcessInputEndOfRowset(int inputID)
         {
+            base.OnProcessInputEndOfRowset(inputID);
             if (TheOutput.IsAttached)
             {
-                FireInformation(InformationMessageCodes.SortStatus, "Sort Starting");
-                P.Sort();
-                FireInformation(InformationMessageCodes.SortStatus, "Sort Finished");
+                using (CreateTraceRegion("Sorting so we can rank"))
+                {
+                    RD.P.Sort();
+                }
                 string lastPk = null;
                 int r = 0;
                 int distinctPartitionKeys = 0;
                 int rankGreaterOneSkips = 0;
                 bool only1 = GetCustomPropertyAsBool(PropertyNames.ReturnOnlyRank1, false);
-                var cnt = P.Rows.Count;
+                var cnt = RD.P.Rows.Count;
                 for (int rowsProcessed = 0; rowsProcessed < cnt; ++rowsProcessed)
                 {
-                    var row = P.Rows[rowsProcessed];
+                    var row = RD.P.Rows[rowsProcessed];
                     if (row.PartitionKey != lastPk)
                     {
                         r = 0;
@@ -264,7 +265,7 @@ namespace RevolutionaryStuff.SSIS
                         ++rankGreaterOneSkips;
                         continue;
                     }
-                    P.Emit(row, TheOutputBuffer, TheOutputCbm, r);
+                    RD.P.Emit(row, TheOutputBuffer, RD.TheOutputCbm, r);
                     if (rowsProcessed % StatusNotifyIncrement == 0 || rowsProcessed==cnt-1)
                     {
                         FireInformation(InformationMessageCodes.RankStats, $"rowsProcessed={rowsProcessed}, distinctPartitionKeys={distinctPartitionKeys}, rankGreaterOneSkips={rankGreaterOneSkips}");
@@ -285,9 +286,29 @@ namespace RevolutionaryStuff.SSIS
             RankStats = 9,
         }
 
+        private class MyRuntimeData : RuntimeData
+        {
+            protected new RankTransformComponent Parent
+                => (RankTransformComponent)base.Parent;
+
+            public readonly bool IgnoreCase;
+            public readonly ColumnBufferMapping TheInputCbm;
+            public readonly ColumnBufferMapping TheOutputCbm;
+            public readonly Purgatory P;
+
+            public MyRuntimeData(RankTransformComponent parent)
+                : base(parent)
+            {
+                IgnoreCase = GetCustomPropertyAsBool(PropertyNames.IgnoreCase);
+                TheInputCbm = InputColumnBufferMappings[0];
+                TheOutputCbm = OutputColumnBufferMappings[0];
+                P = new Purgatory(Parent, TheInputCbm, Parent.GetPartitionColumnNames(), Parent.GetOrderedColumns(), IgnoreCase);
+            }
+        }
+
         private class Purgatory
         {
-            private readonly RankTransformComponent Component;
+            private readonly RankTransformComponent Parent;
             private readonly ColumnBufferMapping Cbm;
             private readonly IList<string> PartitionColumnNames;
             private readonly IList<OrderedColumn> OrderedColumns;
@@ -303,9 +324,9 @@ namespace RevolutionaryStuff.SSIS
                 public object[] AllValsByInputPos;
             }
 
-            public Purgatory(RankTransformComponent component, ColumnBufferMapping cbm, IList<string> partitionColumnNames, IList<OrderedColumn> orderedColumns, bool ignoreCase)
+            internal Purgatory(RankTransformComponent component, ColumnBufferMapping cbm, IList<string> partitionColumnNames, IList<OrderedColumn> orderedColumns, bool ignoreCase)
             {
-                Component = component;
+                Parent = component;
                 Cbm = cbm;
                 PartitionColumnNames = partitionColumnNames;
                 OrderedColumns = orderedColumns;
@@ -372,19 +393,19 @@ namespace RevolutionaryStuff.SSIS
                 };
                 foreach (var name in PartitionColumnNames)
                 {
-                    var v = Component.GetObject(name, buffer, Cbm);
+                    var v = Parent.GetObject(name, buffer, Cbm);
                     PkSb.Append($"{v};");
                 }
                 rd.PartitionKey = IgnoreCase ? PkSb.ToString().ToLower() : PkSb.ToString();
                 int pos = 0;
                 foreach (var oc in OrderedColumns)
                 {
-                    var v = Component.GetObject(oc.ColumnName, buffer, Cbm);
+                    var v = Parent.GetObject(oc.ColumnName, buffer, Cbm);
                     rd.SortVals[pos++] = v;
                 }
                 for (int z = 0; z < Cbm.ColumnCount; ++z)
                 {
-                    var v = Component.GetObject(Cbm.GetColumnNameFromPosition(z), buffer, Cbm);
+                    var v = Parent.GetObject(Cbm.GetColumnNameFromPosition(z), buffer, Cbm);
                     rd.AllValsByInputPos[z] = v;
                 }
                 Rows.Add(rd);

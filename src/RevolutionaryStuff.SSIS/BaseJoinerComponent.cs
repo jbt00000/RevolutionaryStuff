@@ -11,7 +11,7 @@ namespace RevolutionaryStuff.SSIS
 {
     public abstract class BaseJoinerComponent : BasePipelineComponent
     {
-        private static class PropertyNames
+        protected static class PropertyNames
         {
             public const string IgnoreCase = CommonPropertyNames.IgnoreCase;
             public const string TrimThenNullifyEmptyStrings = "TrimThenNullifyEmptyStrings";
@@ -23,16 +23,87 @@ namespace RevolutionaryStuff.SSIS
                 public const int RightId = 1;
                 public const string RightName = "Right Input";
             }
+            public static class OutputProperties
+            {
+                public const int PrimaryOutputId = 0;
+            }
         }
 
-        protected bool IgnoreCase => GetCustomPropertyAsBool(PropertyNames.IgnoreCase);
-        protected bool TrimThenNullifyEmptyStrings => GetCustomPropertyAsBool(PropertyNames.TrimThenNullifyEmptyStrings);
+        protected BaseJoinerComponent(bool allOutputsAreSynchronous)
+            : base(allOutputsAreSynchronous)
+        { }
 
-        protected IDTSInput100 LeftInput => ComponentMetaData.InputCollection[PropertyNames.InputProperties.LeftId];
-        protected IDTSInputColumnCollection100 LeftColumns => LeftInput.InputColumnCollection;
-        protected IDTSInput100 RightInput => ComponentMetaData.InputCollection[PropertyNames.InputProperties.RightId];
-        protected IDTSInputColumnCollection100 RightColumns => RightInput.InputColumnCollection;
+        protected class JoinerRuntimeData : RuntimeData
+        {
+            protected new BaseJoinerComponent Parent 
+                => (BaseJoinerComponent)base.Parent;
 
+            public readonly IList<string> CommonFingerprints;
+            public readonly ColumnBufferMapping LeftInputCbm;
+            public readonly ColumnBufferMapping RightInputCbm;
+            public readonly ColumnBufferMapping PrimaryOutputCbm;
+            public readonly IDTSOutput100 PrimaryOutput;
+            public readonly bool PrimaryOutputIsAttached;
+            public readonly int PrimaryOutputId;
+
+            public readonly bool IgnoreCase;
+            public readonly bool TrimThenNullifyEmptyStrings;
+            public int ComparisonFingerprintsSampled = 0;
+            public int RightRowCount = 0;
+
+            public readonly IList<string> OrderedAppendedColumnNames;
+            public readonly IList<int> OrderedAppendedPrimaryOutputColumnIndicees;
+            public readonly IList<string> OrderedCommonColumnNames;
+
+            internal Fingerprinter CreateFingerprinter()
+                => new Fingerprinter(IgnoreCase, TrimThenNullifyEmptyStrings);
+
+            protected JoinerRuntimeData(BaseJoinerComponent parent, bool appendSomeRightColumns)
+                : base(parent)
+            {
+                IgnoreCase = GetCustomPropertyAsBool(PropertyNames.IgnoreCase);
+                TrimThenNullifyEmptyStrings = GetCustomPropertyAsBool(PropertyNames.TrimThenNullifyEmptyStrings);
+                LeftInputCbm = InputColumnBufferMappings[0];
+                RightInputCbm = InputColumnBufferMappings[1];
+                PrimaryOutput = ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.PrimaryOutputId];
+                PrimaryOutputCbm = OutputColumnBufferMappings[0];
+                PrimaryOutputIsAttached = PrimaryOutput.IsAttached;
+                PrimaryOutputId = PrimaryOutput.ID;
+                CommonFingerprints = Parent.GetCommonInputFingerprints(false).AsReadOnly();
+
+                var orderedAppendedColumnNames = new List<string>();
+                var orderedCommonColumnNames = new List<string>();
+                var orderedAppendedColumnIndicees = new List<int>();
+                var rightInput = ComponentMetaData.InputCollection[1];
+                for (int z = 0; z < rightInput.InputColumnCollection.Count; ++z)
+                {
+                    var col = rightInput.InputColumnCollection[z];
+                    var colFingerprint = col.CreateFingerprint();
+                    if (CommonFingerprints.Contains(colFingerprint))
+                    {
+                        orderedCommonColumnNames.Add(col.Name);
+                    }
+                    else if (appendSomeRightColumns)
+                    {
+                        orderedAppendedColumnNames.Add(col.Name);
+                        orderedAppendedColumnIndicees.Add(PrimaryOutputCbm.GetPositionFromColumnName(col.Name));
+                    }
+                }
+                OrderedCommonColumnNames = orderedCommonColumnNames.AsReadOnly();
+                OrderedAppendedColumnNames = orderedAppendedColumnNames.AsReadOnly();
+                OrderedAppendedPrimaryOutputColumnIndicees = orderedAppendedColumnIndicees.AsReadOnly();
+            }
+        }
+
+        private new JoinerRuntimeData RD
+            => (JoinerRuntimeData)base.RD;
+
+        private IDTSInput100 LeftInput => ComponentMetaData.InputCollection[PropertyNames.InputProperties.LeftId];
+        private IDTSInputColumnCollection100 LeftColumns => LeftInput.InputColumnCollection;
+        private IDTSInput100 RightInput => ComponentMetaData.InputCollection[PropertyNames.InputProperties.RightId];
+        private IDTSInputColumnCollection100 RightColumns => RightInput.InputColumnCollection;
+        private IDTSOutput100 PrimaryOutput => ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.PrimaryOutputId];
+        private IDTSOutputColumnCollection100 PrimaryOutputColumns => PrimaryOutput.OutputColumnCollection;
 
         public override void ProvideComponentProperties()
         {
@@ -44,14 +115,75 @@ namespace RevolutionaryStuff.SSIS
 
             var rightInput = ComponentMetaData.InputCollection.New();
             rightInput.Name = PropertyNames.InputProperties.RightName;
+            rightInput.HasSideEffects = true;
 
             CreateCustomProperty(PropertyNames.IgnoreCase, "1", "When {1,true} the match is case insensitive, when {0,false} it is case sensitive.");
             CreateCustomProperty(PropertyNames.TrimThenNullifyEmptyStrings, "1", "When {1,true} the match should first trim and then nullify string columns, when {0,false} do not apply this transform.");
 
-            ProvideComponentProperties(leftInput, rightInput);
+            OnProvideComponentProperties(leftInput, rightInput);
         }
 
-        protected abstract void ProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput);
+        protected override void OnPerformUpgrade(int from, int to)
+        {
+            base.OnPerformUpgrade(from, to);
+            if (from < 4)
+            {
+                RightInput.HasSideEffects = true;
+            }
+        }
+
+        protected abstract void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput);
+
+        protected override DTSValidationStatus OnValidate()
+        {
+            var ret = base.OnValidate();
+            if (ret != DTSValidationStatus.VS_ISVALID) return ret;
+            if (!LeftInput.IsAttached)
+            {
+                FireInformation(JoinerMessageCodes.ValidateError, "Validate: The left input is not attached");
+                return DTSValidationStatus.VS_ISBROKEN;
+            }
+            if (!RightInput.IsAttached)
+            {
+                FireInformation(JoinerMessageCodes.ValidateError, "Validate: The right input is not attached");
+                return DTSValidationStatus.VS_ISBROKEN;
+            }
+            if (LeftInput.InputColumnCollection.Count == 0)
+            {
+                FireInformation(JoinerMessageCodes.ValidateError, "Validate: The left input does not report any columns");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            if (RightInput.InputColumnCollection.Count == 0)
+            {
+                FireInformation(JoinerMessageCodes.ValidateError, "Validate: The right input does not report any columns");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            var cfp = GetCommonInputFingerprints(false);
+            if (cfp.Count == 0)
+            {
+                FireInformation(JoinerMessageCodes.ValidateError, "Validate: There are no commom fingerprints");
+                GetCommonInputFingerprints(true); // to show the issue...
+                return DTSValidationStatus.VS_ISBROKEN;
+            }
+            /*
+            if (PrimaryOutputColumns.Count < LeftColumns.Count)
+            {
+                FireInformation(JoinerMessageCodes.ValidateError, "Validate: There are fewer output columns than left input columns");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            if (PrimaryOutputColumns.Count > LeftColumns.Count + RightColumns.Count)
+            {
+                FireInformation(JoinerMessageCodes.ValidateError, "Validate: There are more output columns than left + right input columns");
+                return DTSValidationStatus.VS_ISCORRUPT;
+            }
+            */
+            return OnValidate(LeftColumns, RightColumns, PrimaryOutputColumns, cfp);
+        }
+
+        protected virtual DTSValidationStatus OnValidate(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IDTSOutputColumnCollection100 outputColumns, IList<string> commonFingerprints)
+        {
+            return DTSValidationStatus.VS_ISVALID;
+        }
 
         public override void OnInputPathAttached(int inputID)
         {
@@ -62,7 +194,25 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-        protected abstract void DefineOutputs();
+        private void DefineOutputs()
+        {
+            DefineOutputs(LeftColumns, RightColumns, GetCommonInputFingerprints(true));
+        }
+
+        protected IDTSOutputColumnCollection100 SetPrimaryOutputColumnsToLeftInputColumns()
+        {
+            var pocs = ComponentMetaData.OutputCollection[PropertyNames.OutputProperties.PrimaryOutputId].OutputColumnCollection;
+            pocs.RemoveAll();
+            return pocs;
+        }
+
+        protected abstract void DefineOutputs(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IList<string> commonFingerprints);
+
+        public override void ReinitializeMetaData()
+        {
+            base.ReinitializeMetaData();
+            DefineOutputs();
+        }
 
         protected virtual void SetInputColumnUsage(DTSUsageType leftOnlyColumnUsage=DTSUsageType.UT_IGNORED)
         {
@@ -84,44 +234,8 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-        protected ColumnBufferMapping LeftInputCbm { get; private set; }
-
-        private ColumnBufferMapping RightInputCbm;
-
-        protected IList<string> OrderedAppendedColumnNames { get; private set; }
-
-        protected IList<string> OrderedCommonColumnNames { get; private set; }
-
-        public override void PreExecute()
-        {
-            base.PreExecute();
-            LeftInputCbm = CreateColumnBufferMapping(LeftInput);
-            RightInputCbm = CreateColumnBufferMapping(RightInput);
-
-            var commonFingerprints = GetCommonInputFingerprints(false);
-            var orderedAppendedColumnNames = new List<string>();
-            var orderedCommonColumnNames = new List<string>();
-            for (int z = 0; z < RightInput.InputColumnCollection.Count; ++z)
-            {
-                var col = RightInput.InputColumnCollection[z];
-                var colFingerprint = col.CreateFingerprint();
-                if (commonFingerprints.Contains(colFingerprint))
-                {
-                    orderedCommonColumnNames.Add(col.Name);
-                }
-                else
-                {
-                    orderedAppendedColumnNames.Add(col.Name);
-                }
-            }
-            OrderedCommonColumnNames = orderedCommonColumnNames.AsReadOnly();
-            OrderedAppendedColumnNames = orderedAppendedColumnNames.AsReadOnly();
-        }
-
         private bool RightInputProcessed = false;
         private bool LeftInputProcessed = false;
-        private int ComparisonFingerprintsSampled = 0;
-        private int RightRowCount = 0;
         protected MultipleValueDictionary<string, object[]> AppendsByCommonFieldHash { get; private set; }
 
         public override void PrepareForExecute()
@@ -154,10 +268,29 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-        protected void AllDone()
+        protected override void OnProcessInputEndOfRowset(int inputID)
+        {
+            base.OnProcessInputEndOfRowset(inputID);
+            int inputIndex = ComponentMetaData.InputCollection.GetObjectIndexByID(inputID);
+            if (inputIndex == PropertyNames.InputProperties.LeftId)
+            {
+                OnProcessLeftInputEndOfRowset();
+            }
+            else if (inputIndex == PropertyNames.InputProperties.RightId)
+            {
+                OnProcessRightInputEndOfRowset();
+            }
+        }
+
+        protected virtual void OnProcessLeftInputEndOfRowset()
         {
             LeftInputProcessed = true;
             AppendsByCommonFieldHash.Clear();
+        }
+
+        protected virtual void OnProcessRightInputEndOfRowset()
+        {
+            RightInputProcessed = true;
         }
 
         protected IList<string> GetCommonInputFingerprints(bool fireInformationMessages = false)
@@ -258,7 +391,7 @@ namespace RevolutionaryStuff.SSIS
         {
             int rowsProcessed = 0;
             var commonFingerprints = GetCommonInputFingerprints();
-            var fingerprinter = new Fingerprinter(IgnoreCase, TrimThenNullifyEmptyStrings);
+            var fingerprinter = new Fingerprinter(RD.IgnoreCase, RD.TrimThenNullifyEmptyStrings);
             var appends = new List<object>();
             while (buffer.NextRow())
             {
@@ -266,7 +399,7 @@ namespace RevolutionaryStuff.SSIS
                 {
                     var col = input.InputColumnCollection[z];
                     var colFingerprint = col.CreateFingerprint();
-                    var o = GetObject(col.Name, buffer, RightInputCbm);
+                    var o = GetObject(col.Name, buffer, RD.RightInputCbm);
                     if (commonFingerprints.Contains(colFingerprint))
                     {
                         fingerprinter.Include(col.Name, o);
@@ -275,29 +408,24 @@ namespace RevolutionaryStuff.SSIS
                     {
                         appends.Add(o);
                     }
-                    ++RightRowCount;
+                    ++RD.RightRowCount;
                 }
                 var fingerprint = fingerprinter.FingerPrint;
                 AppendsByCommonFieldHash.Add(fingerprint, appends.ToArray());
                 fingerprinter.Clear();
                 appends.Clear();
                 ++rowsProcessed;
-                if (ComparisonFingerprintsSampled < SampleSize)
+                if (RD.ComparisonFingerprintsSampled < SampleSize)
                 {
-                    ++ComparisonFingerprintsSampled;
+                    ++RD.ComparisonFingerprintsSampled;
                     FireInformation(JoinerMessageCodes.ExampleFingerprint, fingerprint);
                 }
             }
             FireInformation(JoinerMessageCodes.RowsProcessed, $"{rowsProcessed}");
             FireInformation(JoinerMessageCodes.AppendsByCommonFieldHash, $"{AppendsByCommonFieldHash.Count}/{AppendsByCommonFieldHash.AtomEnumerable.Count()}");
-            if (buffer.EndOfRowset)
-            {
-                FireInformation(JoinerMessageCodes.RightColumns, $"{RightRowCount}");
-                RightInputProcessed = true;
-            }
         }
 
-        private enum JoinerMessageCodes
+        protected enum JoinerMessageCodes
         {
             RowsProcessed = 1,
             ExampleFingerprint = 2,
@@ -307,6 +435,7 @@ namespace RevolutionaryStuff.SSIS
             LeftColumns = 6,
             DuplicateColumnFingerprint = 8,
             NoCommonColumns = 9,
+            ValidateError = 10,
         }
     }
 }
