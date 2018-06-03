@@ -39,6 +39,7 @@ namespace RevolutionaryStuff.SSIS
 
             var left = ComponentMetaData.InputCollection.New();
             left.Name = "Denormalized";
+            left.HasSideEffects = true;
             var outs = ComponentMetaData.OutputCollection.New();
             outs.SynchronousInputID = 0;
             outs.Name = "Normalized";
@@ -248,10 +249,12 @@ namespace RevolutionaryStuff.SSIS
                 }
                 ++RowsProcessed;
             }
-            if (buffer.EndOfRowset)
-            {
-                OutputBuffer.SetEndOfRowset();
-            }
+        }
+
+        protected override void OnProcessInputEndOfRowset(int inputID)
+        {
+            base.OnProcessInputEndOfRowset(inputID);
+            OutputBuffer.SetEndOfRowset();
         }
 
         public override void IsInputReady(int[] inputIDs, ref bool[] canProcess)

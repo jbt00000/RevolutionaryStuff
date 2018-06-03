@@ -87,7 +87,7 @@ namespace RevolutionaryStuff.SSIS
                 DebuggerAttachmentWaitDone_s = DebuggerAttachmentWaitDone_s && true; //to get rid of compiler warning and worse yet, optimizations...
                 if (!DebuggerAttachmentWaitDone)
                 {
-#if false
+#if false 
                     for (int z = 0; z < 60 && !DebuggerAttachmentWaitDone_s; ++z)
                     {
                         System.Threading.Thread.Sleep(1000);

@@ -60,9 +60,9 @@ namespace RevolutionaryStuff.SSIS
         {
             var ret = base.OnValidate(leftColumns, rightColumns, outputColumns, commonFingerprints);
             if (ret != DTSValidationStatus.VS_ISVALID) return ret;
-            if (outputColumns.Count != commonFingerprints.Count)//leftColumns.Count + rightColumns.Count - commonFingerprints.Count)
+            if (outputColumns.Count != rightColumns.Count - commonFingerprints.Count)//leftColumns.Count + rightColumns.Count - commonFingerprints.Count)
             {
-                FireInformation(JoinerMessageCodes.ValidateError, $"Validate: output column count={outputColumns.Count} but left={leftColumns.Count} right={rightColumns.Count} and common={commonFingerprints.Count}");
+                FireInformation(JoinerMessageCodes.ValidateError, $"Validate: output column count={outputColumns.Count}<>{rightColumns.Count - commonFingerprints.Count} but left={leftColumns.Count} right={rightColumns.Count} and common={commonFingerprints.Count}");
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
             return DTSValidationStatus.VS_ISVALID;
