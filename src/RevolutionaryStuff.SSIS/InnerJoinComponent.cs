@@ -48,16 +48,14 @@ namespace RevolutionaryStuff.SSIS
             : base(true)
         { }
 
-        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
+        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput, IDTSOutput100 primaryOutput)
         {
+            base.OnProvideComponentProperties(leftInput, rightInput, primaryOutput);
             ComponentMetaData.Name = "Joiner - Inner";
             ComponentMetaData.Description = "Performs an inner join of the 2 inputs.  Returns all rows from the left merged with matching rows on the right. No fanout!";
 
-            var output = ComponentMetaData.OutputCollection.New();
-            output.ExclusionGroup = 1;
-            output.SynchronousInputID = leftInput.ID;
-            output.Name = "Inner Join";
-            output.Description = "Left rows when there is no match in the right table";
+            primaryOutput.Name = "Inner Join";
+            primaryOutput.Description = "Left rows when there is no match in the right table";
 
             CreateCustomProperty(PropertyNames.ErrorOnMisses, "1", "When {1,true} throw an error when there is no right match on a left row.");
         }
@@ -68,7 +66,7 @@ namespace RevolutionaryStuff.SSIS
             if (ret != DTSValidationStatus.VS_ISVALID) return ret;
             if (outputColumns.Count != rightColumns.Count - commonFingerprints.Count)//leftColumns.Count + rightColumns.Count - commonFingerprints.Count)
             {
-                FireInformation(JoinerMessageCodes.ValidateError, $"Validate: output column count={outputColumns.Count}<>{rightColumns.Count - commonFingerprints.Count} but left={leftColumns.Count} right={rightColumns.Count} and common={commonFingerprints.Count}");
+                FireInformation(MergingMessageCodes.ValidateError, $"Validate: output column count={outputColumns.Count}<>{rightColumns.Count - commonFingerprints.Count} but left={leftColumns.Count} right={rightColumns.Count} and common={commonFingerprints.Count}");
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
             return DTSValidationStatus.VS_ISVALID;

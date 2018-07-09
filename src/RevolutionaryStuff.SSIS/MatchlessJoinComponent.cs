@@ -13,14 +13,6 @@ namespace RevolutionaryStuff.SSIS
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class MatchlessJoinComponennt : BaseJoinerComponent
     {
-        private static new class PropertyNames
-        {
-            public static class OutputProperties
-            {
-                public const int MatchlessId = BaseJoinerComponent.PropertyNames.OutputProperties.PrimaryOutputId;
-            }
-        }
-
         private class MyRuntimeData : JoinerRuntimeData
         {
             public int InputFingerprintsSampled;
@@ -43,16 +35,14 @@ namespace RevolutionaryStuff.SSIS
             : base(true)
         { }
 
-        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
+        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput, IDTSOutput100 primaryOutput)
         {
+            base.OnProvideComponentProperties(leftInput, rightInput, primaryOutput);
             ComponentMetaData.Name = "Joiner - Matchless";
             ComponentMetaData.Description = "Performs a join of the 2 inputs.  Returns all rows from the left for which there were no matches on the right.";
 
-            var output = ComponentMetaData.OutputCollection.New();
-            output.ExclusionGroup = 1;
-            output.SynchronousInputID = leftInput.ID;
-            output.Name = "Matchless Join";
-            output.Description = "Left rows when there is no match in the right table";
+            primaryOutput.Name = "Matchless Join";
+            primaryOutput.Description = "Left rows when there is no match in the right table";
         }
 
         protected override void DefineOutputs(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IList<string> commonFingerprints)

@@ -298,6 +298,10 @@ namespace RevolutionaryStuff.Core
             {
                 return Enum.Parse(t, val.ToString(), true);
             }
+            else if (t == typeof(Uri) && val is string)
+            {
+                return new Uri((string)val);
+            }
             else
             {
                 return Convert.ChangeType(val, t, null);

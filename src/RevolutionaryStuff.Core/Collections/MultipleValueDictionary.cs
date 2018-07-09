@@ -253,5 +253,19 @@ namespace RevolutionaryStuff.Core.Collections
                 }
             }
         }
+
+        public IEnumerable<V> Values
+        {
+            get
+            {
+                foreach (var k in Keys)
+                {
+                    foreach (var v in this[k])
+                    {
+                        yield return v;
+                    }
+                }
+            }
+        }
     }
 }

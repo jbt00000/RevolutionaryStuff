@@ -15,21 +15,13 @@ namespace RevolutionaryStuff.SSIS
         NoEditor = false,
         CurrentVersion = BasePipelineComponent.AssemblyComponentVersion,
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
-    public class MapperTransformComponent : BasePipelineComponent
+    public class MapperTransformComponent : BaseMergingComponent
     {
         private static class PropertyNames
         {
             public const string IgnoreCase = CommonPropertyNames.IgnoreCase;
             public const string Mappings = "Mappings";
             public const string RightMap = "RightMap";
-
-            public static class InputProperties
-            {
-                public const string Root = "Left Input";
-                public const int RootId = 0;
-                public const string Comparison = "Right Input";
-                public const int ComparisonId = 1;
-            }
             public static class OutputProperties
             {
                 public const string Matches = "Match Output";
@@ -40,11 +32,8 @@ namespace RevolutionaryStuff.SSIS
             : base(true)
         { }
 
-        public override void ProvideComponentProperties()
+        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput, IDTSOutput100 primaryOutput)
         {
-            base.ProvideComponentProperties();
-            base.RemoveAllInputsOutputsAndCustomProperties();
-
             ComponentMetaData.Name = "The Mapper";
             ComponentMetaData.Description = "A SSIS Data Flow Transformation Component that maps keys from the right table onto the left based off of join conditions.";
 
@@ -52,14 +41,9 @@ namespace RevolutionaryStuff.SSIS
             CreateCustomProperty(PropertyNames.Mappings, null, "Lookup1ResultFieldName,Lookup1Key1,...Lookup1KeyN;LookupNResultFieldName,LookupNKey1,...LookupNKeyN;");
             CreateCustomProperty(PropertyNames.IgnoreCase, "1", "When {1,true} the match is case insensitive, when {0,false} it is case sensitive.");
 
-            var left = ComponentMetaData.InputCollection.New();
-            left.Name = PropertyNames.InputProperties.Root;
-            var right = ComponentMetaData.InputCollection.New();
-            right.Name = PropertyNames.InputProperties.Comparison;
-            var matched = ComponentMetaData.OutputCollection.New();
-            matched.SynchronousInputID = left.ID;
-            matched.Name = PropertyNames.OutputProperties.Matches;
-            matched.Description = "Root rows that have have corresponding matches in the Comparison";
+            primaryOutput.SynchronousInputID = leftInput.ID;
+            primaryOutput.Name = "Match Output";
+            primaryOutput.Description = "Root rows that have have corresponding matches in the Comparison";
         }
 
         IList<string> GetRightMap()
@@ -89,17 +73,7 @@ namespace RevolutionaryStuff.SSIS
             return base.SetComponentProperty(propertyName, propertyValue);
         }
 
-        public override void OnInputPathAttached(int inputID)
-        {
-            base.OnInputPathAttached(inputID);
-            if (this.ComponentMetaData.InputCollection[0].IsAttached &&
-                this.ComponentMetaData.InputCollection[1].IsAttached)
-            {
-                DefineOutputs();
-            }
-        }
-
-        private void DefineOutputs()
+        protected override void DefineOutputs(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IList<string> commonFingerprints)
         {
             var m = GetLeftMaps();
             var inputColNames = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
@@ -129,40 +103,19 @@ namespace RevolutionaryStuff.SSIS
             }
         }
 
-        protected override DTSValidationStatus OnValidate()
+        protected override DTSValidationStatus OnValidate(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IDTSOutputColumnCollection100 outputColumns, IList<string> commonFingerprints)
         {
-            var ret = base.OnValidate();
-            switch (ret)
+            var ret = base.OnValidate(leftColumns, rightColumns, outputColumns, commonFingerprints);
+            if (ret != DTSValidationStatus.VS_ISVALID) return ret;
+            var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
+            var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
+            var m = GetLeftMaps();
+            if (outCols.Count != m.Count)
             {
-                case DTSValidationStatus.VS_ISVALID:
-                    if (!ComponentMetaData.InputCollection[0].IsAttached || !ComponentMetaData.InputCollection[1].IsAttached)
-                    {
-                        ret = DTSValidationStatus.VS_ISBROKEN;
-                    }
-                    else
-                    {
-                        var leftCols = ComponentMetaData.InputCollection[0].InputColumnCollection;
-                        var outCols = ComponentMetaData.OutputCollection[0].OutputColumnCollection;
-                        var m = GetLeftMaps();
-                        if (outCols.Count != m.Count)
-                        {
-                            ret = DTSValidationStatus.VS_ISBROKEN;
-                        }
-                    }
-                    break;
+                ret = DTSValidationStatus.VS_ISBROKEN;
             }
             return ret;
         }
-
-        public override void ReinitializeMetaData()
-        {
-            base.ReinitializeMetaData();
-            DefineOutputs();
-        }
-
-        private ColumnBufferMapping InputRootBufferColumnIndicees;
-        private ColumnBufferMapping InputComparisonBufferColumnIndicees;
-        private ColumnBufferMapping OutputBufferColumnIndicees;
 
         public override void PreExecute()
         {
@@ -177,49 +130,46 @@ namespace RevolutionaryStuff.SSIS
 
             LeftSamples = 0;
             RightSamples = 0;
-            InputRootProcessed = false;
-            InputComparisonProcessed = false;
-            if (GetCustomPropertyAsBool(PropertyNames.IgnoreCase, true))
-            {
-                ValByKey = new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
-            }
-            else
-            {
-                ValByKey = new Dictionary<string, object>();
-            }
-            InputRootBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[0]);
-            InputComparisonBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.InputCollection[1]);
-            OutputBufferColumnIndicees = CreateColumnBufferMapping(ComponentMetaData.OutputCollection[0], ComponentMetaData.InputCollection[0].Buffer);
         }
 
-        protected override void OnProcessInput(int inputID, PipelineBuffer buffer)
+        private class MyRuntimeData : MergingRuntimeData
         {
-            var input = ComponentMetaData.InputCollection.GetObjectByID(inputID);
-            switch (input.Name)
+            protected new MapperTransformComponent Parent
+                => (MapperTransformComponent)base.Parent;
+
+            public readonly IDictionary<string, object> ValByKey;
+
+            protected override void OnDispose(bool disposing)
             {
-                case PropertyNames.InputProperties.Root:
-                    if (!InputRootProcessed)
-                    {
-                        ProcessLeftInput(input, buffer);
-                    }
-                    break;
-                case PropertyNames.InputProperties.Comparison:
-                    if (!InputComparisonProcessed)
-                    {
-                        ProcessRightInput(input, buffer);
-                    }
-                    break;
-                default:
-                    bool fireAgain = true;
-                    ComponentMetaData.FireInformation(0, "", string.Format("Not expecting inputID={0}", inputID), "", 0, ref fireAgain);
-                    throw new InvalidOperationException(string.Format("Not expecting inputID={0}", inputID));
+                base.OnDispose(disposing);
+                ValByKey.Clear();
+            }
+
+            public MyRuntimeData(MapperTransformComponent parent)
+                : base(parent)
+            {
+                if (GetCustomPropertyAsBool(PropertyNames.IgnoreCase, true))
+                {
+                    ValByKey = new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
+                }
+                else
+                {
+                    ValByKey = new Dictionary<string, object>();
+                }
             }
         }
+
+        protected override RuntimeData ConstructRuntimeData()
+            => new MyRuntimeData(this);
+
+        private new MyRuntimeData RD
+            => (MyRuntimeData)base.RD;
+
 
         private int ProcessInputRootHits = 0;
         private int ProcessInputRootMisses = 0;
 
-        private void ProcessLeftInput(IDTSInput100 input, PipelineBuffer buffer)
+        protected override void ProcessLeftInput(IDTSInput100 input, PipelineBuffer buffer)
         {
             if (!ComponentMetaData.OutputCollection[0].IsAttached) return;
             var m = GetLeftMaps();
@@ -242,25 +192,25 @@ namespace RevolutionaryStuff.SSIS
                         }
                         else
                         {
-                            o = GetObject(fn, buffer, InputRootBufferColumnIndicees);
+                            o = GetObject(fn, buffer, RD.LeftInputCbm);
                         }
                         keys.Add(o);
                     }
                     var key = Cache.CreateKey(keys);
                     object val;
                     bool hit;
-                    if (ValByKey.TryGetValue(key, out val))
+                    if (RD.ValByKey.TryGetValue(key, out val))
                     {
                         hit = true;
                         ++ProcessInputRootHits;
-                        var outCol = OutputBufferColumnIndicees.GetColumnFromColumnName(kvp.Key);
-                        buffer.SetObject(outCol.DataType, OutputBufferColumnIndicees.GetPositionFromColumnName(kvp.Key), val);
+                        var outCol = RD.PrimaryOutputCbm.GetColumnFromColumnName(kvp.Key);
+                        buffer.SetObject(outCol.DataType, RD.PrimaryOutputCbm.GetPositionFromColumnName(kvp.Key), val);
                     }
                     else
                     {
                         hit = false;
                         ++ProcessInputRootMisses;
-                        buffer.SetNull(OutputBufferColumnIndicees.GetPositionFromColumnName(kvp.Key));
+                        buffer.SetNull(RD.PrimaryOutputCbm.GetPositionFromColumnName(kvp.Key));
                         val = null;
                     }
                     if (LeftSamples*m.Count < SampleSize)
@@ -273,42 +223,12 @@ namespace RevolutionaryStuff.SSIS
             }
             FireInformation(InformationMessageCodes.RowsProcessed, $"{rowsProcessed}");
             FireInformation(InformationMessageCodes.MatchStats, $"hits={ProcessInputRootHits}, misses={ProcessInputRootMisses}");
-            if (buffer.EndOfRowset)
-            {
-                InputRootProcessed = true;
-                ValByKey.Clear();
-            }
         }
 
-        public override void IsInputReady(int[] inputIDs, ref bool[] canProcess)
-        {
-            for (int i = 0; i < inputIDs.Length; i++)
-            {
-                int inputIndex = ComponentMetaData.InputCollection.GetObjectIndexByID(inputIDs[i]);
-                bool can;
-                switch (inputIndex)
-                {
-                    case PropertyNames.InputProperties.RootId:
-                        can = InputRootProcessed || InputComparisonProcessed;
-                        break;
-                    case PropertyNames.InputProperties.ComparisonId:
-                        can = true; //!InputComparisonProcessed;
-                        break;
-                    default:
-                        can = false;
-                        break;
-                }
-                canProcess[i] = can;
-            }
-        }
-
-        private bool InputComparisonProcessed = false;
-        private bool InputRootProcessed = false;
         private int RightSamples;
         private int LeftSamples;
-        private IDictionary<string, object> ValByKey;
 
-        private void ProcessRightInput(IDTSInput100 input, PipelineBuffer buffer)
+        protected override void ProcessRightInput(IDTSInput100 input, PipelineBuffer buffer)
         {
             int rowsProcessed = 0;
             var keys = new List<object>();
@@ -317,14 +237,14 @@ namespace RevolutionaryStuff.SSIS
             {
                 keys.Clear();
                 var idCol = rmap.First();
-                var idVal = GetObject(rmap[0], buffer, InputComparisonBufferColumnIndicees);
+                var idVal = GetObject(rmap[0], buffer, RD.RightInputCbm);
                 for (int z = 1; z < rmap.Count; ++z)
                 {
-                    var o = GetObject(rmap[z], buffer, InputComparisonBufferColumnIndicees);
+                    var o = GetObject(rmap[z], buffer, RD.RightInputCbm);
                     keys.Add(o);
                 }
                 var key = Cache.CreateKey(keys);
-                ValByKey[key] = idVal;
+                RD.ValByKey[key] = idVal;
                 ++rowsProcessed;
                 if (RightSamples < SampleSize)
                 {
@@ -333,7 +253,6 @@ namespace RevolutionaryStuff.SSIS
                 }
             }
             FireInformation(InformationMessageCodes.RowsProcessed, $"{rowsProcessed}");
-            InputComparisonProcessed = buffer.EndOfRowset;
         }
 
         private enum InformationMessageCodes

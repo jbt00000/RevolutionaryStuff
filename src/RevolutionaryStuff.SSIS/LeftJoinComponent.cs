@@ -14,14 +14,6 @@ namespace RevolutionaryStuff.SSIS
         IconResource = "RevolutionaryStuff.SSIS.Resources.FavIcon.ico")]
     public class LeftJoinComponennt : BaseJoinerComponent
     {
-        private static new class PropertyNames
-        {
-            public static class OutputProperties
-            {
-                public const int MatchlessId = BaseJoinerComponent.PropertyNames.OutputProperties.PrimaryOutputId;
-            }
-        }
-
         private class MyRuntimeData : JoinerRuntimeData
         {
             public int InputFingerprintsSampled;
@@ -44,16 +36,14 @@ namespace RevolutionaryStuff.SSIS
             : base(true)
         { }
 
-        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
+        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput, IDTSOutput100 primaryOutput)
         {
+            base.OnProvideComponentProperties(leftInput, rightInput, primaryOutput);
             ComponentMetaData.Name = "Joiner - Left";
             ComponentMetaData.Description = "Performs an left join of the 2 inputs.  Returns all rows from the left merged with matching rows on the right (null columns when missing). No fanout!";
 
-            var output = ComponentMetaData.OutputCollection.New();
-            output.ExclusionGroup = 1;
-            output.SynchronousInputID = leftInput.ID;
-            output.Name = "Left Join";
-            output.Description = "Left rows with right columns when matched, and null right columns on a miss";
+            primaryOutput.Name = "Left Join";
+            primaryOutput.Description = "Left rows with right columns when matched, and null right columns on a miss";
         }
 
         protected override DTSValidationStatus OnValidate(IDTSInputColumnCollection100 leftColumns, IDTSInputColumnCollection100 rightColumns, IDTSOutputColumnCollection100 outputColumns, IList<string> commonFingerprints)
@@ -62,7 +52,7 @@ namespace RevolutionaryStuff.SSIS
             if (ret != DTSValidationStatus.VS_ISVALID) return ret;
             if (outputColumns.Count != rightColumns.Count - commonFingerprints.Count)//leftColumns.Count + rightColumns.Count - commonFingerprints.Count)
             {
-                FireInformation(JoinerMessageCodes.ValidateError, $"Validate: output column count={outputColumns.Count}<>{rightColumns.Count - commonFingerprints.Count} but left={leftColumns.Count} right={rightColumns.Count} and common={commonFingerprints.Count}");
+                FireInformation(MergingMessageCodes.ValidateError, $"Validate: output column count={outputColumns.Count}<>{rightColumns.Count - commonFingerprints.Count} but left={leftColumns.Count} right={rightColumns.Count} and common={commonFingerprints.Count}");
                 return DTSValidationStatus.VS_ISCORRUPT;
             }
             return DTSValidationStatus.VS_ISVALID;

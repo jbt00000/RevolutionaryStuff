@@ -11,11 +11,13 @@ namespace RevolutionaryStuff.Core.ApplicationParts
 {
     public enum CommandLineSwitchAttributeTranslators
     {
-        None = 0,
-        Csv = 1,
-        FilePath = 2,
-        NameValuePairs = 4,
-        Csints = 8,
+        None                = 0,
+        Csv                 = 0b1,
+        FilePath            = 0b10,
+        NameValuePairs      = 0b100,
+        Csints              = 0b1000,
+        Url                 = 0b10000,
+        FilePathOrUrl       = 0b100000,
     }
 
     [AttributeUsage(AttributeTargets.Field | AttributeTargets.Property, AllowMultiple = false)]
@@ -322,6 +324,22 @@ namespace RevolutionaryStuff.Core.ApplicationParts
                         {
                             val = s.Contains("%") ? Environment.ExpandEnvironmentVariables(s) : s;
                             val = Path.GetFullPath(val as string);
+                        }
+                        else if (a.Translator.HasFlag(CommandLineSwitchAttributeTranslators.Url))
+                        {
+                            val = (new Uri(s)).ToString();
+                        }
+                        else if (a.Translator.HasFlag(CommandLineSwitchAttributeTranslators.FilePathOrUrl))
+                        {
+                            if (Uri.TryCreate(s, UriKind.Absolute, out Uri u))
+                            {
+                                val = (new Uri(s)).ToString();
+                            }
+                            else
+                            {
+                                val = s.Contains("%") ? Environment.ExpandEnvironmentVariables(s) : s;
+                                val = Path.GetFullPath(val as string);
+                            }
                         }
                         v.Val = val;
                         if (a is CommandLineSwitchModeSwitchAttribute)

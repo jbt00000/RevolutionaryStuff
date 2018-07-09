@@ -126,11 +126,15 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-        public static string GenerateCreateTableSQL(this DataTable dt, string schema = null, IDictionary<Type, string> typeMap = null, string extraColumnSql = null)
+        public static string GenerateCreateTableSQL(this DataTable dt, string schema = null, IDictionary<Type, string> typeMap = null, string extraColumnSql = null, string autoNumberColumnName=null)
         {
             schema = schema ?? "dbo";
             var sb = new StringBuilder();
-            sb.AppendFormat("create table {0}.{1}\n(\n", schema, dt.TableName);
+            sb.AppendFormat("create table [{0}].[{1}]\n(\n", schema, dt.TableName);
+            if (autoNumberColumnName != null)
+            {
+                sb.AppendLine($"\t{autoNumberColumnName} int not null identity primary key,\n");
+            }
             for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
             {
                 var dc = dt.Columns[colNum];
@@ -156,6 +160,28 @@ namespace RevolutionaryStuff.Core
                 {
                     sqlType = "datetime";
                 }
+                else if (dc.DataType == typeof(DateTimeOffset))
+                {
+                    sqlType = "datetimeoffset";
+                }
+                else if (dc.DataType == typeof(Decimal))
+                {
+                    sqlType = "decimal";
+                    int precision = -1;
+                    int scale = -1;
+                    if (dc.ExtendedProperties.ContainsKey("NumericPrecision"))
+                    {
+                        precision = Convert.ToInt32(dc.ExtendedProperties["NumericPrecision"]);
+                    }
+                    if (dc.ExtendedProperties.ContainsKey("NumericScale"))
+                    {
+                        scale = Convert.ToInt32(dc.ExtendedProperties["NumericScale"]);
+                    }
+                    if (scale > 0 && precision > 0)
+                    {
+                        sqlType += $"({precision},{scale})";
+                    }
+                }
                 else if (dc.DataType == typeof(Byte))
                 {
                     sqlType = "tinyint";
@@ -173,10 +199,12 @@ namespace RevolutionaryStuff.Core
                 {
                     throw new ArgumentException(string.Format("cannot translate type {0} to sql", dc.DataType.Name), dc.ColumnName);
                 }
-                sb.AppendFormat("\t[{0}] {1} {2}{3}\n",
+                var isPk = dt.PrimaryKey != null && dt.PrimaryKey.Length == 1 && dt.PrimaryKey[0] == dc;
+                sb.AppendFormat("\t[{0}] {1} {2}{3}{4}\n",
                     dc.ColumnName,
                     sqlType,
                     dc.AllowDBNull ? "NULL" : "NOT NULL",
+                    isPk ? " PRIMARY KEY" : "",
                     colNum == dt.Columns.Count - 1 ? "" : ",");
             }
             if (extraColumnSql != null)

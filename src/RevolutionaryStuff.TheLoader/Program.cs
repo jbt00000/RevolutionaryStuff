@@ -1,7 +1,12 @@
-﻿using RevolutionaryStuff.Core;
+﻿using Microsoft.OData.Edm;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RevolutionaryStuff.Core;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Collections;
 using RevolutionaryStuff.Core.Diagnostics;
 using RevolutionaryStuff.ETL;
+using Simple.OData.Client;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,6 +16,8 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
@@ -39,11 +46,19 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("SkipZeroRowTables", Mandatory = false, Mode = NameofModeImport)]
         public bool SkipZeroRowTables = true;
 
-        [CommandLineSwitch("Filename", Mandatory = true, Translator = CommandLineSwitchAttributeTranslators.FilePath)]
+        [CommandLineSwitch("Filename", Mandatory = true, Translator = CommandLineSwitchAttributeTranslators.FilePathOrUrl)]
         public string FilePath;
+
+        public Uri SourceUrl;
 
         [CommandLineSwitch("FixedWidthColumnsFilename", Mandatory = false, Translator = CommandLineSwitchAttributeTranslators.FilePath)]
         public string FixedWidthColumnsFilePath;
+
+        [CommandLineSwitch("ODataElementSchema")]
+        public string ODataElementSchema;
+
+        [CommandLineSwitch("ODataElementNames", Translator = CommandLineSwitchAttributeTranslators.Csv)]
+        public string[] ODataElementNames;
 
         [CommandLineSwitch("Sql", Mandatory = true, Mode = NameofModeExport)]
         public string Sql;
@@ -74,6 +89,9 @@ namespace RevolutionaryStuff.TheLoader
 
         [CommandLineSwitch("ColumnNames", Mandatory = false, Translator = CommandLineSwitchAttributeTranslators.Csv)]
         public string[] ColumnNames;
+
+        [CommandLineSwitch("AutoNumberColumnName", Mandatory = false)]
+        public string AutoNumberColumnName;
 
         [CommandLineSwitch("ColumnNameTemplate", Mandatory = false)]
         public string ColumnNameTemplate;
@@ -111,6 +129,11 @@ namespace RevolutionaryStuff.TheLoader
         protected override void OnPostProcessCommandLineArgs()
         {
             base.OnPostProcessCommandLineArgs();
+            Uri u;
+            if (Uri.TryCreate(FilePath, UriKind.Absolute, out u))
+            {
+                SourceUrl = u;
+            }
             if (SkipColsArr != null)
             {
                 foreach (var s in SkipColsArr) SkipCols.Add(s);
@@ -118,12 +141,12 @@ namespace RevolutionaryStuff.TheLoader
             ConnectionString = ConfigurationManager.ConnectionStrings[ConnectionStringName].ConnectionString;
         }
 
-        protected override Task OnGoAsync()
+        protected override async Task OnGoAsync()
         {
             switch (Mode)
             {
                 case Modes.Import:
-                    OnImport();
+                    await OnImportAsync();
                     break;
                 case Modes.Export:
                     OnExport();
@@ -131,7 +154,6 @@ namespace RevolutionaryStuff.TheLoader
                 default:
                     throw new UnexpectedSwitchValueException(Mode);
             }
-            return Task.CompletedTask;
         }
 
         private string LastConnectionMessage;
@@ -249,7 +271,133 @@ namespace RevolutionaryStuff.TheLoader
             }
         }
 
-        private void OnImport()
+        private async Task DownloadFromSourceUrlAsync(string localFileExtension)
+        {
+            if (SourceUrl != null)
+            {
+                FilePath = Stuff.GetTempFileName(localFileExtension);
+                using (var client = new HttpClient())
+                {
+                    Trace.WriteLine($"Downloading [{SourceUrl}] to [{FilePath}]");
+                    using (var downloadStream = await client.GetStreamAsync(SourceUrl))
+                    {
+                        StreamHelpers.CopyTo(downloadStream, FilePath);
+                    }
+                }
+            }
+            else
+            {
+                Requires.FileExists(FilePath, nameof(FilePath));
+            }
+        }
+
+        private static DataTable LoadRows(DataTable dt, string tableName, Microsoft.OData.Edm.IEdmStructuredType s, System.Collections.IEnumerable items)
+        {
+            dt = dt ?? new DataTable(tableName);
+            if (dt.Columns.Count == 0)
+            {
+                var keyNames = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
+                (s as IEdmEntityType)?.DeclaredKey?.ForEach(dk => keyNames.Add(dk.Name));
+                foreach (var p in s.DeclaredProperties)
+                {
+                    var pt = (Microsoft.OData.Edm.IEdmTypeReference)p.Type;
+                    var ptd = (Microsoft.OData.Edm.IEdmType)pt.Definition;
+                    Stuff.Noop(pt, ptd);
+                    var col = new DataColumn(p.Name)
+                    {
+                        AllowDBNull = p.Type.IsNullable
+                    };
+                    var pk = pt.PrimitiveKind();
+                    switch (pk)
+                    {
+                        case EdmPrimitiveTypeKind.Boolean:
+                            col.DataType = typeof(bool);
+                            break;
+                        case EdmPrimitiveTypeKind.Date:
+                            col.DataType = typeof(DateTime);
+                            break;
+                        case EdmPrimitiveTypeKind.Decimal:
+                            col.DataType = typeof(Decimal);
+                            var et = pt.AsDecimal();
+                            if (et.Precision.HasValue)
+                            {
+                                col.ExtendedProperties["NumericPrecision"] = (short)et.Precision;
+                            }
+                            if (et.Scale.HasValue)
+                            {
+                                col.ExtendedProperties["NumericScale"] = (short)et.Scale;
+                            }
+                            break;
+                        case EdmPrimitiveTypeKind.Double:
+                            col.DataType = typeof(double);
+                            break;
+                        case EdmPrimitiveTypeKind.Guid:
+                            col.DataType = typeof(Guid);
+                            break;
+                        case EdmPrimitiveTypeKind.Int16:
+                            col.DataType = typeof(Int16);
+                            break;
+                        case EdmPrimitiveTypeKind.Int32:
+                            col.DataType = typeof(Int32);
+                            break;
+                        case EdmPrimitiveTypeKind.Int64:
+                            col.DataType = typeof(Int64);
+                            break;
+                        case EdmPrimitiveTypeKind.SByte:
+                            col.DataType = typeof(SByte);
+                            break;
+                        case EdmPrimitiveTypeKind.String:
+                            col.DataType = typeof(string);
+                            var srt = pt.AsString();
+                            if (srt.MaxLength.HasValue)
+                            {
+                                col.MaxLength = srt.MaxLength.Value;
+                            }
+                            if (srt.IsUnicode.HasValue)
+                            {
+                                col.ExtendedProperties["Unicode"] = srt.IsUnicode.Value;
+                            }
+                            break;
+                        case EdmPrimitiveTypeKind.DateTimeOffset:
+                            col.DataType = typeof(DateTimeOffset);
+                            break;
+                        case EdmPrimitiveTypeKind.None:
+                            goto NextProperty;
+                        default:
+                            throw new NotSupportedException($"{pk} cannot be translated");
+                    }
+                    dt.Columns.Add(col);
+
+                    if (keyNames.Contains(col.ColumnName))
+                    {
+                        var keyCols = new List<DataColumn>();
+                        if (dt.PrimaryKey != null)
+                        {
+                            keyCols.AddRange(dt.PrimaryKey);
+                        }
+                        keyCols.Add(col);
+//                        dt.PrimaryKey = keyCols.ToArray();
+                    }
+                    NextProperty:
+                    Stuff.Noop();
+                }
+            }
+            foreach (IDictionary<string, object> item in items)
+            {
+                var row = dt.NewRow();
+                foreach (DataColumn col in dt.Columns)
+                {
+                    if (item.TryGetValue(col.ColumnName, out object val) && val != null)
+                    {
+                        row[col] = val;
+                    }
+                }
+                dt.Rows.Add(row);
+            }
+            return dt;
+        }
+
+        private async Task OnImportAsync()
         {
             Table = Stuff.CoalesceStrings(Table, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
 
@@ -260,33 +408,8 @@ namespace RevolutionaryStuff.TheLoader
             IList<string[]> st = null;
             if (FileFormat == FileFormats.Auto)
             {
-                var ext = Path.GetExtension(FilePath).ToLower();
-                switch (ext)
-                {
-                    case ".dbf":
-                        FileFormat = FileFormats.FoxPro;
-                        break;
-                    case ".csv":
-                        FileFormat = FileFormats.CSV;
-                        break;
-                    case ".pipe":
-                        FileFormat = FileFormats.Pipe;
-                        break;
-                    case ".log":
-                        FileFormat = FileFormats.ELF;
-                        break;
-                    case ".xls":
-                    case ".xlsx":
-                        FileFormat = FileFormats.Excel;
-                        break;
-                    case ".mdmp":
-                        FileFormat = FileFormats.MySqlDump;
-                        break;
-                    default:
-                        throw new UnexpectedSwitchValueException(ext);
-                }
+                FileFormat = FileFormatHelpers.GetImpliedFormat(FilePath, SourceUrl);
             }
-
             if (FileFormat == FileFormats.ELF)
             {
                 dt = ExtendedLogFileFormatHelpers.Load(File.OpenRead(FilePath), SkipCols);
@@ -353,7 +476,7 @@ namespace RevolutionaryStuff.TheLoader
             {
                 var loadSettings = new LoadRowsFromFixedWidthTextSettings
                 {
-                     ColumnInfos = FixedWidthColumnInfo.CreateFromCsv(File.ReadAllText(FixedWidthColumnsFilePath))
+                    ColumnInfos = FixedWidthColumnInfo.CreateFromCsv(File.ReadAllText(FixedWidthColumnsFilePath))
                 };
                 DataTableHelpers.LoadRowsFromFixedWidthText(dt, File.OpenRead(FilePath), loadSettings);
             }
@@ -382,6 +505,91 @@ namespace RevolutionaryStuff.TheLoader
                 }
                 ds = new DataSet();
                 ETL.SpreadsheetHelpers.LoadSheetsFromExcel(ds, File.OpenRead(FilePath), loadSettings);
+            }
+            else if (FileFormat == FileFormats.Json)
+            {
+                await DownloadFromSourceUrlAsync(".json");
+                var json = File.ReadAllText(FilePath);
+                var items = JsonConvert.DeserializeObject<JObject[]>(json);
+                dt = DataTableHelpers.LoadRowsFromJObjects(null, items);
+            }
+            else if (FileFormat == FileFormats.OData4)
+            {
+                //https://github.com/object/Simple.OData.Client/wiki
+                //http://www.odata.org/blog/advanced-odata-tutorial-with-simple-odata-client/
+                //http://www.nudoq.org/#!/Packages/Microsoft.OData.Edm/Microsoft.OData.Edm/IEdmTypeReference
+                var client = new ODataClient(SourceUrl);
+                var m = (Microsoft.OData.Edm.EdmModelBase)await client.GetMetadataAsync();
+                var mdoc = await client.GetMetadataDocumentAsync();
+                var entityNames = new List<string>();
+                if (ODataElementNames == null || ODataElementNames.Length==0)
+                {
+                    foreach (var el in m.EntityContainer.Elements)
+                    {
+                        entityNames.Add(el.Name);
+                    }
+                }
+                else
+                {
+                    entityNames.AddRange(ODataElementNames);
+                }
+                ds = new DataSet();
+                Parallel.ForEach(entityNames, new ParallelOptions{ MaxDegreeOfParallelism = 32 }, entityName => {
+                    Trace.WriteLine($"Loading entity [{entityName}]");
+                    var edt = new DataTable();
+                    var z = (Microsoft.OData.Edm.IEdmStructuredType)m.FindDeclaredType($"{ODataElementSchema}.{entityName}");
+                    var myClient = new ODataClient(new ODataClientSettings
+                    {
+                        BaseUri = SourceUrl,
+                        MetadataDocument = mdoc
+                    });
+
+                    /*
+                    var count = myClient
+                            .For(entityName)
+                        .Count()
+                        .FindScalarAsync<int>().ExecuteSynchronously();
+
+                    */
+
+                    int startAt = 0;                    
+                    for (; ; )
+                    {
+                        List<IDictionary<string, object>> items;
+                        try
+                        {
+                            items = DelegateHelpers.CallAndRetryOnFailure(() =>
+                                myClient
+                                .For(entityName)
+                                .OrderBy(new[] { (z as IEdmEntityType)?.DeclaredKey?.FirstOrDefault()?.Name ?? z.DeclaredProperties.First().Name })
+                                .Skip(startAt)
+                                .FindEntriesAsync().ExecuteSynchronously().ToList()
+                            );
+                        }
+                        catch (Exception odataFailedException)
+                        {
+                            Trace.WriteLine(odataFailedException);
+                            return;
+                        }
+                        edt = LoadRows(edt, entityName, z, items);
+                        if (items.Count == 0) break;
+                        startAt += items.Count;
+                        Trace.WriteLine($"\tTable={entityName} Download Batch={items.Count}.  Running Count={startAt}/???");
+                    }
+                    if (entityNames.Count() == 1)
+                    {
+                        edt.TableName = StringHelpers.TrimOrNull(Table) ?? edt.TableName;
+                    }
+                    else
+                    {
+                        edt.TableName = entityName;
+                    }
+                    lock (ds)
+                    {
+                        Trace.WriteLine($"Added [{entityName}] {ds.Tables.Count}/{entityNames.Count}");
+                        ds.Tables.Add(edt);
+                    }
+                });
             }
             else
             {
@@ -469,7 +677,8 @@ namespace RevolutionaryStuff.TheLoader
         private void LoadIntoSqlServer(DataTable dt)
         {
             dt.MakeDateColumnsFitSqlServerBounds();
-            var sql = dt.GenerateCreateTableSQL(Schema);
+            dt.MakeColumnNamesSqlServerFriendly();
+            var sql = dt.GenerateCreateTableSQL(Schema, autoNumberColumnName: AutoNumberColumnName);
             Trace.WriteLine(sql);
 
             //Create table and insert 1 batch at a time

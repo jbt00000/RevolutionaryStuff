@@ -9,6 +9,19 @@ namespace RevolutionaryStuff.ETL
 {
     public static class SqlServerHelpers
     {
+        public static void MakeColumnNamesSqlServerFriendly(this DataTable dt)
+        {
+            Requires.NonNull(dt, nameof(dt));
+
+            foreach (DataColumn dc in dt.Columns)
+            {
+                if (dc.ColumnName.Length > 128)
+                {
+                    dc.ColumnName = dc.ColumnName.TruncateWithMidlineEllipsis(128);
+                }
+            }
+        }
+
         public static void MakeDateColumnsFitSqlServerBounds(this DataTable dt, DateTime? minDate = null, DateTime? maxDate = null)
         {
             Requires.NonNull(dt, nameof(dt));

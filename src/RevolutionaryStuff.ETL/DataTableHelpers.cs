@@ -1,10 +1,12 @@
-﻿using RevolutionaryStuff.Core;
+﻿using Newtonsoft.Json.Linq;
+using RevolutionaryStuff.Core;
 using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -117,6 +119,126 @@ namespace RevolutionaryStuff.ETL
             }
             GC.Collect();
             return dt.LoadRowsInternal(rows, settings, false);
+        }
+
+        private static Type ToSimpleClrType(this JTokenType jtt)
+        {
+            switch (jtt)
+            {
+                case JTokenType.Null:
+                    return typeof(string);
+                case JTokenType.String:
+                    return typeof(string);
+                case JTokenType.Boolean:
+                    return typeof(bool);
+                case JTokenType.Integer:
+                    return typeof(int);
+                case JTokenType.Float:
+                    return typeof(float);
+                case JTokenType.Date:
+                    return typeof(DateTime);
+                case JTokenType.Guid:
+                    return typeof(Guid);
+                default:
+                    throw new NotSupportedException($"No conversion for {jtt}");
+            }
+        }
+
+        private static object ToSimpleVal(this JProperty token)
+        {
+            switch (token.Value.Type)
+            {
+                case JTokenType.Null:
+                    return null;
+                case JTokenType.String:
+                    return token.Value.Value<string>();
+                case JTokenType.Boolean:
+                    return token.Value.Value<bool>();
+                case JTokenType.Integer:
+                    return token.Value.Value<int>();
+                case JTokenType.Float:
+                    return token.Value.Value<float>();
+                case JTokenType.Date:
+                    return token.Value.Value<DateTime>();
+                case JTokenType.Guid:
+                    return token.Value.Value<Guid>();
+                default:
+                    throw new NotSupportedException($"No conversion for {token.Type}");
+            }
+        }
+
+        public static DataTable LoadRowsFromJObjects(this DataTable dt, IEnumerable<JObject> items)
+        {
+            dt = dt ?? new DataTable();
+            Requires.ZeroColumns(dt, nameof(dt));
+            Requires.ZeroRows(dt, nameof(dt));
+            Requires.HasData(items, nameof(items));
+
+            var colByName = new Dictionary<string, DataColumn>(Comparers.CaseInsensitiveStringComparer);
+            foreach (var item in items)
+            {
+                foreach (var p in item.Properties())
+                {
+                    if (colByName.ContainsKey(p.Name)) continue;
+                    if (p.Value.Type == JTokenType.Null) continue;
+                    var col = new DataColumn(p.Name, p.Value.Type.ToSimpleClrType());
+                    colByName[col.ColumnName] = col;
+                    dt.Columns.Add(col);
+                }
+                var row = dt.NewRow();
+                foreach (var p in item.Properties())
+                {
+                    var col = colByName.FindOrDefault(p.Name);
+                    var val = p.ToSimpleVal();
+                    if (val == null) continue;
+                    row[col] = val;
+                }
+                dt.Rows.Add(row);
+            }
+            return dt;
+        }
+
+        public static DataTable LoadRowsFromObjects(this DataTable dt, System.Collections.IEnumerable items, LoadRowsFromObjectsSettings settings)
+        {
+            dt = dt ?? new DataTable();
+            Requires.ZeroColumns(dt, nameof(dt));
+            Requires.ZeroRows(dt, nameof(dt));
+            Requires.Valid(settings, nameof(settings));
+            Requires.HasData(items, nameof(items));
+
+            var memberFlags = 
+                BindingFlags.Public | 
+                BindingFlags.Instance | 
+                (settings.GetFieldsFromRelection ? BindingFlags.GetField : 0) | 
+                (settings.GetPropertiesFromRelection ? BindingFlags.GetProperty : 0);
+            int n = 0;
+            var colByName = new Dictionary<string, DataColumn>(Comparers.CaseInsensitiveStringComparer);
+            foreach (var item in items)
+            {
+                var itemType = item.GetType();
+                var mis = itemType.GetMembers(memberFlags);
+                if (n == 0 || settings.ColumnsFromEachObject)
+                {
+                    foreach (var mi in mis)
+                    {
+                        if (colByName.ContainsKey(mi.Name)) continue;
+                        var col = new DataColumn(mi.Name, mi.GetUnderlyingType());
+                        colByName[col.ColumnName] = col;
+                        dt.Columns.Add(col);
+                    }
+                }
+                var row = dt.NewRow();
+                foreach (var mi in mis)
+                {
+                    var col = colByName.FindOrDefault(mi.Name);
+                    if (col == null) continue;
+                    var val = mi.GetValue(item);
+                    row[col] = val;
+                }
+                dt.Rows.Add(row);
+                ++n;
+            }
+            return dt;
         }
 
         public static DataTable LoadRowsFromDelineatedText(Stream st, LoadRowsFromDelineatedTextSettings settings)

@@ -14,7 +14,7 @@ namespace RevolutionaryStuff.SSIS
     /// <remarks>https://docs.microsoft.com/en-us/sql/integration-services/extending-packages-custom-objects-data-flow-types/developing-a-custom-transformation-component-with-synchronous-outputs</remarks>
     public abstract class BasePipelineComponent : PipelineComponent
     {
-        internal const int AssemblyComponentVersion = 4;
+        internal const int AssemblyComponentVersion = 7;
         internal const int EnUsCodePage = 1252;
 
 

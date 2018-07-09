@@ -58,16 +58,16 @@ namespace RevolutionaryStuff.SSIS
             : base(false)
         { }
 
-        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput)
+        protected override void OnProvideComponentProperties(IDTSInput100 leftInput, IDTSInput100 rightInput, IDTSOutput100 primaryOutput)
         {
             ComponentMetaData.Name = "Joiner - Multitype";
             ComponentMetaData.Description = "Performs a join of the 2 inputs (based on field name / simple data type) and the joined outputs (left/inner/left where right null).";
 
-            var output = ComponentMetaData.OutputCollection.New();
-            output.SynchronousInputID = 0;
-            output.Name = "Inner Join";
-            output.Description = "Inner Join semantics";
+            primaryOutput.SynchronousInputID = 0;
+            primaryOutput.Name = "Inner Join";
+            primaryOutput.Description = "Inner Join semantics";
 
+            var output = ComponentMetaData.OutputCollection.New();
             output = ComponentMetaData.OutputCollection.New();
             output.SynchronousInputID = 0;
             output.Name = "Matchless Join";
@@ -122,6 +122,9 @@ namespace RevolutionaryStuff.SSIS
             }
             return ret;
         }
+
+        protected override DTSValidationStatus OnValidatedEnsureSingleOutput()
+            => ComponentMetaData.OutputCollection.Count == 3 ? DTSValidationStatus.VS_ISVALID : DTSValidationStatus.VS_ISBROKEN;
 
         private ColumnBufferMapping InnerJoinCbm;
         private ColumnBufferMapping MatchlessCbm;
