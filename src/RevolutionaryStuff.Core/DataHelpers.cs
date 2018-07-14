@@ -167,16 +167,8 @@ namespace RevolutionaryStuff.Core
                 else if (dc.DataType == typeof(Decimal))
                 {
                     sqlType = "decimal";
-                    int precision = -1;
-                    int scale = -1;
-                    if (dc.ExtendedProperties.ContainsKey("NumericPrecision"))
-                    {
-                        precision = Convert.ToInt32(dc.ExtendedProperties["NumericPrecision"]);
-                    }
-                    if (dc.ExtendedProperties.ContainsKey("NumericScale"))
-                    {
-                        scale = Convert.ToInt32(dc.ExtendedProperties["NumericScale"]);
-                    }
+                    int precision = dc.NumericPrecision();
+                    int scale = dc.NumericScale();
                     if (scale > 0 && precision > 0)
                     {
                         sqlType += $"({precision},{scale})";
@@ -192,7 +184,9 @@ namespace RevolutionaryStuff.Core
                 }
                 else if (dc.DataType == typeof(string))
                 {
-                    sqlType = string.Format("nvarchar({0})",
+                    sqlType = string.Format(
+                        "{0}({1})",
+                        dc.Unicode() ? "nvarchar" : "varchar",
                         (dc.MaxLength <= 0 || dc.MaxLength > 4000) ? "max" : dc.MaxLength.ToString());
                 }
                 else

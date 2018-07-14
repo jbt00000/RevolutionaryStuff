@@ -12,23 +12,8 @@ using System.Text.RegularExpressions;
 
 namespace RevolutionaryStuff.ETL
 {
-    public static partial class DataTableHelpers
-    {
-        internal static void CreateColumns(this DataTable dt, IEnumerable<string> fieldNames)
-        {
-            var existing = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
-            foreach (DataColumn dc in dt.Columns)
-            {
-                existing.Add(dc.ColumnName);
-            }
-            foreach (var colName in fieldNames)
-            {
-                if (existing.Contains(colName)) continue;
-                existing.Add(colName);
-                dt.Columns.Add(colName);
-            }
-        }
-          
+    public static partial class DataLoadingHelpers
+    {          
         public static void SetColumnWithValue<T>(this DataTable dt, string columnName, T value)
         {
             dt.SetColumnWithValue(columnName, (a, b) => value);
@@ -364,8 +349,8 @@ namespace RevolutionaryStuff.ETL
             if (headerRowEmbedded)
             {
                 var headerRow = e.Current;
-                var columnMapper = settings.ColumnMapper ?? DataTableHelpers.OneToOneColumnNameMapper;
-                var duplicateColumnRenamer = settings.DuplicateColumnRenamer ?? DataTableHelpers.OnDuplicateColumnNameThrow;
+                var columnMapper = settings.ColumnMapper ?? DataLoadingHelpers.OneToOneColumnNameMapper;
+                var duplicateColumnRenamer = settings.DuplicateColumnRenamer ?? DataLoadingHelpers.OnDuplicateColumnNameThrow;
                 columnMap = new DataColumn[headerRow.Count];
                 for (int z = 0; z < headerRow.Count(); ++z)
                 {

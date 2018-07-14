@@ -24,6 +24,9 @@ namespace RevolutionaryStuff.Core
             return !dt.IsWeekday();
         }
 
+        public static string ToYYYY_MM_DD(this DateTime dt)
+            => dt.ToString("yyyy-MM-dd");
+
         public static string ToYYYYMMDD(this DateTime dt)
             => dt.ToString("yyyyMMdd");
 

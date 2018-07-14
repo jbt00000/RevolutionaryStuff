@@ -42,7 +42,7 @@ namespace RevolutionaryStuff.ETL
                         {
                             line = line.RightOf("#Fields:").Trim();
                             cols = line.Split(new[] { ' ', '\t' }, StringSplitOptions.RemoveEmptyEntries);
-                            dt.CreateColumns(cols);
+                            dt.Columns.AddRange(cols);
                         }
                     }
                     else

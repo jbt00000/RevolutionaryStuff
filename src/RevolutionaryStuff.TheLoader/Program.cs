@@ -1,4 +1,5 @@
-﻿using Microsoft.OData.Edm;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RevolutionaryStuff.Core;
@@ -138,7 +139,7 @@ namespace RevolutionaryStuff.TheLoader
             {
                 foreach (var s in SkipColsArr) SkipCols.Add(s);
             }
-            ConnectionString = ConfigurationManager.ConnectionStrings[ConnectionStringName].ConnectionString;
+            ConnectionString = Configuration.GetConnectionString(ConnectionStringName);
         }
 
         protected override async Task OnGoAsync()
@@ -211,7 +212,7 @@ namespace RevolutionaryStuff.TheLoader
                                     var c = new DataColumn(reader.GetName(z), reader.GetFieldType(z));
                                     if (colsSeen.Contains(c.ColumnName))
                                     {
-                                        c.ColumnName = DataTableHelpers.OnDuplicateAppendSeqeuntialNumber(dt, c.ColumnName);
+                                        c.ColumnName = DataLoadingHelpers.OnDuplicateAppendSeqeuntialNumber(dt, c.ColumnName);
                                     }
                                     colsSeen.Add(c.ColumnName);
                                     dt.Columns.Add(c);
@@ -321,11 +322,11 @@ namespace RevolutionaryStuff.TheLoader
                             var et = pt.AsDecimal();
                             if (et.Precision.HasValue)
                             {
-                                col.ExtendedProperties["NumericPrecision"] = (short)et.Precision;
+                                col.NumericPrecision(et.Precision.Value);
                             }
                             if (et.Scale.HasValue)
                             {
-                                col.ExtendedProperties["NumericScale"] = (short)et.Scale;
+                                col.NumericScale(et.Scale.Value);
                             }
                             break;
                         case EdmPrimitiveTypeKind.Double:
@@ -355,7 +356,7 @@ namespace RevolutionaryStuff.TheLoader
                             }
                             if (srt.IsUnicode.HasValue)
                             {
-                                col.ExtendedProperties["Unicode"] = srt.IsUnicode.Value;
+                                col.Unicode(srt.IsUnicode.Value);
                             }
                             break;
                         case EdmPrimitiveTypeKind.DateTimeOffset:
@@ -376,7 +377,7 @@ namespace RevolutionaryStuff.TheLoader
                             keyCols.AddRange(dt.PrimaryKey);
                         }
                         keyCols.Add(col);
-//                        dt.PrimaryKey = keyCols.ToArray();
+                        //                        dt.PrimaryKey = keyCols.ToArray();
                     }
                     NextProperty:
                     Stuff.Noop();
@@ -397,9 +398,98 @@ namespace RevolutionaryStuff.TheLoader
             return dt;
         }
 
+        private static string TrimPlus(string s)
+        {
+            s = s ?? "";
+            s = RegexHelpers.Common.Whitespace.Replace(s, " ");
+            s = s.Replace("&amp;", "&");
+            return StringHelpers.TrimOrNull(s);
+        }
+
+        private async Task fdsaAsync()
+        {
+            var dt = new DataTable();
+            dt.Columns.Add("id");
+            dt.Columns.Add("title");
+            dt.Columns.Add("href");
+            dt.Columns.Add("category");
+            dt.Columns.Add("description");
+            dt.Columns.Add("title2");
+            dt.Columns.Add("updated");
+            dt.Columns.Add("odata");
+            dt.Columns.Add("size");
+            dt.Columns.Add("owner");
+
+            var initialStateJsonExpr = new Regex(@"var\s+initialState\s+=\s+{(.+?)}\s+;", RegexOptions.Compiled);
+            int docNum = 0;
+
+            var odc = new ODataClient(SourceUrl);
+            var md = (Microsoft.OData.Edm.EdmModelBase)await odc.GetMetadataAsync();
+            Parallel.ForEach(md.EntityContainer.Elements, /*new ParallelOptions { MaxDegreeOfParallelism=1 },*/ mde =>
+            {
+                var id = mde.Name;
+                var url = new Uri($"{SourceUrl.GetComponents(UriComponents.HostAndPort | UriComponents.SchemeAndServer, UriFormat.Unescaped)}/d/{mde.Name}");
+
+                var client = new HttpClient();
+                var resp = DelegateHelpers.CallAndRetryOnFailure(() => client.GetAsync(url).ExecuteSynchronously());
+                var html = resp.Content.ReadAsStringAsync().ExecuteSynchronously();
+                var doc = new HtmlAgilityPack.HtmlDocument();
+                doc.LoadHtml(html);
+
+                Match m;
+
+                var nodes = doc.DocumentNode.SelectNodes("//script[@type=\"text/javascript\"]");
+                string initialStateJson = null;
+                foreach (HtmlAgilityPack.HtmlNode node in nodes)
+                {
+                    m = initialStateJsonExpr.Match(node.InnerText);
+                    if (!m.Success) continue;
+                    initialStateJson = "{" + m.Groups[1].Value + "}";
+                    break;
+                }
+                if (initialStateJson==null) return;
+                Socrata.Rootobject socrataRoot;
+                try
+                {
+                    socrataRoot = JsonConvert.DeserializeObject<Socrata.Rootobject>(initialStateJson);
+                }
+                catch (Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                    return;
+                }
+
+                var title = socrataRoot.view.name;
+                var description = TrimPlus(socrataRoot.view.description);
+                var updated = socrataRoot.view.lastUpdatedAt;
+                var category = socrataRoot.view.category;
+                var odataUrl = socrataRoot.view.odataUrlV4;
+                var href = url.ToString();
+                var title2 = (RegexHelpers.Common.NonWordChars.Replace(title, " ").ToUpperCamelCase() + "_" + id.Replace("-", "")).TruncateWithMidlineEllipsis(128, "___");
+                string owner = socrataRoot.view.ownerName;
+
+                int size = 0;
+                foreach (var col in socrataRoot.view.columns.Where(zz=>zz.cachedContents!=null))
+                {
+                    size = Stuff.Max(size, col.cachedContents.non_null);
+                }
+
+                lock (dt)
+                {
+                    dt.Rows.Add(id, title, href, category, description, title2, updated.ToYYYY_MM_DD(), odataUrl, size, owner);
+                }
+                Trace.WriteLine($"docNum {docNum++}/{md.EntityContainer.Elements.Count()}");
+            });
+            var csv = dt.ToCsv();
+            Trace.WriteLine(csv);
+        }
+
+
         private async Task OnImportAsync()
         {
             Table = Stuff.CoalesceStrings(Table, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
+
+//            await fdsaAsync();
 
             //Suck entire table into RAM
             var rowErrors = new List<Tuple<int, Exception>>();
@@ -449,11 +539,11 @@ namespace RevolutionaryStuff.TheLoader
             }
             else if (FileFormat == FileFormats.CSV || FileFormat == FileFormats.Pipe)
             {
-                dt = DataTableHelpers.LoadRowsFromDelineatedText(File.OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
+                dt = DataLoadingHelpers.LoadRowsFromDelineatedText(File.OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
                 {
                     SkipRawRows = SkipRawRows,
                     Format = FileFormat == FileFormats.CSV ? LoadRowsFromDelineatedTextFormats.CommaSeparatedValues : LoadRowsFromDelineatedTextFormats.PipeSeparatedValues,
-                    DuplicateColumnRenamer = DataTableHelpers.OnDuplicateAppendSeqeuntialNumber,
+                    DuplicateColumnRenamer = DataLoadingHelpers.OnDuplicateAppendSeqeuntialNumber,
                     ColumnNames = ColumnNames,
                     ColumnNameTemplate = ColumnNameTemplate,
                     RowNumberColumnName = RowNumberColumnName,
@@ -461,12 +551,12 @@ namespace RevolutionaryStuff.TheLoader
             }
             else if (FileFormat == FileFormats.CustomText)
             {
-                dt = DataTableHelpers.LoadRowsFromDelineatedText(File.OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
+                dt = DataLoadingHelpers.LoadRowsFromDelineatedText(File.OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
                 {
                     SkipRawRows = SkipRawRows,
                     CustomFieldDelim = CsvFieldDelim,
                     CustomQuoteChar = CsvQuoteChar,
-                    DuplicateColumnRenamer = DataTableHelpers.OnDuplicateAppendSeqeuntialNumber,
+                    DuplicateColumnRenamer = DataLoadingHelpers.OnDuplicateAppendSeqeuntialNumber,
                     ColumnNames = ColumnNames,
                     ColumnNameTemplate = ColumnNameTemplate,
                     RowNumberColumnName = RowNumberColumnName,
@@ -478,7 +568,7 @@ namespace RevolutionaryStuff.TheLoader
                 {
                     ColumnInfos = FixedWidthColumnInfo.CreateFromCsv(File.ReadAllText(FixedWidthColumnsFilePath))
                 };
-                DataTableHelpers.LoadRowsFromFixedWidthText(dt, File.OpenRead(FilePath), loadSettings);
+                DataLoadingHelpers.LoadRowsFromFixedWidthText(dt, File.OpenRead(FilePath), loadSettings);
             }
             else if (FileFormat == FileFormats.Excel)
             {
@@ -500,7 +590,7 @@ namespace RevolutionaryStuff.TheLoader
                 }
                 foreach (var rs in loadSettings.SheetSettings)
                 {
-                    rs.DuplicateColumnRenamer = DataTableHelpers.OnDuplicateAppendSeqeuntialNumber;
+                    rs.DuplicateColumnRenamer = DataLoadingHelpers.OnDuplicateAppendSeqeuntialNumber;
                     rs.RowNumberColumnName = RowNumberColumnName;
                 }
                 ds = new DataSet();
@@ -511,7 +601,7 @@ namespace RevolutionaryStuff.TheLoader
                 await DownloadFromSourceUrlAsync(".json");
                 var json = File.ReadAllText(FilePath);
                 var items = JsonConvert.DeserializeObject<JObject[]>(json);
-                dt = DataTableHelpers.LoadRowsFromJObjects(null, items);
+                dt = DataLoadingHelpers.LoadRowsFromJObjects(null, items);
             }
             else if (FileFormat == FileFormats.OData4)
             {
@@ -522,7 +612,7 @@ namespace RevolutionaryStuff.TheLoader
                 var m = (Microsoft.OData.Edm.EdmModelBase)await client.GetMetadataAsync();
                 var mdoc = await client.GetMetadataDocumentAsync();
                 var entityNames = new List<string>();
-                if (ODataElementNames == null || ODataElementNames.Length==0)
+                if (ODataElementNames == null || ODataElementNames.Length == 0)
                 {
                     foreach (var el in m.EntityContainer.Elements)
                     {
@@ -532,9 +622,12 @@ namespace RevolutionaryStuff.TheLoader
                 else
                 {
                     entityNames.AddRange(ODataElementNames);
+                    entityNames.Sort();
+                    entityNames = entityNames.Skip(0).Take(50).ToList();
                 }
                 ds = new DataSet();
-                Parallel.ForEach(entityNames, new ParallelOptions{ MaxDegreeOfParallelism = 32 }, entityName => {
+                Parallel.ForEach(entityNames, new ParallelOptions { MaxDegreeOfParallelism = 32 }, entityName =>
+                {
                     Trace.WriteLine($"Loading entity [{entityName}]");
                     var edt = new DataTable();
                     var z = (Microsoft.OData.Edm.IEdmStructuredType)m.FindDeclaredType($"{ODataElementSchema}.{entityName}");
@@ -552,7 +645,7 @@ namespace RevolutionaryStuff.TheLoader
 
                     */
 
-                    int startAt = 0;                    
+                    int startAt = 0;
                     for (; ; )
                     {
                         List<IDictionary<string, object>> items;
@@ -645,7 +738,7 @@ namespace RevolutionaryStuff.TheLoader
             {
                 po.MaxDegreeOfParallelism = 1;
             }
-            Parallel.ForEach(ds.Tables.OfType<DataTable>(), po, dt => 
+            Parallel.ForEach(ds.Tables.OfType<DataTable>(), po, dt =>
             {
                 Interlocked.Increment(ref tableNum);
                 foreach (var colName in SkipCols)
@@ -662,11 +755,11 @@ namespace RevolutionaryStuff.TheLoader
                         case RemoteServerTypes.SqlServer:
                             LoadIntoSqlServer(dt);
                             break;
-/*
-                        case RemoteServerTypes.DocumentDB:
-                            LoadIntoDocumentDB(dt);
-                            break;
-*/
+                        /*
+                                                case RemoteServerTypes.DocumentDB:
+                                                    LoadIntoDocumentDB(dt);
+                                                    break;
+                        */
                         default:
                             throw new UnexpectedSwitchValueException(RemoteServerType);
                     }
