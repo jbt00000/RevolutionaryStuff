@@ -24,6 +24,15 @@ namespace RevolutionaryStuff.Core.Database
             }
         }
 
+        public static bool TableExists(this IDbConnection conn, string tableName, string schemaName = null)
+        {
+            tableName = StringHelpers.TrimOrNull(tableName);
+            if (tableName == null) return false;
+            schemaName = SqlHelpers.SchemaOrDefault(schemaName);
+            var exists = conn.ExecuteScalar<object>($"select 1 from information_schema.tables where table_name='{tableName.EscapeForSql()}' and table_schema='{schemaName.EscapeForSql()}'");
+            return 1.CompareTo(exists) == 0;
+        }
+
         public static void ExecuteNonQuery(this IDbTransaction trans, string sql)
         {
             trans.Connection.ExecuteNonQuery(sql, trans);
@@ -104,9 +113,7 @@ namespace RevolutionaryStuff.Core.Database
             this IDbConnection conn,
             string sql,
             params SqlParameter[] parameters)
-        {
-            return conn.ExecuteNonQuery(null, sql, null, parameters);
-        }
+            => conn.ExecuteNonQuery(null, sql, null, parameters);
 
         public static Result ExecuteNonQuery(
             this IDbConnection conn,
@@ -132,12 +139,43 @@ namespace RevolutionaryStuff.Core.Database
             }
         }
 
+        public static T ExecuteScalar<T>(
+            this IDbConnection conn,
+            string sql,
+            TimeSpan? timeout = null,
+            IEnumerable<SqlParameter> parameters = null)
+            => (T)conn.ExecuteScalar(null, sql, timeout, parameters);
+
+        public static object ExecuteScalar(
+            this IDbConnection conn,
+            IDbTransaction trans,
+            string sql,
+            TimeSpan? timeout=null,
+            IEnumerable<SqlParameter> parameters=null)
+        {
+            Requires.NonNull(conn, nameof(conn));
+            Requires.Text(sql, nameof(sql));
+            using (var cmd = new SqlCommand(sql, (SqlConnection)conn)
+            {
+                Transaction = (SqlTransaction)trans,
+                CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
+            })
+            {
+                cmd.Parameters.AddRange(parameters);
+                cmd.CommandText = sql;
+                cmd.CommandType = CommandType.Text;
+                OpenIfNeeded(conn);
+                return cmd.ExecuteScalar();
+            }
+        }
+
         public async static Task<Result> ExecuteNonQueryAsync(
             this IDbConnection conn,
             IDbTransaction trans,
             string sql,
             TimeSpan? timeout,
-            IEnumerable<SqlParameter> parameters
+            IEnumerable<SqlParameter> parameters,
+            CommandType? forcedCommandType=null
             )
         {
             Requires.NonNull(conn, nameof(conn));
@@ -150,7 +188,7 @@ namespace RevolutionaryStuff.Core.Database
             })
             {
                 cmd.Parameters.AddRange(parameters);
-                cmd.CommandType = cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure;
+                cmd.CommandType = forcedCommandType.GetValueOrDefault(cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure);
                 await cmd.ExecuteNonQueryAsync();
                 return new Result(cmd.Parameters);
             }

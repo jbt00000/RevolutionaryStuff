@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.PlatformAbstractions;
-using System.Threading;
 
 namespace RevolutionaryStuff.Core.ApplicationParts
 {
@@ -29,7 +30,10 @@ namespace RevolutionaryStuff.Core.ApplicationParts
         private readonly ManualResetEvent ShutdownRequestedEvent = new ManualResetEvent(false);
         protected WaitHandle ShutdownRequested => ShutdownRequestedEvent;
 
-        protected virtual void OnBuildConfiguration(IConfigurationBuilder builder)
+        protected virtual void OnPreBuildConfiguration(IConfigurationBuilder builder)
+        { }
+
+        protected virtual void OnPostBuildConfiguration(IConfigurationBuilder builder)
         { }
 
         private void BuildConfiguration()
@@ -37,12 +41,17 @@ namespace RevolutionaryStuff.Core.ApplicationParts
             var env = PlatformServices.Default.Application;
 
             var builder = new ConfigurationBuilder()
-                .SetBasePath(env.ApplicationBasePath)
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+                .SetBasePath(env.ApplicationBasePath);
 
-            OnBuildConfiguration(builder);
+            OnPreBuildConfiguration(builder);
 
-            builder.AddEnvironmentVariables();
+            builder
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{EnvironmentHelpers.GetEnvironmentName()}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            OnPostBuildConfiguration(builder);
+
             Configuration = builder.Build();
         }
 
@@ -65,8 +74,22 @@ namespace RevolutionaryStuff.Core.ApplicationParts
             var services = new ServiceCollection();
             services.Add(new ServiceDescriptor(typeof(IConfiguration), Configuration));
             services.AddOptions();
+            ConfigureLogging(services);
             OnConfigureServices(services);
             ServiceProvider = services.BuildServiceProvider();
+        }
+
+        private void ConfigureLogging(IServiceCollection services)
+        {
+            var loggingFactory = new LoggerFactory();
+            OnConfigureLogging(services, loggingFactory);
+            services.AddSingleton(loggingFactory);
+            services.AddLogging();
+        }
+
+        protected virtual void OnConfigureLogging(IServiceCollection services, ILoggerFactory loggerFactory)
+        {
+            loggerFactory.AddConsole().AddDebug();
         }
 
         protected CommandLineProgram()
@@ -80,34 +103,32 @@ namespace RevolutionaryStuff.Core.ApplicationParts
 
         public static void Main<TCommandLineProgram>(string[] args) where TCommandLineProgram : CommandLineProgram
         {
-#if NET462
-            Trace.Listeners.Add(new ConsoleTraceListener());
-#endif
+            Trace.Listeners.Add(new Diagnostics.ConsoleTraceListener());
             CommandLineProgram p = null;
             bool programInOperation = false;
             try
             {
                 var ci = typeof(TCommandLineProgram).GetTypeInfo().GetConstructor(Empty.TypeArray);
                 p = (CommandLineProgram)ci.Invoke(Empty.ObjectArray);
-                programInOperation = true;
                 p.BuildConfiguration();
                 p.ProcessCommandLineArgs(args);
                 p.ConfigureServices();
+                programInOperation = true;
                 p.Go();
             }
             catch (Exception ex)
             {
                 if (ex.InnerException != null && ex.InnerException is CommmandLineInfoException)
                 {
-                    Trace.WriteLine(ex.InnerException.Message);
+                    Trace.TraceError(ex.InnerException.Message);
                 }
                 else if (ex is CommmandLineInfoException)
                 {
-                    Trace.WriteLine(ex.Message);
+                    Trace.TraceError(ex.Message);
                 }
                 else
                 {
-                    Trace.WriteLine(ex);
+                    Trace.TraceError(ex.Message);
                 }
                 if (!programInOperation)
                 {

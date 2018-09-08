@@ -1,27 +1,25 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.OData.Edm;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using RevolutionaryStuff.Core;
-using RevolutionaryStuff.Core.ApplicationParts;
-using RevolutionaryStuff.Core.Collections;
-using RevolutionaryStuff.Core.Diagnostics;
-using RevolutionaryStuff.ETL;
-using Simple.OData.Client;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Data;
 using System.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
+using Microsoft.OData.Edm;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using RevolutionaryStuff.Core;
+using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Database;
+using RevolutionaryStuff.Core.Diagnostics;
+using RevolutionaryStuff.ETL;
+using Simple.OData.Client;
 
 namespace RevolutionaryStuff.TheLoader
 {
@@ -31,6 +29,13 @@ namespace RevolutionaryStuff.TheLoader
         {
             Import,
             Export
+        }
+
+        public enum YesNoAuto
+        {
+            Yes,
+            No,
+            Auto,
         }
 
         private const string NameofModeImport = nameof(Modes.Import);
@@ -115,11 +120,23 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("TrimAndNullifyStringData", Mandatory = false, Mode = NameofModeImport)]
         public bool TrimAndNullifyStringData = true;
 
+        [CommandLineSwitch("RightType", Mandatory = false, Mode = NameofModeImport)]
+        public YesNoAuto RightType = YesNoAuto.Auto;
+
         [CommandLineSwitch("RowNumberColumn", Mandatory = false, Description = "When specified, the row number from the load should be added here")]
         public string RowNumberColumnName;
 
         [CommandLineSwitch("MaxErrorRate", Mandatory = false, Mode = NameofModeImport)]
         public float MaxErrorRate = 0;
+
+        [CommandLineSwitch("TableAlreadyExistsAction", Mandatory = false, Mode = NameofModeImport)]
+        public AlreadyExistsActions TableAlreadyExistsAction = AlreadyExistsActions.Skip;
+
+        [CommandLineSwitch("TableForeignIdAlreadyExistsAction", Mandatory = false, Mode = NameofModeImport)]
+        public AlreadyExistsActions TableForeignIdAlreadyExistsAction = AlreadyExistsActions.Skip;
+
+        [CommandLineSwitch("UseSocrataMetadata", Mandatory = false, Mode = NameofModeImport)]
+        public bool UseSocrataMetadata = false;
 
         #endregion
 
@@ -161,7 +178,7 @@ namespace RevolutionaryStuff.TheLoader
         private void Conn_InfoMessage(object sender, SqlInfoMessageEventArgs e)
         {
             LastConnectionMessage = e.Message;
-            Trace.WriteLine(e.Message);
+            Trace.TraceInformation(e.Message);
         }
 
         private static readonly Regex TableNameExpr = new Regex(@"\Wtable:(\w+)\s*$", RegexOptions.IgnoreCase);
@@ -223,7 +240,7 @@ namespace RevolutionaryStuff.TheLoader
                             dt.Rows.Add(vals);
                             if (dt.Rows.Count % NotifyIncrement == 0)
                             {
-                                Trace.WriteLine(string.Format("Exported {0} rows from table {1}...",
+                                Trace.TraceInformation(string.Format("Exported {0} rows from table {1}...",
                                                         dt.Rows.Count,
                                                         tableNum
                                                         ));
@@ -231,7 +248,7 @@ namespace RevolutionaryStuff.TheLoader
                         }
                         if (dt != null)
                         {
-                            Trace.WriteLine(string.Format("Exported {0} rows from table {1}", dt.Rows.Count, tableNum));
+                            Trace.TraceInformation(string.Format("Exported {0} rows from table {1}", dt.Rows.Count, tableNum));
                         }
                         if (reader.NextResult())
                         {
@@ -279,7 +296,7 @@ namespace RevolutionaryStuff.TheLoader
                 FilePath = Stuff.GetTempFileName(localFileExtension);
                 using (var client = new HttpClient())
                 {
-                    Trace.WriteLine($"Downloading [{SourceUrl}] to [{FilePath}]");
+                    Trace.TraceInformation($"Downloading [{SourceUrl}] to [{FilePath}]");
                     using (var downloadStream = await client.GetStreamAsync(SourceUrl))
                     {
                         StreamHelpers.CopyTo(downloadStream, FilePath);
@@ -406,7 +423,7 @@ namespace RevolutionaryStuff.TheLoader
             return StringHelpers.TrimOrNull(s);
         }
 
-        private async Task fdsaAsync()
+        private async Task FigureItOutAsync()
         {
             var dt = new DataTable();
             dt.Columns.Add("id");
@@ -420,68 +437,21 @@ namespace RevolutionaryStuff.TheLoader
             dt.Columns.Add("size");
             dt.Columns.Add("owner");
 
-            var initialStateJsonExpr = new Regex(@"var\s+initialState\s+=\s+{(.+?)}\s+;", RegexOptions.Compiled);
             int docNum = 0;
 
             var odc = new ODataClient(SourceUrl);
             var md = (Microsoft.OData.Edm.EdmModelBase)await odc.GetMetadataAsync();
-            Parallel.ForEach(md.EntityContainer.Elements, /*new ParallelOptions { MaxDegreeOfParallelism=1 },*/ mde =>
+            Parallel.ForEach(md.EntityContainer.Elements, Stuff.CreateParallelOptions(Parallelism), mde =>
             {
-                var id = mde.Name;
-                var url = new Uri($"{SourceUrl.GetComponents(UriComponents.HostAndPort | UriComponents.SchemeAndServer, UriFormat.Unescaped)}/d/{mde.Name}");
-
-                var client = new HttpClient();
-                var resp = DelegateHelpers.CallAndRetryOnFailure(() => client.GetAsync(url).ExecuteSynchronously());
-                var html = resp.Content.ReadAsStringAsync().ExecuteSynchronously();
-                var doc = new HtmlAgilityPack.HtmlDocument();
-                doc.LoadHtml(html);
-
-                Match m;
-
-                var nodes = doc.DocumentNode.SelectNodes("//script[@type=\"text/javascript\"]");
-                string initialStateJson = null;
-                foreach (HtmlAgilityPack.HtmlNode node in nodes)
-                {
-                    m = initialStateJsonExpr.Match(node.InnerText);
-                    if (!m.Success) continue;
-                    initialStateJson = "{" + m.Groups[1].Value + "}";
-                    break;
-                }
-                if (initialStateJson==null) return;
-                Socrata.Rootobject socrataRoot;
-                try
-                {
-                    socrataRoot = JsonConvert.DeserializeObject<Socrata.Rootobject>(initialStateJson);
-                }
-                catch (Exception ex)
-                {
-                    Trace.WriteLine(ex);
-                    return;
-                }
-
-                var title = socrataRoot.view.name;
-                var description = TrimPlus(socrataRoot.view.description);
-                var updated = socrataRoot.view.lastUpdatedAt;
-                var category = socrataRoot.view.category;
-                var odataUrl = socrataRoot.view.odataUrlV4;
-                var href = url.ToString();
-                var title2 = (RegexHelpers.Common.NonWordChars.Replace(title, " ").ToUpperCamelCase() + "_" + id.Replace("-", "")).TruncateWithMidlineEllipsis(128, "___");
-                string owner = socrataRoot.view.ownerName;
-
-                int size = 0;
-                foreach (var col in socrataRoot.view.columns.Where(zz=>zz.cachedContents!=null))
-                {
-                    size = Stuff.Max(size, col.cachedContents.non_null);
-                }
-
+                var smd = SocrataMetadata.Fetch(SourceUrl, mde.Name);
                 lock (dt)
                 {
-                    dt.Rows.Add(id, title, href, category, description, title2, updated.ToYYYY_MM_DD(), odataUrl, size, owner);
+                    dt.Rows.Add(smd.Id, smd.Title, smd.PageUrl, smd.Category, smd.Description, smd.TableName, smd.Updated.ToYYYY_MM_DD(), smd.ODataUrl, smd.Size, smd.Owner);
                 }
-                Trace.WriteLine($"docNum {docNum++}/{md.EntityContainer.Elements.Count()}");
+                Trace.TraceInformation($"docNum {docNum++}/{md.EntityContainer.Elements.Count()}");
             });
             var csv = dt.ToCsv();
-            Trace.WriteLine(csv);
+            Trace.TraceInformation(csv);
         }
 
 
@@ -489,7 +459,7 @@ namespace RevolutionaryStuff.TheLoader
         {
             Table = Stuff.CoalesceStrings(Table, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
 
-//            await fdsaAsync();
+//            await FigureItOutAsync();
 
             //Suck entire table into RAM
             var rowErrors = new List<Tuple<int, Exception>>();
@@ -539,6 +509,7 @@ namespace RevolutionaryStuff.TheLoader
             }
             else if (FileFormat == FileFormats.CSV || FileFormat == FileFormats.Pipe)
             {
+                RightType = RightType == YesNoAuto.Auto ? YesNoAuto.Yes : RightType;
                 dt = DataLoadingHelpers.LoadRowsFromDelineatedText(File.OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
                 {
                     SkipRawRows = SkipRawRows,
@@ -551,6 +522,7 @@ namespace RevolutionaryStuff.TheLoader
             }
             else if (FileFormat == FileFormats.CustomText)
             {
+                RightType = RightType == YesNoAuto.Auto ? YesNoAuto.Yes : RightType;
                 dt = DataLoadingHelpers.LoadRowsFromDelineatedText(File.OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
                 {
                     SkipRawRows = SkipRawRows,
@@ -618,32 +590,64 @@ namespace RevolutionaryStuff.TheLoader
                     {
                         entityNames.Add(el.Name);
                     }
+                    entityNames.Sort();
                 }
                 else
                 {
                     entityNames.AddRange(ODataElementNames);
-                    entityNames.Sort();
-                    entityNames = entityNames.Skip(0).Take(50).ToList();
                 }
                 ds = new DataSet();
-                Parallel.ForEach(entityNames, new ParallelOptions { MaxDegreeOfParallelism = 32 }, entityName =>
+                Parallel.ForEach(entityNames, Stuff.CreateParallelOptions(Parallelism, 32), entityName =>
                 {
-                    Trace.WriteLine($"Loading entity [{entityName}]");
-                    var edt = new DataTable();
+                    Trace.TraceInformation($"Loading entity [{entityName}]");
+                    var edt = new DataTable(entityName);
                     var z = (Microsoft.OData.Edm.IEdmStructuredType)m.FindDeclaredType($"{ODataElementSchema}.{entityName}");
+                    if (z == null)
+                    {
+                        Trace.TraceWarning($"cannot find entity [{entityName}] in schema");
+                        return;
+                    }
                     var myClient = new ODataClient(new ODataClientSettings
                     {
                         BaseUri = SourceUrl,
                         MetadataDocument = mdoc
                     });
+                    int? totalRowCount = null;
+                    if (UseSocrataMetadata)
+                    {
+                        try
+                        {
+                            var smd = SocrataMetadata.Fetch(SourceUrl, entityName);
+                            edt.TableName = smd.TableName;
+                            edt.ExtendedProperties["ForeignId"] = smd.Id;
+                            edt.ExtendedProperties["PageUrl"] = Stuff.ObjectToString(smd.PageUrl);
+                            edt.ExtendedProperties["ODataUrl"] = Stuff.ObjectToString(smd.ODataUrl);
+                            edt.ExtendedProperties["Keywords"] = smd.Category;
+                            edt.ExtendedProperties["Description"] = smd.Description;
+                            edt.ExtendedProperties["SourceUpdatedAt"] = smd.Updated.ToYYYY_MM_DD();
+                            edt.ExtendedProperties["Comment"] = smd.Description;
+                            totalRowCount = smd.Size;
+                        }
+                        catch (Exception socEx)
+                        {
+                            Trace.TraceWarning($"Problem getting/parsing socrata info on [{SourceUrl}] for [{entityName}]\n{socEx.Message}");
+                        }
+                    }
 
-                    /*
-                    var count = myClient
-                            .For(entityName)
-                        .Count()
-                        .FindScalarAsync<int>().ExecuteSynchronously();
-
-                    */
+                    if (totalRowCount.GetValueOrDefault() < 1)
+                    {
+                        try
+                        {
+                            totalRowCount = myClient
+                                    .For(entityName)
+                                .Count()
+                                .FindScalarAsync<int>().ExecuteSynchronously();
+                        }
+                        catch (Exception rowCountEx)
+                        {
+                            Trace.WriteLine(rowCountEx);
+                        }
+                    }
 
                     int startAt = 0;
                     for (; ; )
@@ -661,25 +665,21 @@ namespace RevolutionaryStuff.TheLoader
                         }
                         catch (Exception odataFailedException)
                         {
-                            Trace.WriteLine(odataFailedException);
+                            Trace.TraceError(odataFailedException.ToString());
                             return;
                         }
                         edt = LoadRows(edt, entityName, z, items);
                         if (items.Count == 0) break;
                         startAt += items.Count;
-                        Trace.WriteLine($"\tTable={entityName} Download Batch={items.Count}.  Running Count={startAt}/???");
+                        Trace.TraceInformation($"\tTable={entityName} Download Batch={items.Count}.  Running Count={startAt}/{totalRowCount.GetValueOrDefault(-1)}");
                     }
                     if (entityNames.Count() == 1)
                     {
                         edt.TableName = StringHelpers.TrimOrNull(Table) ?? edt.TableName;
                     }
-                    else
-                    {
-                        edt.TableName = entityName;
-                    }
                     lock (ds)
                     {
-                        Trace.WriteLine($"Added [{entityName}] {ds.Tables.Count}/{entityNames.Count}");
+                        Trace.TraceInformation($"Added [{entityName}] {ds.Tables.Count}/{entityNames.Count}");
                         ds.Tables.Add(edt);
                     }
                 });
@@ -710,7 +710,7 @@ namespace RevolutionaryStuff.TheLoader
             if (rowErrors.Count > 0)
             {
                 float actualErrorRate = rowErrors.Count / (float)(dt.Rows.Count + rowErrors.Count);
-                Trace.WriteLine(string.Format("There were {0} errors\nMax Error Rate: {1}\nActual Error Rate: {2}\nOn Rows: {3}", rowErrors.Count, MaxErrorRate, actualErrorRate, rowErrors.ConvertAll(t => t.Item1).Format(", ")));
+                Trace.TraceError(string.Format("There were {0} errors\nMax Error Rate: {1}\nActual Error Rate: {2}\nOn Rows: {3}", rowErrors.Count, MaxErrorRate, actualErrorRate, rowErrors.ConvertAll(t => t.Item1).Format(", ")));
                 if (actualErrorRate > MaxErrorRate)
                 {
                     throw new Exception(string.Format("Max Error rate exceeded!"));
@@ -733,19 +733,21 @@ namespace RevolutionaryStuff.TheLoader
         private void Load(DataSet ds)
         {
             int tableNum = 0;
-            var po = new ParallelOptions { };
-            if (!Parallelism)
-            {
-                po.MaxDegreeOfParallelism = 1;
-            }
-            Parallel.ForEach(ds.Tables.OfType<DataTable>(), po, dt =>
+            Parallel.ForEach(ds.Tables.OfType<DataTable>(), Stuff.CreateParallelOptions(Parallelism), dt =>
             {
                 Interlocked.Increment(ref tableNum);
                 foreach (var colName in SkipCols)
                 {
                     dt.Columns.Remove(colName);
                 }
-                dt.IdealizeStringColumns(TrimAndNullifyStringData);
+                if (RightType==YesNoAuto.Yes)
+                {
+                    dt.RightType();
+                }
+                else
+                {
+                    dt.IdealizeStringColumns(TrimAndNullifyStringData);
+                }
 
                 using (new TraceRegion($"Operating on {Schema}.{dt.TableName}; Table {tableNum}/{ds.Tables.Count}; RemoteServerType={RemoteServerType}"))
                 {
@@ -753,7 +755,7 @@ namespace RevolutionaryStuff.TheLoader
                     switch (RemoteServerType)
                     {
                         case RemoteServerTypes.SqlServer:
-                            LoadIntoSqlServer(dt);
+                            LoadIntoSqlServerAsync(dt).ExecuteSynchronously();
                             break;
                         /*
                                                 case RemoteServerTypes.DocumentDB:
@@ -767,31 +769,52 @@ namespace RevolutionaryStuff.TheLoader
             });
         }
 
-        private void LoadIntoSqlServer(DataTable dt)
+        private async Task LoadIntoSqlServerAsync(DataTable dt)
         {
             dt.MakeDateColumnsFitSqlServerBounds();
             dt.MakeColumnNamesSqlServerFriendly();
             var sql = dt.GenerateCreateTableSQL(Schema, autoNumberColumnName: AutoNumberColumnName);
-            Trace.WriteLine(sql);
+            Trace.TraceInformation(sql);
 
             //Create table and insert 1 batch at a time
             using (var conn = new SqlConnection(ConnectionString))
             {
                 conn.InfoMessage += Conn_InfoMessage;
-                conn.Open();
-                conn.ExecuteNonQuerySql(sql);
+                if (conn.TableExists(dt.TableName, Schema))
+                {
+                    switch (TableAlreadyExistsAction)
+                    {
+                        case AlreadyExistsActions.Append:
+                            Trace.TraceWarning($"{Schema}.{dt.TableName} already exists.  Will append.");
+                            break;
+                        case AlreadyExistsActions.Skip:
+                            Trace.TraceWarning($"{Schema}.{dt.TableName} already exists.  Will skip.");
+                            return;
+                        default:
+                            throw new UnexpectedSwitchValueException(TableForeignIdAlreadyExistsAction);
+                    }
+                }
+                else
+                {
+                    conn.ExecuteNonQuery(sql);
+                    foreach (var propertyName in dt.ExtendedProperties.Keys.OfType<string>())
+                    {
+                        var propertyValue = dt.ExtendedProperties[propertyName];
+                        await conn.TablePropertySetAsync(dt.TableName, propertyName, propertyValue, Schema);
+                    }
+                }
                 var copy = new SqlBulkCopy(conn);
                 copy.BulkCopyTimeout = 60 * 60 * 4;
                 copy.DestinationTableName = $"[{Schema}].[{dt.TableName}]";
                 copy.NotifyAfter = NotifyIncrement;
-                copy.SqlRowsCopied += (sender, e) => Trace.WriteLine($"{copy.DestinationTableName} uploaded {e.RowsCopied}/{dt.Rows.Count} rows...");
+                copy.SqlRowsCopied += (sender, e) => Trace.TraceInformation($"{copy.DestinationTableName} uploaded {e.RowsCopied}/{dt.Rows.Count} rows...");
                 foreach (DataColumn dc in dt.Columns)
                 {
                     copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
                 }
                 copy.WriteToServer(dt);
                 copy.Close();
-                Trace.WriteLine($"{copy.DestinationTableName} uploaded {dt.Rows.Count}/{dt.Rows.Count} rows.  Upload is complete.");
+                Trace.TraceInformation($"{copy.DestinationTableName} uploaded {dt.Rows.Count}/{dt.Rows.Count} rows.  Upload is complete.");
             }
         }
 

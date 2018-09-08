@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RevolutionaryStuff.TheLoader": {
+      "commandName": "Project",
+      "commandLineArgs": "-CSN:Ref -m:Import -Filename:\"C:\\Users\\jason\\AppData\\Local\\Packages\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\\TempState\\Downloads\\mort1981.csv\" -Schema:NBER "
+    }
+  }
+}

@@ -331,7 +331,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts
                         }
                         else if (a.Translator.HasFlag(CommandLineSwitchAttributeTranslators.FilePathOrUrl))
                         {
-                            if (Uri.TryCreate(s, UriKind.Absolute, out Uri u))
+                            if (Uri.TryCreate(s, UriKind.Absolute, out Uri u)&&u.Scheme!=WebHelpers.CommonSchemes.File)
                             {
                                 val = (new Uri(s)).ToString();
                             }

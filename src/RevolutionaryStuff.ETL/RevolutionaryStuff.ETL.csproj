@@ -2,6 +2,14 @@
 
   <PropertyGroup>
     <TargetFrameworks>net462;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+
+
+    <RuntimeFrameworkVersion>2.1.2</RuntimeFrameworkVersion>
+    <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
+
+
+
+
     <AssemblyName>RevolutionaryStuff.ETL</AssemblyName>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>jason@jasonthomas.com</Authors>

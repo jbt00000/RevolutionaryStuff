@@ -7,6 +7,33 @@ namespace RevolutionaryStuff.Core
 {
     public static class StringHelpers
     {
+        private static bool ContainsLessThanEq(this string s, char chMax)
+        {
+            if (s == null) return true;
+            for (int z = 0; z < s.Length; ++z)
+            {
+                var ch = s[z];
+                if (ch > chMax) return false;
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Is this a 7bit string
+        /// </summary>
+        /// <param name="s">The string to test</param>
+        /// <returns>True if all characters fit in 7 bits, else false</returns>
+        public static bool ContainsOnlyAsciiCharacters(this string s)
+            => s.ContainsLessThanEq((char)127);
+
+        /// <summary>
+        /// Is this a 8bit string
+        /// </summary>
+        /// <param name="s">The string to test</param>
+        /// <returns>True if all characters fit in 8 bits, else false</returns>
+        public static bool ContainsOnlyExtendedAsciiCharacters(this string s)
+            => s.ContainsLessThanEq((char)255);
+
         public static string Replace(this string s, Match m, string replacement=null)
         {
             if (m.Success)

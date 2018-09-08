@@ -316,5 +316,22 @@ namespace RevolutionaryStuff.Core
                 return null;
             });
         }
+
+        public static ParallelOptions CreateParallelOptions(bool canParallelize, int? degrees=null)
+        {
+            var po = new ParallelOptions();
+            if (canParallelize)
+            {
+                if (degrees.HasValue)
+                {
+                    po.MaxDegreeOfParallelism = degrees.Value;
+                }
+            }
+            else
+            {
+                po.MaxDegreeOfParallelism = 1;
+            }
+            return po;
+        }
     }
 }
