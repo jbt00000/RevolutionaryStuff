@@ -132,9 +132,6 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("TableAlreadyExistsAction", Mandatory = false, Mode = NameofModeImport)]
         public AlreadyExistsActions TableAlreadyExistsAction = AlreadyExistsActions.Skip;
 
-        [CommandLineSwitch("TableForeignIdAlreadyExistsAction", Mandatory = false, Mode = NameofModeImport)]
-        public AlreadyExistsActions TableForeignIdAlreadyExistsAction = AlreadyExistsActions.Skip;
-
         [CommandLineSwitch("UseSocrataMetadata", Mandatory = false, Mode = NameofModeImport)]
         public bool UseSocrataMetadata = false;
 
@@ -454,6 +451,40 @@ namespace RevolutionaryStuff.TheLoader
             Trace.TraceInformation(csv);
         }
 
+        private static async Task<Stream> OpenReadAsync(string fileName, bool? unzip=null)
+        {
+            using (new TraceRegion($"OpenReadAsync({fileName})"))
+            {
+                bool isZip = false;
+                if (Uri.TryCreate(fileName, UriKind.Absolute, out var u))
+                {
+                    using (var client = new HttpClient())
+                    {
+                        Trace.WriteLine($"Downloading {u}");
+                        var source = await client.GetStreamAsync(u);
+                        fileName = Stuff.GetTempFileName(Stuff.CoalesceStrings(Path.GetExtension(u.LocalPath), ".tmp"));
+                        using (var dest = File.Create(fileName))
+                        {
+                            await source.CopyToAsync(dest);
+                        }
+                    }
+                }
+                isZip = isZip || MimeType.Application.Zip.DoesExtensionMatch(fileName);
+                if (isZip && unzip.GetValueOrDefault(true))
+                {
+                    var dir = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(fileName));
+                    Trace.WriteLine($"Will unzip to {dir}");                    
+                    System.IO.Compression.ZipFile.ExtractToDirectory(fileName, dir);
+                    fileName = Directory.GetFiles(dir).First();
+                }
+                Trace.WriteLine($"Opening {u}");
+                return File.OpenRead(fileName);
+            }
+        }
+
+        private static Stream OpenRead(string fileName, bool? unzip=null)
+            => OpenReadAsync(fileName, unzip).ExecuteSynchronously();
+
 
         private async Task OnImportAsync()
         {
@@ -472,13 +503,13 @@ namespace RevolutionaryStuff.TheLoader
             }
             if (FileFormat == FileFormats.ELF)
             {
-                dt = ExtendedLogFileFormatHelpers.Load(File.OpenRead(FilePath), SkipCols);
+                dt = ExtendedLogFileFormatHelpers.Load(OpenRead(FilePath), SkipCols);
                 ThrowNowSupportedWhenOptionSpecified(nameof(RowNumberColumnName), nameof(SkipRawRows), nameof(ColumnNames));
                 goto CleanDataTable;
             }
             else if (FileFormat == FileFormats.MySqlDump)
             {
-                ds = MySqlHelpers.LoadDump(File.OpenRead(FilePath));
+                ds = MySqlHelpers.LoadDump(OpenRead(FilePath));
                 ThrowNowSupportedWhenOptionSpecified(nameof(RowNumberColumnName), nameof(SkipRawRows), nameof(ColumnNames));
                 goto CreateTable;
             }
@@ -488,9 +519,9 @@ namespace RevolutionaryStuff.TheLoader
                 var memoPath = Path.ChangeExtension(FilePath, ".fpt");
                 if (File.Exists(memoPath))
                 {
-                    memoStream = File.OpenRead(memoPath);
+                    memoStream = OpenRead(memoPath);
                 }
-                dt = DBaseHelpers.Load(File.OpenRead(FilePath), memoStream);
+                dt = DBaseHelpers.Load(OpenRead(FilePath), memoStream);
                 Stuff.Dispose(memoStream);
                 switch (ColumnRenamingMode)
                 {
@@ -510,7 +541,7 @@ namespace RevolutionaryStuff.TheLoader
             else if (FileFormat == FileFormats.CSV || FileFormat == FileFormats.Pipe)
             {
                 RightType = RightType == YesNoAuto.Auto ? YesNoAuto.Yes : RightType;
-                dt = DataLoadingHelpers.LoadRowsFromDelineatedText(File.OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
+                dt = DataLoadingHelpers.LoadRowsFromDelineatedText(OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
                 {
                     SkipRawRows = SkipRawRows,
                     Format = FileFormat == FileFormats.CSV ? LoadRowsFromDelineatedTextFormats.CommaSeparatedValues : LoadRowsFromDelineatedTextFormats.PipeSeparatedValues,
@@ -523,7 +554,7 @@ namespace RevolutionaryStuff.TheLoader
             else if (FileFormat == FileFormats.CustomText)
             {
                 RightType = RightType == YesNoAuto.Auto ? YesNoAuto.Yes : RightType;
-                dt = DataLoadingHelpers.LoadRowsFromDelineatedText(File.OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
+                dt = DataLoadingHelpers.LoadRowsFromDelineatedText(OpenRead(FilePath), new LoadRowsFromDelineatedTextSettings
                 {
                     SkipRawRows = SkipRawRows,
                     CustomFieldDelim = CsvFieldDelim,
@@ -540,7 +571,7 @@ namespace RevolutionaryStuff.TheLoader
                 {
                     ColumnInfos = FixedWidthColumnInfo.CreateFromCsv(File.ReadAllText(FixedWidthColumnsFilePath))
                 };
-                DataLoadingHelpers.LoadRowsFromFixedWidthText(dt, File.OpenRead(FilePath), loadSettings);
+                DataLoadingHelpers.LoadRowsFromFixedWidthText(dt, OpenRead(FilePath), loadSettings);
             }
             else if (FileFormat == FileFormats.Excel)
             {
@@ -566,7 +597,7 @@ namespace RevolutionaryStuff.TheLoader
                     rs.RowNumberColumnName = RowNumberColumnName;
                 }
                 ds = new DataSet();
-                ETL.SpreadsheetHelpers.LoadSheetsFromExcel(ds, File.OpenRead(FilePath), loadSettings);
+                ETL.SpreadsheetHelpers.LoadSheetsFromExcel(ds, OpenRead(FilePath), loadSettings);
             }
             else if (FileFormat == FileFormats.Json)
             {
@@ -755,7 +786,11 @@ namespace RevolutionaryStuff.TheLoader
                     switch (RemoteServerType)
                     {
                         case RemoteServerTypes.SqlServer:
-                            LoadIntoSqlServerAsync(dt).ExecuteSynchronously();
+                            LoadIntoSqlServerAsync(
+                                dt, 
+                                ()=>new SqlConnection(ConnectionString), 
+                                new UploadIntoSqlServerSettings { Schema = Schema, GenerateTable = true, RowsTransferredNotifyIncrement = NotifyIncrement } 
+                                ).ExecuteSynchronously();
                             break;
                         /*
                                                 case RemoteServerTypes.DocumentDB:
@@ -769,50 +804,63 @@ namespace RevolutionaryStuff.TheLoader
             });
         }
 
-        private async Task LoadIntoSqlServerAsync(DataTable dt)
+        private async Task LoadIntoSqlServerAsync(DataTable dt, Func<SqlConnection> createConnection, UploadIntoSqlServerSettings settings = null)
         {
+            Requires.NonNull(dt, nameof(dt));
+            Requires.NonNull(createConnection, nameof(createConnection));
+            settings = settings ?? new UploadIntoSqlServerSettings();
+
+            var schemaTable = $"[{settings.Schema}].[{dt.TableName}]";
+
             dt.MakeDateColumnsFitSqlServerBounds();
             dt.MakeColumnNamesSqlServerFriendly();
-            var sql = dt.GenerateCreateTableSQL(Schema, autoNumberColumnName: AutoNumberColumnName);
-            Trace.TraceInformation(sql);
 
             //Create table and insert 1 batch at a time
-            using (var conn = new SqlConnection(ConnectionString))
+            using (var conn = createConnection())
             {
                 conn.InfoMessage += Conn_InfoMessage;
-                if (conn.TableExists(dt.TableName, Schema))
+                if (conn.TableExists(dt.TableName, settings.Schema))
                 {
                     switch (TableAlreadyExistsAction)
                     {
                         case AlreadyExistsActions.Append:
-                            Trace.TraceWarning($"{Schema}.{dt.TableName} already exists.  Will append.");
+                            Trace.TraceWarning($"{settings.Schema}.{dt.TableName} already exists.  Will append.");
                             break;
                         case AlreadyExistsActions.Skip:
-                            Trace.TraceWarning($"{Schema}.{dt.TableName} already exists.  Will skip.");
+                            Trace.TraceWarning($"{settings.Schema}.{dt.TableName} already exists.  Will skip.");
                             return;
                         default:
-                            throw new UnexpectedSwitchValueException(TableForeignIdAlreadyExistsAction);
+                            throw new UnexpectedSwitchValueException(TableAlreadyExistsAction);
                     }
                 }
                 else
                 {
-                    conn.ExecuteNonQuery(sql);
-                    foreach (var propertyName in dt.ExtendedProperties.Keys.OfType<string>())
+                    if (settings.GenerateTable)
                     {
-                        var propertyValue = dt.ExtendedProperties[propertyName];
-                        await conn.TablePropertySetAsync(dt.TableName, propertyName, propertyValue, Schema);
+                        var sql = dt.GenerateCreateTableSQL(settings.Schema, autoNumberColumnName: AutoNumberColumnName);
+                        Trace.TraceInformation(sql);
+                        conn.ExecuteNonQuery(sql);
+                        foreach (var propertyName in dt.ExtendedProperties.Keys.OfType<string>())
+                        {
+                            var propertyValue = dt.ExtendedProperties[propertyName];
+                            await conn.TablePropertySetAsync(dt.TableName, propertyName, propertyValue, settings.Schema);
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception($"{schemaTable} does not exist but we have not been asked to generate it");
                     }
                 }
                 var copy = new SqlBulkCopy(conn);
                 copy.BulkCopyTimeout = 60 * 60 * 4;
-                copy.DestinationTableName = $"[{Schema}].[{dt.TableName}]";
-                copy.NotifyAfter = NotifyIncrement;
+                copy.DestinationTableName = $"[{settings.Schema}].[{dt.TableName}]";
+                copy.NotifyAfter = settings.RowsTransferredNotifyIncrement;
                 copy.SqlRowsCopied += (sender, e) => Trace.TraceInformation($"{copy.DestinationTableName} uploaded {e.RowsCopied}/{dt.Rows.Count} rows...");
                 foreach (DataColumn dc in dt.Columns)
                 {
                     copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
                 }
-                copy.WriteToServer(dt);
+                await copy.WriteToServerAsync(dt);
                 copy.Close();
                 Trace.TraceInformation($"{copy.DestinationTableName} uploaded {dt.Rows.Count}/{dt.Rows.Count} rows.  Upload is complete.");
             }

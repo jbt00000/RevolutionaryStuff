@@ -7,6 +7,17 @@ namespace RevolutionaryStuff.Core
 {
     public static class StringHelpers
     {
+        public static string AppendWithConditionalAppendPrefix(this string baseString, string conditionalAppendPrefix, string baseAppend)
+        {
+            baseString = baseString ?? "";
+            if (baseString.Length > 0 && baseAppend != null && baseAppend.Length > 0)
+            {
+                baseString += conditionalAppendPrefix ?? "";
+            }
+            baseString += baseAppend ?? "";
+            return baseString;
+        }
+
         private static bool ContainsLessThanEq(this string s, char chMax)
         {
             if (s == null) return true;

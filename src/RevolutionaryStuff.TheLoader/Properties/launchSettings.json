@@ -2,7 +2,7 @@
   "profiles": {
     "RevolutionaryStuff.TheLoader": {
       "commandName": "Project",
-      "commandLineArgs": "-CSN:Ref -m:Import -Filename:\"C:\\Users\\jason\\AppData\\Local\\Packages\\Microsoft.MicrosoftEdge_8wekyb3d8bbwe\\TempState\\Downloads\\mort1981.csv\" -Schema:NBER "
+      "commandLineArgs": "-CSN:Ref -m:Import -Filename:\"http://www.nber.org/mortality/1959/mort1959.csv.zip\" -Schema:NBER  -FileFormat:CSV"
     }
   }
 }

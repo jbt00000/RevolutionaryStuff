@@ -9,54 +9,6 @@ namespace RevolutionaryStuff.ETL
 {
     public static class SqlServerHelpers
     {
-        public static void MakeColumnNamesSqlServerFriendly(this DataTable dt)
-        {
-            Requires.NonNull(dt, nameof(dt));
-
-            foreach (DataColumn dc in dt.Columns)
-            {
-                if (dc.ColumnName.Length > 128)
-                {
-                    dc.ColumnName = dc.ColumnName.TruncateWithMidlineEllipsis(128);
-                }
-            }
-        }
-
-        public static void MakeDateColumnsFitSqlServerBounds(this DataTable dt, DateTime? minDate = null, DateTime? maxDate = null)
-        {
-            Requires.NonNull(dt, nameof(dt));
-
-            var lower = minDate.GetValueOrDefault(SqlServerMinDateTime);
-            var upper = maxDate.GetValueOrDefault(SqlServerMaxDateTime);
-
-            for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
-            {
-                var dc = (DataColumn)dt.Columns[colNum];
-                if (dc.DataType != typeof(DateTime)) continue;
-                int changeCount = 0;
-                for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
-                {
-                    var o = dt.Rows[rowNum][dc];
-                    if (o == DBNull.Value) continue;
-                    var val = (DateTime)o;
-                    if (val < lower)
-                    {
-                        ++changeCount;
-                        dt.Rows[rowNum][dc] = lower;
-                    }
-                    else if (val > upper)
-                    {
-                        ++changeCount;
-                        dt.Rows[rowNum][dc] = upper;
-                    }
-                }
-                Trace.WriteLine($"MakeDateColumnsFitSqlServerBounds table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count} => {changeCount} changes");
-            }
-        }
-
-        private static readonly DateTime SqlServerMinDateTime = new DateTime(1753, 1, 1);
-        private static readonly DateTime SqlServerMaxDateTime = new DateTime(9999, 12, 31);
-
         public static void UploadIntoSqlServer(this DataTable dt, Func<SqlConnection> createConnection, UploadIntoSqlServerSettings settings = null)
         {
             Requires.NonNull(dt, nameof(dt));

@@ -5,6 +5,7 @@ using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Core
 {
@@ -85,232 +86,235 @@ namespace RevolutionaryStuff.Core
         public static void RightType(this DataTable dt, bool nullifyBlankStrings=true)
         {
             Requires.NonNull(dt, nameof(dt));
-            Trace.WriteLine($"{nameof(RightType)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows");
-            var columnNames = new List<string>();
-            for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
+            using (new TraceRegion($"{nameof(RightType)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows"))
             {
-                var dc = dt.Columns[colNum];
-                columnNames.Add(dc.ColumnName);
-                dc.SetOrdinal(colNum);
-            }
-            for (int colNum = 0; colNum < columnNames.Count; ++colNum)
-            {
-                var dc = dt.Columns[columnNames[colNum]];
-                if (dc.DataType != typeof(string)) continue;
-                dc.AllowDBNull = true;
-                Trace.WriteLine($"{nameof(RightType)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
-                var len = 0;
-                bool hasNulls = false;
-                bool canBeVarchar = true;
-                bool canBeDate = true;
-                bool canBeDatetime = true;
-                bool canBeBit = true;
-                bool canBeYN = true;
-                bool canBeYesNo = true;
-                bool canBeTrueFalse = true;
-                bool canBeInt64 = true;
-                bool canBeInt32 = true;
-                bool canBeInt16 = true;
-                bool canBeInt8 = true;
-                bool canBeFloat = true;
-                bool canBeDecimal = true;
-                bool canBeDateTimeOffset = true;
-                for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+                var columnNames = new List<string>();
+                for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
                 {
-                    var dr = dt.Rows[rowNum];
-                    var s = dr[colNum] as string;
-                    if (s == null)
-                    {
-                        hasNulls = true;
-                        continue;
-                    }
-                    string zs = s.Trim();
-                    if (nullifyBlankStrings && zs == "")
-                    {
-                        hasNulls = true;
-                        dr[colNum] = DBNull.Value;
-                        continue;
-                    }
-                    canBeVarchar = canBeVarchar && zs.ContainsOnlyExtendedAsciiCharacters();
-                    if (canBeDate || canBeDatetime)
-                    {
-                        if (DateTime.TryParse(zs, out var d))
-                        {
-                            canBeDate = canBeDate && d.Hour == 0 && d.Minute == 0 && d.Second == 0;
-                        }
-                        else
-                        {
-                            canBeDate = canBeDatetime = false;
-                        }
-                    }
-                    canBeBit = canBeBit && (zs == "1" || zs == "0");
-                    canBeYN = canBeYN && (0 == string.Compare(zs, "y", true) || 0 == string.Compare(zs, "n", true));
-                    canBeYesNo = canBeYesNo && (0 == string.Compare(zs, "yes", true) || 0 == string.Compare(zs, "no", true));
-                    canBeTrueFalse = canBeTrueFalse && (0 == string.Compare(zs, "true", true) || 0 == string.Compare(zs, "false", true));
-                    canBeInt64 = canBeInt64 && Int64.TryParse(zs, out var int64Test);
-                    canBeInt32 = canBeInt32 && Int32.TryParse(zs, out var int32Test);
-                    canBeInt16 = canBeInt16 && Int16.TryParse(zs, out var int16Test);
-                    canBeInt8 = canBeInt8 && Byte.TryParse(zs, out var int8Test);
-                    canBeFloat = canBeFloat && double.TryParse(zs, out var doubleTest);
-                    canBeDecimal = canBeDecimal && Decimal.TryParse(zs, out var decimalTest);
-                    canBeDateTimeOffset = canBeDateTimeOffset && DateTimeOffset.TryParse(zs, out var dateTimeOffsetTest);
-                    if (zs != s)
-                    {
-                        dr[colNum] = zs;
-                    }
-                    len = Stuff.Max(len, zs.Length);
+                    var dc = dt.Columns[colNum];
+                    columnNames.Add(dc.ColumnName);
+                    dc.SetOrdinal(colNum);
                 }
-                Func<string, object> converter = null;
-                Type convertedDataType = typeof(object);
-                if (canBeBit)
+                for (int colNum = 0; colNum < columnNames.Count; ++colNum)
                 {
-                    converter = q => q == "1";
-                    convertedDataType = typeof(bool);
-                }
-                else if (canBeYN)
-                {
-                    converter = q => string.Compare(q, "y", true);
-                    convertedDataType = typeof(bool);
-                }
-                else if (canBeYesNo)
-                {
-                    converter = q => string.Compare(q, "yes", true);
-                    convertedDataType = typeof(bool);
-                }
-                else if (canBeTrueFalse)
-                {
-                    converter = q => string.Compare(q, "true", true);
-                    convertedDataType = typeof(bool);
-                }
-                else if (canBeInt8)
-                {
-                    converter = q => Byte.Parse(q);
-                    convertedDataType = typeof(Byte);
-                }
-                else if (canBeInt16)
-                {
-                    converter = q => Int16.Parse(q);
-                    convertedDataType = typeof(Int16);
-                }
-                else if (canBeInt32)
-                {
-                    converter = q => Int32.Parse(q);
-                    convertedDataType = typeof(Int32);
-                }
-                else if (canBeInt64)
-                {
-                    converter = q => Int64.Parse(q);
-                    convertedDataType = typeof(Int64);
-                }
-                else if (canBeFloat)
-                {
-                    converter = q => Double.Parse(q);
-                    convertedDataType = typeof(Double);
-                }
-                else if (canBeDecimal)
-                {
-                    converter = q => Decimal.Parse(q);
-                    convertedDataType = typeof(Decimal);
-                }
-                else if (canBeDateTimeOffset)
-                {
-                    converter = q => DateTimeOffset.Parse(q);
-                    convertedDataType = typeof(DateTimeOffset);
-                }
-                else if (canBeDate)
-                {
-                    converter = q => DateTime.Parse(q);
-                    convertedDataType = typeof(DateTime);
-                }
-                else if (canBeDatetime)
-                {
-                    converter = q => DateTime.Parse(q);
-                    convertedDataType = typeof(DateTime);
-                }
-                else if (canBeVarchar)
-                {
-                    dc.Unicode(false);
-                    dc.MaxLength = Math.Max(1, len);
-                }
-                else
-                {
-                    dc.MaxLength = Math.Max(1, len);
-                }
-                dc.AllowDBNull = hasNulls;
-                if (converter!=null)
-                {
-                    Trace.WriteLine($"Converting {dc.ColumnName} to {convertedDataType}");
-                    var colName = dc.ColumnName;
-                    dc.ColumnName = "___DEAD___" + dc.ColumnName;
-                    var newCol = new DataColumn(colName, convertedDataType) { AllowDBNull = dc.AllowDBNull };
-                    dt.Columns.Add(newCol);
-                    var convertedColNum = dt.Columns.IndexOf(colName);
-                    string lastStr = null;
-                    object lastConv = null;
+                    var dc = dt.Columns[columnNames[colNum]];
+                    if (dc.DataType != typeof(string)) continue;
+                    dc.AllowDBNull = true;
+                    Trace.WriteLine($"{nameof(RightType)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
+                    var len = 0;
+                    bool hasNulls = false;
+                    bool canBeVarchar = true;
+                    bool canBeDate = true;
+                    bool canBeDatetime = true;
+                    bool canBeBit = true;
+                    bool canBeYN = true;
+                    bool canBeYesNo = true;
+                    bool canBeTrueFalse = true;
+                    bool canBeInt64 = true;
+                    bool canBeInt32 = true;
+                    bool canBeInt16 = true;
+                    bool canBeInt8 = true;
+                    bool canBeFloat = true;
+                    bool canBeDecimal = true;
+                    bool canBeDateTimeOffset = true;
                     for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                     {
                         var dr = dt.Rows[rowNum];
                         var s = dr[colNum] as string;
-                        if (s == null) continue;
-                        if (s == lastStr)
+                        if (s == null)
                         {
-                            dr[convertedColNum] = lastConv;
+                            hasNulls = true;
+                            continue;
                         }
-                        else
+                        string zs = s.Trim();
+                        if (nullifyBlankStrings && zs == "")
                         {
-                            dr[convertedColNum] = lastConv = converter(s);
-                            lastStr = s;
+                            hasNulls = true;
+                            dr[colNum] = DBNull.Value;
+                            continue;
                         }
+                        canBeVarchar = canBeVarchar && zs.ContainsOnlyExtendedAsciiCharacters();
+                        if (canBeDate || canBeDatetime)
+                        {
+                            if (DateTime.TryParse(zs, out var d))
+                            {
+                                canBeDate = canBeDate && d.Hour == 0 && d.Minute == 0 && d.Second == 0;
+                            }
+                            else
+                            {
+                                canBeDate = canBeDatetime = false;
+                            }
+                        }
+                        canBeBit = canBeBit && (zs == "1" || zs == "0");
+                        canBeYN = canBeYN && (0 == string.Compare(zs, "y", true) || 0 == string.Compare(zs, "n", true));
+                        canBeYesNo = canBeYesNo && (0 == string.Compare(zs, "yes", true) || 0 == string.Compare(zs, "no", true));
+                        canBeTrueFalse = canBeTrueFalse && (0 == string.Compare(zs, "true", true) || 0 == string.Compare(zs, "false", true));
+                        canBeInt64 = canBeInt64 && Int64.TryParse(zs, out var int64Test);
+                        canBeInt32 = canBeInt32 && Int32.TryParse(zs, out var int32Test);
+                        canBeInt16 = canBeInt16 && Int16.TryParse(zs, out var int16Test);
+                        canBeInt8 = canBeInt8 && Byte.TryParse(zs, out var int8Test);
+                        canBeFloat = canBeFloat && double.TryParse(zs, out var doubleTest);
+                        canBeDecimal = canBeDecimal && Decimal.TryParse(zs, out var decimalTest);
+                        canBeDateTimeOffset = canBeDateTimeOffset && DateTimeOffset.TryParse(zs, out var dateTimeOffsetTest);
+                        if (zs != s)
+                        {
+                            dr[colNum] = zs;
+                        }
+                        len = Stuff.Max(len, zs.Length);
                     }
-                    dt.Columns.Remove(dc);
-                    newCol.SetOrdinal(colNum);
+                    Func<string, object> converter = null;
+                    Type convertedDataType = typeof(object);
+                    if (canBeBit)
+                    {
+                        converter = q => q == "1";
+                        convertedDataType = typeof(bool);
+                    }
+                    else if (canBeYN)
+                    {
+                        converter = q => string.Compare(q, "y", true);
+                        convertedDataType = typeof(bool);
+                    }
+                    else if (canBeYesNo)
+                    {
+                        converter = q => string.Compare(q, "yes", true);
+                        convertedDataType = typeof(bool);
+                    }
+                    else if (canBeTrueFalse)
+                    {
+                        converter = q => string.Compare(q, "true", true);
+                        convertedDataType = typeof(bool);
+                    }
+                    else if (canBeInt8)
+                    {
+                        converter = q => Byte.Parse(q);
+                        convertedDataType = typeof(Byte);
+                    }
+                    else if (canBeInt16)
+                    {
+                        converter = q => Int16.Parse(q);
+                        convertedDataType = typeof(Int16);
+                    }
+                    else if (canBeInt32)
+                    {
+                        converter = q => Int32.Parse(q);
+                        convertedDataType = typeof(Int32);
+                    }
+                    else if (canBeInt64)
+                    {
+                        converter = q => Int64.Parse(q);
+                        convertedDataType = typeof(Int64);
+                    }
+                    else if (canBeFloat)
+                    {
+                        converter = q => Double.Parse(q);
+                        convertedDataType = typeof(Double);
+                    }
+                    else if (canBeDecimal)
+                    {
+                        converter = q => Decimal.Parse(q);
+                        convertedDataType = typeof(Decimal);
+                    }
+                    else if (canBeDateTimeOffset)
+                    {
+                        converter = q => DateTimeOffset.Parse(q);
+                        convertedDataType = typeof(DateTimeOffset);
+                    }
+                    else if (canBeDate)
+                    {
+                        converter = q => DateTime.Parse(q);
+                        convertedDataType = typeof(DateTime);
+                    }
+                    else if (canBeDatetime)
+                    {
+                        converter = q => DateTime.Parse(q);
+                        convertedDataType = typeof(DateTime);
+                    }
+                    else if (canBeVarchar)
+                    {
+                        dc.Unicode(false);
+                        dc.MaxLength = Math.Max(1, len);
+                    }
+                    else
+                    {
+                        dc.MaxLength = Math.Max(1, len);
+                    }
+                    dc.AllowDBNull = hasNulls;
+                    if (converter != null)
+                    {
+                        Trace.WriteLine($"Converting {dc.ColumnName} to {convertedDataType}");
+                        var colName = dc.ColumnName;
+                        dc.ColumnName = "___DEAD___" + dc.ColumnName;
+                        var newCol = new DataColumn(colName, convertedDataType) { AllowDBNull = dc.AllowDBNull };
+                        dt.Columns.Add(newCol);
+                        var convertedColNum = dt.Columns.IndexOf(colName);
+                        string lastStr = null;
+                        object lastConv = null;
+                        for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+                        {
+                            var dr = dt.Rows[rowNum];
+                            var s = dr[colNum] as string;
+                            if (s == null) continue;
+                            if (s == lastStr)
+                            {
+                                dr[convertedColNum] = lastConv;
+                            }
+                            else
+                            {
+                                dr[convertedColNum] = lastConv = converter(s);
+                                lastStr = s;
+                            }
+                        }
+                        dt.Columns.Remove(dc);
+                        newCol.SetOrdinal(colNum);
+                    }
                 }
             }
-
         }
 
         public static void IdealizeStringColumns(this DataTable dt, bool trimAndNullifyStringData = false)
         {
             Requires.NonNull(dt, nameof(dt));
-            Trace.WriteLine($"{nameof(IdealizeStringColumns)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows");
-            for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
+            using (new TraceRegion($"{nameof(IdealizeStringColumns)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows"))
             {
-                var dc = dt.Columns[colNum];
-                if (dc.DataType != typeof(string)) continue;
-                dc.AllowDBNull = true;
-                Trace.WriteLine($"{nameof(IdealizeStringColumns)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
-                var len = 0;
-                bool hasNulls = false;
-                for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+                for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
                 {
-                    var dr = dt.Rows[rowNum];
-                    var s = dr[colNum] as string;
-                    if (s == null)
+                    var dc = dt.Columns[colNum];
+                    if (dc.DataType != typeof(string)) continue;
+                    dc.AllowDBNull = true;
+                    Trace.WriteLine($"{nameof(IdealizeStringColumns)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
+                    var len = 0;
+                    bool hasNulls = false;
+                    for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                     {
-                        hasNulls = true;
-                    }
-                    else if (trimAndNullifyStringData)
-                    {
-                        var ts = StringHelpers.TrimOrNull(s);
-                        if (ts != s)
+                        var dr = dt.Rows[rowNum];
+                        var s = dr[colNum] as string;
+                        if (s == null)
                         {
-                            if (ts == null)
-                            {
-                                hasNulls = true;
-                                dr[colNum] = DBNull.Value;
-                                continue;
-                            }
-                            else
-                            {
-                                s = ts;
-                                dr[colNum] = s;
-                            }
+                            hasNulls = true;
                         }
-                        len = Stuff.Max(len, s.Length);
+                        else if (trimAndNullifyStringData)
+                        {
+                            var ts = StringHelpers.TrimOrNull(s);
+                            if (ts != s)
+                            {
+                                if (ts == null)
+                                {
+                                    hasNulls = true;
+                                    dr[colNum] = DBNull.Value;
+                                    continue;
+                                }
+                                else
+                                {
+                                    s = ts;
+                                    dr[colNum] = s;
+                                }
+                            }
+                            len = Stuff.Max(len, s.Length);
+                        }
                     }
+                    dc.AllowDBNull = hasNulls;
+                    dc.MaxLength = Math.Max(1, len);
                 }
-                dc.AllowDBNull = hasNulls;
-                dc.MaxLength = Math.Max(1, len);
             }
         }
 
