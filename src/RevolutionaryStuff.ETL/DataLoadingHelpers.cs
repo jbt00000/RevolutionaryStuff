@@ -270,13 +270,17 @@ namespace RevolutionaryStuff.ETL
             }
             else if (settings.Format == LoadRowsFromDelineatedTextFormats.CommaSeparatedValues)
             {
-                var data = new StreamReader(st).ReadToEnd();
-                rows = CSV.ParseText(data);
+                using (var sr = new StreamReader(st))
+                {
+                    rows = CSV.ParseText(sr);
+                }
             }
             else if (settings.Format == LoadRowsFromDelineatedTextFormats.Custom)
             {
-                var data = new StreamReader(st).ReadToEnd();
-                rows = CSV.ParseText(data, settings.CustomFieldDelim, settings.CustomQuoteChar);
+                using (var sr = new StreamReader(st))
+                {
+                    rows = CSV.ParseText(sr, settings.CustomFieldDelim, settings.CustomQuoteChar);
+                }
             }
             else
             {

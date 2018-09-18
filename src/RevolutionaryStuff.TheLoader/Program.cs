@@ -458,14 +458,21 @@ namespace RevolutionaryStuff.TheLoader
                 bool isZip = false;
                 if (Uri.TryCreate(fileName, UriKind.Absolute, out var u))
                 {
-                    using (var client = new HttpClient())
+                    if (u.Scheme == WebHelpers.CommonSchemes.File)
                     {
-                        Trace.WriteLine($"Downloading {u}");
-                        var source = await client.GetStreamAsync(u);
-                        fileName = Stuff.GetTempFileName(Stuff.CoalesceStrings(Path.GetExtension(u.LocalPath), ".tmp"));
-                        using (var dest = File.Create(fileName))
+                        fileName = u.LocalPath;
+                    }
+                    else
+                    {
+                        using (var client = new HttpClient())
                         {
-                            await source.CopyToAsync(dest);
+                            Trace.WriteLine($"Downloading {u}");
+                            var source = await client.GetStreamAsync(u);
+                            fileName = Stuff.GetTempFileName(Stuff.CoalesceStrings(Path.GetExtension(u.LocalPath), ".tmp"));
+                            using (var dest = File.Create(fileName))
+                            {
+                                await source.CopyToAsync(dest);
+                            }
                         }
                     }
                 }

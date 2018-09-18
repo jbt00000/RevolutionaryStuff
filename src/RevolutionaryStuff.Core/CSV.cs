@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Linq;
+using System.IO;
 
 namespace RevolutionaryStuff.Core
 {
@@ -108,14 +109,16 @@ namespace RevolutionaryStuff.Core
         public static string[] ParseLine(string sText, char fieldDelim = FieldDelimComma)
         {
             if (string.IsNullOrEmpty(sText)) return Empty.StringArray;
-            int amtParsed;
-            return ParseLine(sText, 0, sText.Length, out amtParsed, fieldDelim);
+            return ParseLine(sText, 0, sText.Length, out long amtParsed, fieldDelim);
         }
 
-        private static string[] ParseLine(string sText, int start, int len, out int amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
+        private static string[] ParseLine(string sText, long start, long len, out long amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
+            => ParseLine(new StringCharacterReader(sText), start, len, out amtParsed, fieldDelim, quoteChar);
+
+        private static string[] ParseLine(ICharacterReader sText, long start, long len, out long amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
         {
             amtParsed = 0;
-            int x = start;
+            long x = start;
             if (len == 0) return null;
             var b = new List<string>();
             var sb = new StringBuilder(1024 * 8);
@@ -129,7 +132,7 @@ namespace RevolutionaryStuff.Core
                 sb.Clear();
                 bool inquotes = false;
                 char ch;
-                int sTextLen = sText.Length;
+                long sTextLen = sText.Length;
                 for (; x < sTextLen; ++x)
                 {
                     ch = sText[x];
@@ -210,24 +213,99 @@ namespace RevolutionaryStuff.Core
             return null;
         }
 
-        public static string[][] ParseText(string sText, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
+        public static string[][] ParseText(StreamReader sr, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
         {
-            return ParseTextEnumerable(sText, fieldDelim, quoteChar).ToArray();
+            var cr = new StreamReaderCharacterReader(sr);
+            return ParseTextEnumerable(cr, fieldDelim, quoteChar).ToArray();
         }
 
+        public static string[][] ParseText(string sText, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
+            => ParseTextEnumerable(sText, fieldDelim, quoteChar).ToArray();
+
         public static IEnumerable<string[]> ParseTextEnumerable(string sText, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
+            => ParseTextEnumerable(new StringCharacterReader(sText), fieldDelim, quoteChar);
+
+        private static IEnumerable<string[]> ParseTextEnumerable(ICharacterReader sText, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
         {
-            int len = sText == null ? 0 : sText.Length;
+            long len = sText == null ? 0 : sText.Length;
             if (len > 0)
             {
-                for (int start = 0; ;)
+                for (long start = 0; ;)
                 {
-                    int amt;
+                    long amt;
                     string[] line = ParseLine(sText, start, len, out amt, fieldDelim, quoteChar);
                     if (line == null) break;
                     yield return line;
                     start += amt;
                     len -= amt;
+                }
+            }
+        }
+
+        private interface ICharacterReader
+        {
+            long Length { get; }
+            char this[long index] { get; }
+        }
+
+        private class StringCharacterReader : ICharacterReader
+        {
+            private readonly string Text;
+            public StringCharacterReader(string s)
+            {
+                Text = s;
+            }
+
+            char ICharacterReader.this[long index] 
+                => Text[(int)index];
+
+            long ICharacterReader.Length
+                => Text.Length;
+        }
+
+        private class StreamReaderCharacterReader : ICharacterReader
+        {
+            private StreamReader R;
+
+            public StreamReaderCharacterReader(StreamReader sr)
+            {
+                Requires.NonNull(sr, nameof(sr));
+                Requires.True(sr.BaseStream.CanSeek, nameof(sr.BaseStream.CanSeek));
+                Requires.True(sr.BaseStream.Position == 0, nameof(sr.BaseStream.Position));
+                R = sr;
+                while (sr.Read()!=-1)
+                {
+                    ++Length_p;
+                }
+                Reset();
+            }
+
+            private void Reset()
+            {
+                CharIndex = 0;
+                R.BaseStream.Position = 0;
+                R = new StreamReader(R.BaseStream, R.CurrentEncoding, true, 1024*1024, true);
+            }
+
+            private readonly long Length_p;
+            long ICharacterReader.Length
+                => Length_p;
+
+            private long CharIndex = 0;
+            char ICharacterReader.this[long index]
+            {
+                get
+                {
+                    if (index < CharIndex)
+                    {
+                        Reset();
+                    }
+                    while (index > CharIndex)
+                    {
+                        CharIndex++;
+                        R.Read();
+                    }
+                    return (char)R.Peek();
                 }
             }
         }
