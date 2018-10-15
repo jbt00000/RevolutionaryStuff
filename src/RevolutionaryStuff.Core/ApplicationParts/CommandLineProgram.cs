@@ -23,12 +23,25 @@ namespace RevolutionaryStuff.Core.ApplicationParts
 
         #endregion
 
-        private void Go() => OnGoAsync().ExecuteSynchronously();
+        private void Go() 
+            => OnGoAsync().ExecuteSynchronously();
 
         protected abstract Task OnGoAsync();
 
         private readonly ManualResetEvent ShutdownRequestedEvent = new ManualResetEvent(false);
         protected WaitHandle ShutdownRequested => ShutdownRequestedEvent;
+
+        protected virtual void OnBuildConfiguration(IConfigurationBuilder builder, string environmentName, bool isDevelopment)
+        {
+            OnPreBuildConfiguration(builder);
+
+            builder
+                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+                .AddJsonFile($"appsettings.{EnvironmentHelpers.GetEnvironmentName()}.json", optional: true)
+                .AddEnvironmentVariables();
+
+            OnPostBuildConfiguration(builder);
+        }
 
         protected virtual void OnPreBuildConfiguration(IConfigurationBuilder builder)
         { }
@@ -43,14 +56,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts
             var builder = new ConfigurationBuilder()
                 .SetBasePath(env.ApplicationBasePath);
 
-            OnPreBuildConfiguration(builder);
-
-            builder
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-                .AddJsonFile($"appsettings.{EnvironmentHelpers.GetEnvironmentName()}.json", optional: true)
-                .AddEnvironmentVariables();
-
-            OnPostBuildConfiguration(builder);
+            OnBuildConfiguration(builder, EnvironmentHelpers.GetEnvironmentName(), EnvironmentHelpers.CommonEnvironmentNames.Development == EnvironmentHelpers.GetEnvironmentName());
 
             Configuration = builder.Build();
         }
@@ -138,6 +144,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts
             finally
             {
                 Stuff.Dispose(p);
+                Stuff.Cleanup();
             }
         }
     }

@@ -469,6 +469,7 @@ namespace RevolutionaryStuff.TheLoader
                             Trace.WriteLine($"Downloading {u}");
                             var source = await client.GetStreamAsync(u);
                             fileName = Stuff.GetTempFileName(Stuff.CoalesceStrings(Path.GetExtension(u.LocalPath), ".tmp"));
+                            Stuff.MarkFileForCleanup(fileName);
                             using (var dest = File.Create(fileName))
                             {
                                 await source.CopyToAsync(dest);
@@ -482,7 +483,12 @@ namespace RevolutionaryStuff.TheLoader
                     var dir = Path.Combine(Path.GetTempPath(), Path.GetFileNameWithoutExtension(fileName));
                     Trace.WriteLine($"Will unzip to {dir}");                    
                     System.IO.Compression.ZipFile.ExtractToDirectory(fileName, dir);
-                    fileName = Directory.GetFiles(dir).First();
+                    fileName = null;
+                    foreach (var fn in Directory.GetFiles(dir))
+                    {
+                        fileName = fileName ?? fn;
+                        Stuff.MarkFileForCleanup(fn);
+                    }
                 }
                 Trace.WriteLine($"Opening {u}");
                 return File.OpenRead(fileName);
@@ -582,6 +588,7 @@ namespace RevolutionaryStuff.TheLoader
             }
             else if (FileFormat == FileFormats.Excel)
             {
+                RightType = RightType == YesNoAuto.Auto ? YesNoAuto.Yes : RightType;
                 var loadSettings = new LoadTablesFromSpreadsheetSettings();
                 if (SheetNames != null && SheetNames.Length > 0)
                 {
@@ -595,13 +602,14 @@ namespace RevolutionaryStuff.TheLoader
                 {
                     loadSettings.SheetSettings = new List<LoadRowsFromSpreadsheetSettings> { new LoadRowsFromSpreadsheetSettings {
                         UseSheetNameForTableName = true,
-                        SheetNumber = 0
+                        SheetNumber = 0,
                     } };
                 }
                 foreach (var rs in loadSettings.SheetSettings)
                 {
                     rs.DuplicateColumnRenamer = DataLoadingHelpers.OnDuplicateAppendSeqeuntialNumber;
                     rs.RowNumberColumnName = RowNumberColumnName;
+                    rs.SkipRawRows = SkipRawRows;
                 }
                 ds = new DataSet();
                 ETL.SpreadsheetHelpers.LoadSheetsFromExcel(ds, OpenRead(FilePath), loadSettings);
@@ -727,23 +735,6 @@ namespace RevolutionaryStuff.TheLoader
                 throw new UnexpectedSwitchValueException(FileFormat);
             }
 
-            switch (ColumnRenamingMode)
-            {
-                case ColumnRenamingModes.Preserve:
-                    break;
-                case ColumnRenamingModes.UpperCamelNoSpecialCharacters:
-                    for (int colNum = 0; colNum < st[SkipRawRows].Length; ++colNum)
-                    {
-                        var colName = st[SkipRawRows][colNum];
-                        if (colName == null) continue;
-                        colName = MakeFriendly(colName);
-                        st[SkipRawRows][colNum] = colName;
-                    }
-                    break;
-                default:
-                    throw new UnexpectedSwitchValueException(ColumnRenamingMode);
-            }
-
             CleanDataTable:
             if (rowErrors.Count > 0)
             {
@@ -754,6 +745,25 @@ namespace RevolutionaryStuff.TheLoader
                     throw new Exception(string.Format("Max Error rate exceeded!"));
                 }
             }
+
+            foreach (DataTable zdt in ds.Tables)
+            {
+                switch (ColumnRenamingMode)
+                {
+                    case ColumnRenamingModes.Preserve:
+                        break;
+                    case ColumnRenamingModes.UpperCamelNoSpecialCharacters:
+                        for (int colNum = 0; colNum < zdt.Columns.Count; ++colNum)
+                        {
+                            var dc = zdt.Columns[colNum];
+                            dc.ColumnName = MakeFriendly(dc.ColumnName);
+                        }
+                        break;
+                    default:
+                        throw new UnexpectedSwitchValueException(ColumnRenamingMode);
+                }
+            }
+
 
             //Create the table SQL
             CreateTable:

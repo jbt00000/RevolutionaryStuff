@@ -62,7 +62,7 @@ namespace RevolutionaryStuff.Core
         {
         }
 
-        public static string ToString(this object o) 
+        public static string ToString(this object o)
             => o == null ? null : o.ToString();
 
         /// <summary>
@@ -157,6 +157,40 @@ namespace RevolutionaryStuff.Core
 
         public static string ObjectToString(object o, string fallback = null)
             => o?.ToString() ?? fallback;
+
+        private static readonly IList<string> FilesToDeleteOnExit = new List<string>();
+
+        public static void MarkFileForCleanup(string filePath, bool setAttributesAsTempFile = true)
+        {
+            if (filePath == null) return;
+            if (setAttributesAsTempFile)
+            {
+                try
+                {
+                    File.SetAttributes(filePath, FileAttributes.Temporary);
+                }
+                catch (Exception ex)
+                {
+                    Trace.TraceError(ex.Message);
+                }
+            }
+            lock (FilesToDeleteOnExit)
+            {
+                FilesToDeleteOnExit.Add(filePath);
+            }
+        }
+
+        public static void Cleanup()
+        {
+            lock (FilesToDeleteOnExit)
+            {
+                foreach (var fn in FilesToDeleteOnExit)
+                {
+                    Stuff.FileTryDelete(fn);
+                }
+            }
+        }
+
 
         /// <summary>
         /// Constructs a name for a temporary file with the given extension

@@ -251,9 +251,10 @@ namespace RevolutionaryStuff.Core
         private class StringCharacterReader : ICharacterReader
         {
             private readonly string Text;
+
             public StringCharacterReader(string s)
             {
-                Text = s;
+                Text = s??"";
             }
 
             char ICharacterReader.this[long index] 
@@ -269,7 +270,7 @@ namespace RevolutionaryStuff.Core
 
             public StreamReaderCharacterReader(StreamReader sr)
             {
-                Requires.NonNull(sr, nameof(sr));
+                sr = sr ?? StreamReader.Null;
                 Requires.True(sr.BaseStream.CanSeek, nameof(sr.BaseStream.CanSeek));
                 Requires.True(sr.BaseStream.Position == 0, nameof(sr.BaseStream.Position));
                 R = sr;

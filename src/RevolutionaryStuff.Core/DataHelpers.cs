@@ -103,6 +103,7 @@ namespace RevolutionaryStuff.Core
                     Trace.WriteLine($"{nameof(RightType)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
                     var len = 0;
                     bool hasNulls = false;
+                    bool hasLeadingZeros = false;
                     bool canBeVarchar = true;
                     bool canBeDate = true;
                     bool canBeDatetime = true;
@@ -156,6 +157,7 @@ namespace RevolutionaryStuff.Core
                         canBeFloat = canBeFloat && double.TryParse(zs, out var doubleTest);
                         canBeDecimal = canBeDecimal && Decimal.TryParse(zs, out var decimalTest);
                         canBeDateTimeOffset = canBeDateTimeOffset && DateTimeOffset.TryParse(zs, out var dateTimeOffsetTest);
+                        hasLeadingZeros = hasLeadingZeros || (zs.Length > 1 && zs[0] == '0' && zs[1] != '.');
                         if (zs != s)
                         {
                             dr[colNum] = zs;
@@ -184,32 +186,32 @@ namespace RevolutionaryStuff.Core
                         converter = q => string.Compare(q, "true", true);
                         convertedDataType = typeof(bool);
                     }
-                    else if (canBeInt8)
+                    else if (canBeInt8 && !hasLeadingZeros)
                     {
                         converter = q => Byte.Parse(q);
                         convertedDataType = typeof(Byte);
                     }
-                    else if (canBeInt16)
+                    else if (canBeInt16 && !hasLeadingZeros)
                     {
                         converter = q => Int16.Parse(q);
                         convertedDataType = typeof(Int16);
                     }
-                    else if (canBeInt32)
+                    else if (canBeInt32 && !hasLeadingZeros)
                     {
                         converter = q => Int32.Parse(q);
                         convertedDataType = typeof(Int32);
                     }
-                    else if (canBeInt64)
+                    else if (canBeInt64 && !hasLeadingZeros)
                     {
                         converter = q => Int64.Parse(q);
                         convertedDataType = typeof(Int64);
                     }
-                    else if (canBeFloat)
+                    else if (canBeFloat && !hasLeadingZeros)
                     {
                         converter = q => Double.Parse(q);
                         convertedDataType = typeof(Double);
                     }
-                    else if (canBeDecimal)
+                    else if (canBeDecimal && !hasLeadingZeros)
                     {
                         converter = q => Decimal.Parse(q);
                         convertedDataType = typeof(Decimal);

@@ -22,9 +22,9 @@ These were formerly used in the standalone UploadTable command line program.</De
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>1.0.35.0</FileVersion>
-    <AssemblyVersion>1.0.35.0</AssemblyVersion>
-    <Version>1.0.35</Version>
+    <FileVersion>1.0.38.0</FileVersion>
+    <AssemblyVersion>1.0.38.0</AssemblyVersion>
+    <Version>1.0.38</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
