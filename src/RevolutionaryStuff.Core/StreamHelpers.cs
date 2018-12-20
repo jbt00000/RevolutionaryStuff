@@ -49,15 +49,15 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-        public static Stream Create(string s, Encoding e=null)
-        {            
-            var st = new MemoryStream();
-            var sr = new StreamWriter(st, e ?? UTF8Encoding.UTF8);
-            sr.Write(s);
-            sr.Flush();
-            st.Position = 0;
-            return st;
-        }
+public static Stream Create(string s, Encoding e=null)
+{            
+    var st = new MemoryStream();
+    var sr = new StreamWriter(st, e ?? UTF8Encoding.UTF8);
+    sr.Write(s);
+    sr.Flush();
+    st.Position = 0;
+    return st;
+}
 
         public static void Write(this Stream st, byte[] buffer)
         {

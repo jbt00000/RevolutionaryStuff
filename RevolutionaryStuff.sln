@@ -18,6 +18,30 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Data Store Scripts", "Data Store Scripts", "{FA8F958C-71DA-4287-9F53-5536A70AA274}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Databases", "Databases", "{64C30BE0-EC17-4C9E-874B-D80D24640FDC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Object Relational Mappings", "Object Relational Mappings", "{2F7A5F12-2EE2-444E-90FA-A838768B4509}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SQL Azure", "SQL Azure", "{E106E553-9FEC-45E5-9A3F-886D6908AC33}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Foundations", "Foundations", "{0AF8B3E9-E08A-4BF1-B29A-D4AC65C385DB}"
+	ProjectSection(SolutionItems) = preProject
+		Data Store Scripts\Databases\SQL Azure\Foundations\0001.ChangeLog.sql = Data Store Scripts\Databases\SQL Azure\Foundations\0001.ChangeLog.sql
+		Data Store Scripts\Databases\SQL Azure\Foundations\0002.Print.sql = Data Store Scripts\Databases\SQL Azure\Foundations\0002.Print.sql
+		Data Store Scripts\Databases\SQL Azure\Foundations\0003.Asserts.sql = Data Store Scripts\Databases\SQL Azure\Foundations\0003.Asserts.sql
+		Data Store Scripts\Databases\SQL Azure\Foundations\0004.Sprocs.sql = Data Store Scripts\Databases\SQL Azure\Foundations\0004.Sprocs.sql
+		Data Store Scripts\Databases\SQL Azure\Foundations\0005.Descriptive.sql = Data Store Scripts\Databases\SQL Azure\Foundations\0005.Descriptive.sql
+		Data Store Scripts\Databases\SQL Azure\Foundations\0006.Types.sql = Data Store Scripts\Databases\SQL Azure\Foundations\0006.Types.sql
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Entity Framework Core", "Entity Framework Core", "{149194AE-A6C1-4F65-BC3B-289241E3F628}"
+	ProjectSection(SolutionItems) = preProject
+		Data Store Scripts\Object Relational Mappings\Entity Framework Core\SchemaMeta2DbContext.t4 = Data Store Scripts\Object Relational Mappings\Entity Framework Core\SchemaMeta2DbContext.t4
+		Data Store Scripts\Object Relational Mappings\Entity Framework Core\SchemaMeta2DbContext.tt = Data Store Scripts\Object Relational Mappings\Entity Framework Core\SchemaMeta2DbContext.tt
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -91,6 +115,13 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{64C30BE0-EC17-4C9E-874B-D80D24640FDC} = {FA8F958C-71DA-4287-9F53-5536A70AA274}
+		{2F7A5F12-2EE2-444E-90FA-A838768B4509} = {FA8F958C-71DA-4287-9F53-5536A70AA274}
+		{E106E553-9FEC-45E5-9A3F-886D6908AC33} = {64C30BE0-EC17-4C9E-874B-D80D24640FDC}
+		{0AF8B3E9-E08A-4BF1-B29A-D4AC65C385DB} = {E106E553-9FEC-45E5-9A3F-886D6908AC33}
+		{149194AE-A6C1-4F65-BC3B-289241E3F628} = {2F7A5F12-2EE2-444E-90FA-A838768B4509}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32963F03-EC23-4F51-A9D4-FB17A528947E}

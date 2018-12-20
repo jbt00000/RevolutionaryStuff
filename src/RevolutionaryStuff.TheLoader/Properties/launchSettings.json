@@ -2,7 +2,7 @@
   "profiles": {
     "RevolutionaryStuff.TheLoader": {
       "commandName": "Project",
-      "commandLineArgs": "-CSN:Ref -m:Import -Filename:\"C:\\Users\\jason\\AppData\\Local\\Temp\\0183a5c3-9742-4b7f-98c7-497b3bb72676.87584671.csv\" -Schema:NberPhysicianSharedPatientPatternsData"
+      "commandLineArgs": "-m:import -schema:IP2Location -CSN:Ref -filename:C:\\Users\\jason\\Downloads\\DB24\\IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ZIPCODE-TIMEZONE-ISP-DOMAIN-NETSPEED-AREACODE-WEATHER-MOBILE-ELEVATION-USAGETYPE.CSV -table:DB24"
     }
   }
 }

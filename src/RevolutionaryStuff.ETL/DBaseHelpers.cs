@@ -8,6 +8,7 @@ using System.IO;
 namespace RevolutionaryStuff.ETL
 {
     /// <remarks>
+    /// https://www.clicketyclick.dk/databases/xbase/format/dbf.html#DBF_NOTE_15_SOURCE
     /// http://www.dbf2002.com/dbf-file-format.html
     /// http://dbase.com/Knowledgebase/INT/db7_file_fmt.htm
     /// https://msdn.microsoft.com/en-us/library/aa975386(v=vs.71).aspx
@@ -73,6 +74,9 @@ namespace RevolutionaryStuff.ETL
             public readonly int AutoIncrementNext;
             public readonly int AutoIncrementStep;
 
+            public override string ToString()
+                => $"{this.GetType().Name} name=\"{Fieldname}\" type={FieldType} len={FieldLength}";
+
             public object Parse(byte[] buf, int offset)
             {
                 string s;
@@ -136,6 +140,7 @@ namespace RevolutionaryStuff.ETL
                     case FieldTypes.Character:
                         dc.DataType = typeof(string);
                         dc.MaxLength = FieldLength;
+                        dc.Unicode(false);
                         break;
                     case FieldTypes.Currency:
                         dc.DataType = typeof(double);
@@ -289,7 +294,13 @@ namespace RevolutionaryStuff.ETL
             Requires.ReadableStreamArg(st, nameof(st));
 
             var header = new byte[32];
-            st.ReadExactSize(header, 0, header.Length);
+            st.ReadExactSize(header);
+            if (header[31] != 0)
+            {
+                throw new FormatException("Header character 31 must be a 0");
+            }
+            var signature = new System.Collections.BitArray(new byte[1] { header[0] });
+            var hasDBT = signature[7];
             var numRecords = Raw.ReadInt32FromBuf(header, 4);
             var firstOffset = Raw.ReadInt16FromBuf(header, 8);
             var recordSize = Raw.ReadInt16FromBuf(header, 10);
@@ -299,21 +310,33 @@ namespace RevolutionaryStuff.ETL
             var fieldBuf = new byte[32];
             for (;;)
             {
-                st.ReadExactSize(fieldBuf, 0, fieldBuf.Length);
+                st.ReadExactSize(fieldBuf);
                 if (fieldBuf[0] == 0x0d) break;
                 var field = new FieldStructure(fieldBuf);
                 fields.Add(field);
                 dt.Columns.Add(field.ToDataColumn());
             }
-            st.Position += (264 - 32);
+            st.Position -= (32 -1);
+            if (fieldBuf[1] == 0)
+            {
+                st.Position += 1;
+            }
+            if (hasDBT)
+            {
+                st.Position += 262;
+            }
             var rowBuf = new byte[recordSize];
             var rawRows = new List<object[]>(numRecords);
             var memos = new List<Tuple<DbtBlockRef, FieldStructure, int, int>>();
             if (memoStream == null) memos = null;
             for (int absRowNum = 0; absRowNum < numRecords; ++absRowNum)
             {
-                st.ReadExactSize(rowBuf, 0, rowBuf.Length);
+                st.ReadExactSize(rowBuf);
                 if ((char)rowBuf[0] == '*') continue;
+                if ((char)rowBuf[0] != ' ')
+                {
+                    throw new FormatException("First character in row of .dbf file must be a space or a *");
+                }
                 var rowVals = new object[fields.Count];
                 int offset = 1;
                 for (int col = 0; col < fields.Count; ++col)

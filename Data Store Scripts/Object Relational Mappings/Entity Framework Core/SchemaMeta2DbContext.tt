@@ -1,0 +1,4 @@
+﻿<#@ template language="C#" debug="false" hostspecific="true"#>
+<#@ output extension=".cs"#>
+<#@ include file="SchemaMeta2DbContext.t4"#>
+<#TransformSchemaMetaXml2Pocos(Host, "Traffk.Bal.Data.Rdb.TraffkGlobal", "TraffkGlobalDbContext", "ITraffkTenantFinder");#>

@@ -746,6 +746,16 @@ namespace RevolutionaryStuff.TheLoader
                 }
             }
 
+            //Create the table SQL
+            CreateTable:
+            if (ds == null)
+            {
+                Requires.NonNull(dt, nameof(dt));
+                dt.TableName = Stuff.CoalesceStrings(dt.TableName, Table);
+                ds = new DataSet();
+                ds.Tables.Add(dt);
+            }
+
             foreach (DataTable zdt in ds.Tables)
             {
                 switch (ColumnRenamingMode)
@@ -764,16 +774,6 @@ namespace RevolutionaryStuff.TheLoader
                 }
             }
 
-
-            //Create the table SQL
-            CreateTable:
-            if (ds == null)
-            {
-                Requires.NonNull(dt, nameof(dt));
-                dt.TableName = Stuff.CoalesceStrings(dt.TableName, Table);
-                ds = new DataSet();
-                ds.Tables.Add(dt);
-            }
             Load(ds);
         }
 

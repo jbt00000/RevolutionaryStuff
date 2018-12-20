@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net462;netstandard2.0;netcoreapp2.1</TargetFrameworks>
+    <TargetFramework>netstandard2.0</TargetFramework>
 
 
     <RuntimeFrameworkVersion>2.1.2</RuntimeFrameworkVersion>
@@ -23,24 +23,11 @@ These were formerly used in the standalone UploadTable command line program.</De
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
     <FileVersion>1.0.38.0</FileVersion>
-    <AssemblyVersion>1.0.38.0</AssemblyVersion>
-    <Version>1.0.38</Version>
+    <AssemblyVersion>1.0.39.0</AssemblyVersion>
+    <Version>1.0.39</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
-
-  <Choose>
-    <When Condition="'$(TargetFramework)' == 'netstandard2.0'">
-      <PropertyGroup>
-        <DefineConstants>TRACE;NETCORE;NETSTANDARD;NETSTANDARD2_0</DefineConstants>
-      </PropertyGroup>
-    </When>
-    <When Condition="'$(TargetFramework)' == 'net462'">
-      <PropertyGroup>
-        <DefineConstants>TRACE;NET462;DEBUG</DefineConstants>
-      </PropertyGroup>
-    </When>
-  </Choose>
 
   <ItemGroup>
     <None Remove="SpreadsheetResources\Styles.xml" />
