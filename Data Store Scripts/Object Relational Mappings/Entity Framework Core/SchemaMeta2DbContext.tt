@@ -1,4 +1,5 @@
 ﻿<#@ template language="C#" debug="false" hostspecific="true"#>
 <#@ output extension=".cs"#>
 <#@ include file="SchemaMeta2DbContext.t4"#>
-<#TransformSchemaMetaXml2Pocos(Host, "Traffk.Bal.Data.Rdb.TraffkGlobal", "TraffkGlobalDbContext", "ITraffkTenantFinder");#>
+//TransformSchemaMetaXml2Pocos(ITextTemplatingEngineHost host, string dbContextNamespace, string databaseContextClassName, IEnumerable<string> extraNamespaces, string iMyTenantFinder)
+<#TransformSchemaMetaXml2Pocos(Host, "GSA.UnliquidatedObligations.BusinessLayer.Data", "UloDbContext", null, "IUloTenantFinder");#>

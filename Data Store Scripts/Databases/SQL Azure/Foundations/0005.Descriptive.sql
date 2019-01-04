@@ -546,6 +546,14 @@ CREATE view [db].[SchemaMeta]
 as
 
 with
+prc(table_schema, table_name, result_set, resulttype, column_name, ordinal_position, is_nullable, data_type, character_maximum_length, ErrorMessage) as
+(
+	select *
+	from db.ProcResultsetColumns with(nolock)
+	union all
+	select table_schema, table_name, 0, 'c', column_name, ordinal_position, is_nullable, data_type, character_maximum_length, null
+	from [INFORMATION_SCHEMA].[ROUTINE_columns] with(nolock)
+),
 a(X) as
 (
 	select *
@@ -791,6 +799,7 @@ a(X) as
 				select
 					r.routine_Schema '@schema',
 					r.routine_name '@name',
+					r.routine_type '@routineType',
 					(
 						select 
 							p.PropertyName '@name',
@@ -842,7 +851,7 @@ a(X) as
 								DATA_TYPE '@sqlType',
 								case when CHARACTER_MAXIMUM_LENGTH=0 then null else CHARACTER_MAXIMUM_LENGTH end '@maxLen'
 							from
-								db.ProcResultsetColumns c
+								prc c
 							where
 								c.TABLE_SCHEMA=r.specific_schema and
 								c.TABLE_NAME=r.specific_name and
@@ -853,7 +862,7 @@ a(X) as
 						from
 							(
 								select TABLE_SCHEMA, TABLE_NAME, result_set, ResultType, ErrorMessage, sum(case when resulttype='c' then 1 else 0 end) Cnt 
-								from db.ProcResultsetColumns
+								from prc
 								group by TABLE_SCHEMA, TABLE_NAME, result_set, ResultType, ErrorMessage
 								) prc
 						where
@@ -866,7 +875,7 @@ a(X) as
 				from 
 					INFORMATION_SCHEMA.routines r with (nolock)
 				where
-					r.routine_type='PROCEDURE'
+					r.routine_type in ('PROCEDURE', 'FUNCTION')
 				order by
 					r.routine_Schema,
 					r.routine_name
@@ -880,4 +889,3 @@ select db_name() HostDatabaseName, X, cast(X as nvarchar(max)) T
 from a
 
 GO
-

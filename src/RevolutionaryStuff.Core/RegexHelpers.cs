@@ -21,7 +21,7 @@ namespace RevolutionaryStuff.Core
 
         public static class Common
         {
-            public static readonly Regex CSharpIdentifier = new Regex(@"^[a-z][a-z0-9_]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            public static readonly Regex CSharpIdentifier = new Regex(@"^[_a-z][a-z0-9_]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
             /// <remarks>
             /// Conforms to RCF 2822 

@@ -10,13 +10,15 @@
 <#@ import namespace="System.Xml.XPath" #>
 <#@ import namespace="System.Text" #>
 <#+ // Start of class feature control block.  
-void TransformSchemaMetaXml2Pocos(ITextTemplatingEngineHost host, string dbContextNamespace, string databaseContextClassName, string iMyTenantFinder)  
+void TransformSchemaMetaXml2Pocos(ITextTemplatingEngineHost host, string dbContextNamespace, string databaseContextClassName, IEnumerable<string> extraNamespaces, string iMyTenantFinder)  
 {  
     string xmlFile = System.IO.Path.GetFileNameWithoutExtension(host.TemplateFile)+".xml";
 	var schemaMetaFullPath = host.ResolvePath(xmlFile);
 	var doc = XDocument.Load(schemaMetaFullPath);
 	var tablesInDbContext = new HashSet<string>(new CaseInsensitiveStringEqualityComparer());
+    var fluentKeysByEntity = new Dictionary<string, List<string>>();
 	var fluentRelationships = new List<string>();
+	var queryFiltersAny = new List<string>();
 	var queryFilters = new List<string>();
 	var queryFiltersNoTenantFinder = new List<string>();
 
@@ -33,20 +35,33 @@ void TransformSchemaMetaXml2Pocos(ITextTemplatingEngineHost host, string dbConte
         var filterQueryPrefix= $"modelBuilder.Entity<{className}>().HasQueryFilter(x =>";
         var filterQueryPostfix= ");";
         var rowStatusQuery= $"x.{propertyName} == TraffkHelpers.RowStatusValid";
-        //var tenantQuery= "x.TenantId == ((<#=iMyTenantFinder#>)memberInfo.GetValue(this)).GetTenantIdOrGlobal()";
-        var tenantQuery = "x.TenantId == ((<#=iMyTenantFinder#>)this).GetTenantIdAsync().Result";
+        //var tenantQuery= "x.TenantId == ((ITraffkTenantFinder)memberInfo.GetValue(this)).GetTenantIdOrGlobal()";
+        var tenantQuery = "x.TenantId == ((ITraffkTenantFinder)this).GetTenantIdAsync().Result";
 
 	    if(hasRowStatus)
-            queryFiltersNoTenantFinder.Add($"{filterQueryPrefix} {rowStatusQuery}{filterQueryPostfix}");
+        {
+            queryFiltersNoTenantFinder.Add($"{filterQueryPrefix} {rowStatusQuery}{filterQueryPostfix}");        
+        }
 
 	    if(hasRowStatus && hasTenant)
+        {
             queryFilters.Add($"{filterQueryPrefix} {rowStatusQuery} && {tenantQuery}{filterQueryPostfix}");
+        }
 	    else if(hasRowStatus)
+        {
 		    queryFilters.Add($"{filterQueryPrefix} {rowStatusQuery}{filterQueryPostfix}");
+        }
 	    else if(hasTenant)
+        {
             queryFilters.Add($"{filterQueryPrefix} {tenantQuery}{filterQueryPostfix}");
-    }
+        }
 
+        string test;
+        if (HasSimpleQueryFilter(z, out propertyName, out test))
+        {
+		    queryFiltersAny.Add($"{filterQueryPrefix} x.{propertyName} {test});");        
+        }
+    }
 
 #>  
 /*
@@ -69,11 +84,21 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using System.Runtime.Serialization;
-using Traffk.Utility;
-using Traffk.Bal.Settings;
+<#+
+if (extraNamespaces!=null)
+{
+    foreach (var ns in extraNamespaces)
+    {
+#>
+using <#=ns#>;
+<#+    
+    }
+}
+#>
 
 namespace <#=dbContextNamespace#>
 {
@@ -92,7 +117,7 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 			var descriminatorProperty = descriminator.Attribute("name").Value;
 			if (z.XPathSelectElements("Columns/Column[@name='"+descriminatorProperty+"']/Properties/Property[@name='EnumType']").FirstOrDefault()!=null)
 			{
-				descriminatorProperty += "StringValue";
+				descriminatorProperty += "RawValue";
 			}
 #>
 			modelBuilder.Entity<<#=superclass#>>()
@@ -112,19 +137,32 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 <#+
 }
 #>
+            AddFluentKeys(modelBuilder);
 			AddFluentRelationships(modelBuilder);
 			AddQueryFilters(modelBuilder);
 		}
 
 		#region Collections
 <#+
+
+foreach (var z in doc.XPathSelectElements("/SchemaMeta/Sprocs/Sproc[Properties/Property/@name='GeneratePoco'=\"1\"]/ResultSets/ResultSet[@isError='0' and @colCount > 0]"))
+{
+#>		
+		public DbQuery<<#=GetClassName(z)#>> <#=z.Parent.Parent.Attribute("name").Value#> { get; set; } // table value function
+<#+
+}
+
+
 foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/Property/@name='AddToDbContext']").OrderBy(wq=>GetClassName(wq)))
 {
 		if (GetPropertyValue(z, "AddToDbContext")!="1") continue;
+        var keyCount = z.XPathSelectElements(".//Column[@isPrimaryKey='1']").Count();
+		var containerType = ((GetAttrVal(z, "tableType")=="VIEW")||keyCount==0)?"DbQuery":"DbSet";
+
 		var schemaTable = GetAttrVal(z, "schema") + "." + GetAttrVal(z, "name");
 		tablesInDbContext.Add(schemaTable);
 #>		
-		public DbSet<<#=GetClassName(z)#>> <#=z.Attribute("name").Value#> { get; set; } //<#=schemaTable#>
+		public <#=containerType#><<#=GetClassName(z)#>> <#=z.Attribute("name").Value#> { get; set; } //<#=schemaTable#>
 
 <#+
 	foreach (XElement icp in z.XPathSelectElements("Properties/Property"))
@@ -135,7 +173,7 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 		var collName = RightOf(icpn, ",");
 		if (collName==null) continue;
 #>
-		public DbSet<<#=className#>> <#=collName#> { get; set; }
+		public <#=containerType#><<#=className#>> <#=collName#> { get; set; }
 
 <#+
 	}
@@ -252,9 +290,11 @@ if (isReader)
 
 	}
 <#+
-foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/Property/@name='GeneratePoco'=\"zzd\"]"))
+var classElements = new List<System.Xml.Linq.XElement>();
+classElements.AddRange(doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/Property/@name='GeneratePoco' and Properties/Property/@value='1']"));
+classElements.AddRange(doc.XPathSelectElements("/SchemaMeta/Sprocs/Sproc[Properties/Property/@name='GeneratePoco' and Properties/Property/@value='1']/ResultSets/ResultSet[@isError='0' and @colCount > 0]"));
+foreach (var z in classElements)
 {
-	if (GetPropertyValue(z, "GeneratePoco")!="1") continue;
 	var classNames = new List<string>();
 	classNames.Add(GetClassName(z));
 	bool inheritance = false;
@@ -312,9 +352,12 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 	var baseClass = GetPropertyValue(z, "BaseClass");
 	var implements = GetPropertyValue(z, "Implements");
 	var validators = new List<string>();
+    if (z.Name=="Table")
+    {
 #>
 	[Table("<#=GetAttrVal(z, "name")#>", Schema = "<#=GetAttrVal(z, "schema")#>")]
 <#+
+    }
 	if (GetPropertyValue(z, "CustomAttribute")!=null)
 	{
 #>	[<#=GetPropertyValue(z, "CustomAttribute")#>]
@@ -326,6 +369,7 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 	public <#=isAbstract?"abstract ":""#>partial class <#=className#> : <#=baseClass==null?"":baseClass+", "#>IRdbDataEntity, IValidate, IPreSave<#=implements==null?"":", "+implements#><#=primaryKeyTypeName==null?"":", IPrimaryKey<"+primaryKeyTypeName+">"#>
 	{
         public static readonly <#=className#>[] None = new <#=className#>[0];
+
 <#+	
 	}
 	else
@@ -334,6 +378,7 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 	public partial class <#=className#> : <#=superclass#>
 	{
         public static new readonly <#=className#>[] None = new <#=className#>[0];
+
 <#+		
 	}
 #>
@@ -374,8 +419,12 @@ if (superclass==null) foreach (var ip in z.XPathSelectElements("Collections/Coll
 
 <#+
 }
+int lastPosition = -1;
 foreach (var f in z.XPathSelectElements("Columns/Column"))
 {
+    var position = GetAttrValAsInt(f, "position");
+    if (position==lastPosition) continue; //To fix the bug where db.SchemaMeta can return the same column twice
+    lastPosition = position;
 	var accessModifier = GetAccessModifier(f);
 	if (accessModifier=="missing") continue;
 	var inheritanceModifier  = GetPropertyValue(f, "InheritanceModifier");
@@ -400,7 +449,7 @@ foreach (var f in z.XPathSelectElements("Columns/Column"))
 		if (isInheritedField && !isInheritedFieldInThisSubsclass) continue;
 		if (!isInheritedField && superclass!=null) continue;
 	}
-	string propertyName = GetAttrVal(f, "name");
+	string propertyName = MakeIdentifierCSharpFriendly(GetAttrVal(f, "name"));
 	if (propertyName==className)
 	{
 		propertyName = propertyName + "Property";
@@ -465,7 +514,9 @@ foreach (var f in z.XPathSelectElements("Columns/Column"))
 	if (enumType!=null)
 	{
 		var enumPropertyName = propertyName;
-		propertyName += "StringValue";
+		propertyName += "RawValue";
+        if (dataType=="string")
+        {
 #>
 		[NotMapped]
 		public <#=enumType#> <#=enumPropertyName#>
@@ -479,6 +530,19 @@ foreach (var f in z.XPathSelectElements("Columns/Column"))
         }
 
 <#+
+        }
+        else
+        {
+#>
+		[NotMapped]
+		public <#=enumType#> <#=enumPropertyName#>
+        {
+            get => (<#=enumType#>) <#=propertyName#>;
+            set { <#=propertyName#> = (<#=dataType#>)value; }
+        }
+
+<#+
+        }
 	}
 	if (jsonSettingsClass!=null)
 	{
@@ -521,8 +585,9 @@ foreach (var f in z.XPathSelectElements("Columns/Column"))
 	}
 	if (isPrimaryKey)
 	{
+        fluentKeysByEntity[className] = keyPropertyNames;
 		keyPropertyNames.Add(propertyName);
-		if (customAttributeNames!="Key"){
+		if (customAttributeNames!="Key" && keyParts==1){
 #>		[Key]
 <#+
 		}
@@ -739,6 +804,23 @@ foreach (var v in validators)
 
     public partial class <#=databaseContextClassName#>
     {
+        partial void OnAddFluentKeys(ModelBuilder modelBuilder);
+
+        private void AddFluentKeys(ModelBuilder modelBuilder)
+        {
+            OnAddFluentKeys(modelBuilder);        
+<#+
+foreach (var kvp in fluentKeysByEntity)
+{
+    if (kvp.Value.Count>1)
+    {
+#>
+            modelBuilder.Entity<<#=kvp.Key#>>().HasKey(z => new {<#+ for (int q=0;q<kvp.Value.Count;++q){ #><#=(q==0?"":", ")#>z.<#=kvp.Value[q]#><#+ } #> });
+<#+}
+}
+#>
+        }
+
         partial void OnAddFluentRelationships(ModelBuilder modelBuilder);
 
         private void AddFluentRelationships(ModelBuilder modelBuilder)
@@ -760,11 +842,17 @@ foreach (var r in fluentRelationships)
 		{
 			OnAddQueryFilters(modelBuilder);
 <#+
+queryFiltersAny.Sort();
+	foreach (var queryFilter in queryFiltersAny)
+	{
+	#>
+			<#=queryFilter#>
+<#+}
 // Don't get tenantFinder if we have no query filters
 if(queryFilters.Any() || queryFiltersNoTenantFinder.Any())
 {
 #>		   
-			if (this is <#=iMyTenantFinder#>)
+			if (this is ITraffkTenantFinder)
 			{
 	<#+
 	queryFilters.Sort();
@@ -790,6 +878,20 @@ if(queryFilters.Any() || queryFiltersNoTenantFinder.Any())
 } // ends // Don't get tenantFinder if we have no query filters	
 #>
 		}
+    }
+
+    public static class <#=databaseContextClassName#>TableValueFunctions
+    {
+<#+
+foreach (var z in doc.XPathSelectElements("/SchemaMeta/Sprocs/Sproc[Properties/Property/@name='GeneratePoco'=\"1\"]/ResultSets/ResultSet[@isError='0' and @colCount > 0]"))
+{
+#>		
+        public static IQueryable<<#=GetClassName(z)#>> Execute(this DbQuery<<#=GetClassName(z)#>> q<#+foreach (var a in z.Parent.Parent.XPathSelectElements("Args/Arg")){#>, <#=SqlTypeToClrType(a.Attribute("sqlType").Value)#> <#=RightOf(a.Attribute("name").Value,"@")#><#+}#>)
+            => q.FromSql($"select * from <#=z.Parent.Parent.Attribute("schema").Value#>.<#=z.Parent.Parent.Attribute("name").Value#>(<#+int argNum=0; foreach (var a in z.Parent.Parent.XPathSelectElements("Args/Arg")){#><#=((argNum++==0)?"":", ")#>{<#=RightOf(a.Attribute("name").Value,"@")#>}<#+}#>)");
+
+<#+
+}
+#>
     }
 }//end of file
 <#+  
@@ -851,6 +953,11 @@ public string GetAccessModifier(XElement xel)
 	var access = GetPropertyValue(xel, "AccessModifier") ?? GetPropertyValue(xel, "accessModifier") ?? "public";
 	return access;
 }
+public int GetAttrValAsInt(XElement xel, string attrName)
+{
+	string val = GetAttrVal(xel, attrName);
+	return int.Parse(val);
+}
 public bool GetAttrValAsBool(XElement xel, string attrName)
 {
 	string val = GetAttrVal(xel, attrName);
@@ -878,7 +985,14 @@ public string GetClassName(XElement tableElement)
 	var name = GetPropertyValue(tableElement, "ClassName");
 	if (name==null)
 	{
-		name = tableElement.Attribute("name").Value;
+        if (tableElement.Name=="Table")
+        {
+    		name = tableElement.Attribute("name").Value;        
+        }
+        else if (tableElement.Name=="ResultSet")
+        {
+    		name = string.Format("{0}_Result{1}", tableElement.Parent.Parent.Attribute("name").Value, tableElement.Attribute("resultSetNumber").Value);        
+        }
 		if (name.Length>3 && name.Substring(name.Length-3)=="ies")
 		{
 			name = name.Substring(0, name.Length-3)+"y";
@@ -904,9 +1018,23 @@ public string GetClassName(XDocument doc, string schemaName, string tableName)
 	var tableElement = doc.XPathSelectElements("/SchemaMeta/Tables/Table[@name='"+tableName+"']").FirstOrDefault();
 	return GetClassName(tableElement);
 }
+
+public static readonly Regex CSharpIdentifier = new Regex(@"^[_a-z][a-z0-9_]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+public static readonly Regex NonWordChars = new Regex(@"\W", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+public string MakeIdentifierCSharpFriendly(string identifier)
+{
+    if (!CSharpIdentifier.IsMatch(identifier))
+    {
+        identifier = NonWordChars.Replace(identifier, "_");        
+    }
+    return identifier;
+}
+
 public string GetPropertyNameFromColumnName(string propertyName)
 {
 	int lastN = 0;
+    propertyName = MakeIdentifierCSharpFriendly(propertyName);
 	if (propertyName.EndsWith("Id"))
 	{
 		lastN = 2;
@@ -1019,7 +1147,11 @@ public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string m
 			break;
 		case "varbinary":
 		case "binary":
+		case "timestamp":
 			dataType = "byte[]";
+			break;
+		case "xml":
+			dataType = "string";
 			break;
 		case "nvarchar":
 		case "varchar":
@@ -1066,10 +1198,14 @@ public string SqlTypeToClrType(string sqlType)
 			//return "char";
 		case "bit":
 			return "bool";
+		case "binary":
+		case "timestamp":
+			return "byte[]";
 		case "datetime2":
 		case "datetime":
 		case "date":
 			return "DateTime";
+		case "xml":
 		case "nvarchar":
 		case "varchar":
 			return "string";
@@ -1119,11 +1255,22 @@ public static string ToTitleFriendlyString(string s)
     return sb.ToString();
 }
 
+public bool HasSimpleQueryFilter(XElement z, out string propertyName, out string test) 
+{
+	propertyName = null;
+    test = null;
+	var rowStatus = z.XPathSelectElements("Columns/Column[Properties/Property/@name='SimpleQueryFilter']").FirstOrDefault() as XElement;
+	if (rowStatus == null) return false;
+    test = GetPropertyValue(rowStatus, "SimpleQueryFilter");		
+	propertyName = rowStatus.Attribute("name").Value;
+	return true;
+}
+
 public bool HasRowStatus(XElement z, out string propertyName) 
 {
 	propertyName = null;
 	var rowStatus = z.XPathSelectElements("Columns/Column[Properties/Property/@name='ImplementsRowStatusSemantics']").FirstOrDefault() as XElement;
-	if (rowStatus == null) return false;;
+	if (rowStatus == null) return false;
 	if (GetPropertyValue(rowStatus, "ImplementsRowStatusSemantics")!="1") return false;
 		
 	propertyName = rowStatus.Attribute("name").Value;
