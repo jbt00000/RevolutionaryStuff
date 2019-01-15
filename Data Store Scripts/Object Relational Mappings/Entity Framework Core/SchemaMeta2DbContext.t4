@@ -156,8 +156,8 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Sprocs/Sproc[Properties/P
 foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/Property/@name='AddToDbContext']").OrderBy(wq=>GetClassName(wq)))
 {
 		if (GetPropertyValue(z, "AddToDbContext")!="1") continue;
-        var keyCount = z.XPathSelectElements(".//Column[@isPrimaryKey='1']").Count();
-		var containerType = ((GetAttrVal(z, "tableType")=="VIEW")||keyCount==0)?"DbQuery":"DbSet";
+        var keyCount = z.XPathSelectElements(".//Column[@isPrimaryKey='1']").Count() + z.XPathSelectElements(".//Column/Properties/Property[@name='CustomAttribute' and @value='Key']").Count();
+		var containerType = keyCount==0?"DbQuery":"DbSet";
 
 		var schemaTable = GetAttrVal(z, "schema") + "." + GetAttrVal(z, "name");
 		tablesInDbContext.Add(schemaTable);
