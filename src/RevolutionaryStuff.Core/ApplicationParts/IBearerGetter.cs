@@ -4,6 +4,6 @@ namespace RevolutionaryStuff.Core.ApplicationParts
 {
     public interface IBearerGetter
     {
-        Task<string> GetBearer();
+        Task<string> GetBearerAsync(string name=null);
     }
 }

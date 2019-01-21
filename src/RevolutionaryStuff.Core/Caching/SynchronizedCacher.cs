@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
 {
@@ -13,7 +14,7 @@ namespace RevolutionaryStuff.Core.Caching
             Inner = inner;
         }
 
-        CacheEntry<TVal> ICacher.FindOrCreate<TVal>(string key, Func<string, CacheEntry<TVal>> creator, bool forceCreate, TimeSpan? timeout)
+        Task<ICacheEntry> ICacher.FindOrCreateEntryAsync(string key, Func<string, Task<ICacheEntry>> asyncCreator, bool forceCreate)
         {
             var lockName = Cache.GetLockKeyName(Inner, key);
             Start:
@@ -33,7 +34,7 @@ namespace RevolutionaryStuff.Core.Caching
             Run:
             try
             {
-                return Inner.FindOrCreate(key, creator, forceCreate, timeout);
+                return Inner.FindOrCreateEntryAsync(key, asyncCreator, forceCreate);
             }
             finally
             {
@@ -43,6 +44,15 @@ namespace RevolutionaryStuff.Core.Caching
                 }
                 Monitor.Exit(o);
             }
+        }
+
+        Task ICacher.RemoveAsync(string key)
+        {
+            lock (Cache.LockByKey)
+            {
+                Inner.RemoveAsync(key).ExecuteSynchronously();
+            }
+            return Task.CompletedTask;
         }
     }
 }

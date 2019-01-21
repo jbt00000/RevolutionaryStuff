@@ -2,29 +2,21 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-
-
-    <RuntimeFrameworkVersion>2.1.2</RuntimeFrameworkVersion>
     <TargetLatestRuntimePatch>true</TargetLatestRuntimePatch>
-
-
-
-
     <AssemblyName>RevolutionaryStuff.ETL</AssemblyName>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Authors>jason@jasonthomas.com</Authors>
     <Company>Revolutionary Stuff, LLC</Company>
-    <Description>Utility library to help with ETL.
-These were formerly used in the standalone UploadTable command line program.</Description>
-    <Copyright>Copyright ©  2018</Copyright>
+    <Description>Utility library to help with ETL.</Description>
+    <Copyright>Copyright ©  2019</Copyright>
     <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>1.0.38.0</FileVersion>
-    <AssemblyVersion>1.0.39.0</AssemblyVersion>
-    <Version>1.0.39</Version>
+    <FileVersion>2.0.41.0</FileVersion>
+    <AssemblyVersion>2.0.41.0</AssemblyVersion>
+    <Version>2.0.41</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />

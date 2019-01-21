@@ -6,92 +6,25 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
 {
     /// <summary>
     /// Implements extensions and helpers for interacting with the ICache and ICacher interfaces
     /// </summary>
-    public static class Cache
+    public static partial class Cache
     {
         internal static readonly IDictionary<int, object> LockByKey = new Dictionary<int, object>();
 
         internal static int GetLockKeyName(object cacheGuy, object key) 
             => (cacheGuy.GetHashCode() ^ (key ?? "").GetHashCode()) & 0x0FFF;
 
-        #region FindOrCreate
-
-        public static CacheEntry<TVal> FindOrCreate<TVal>(this ICacher cacher, string key, Func<string, TVal> creator, TimeSpan? timeout = null)
-            => cacher.FindOrCreate(key, k => {
-                var val = creator(k);
-                return new CacheEntry<TVal>(val, timeout);
-            });
-
-        public static Task<CacheEntry<TVal>> FindOrCreateAsync<TVal>(this ICacher inner, string key, Func<string, Task<CacheEntry<TVal>>> asynccreator)
-            => Task.FromResult(inner.FindOrCreate(key, k => asynccreator(k).ExecuteSynchronously()));
-
-        public static TVal FindOrCreateValWithSimpleKey<TVal>(this ICacher inner, object key, Func<TVal> creator, TimeSpan? timeout = null)
-            => inner.FindOrCreate(
-                CreateKey(typeof(TVal), key),
-                _ => new CacheEntry<TVal>(creator(), timeout),false, timeout
-                ).Value;
-
-        public static async Task<TVal> FindOrCreateValWithSimpleKeyAsync<TVal>(this ICacher inner, object key, Func<Task<TVal>> asynccreator, TimeSpan? timeout = null)
-            => (await inner.FindOrCreateAsync(
-                CreateKey(typeof(TVal), key),
-                async _ => new CacheEntry<TVal>(await asynccreator(), timeout)
-                )).Value;
-
-        public static CacheEntry<TVal> FindOrCreate<TVal>(this ICacher inner, string key, Func<IEnumerable<Tuple<string, CacheEntry<TVal>>>> creator)
-        {
-            var ret = inner.FindOrCreate<TVal>(key, null);
-            if (ret == null)
-            {
-                foreach (var t in creator())
-                {
-                    inner.FindOrCreate(t.Item1, _ => t.Item2, true);
-                    if (t.Item1 == key)
-                    {
-                        ret = t.Item2;
-                    }
-                }
-            }
-            return ret;
-        }
-
-        #endregion
-
-        private class PassthroughCacher : ICacher
-        {
-            CacheEntry<TVal> ICacher.FindOrCreate<TVal>(string key, Func<string, CacheEntry<TVal>> creator, bool forceCreate, TimeSpan? timeout) => creator(key);
-        }
-
         public static readonly ICacher DataCacher = new SynchronizedCacher(new BasicCacher());
 
         public static readonly ICacher Passthrough = new PassthroughCacher();
 
-        private class ScopedCacher : ICacher
-        {
-            private readonly ICacher Inner;
-            private readonly string ScopeKey;
-
-            public ScopedCacher(ICacher inner, params object[] keyParts)
-            {
-                Requires.NonNull(inner, nameof(inner));
-                Inner = inner;
-                ScopeKey = CreateKey(keyParts);
-            }
-
-            public CacheEntry<TVal> FindOrCreate<TVal>(string key, Func<string, CacheEntry<TVal>> creator, bool forceCreate, TimeSpan? timeout = null)
-                => Inner.FindOrCreate(CreateKey(key, ScopeKey), creator, forceCreate, timeout);
-        }
-
         public static ICacher Synchronized(ICacher inner) 
             => inner as SynchronizedCacher ?? new SynchronizedCacher(inner);
-
-        public static ICacher CreateScope(this ICacher inner, params object[] keyParts) 
-            => new ScopedCacher(inner, keyParts);
 
         public static ICache<K, V> CreateSynchronized<K, V>(int maxItems = int.MaxValue)
             => new SynchronizedCache<K, V>(new RandomCache<K, V>(maxItems));

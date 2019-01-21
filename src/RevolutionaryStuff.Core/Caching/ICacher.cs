@@ -1,9 +1,12 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
 {
     public interface ICacher
     {
-        CacheEntry<TVal> FindOrCreate<TVal>(string key, Func<string, CacheEntry<TVal>> creator=null, bool forceCreate=false, TimeSpan? timeout = null);
+        Task<ICacheEntry> FindOrCreateEntryAsync(string key, Func<string, Task<ICacheEntry>> asyncCreator = null, bool forceCreate = false);
+
+        Task RemoveAsync(string key);
     }
 }

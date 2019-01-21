@@ -4,9 +4,9 @@ namespace RevolutionaryStuff.Core.Caching
 {
     public class CacheEntry<TVal> : ICacheEntry
     {
-        public DateTime CreatedAtUtc { get; } = DateTime.UtcNow;
+        public DateTimeOffset CreatedAt { get; } = DateTimeOffset.UtcNow;
 
-        public DateTime ExpiresAtUtc { get; private set; }
+        public DateTimeOffset ExpiresAt { get; private set; }
 
         public string CreatedOn { get; } = Environment.MachineName;
 
@@ -14,12 +14,15 @@ namespace RevolutionaryStuff.Core.Caching
 
         object ICacheEntry.Value => Value;
 
-        bool ICacheEntry.IsExpired => ExpiresAtUtc < DateTime.UtcNow;
+        bool ICacheEntry.IsExpired => ExpiresAt < DateTimeOffset.Now;
 
         public CacheEntry(TVal val, TimeSpan? expiresIn=null)
         {
             Value = val;
-            ExpiresAtUtc = expiresIn.HasValue ? CreatedAtUtc.Add(expiresIn.Value) : DateTime.MaxValue;
+            ExpiresAt = expiresIn.HasValue ? CreatedAt.Add(expiresIn.Value) : DateTime.MaxValue;
         }
+
+        public static ICacheEntry Create(TVal val, TimeSpan? expiresIn = null)
+            => new CacheEntry<TVal>(val, expiresIn);
     }
 }
