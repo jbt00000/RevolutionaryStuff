@@ -96,6 +96,9 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("ColumnNames", Mandatory = false, Translator = CommandLineSwitchAttributeTranslators.Csv)]
         public string[] ColumnNames;
 
+        [CommandLineSwitch("AutoFileNameColumnName", Mandatory = false)]
+        public string AutoFileNameColumnName;
+
         [CommandLineSwitch("AutoNumberColumnName", Mandatory = false)]
         public string AutoNumberColumnName;
 
@@ -134,6 +137,15 @@ namespace RevolutionaryStuff.TheLoader
 
         [CommandLineSwitch("UseSocrataMetadata", Mandatory = false, Mode = NameofModeImport)]
         public bool UseSocrataMetadata = false;
+
+        [CommandLineSwitch("UnpivotLeftColumnNames", Mandatory = false, Mode = NameofModeImport, Translator = CommandLineSwitchAttributeTranslators.Csv)]
+        public string[] UnpivotLeftColumnNames;
+
+        [CommandLineSwitch("UnpivotKeyColumnName", Mandatory = false, Mode = NameofModeImport)]
+        public string UnpivotKeyColumnName;
+
+        [CommandLineSwitch("UnpivotValueColumnName", Mandatory = false, Mode = NameofModeImport)]
+        public string UnpivotValueColumnName;
 
         #endregion
 
@@ -499,6 +511,27 @@ namespace RevolutionaryStuff.TheLoader
             => OpenReadAsync(fileName, unzip).ExecuteSynchronously();
 
 
+        private void AddAutoFileNameColumnName(DataTable dt)
+        {
+            if (AutoFileNameColumnName != null)
+            {
+                var dc = new DataColumn(AutoFileNameColumnName, typeof(string)) { MaxLength = 255 };
+                dc.PreserveTypeInformation(true);
+                dt.Columns.Add(dc);
+                string fileName = Path.GetFileName(this.FilePath);
+                dt.SetColumnWithValue(this.AutoFileNameColumnName, (a, b) => fileName);
+            }
+        }
+
+        private DataTable Unpivot(DataTable dt)
+        {
+            if (UnpivotLeftColumnNames!=null && UnpivotLeftColumnNames.Length > 0)
+            {
+                dt = dt.UnPivot(UnpivotLeftColumnNames, UnpivotKeyColumnName, UnpivotValueColumnName);
+            }
+            return dt;
+        }
+
         private async Task OnImportAsync()
         {
             Table = Stuff.CoalesceStrings(Table, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
@@ -514,7 +547,17 @@ namespace RevolutionaryStuff.TheLoader
             {
                 FileFormat = FileFormatHelpers.GetImpliedFormat(FilePath, SourceUrl);
             }
-            if (FileFormat == FileFormats.ELF)
+            if (FileFormat == FileFormats.Html)
+            {
+                RightType = RightType == YesNoAuto.Auto ? YesNoAuto.Yes : RightType;
+                dt = HtmlTableFileFormatHelpers.Load(OpenRead(FilePath), new LoadRowsFromHtmlSettings
+                {
+                    DuplicateColumnRenamer = DataLoadingHelpers.OnDuplicateAppendSeqeuntialNumber,
+                    RowNumberColumnName = RowNumberColumnName,
+                });
+                goto CleanDataTable;
+            }
+            else if (FileFormat == FileFormats.ELF)
             {
                 dt = ExtendedLogFileFormatHelpers.Load(OpenRead(FilePath), SkipCols);
                 ThrowNowSupportedWhenOptionSpecified(nameof(RowNumberColumnName), nameof(SkipRawRows), nameof(ColumnNames));
@@ -573,6 +616,7 @@ namespace RevolutionaryStuff.TheLoader
                     CustomFieldDelim = CsvFieldDelim,
                     CustomQuoteChar = CsvQuoteChar,
                     DuplicateColumnRenamer = DataLoadingHelpers.OnDuplicateAppendSeqeuntialNumber,
+                    Format = LoadRowsFromDelineatedTextFormats.Custom,
                     ColumnNames = ColumnNames,
                     ColumnNameTemplate = ColumnNameTemplate,
                     RowNumberColumnName = RowNumberColumnName,
@@ -746,6 +790,11 @@ namespace RevolutionaryStuff.TheLoader
                 }
             }
 
+            if (dt != null)
+            {
+                dt = Unpivot(dt);
+            }
+
             //Create the table SQL
             CreateTable:
             if (ds == null)
@@ -758,6 +807,7 @@ namespace RevolutionaryStuff.TheLoader
 
             foreach (DataTable zdt in ds.Tables)
             {
+                AddAutoFileNameColumnName(zdt);
                 switch (ColumnRenamingMode)
                 {
                     case ColumnRenamingModes.Preserve:
@@ -796,7 +846,6 @@ namespace RevolutionaryStuff.TheLoader
                 {
                     dt.IdealizeStringColumns(TrimAndNullifyStringData);
                 }
-
                 using (new TraceRegion($"Operating on {Schema}.{dt.TableName}; Table {tableNum}/{ds.Tables.Count}; RemoteServerType={RemoteServerType}"))
                 {
                     if (dt.Rows.Count == 0 && SkipZeroRowTables) return;

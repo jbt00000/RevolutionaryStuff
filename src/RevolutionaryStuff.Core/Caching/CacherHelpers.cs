@@ -12,7 +12,11 @@ namespace RevolutionaryStuff.Core.Caching
         public static ICacher CreateScope(this ICacher inner, params object[] keyParts)
             => new ScopedCacher(inner, keyParts);
 
-        public static async Task<TVal> FindOrCreateValueAsync<TVal>(this ICacher cacher, string key, Func<Task<TVal>> asyncCreator, bool forceCreate = false, TimeSpan ? cacheEntryTimeout = null)
+
+        public static Task<ICacheEntry> FindOrCreateEntryAsync(this ICacher cacher, string key, Func<string, Task<ICacheEntry>> asyncCreator = null, bool forceCreate = false, TimeSpan? cacheEntryTimeout = null)
+            => cacher.FindOrCreateEntryAsync(key, asyncCreator, new FindOrCreateEntrySettings(false, cacheEntryTimeout));
+
+        public static async Task<TVal> FindOrCreateValueAsync<TVal>(this ICacher cacher, string key, Func<Task<TVal>> asyncCreator, bool forceCreate = false, TimeSpan? cacheEntryTimeout = null)
         {
             var entry = await cacher.FindOrCreateEntryAsync(
                 key, 
@@ -21,7 +25,7 @@ namespace RevolutionaryStuff.Core.Caching
                     var val = await asyncCreator();
                     return new CacheEntry<TVal>(val, cacheEntryTimeout);
                 }, 
-                forceCreate);
+                forceCreate, cacheEntryTimeout);
             return (TVal) entry.Value;
         }
 

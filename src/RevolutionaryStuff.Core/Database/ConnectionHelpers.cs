@@ -264,24 +264,24 @@ namespace RevolutionaryStuff.Core.Database
             return new Result<TItem>(res, items);
         }
 
-        private static ICache<Type, IDictionary<string, MemberInfo>> SettersByNameMap = Cache.CreateSynchronized<Type, IDictionary<string, MemberInfo>>();
-
         private static IDictionary<string, MemberInfo> GetSettersByNameMap<TItem>()
         {
             var t = typeof(TItem);
-            return SettersByNameMap.Do(t, () =>
-            {
-                var d = new Dictionary<string, MemberInfo>();
-                foreach (var mi in t.GetMembers(BindingFlags.Public|BindingFlags.Instance|BindingFlags.SetProperty))
+            return Cache.DataCacher.FindOrCreateValue(
+                Cache.CreateKey(typeof(ConnectionHelpers), nameof(GetSettersByNameMap), t),
+                () =>
                 {
-                    var pi = mi as PropertyInfo;
-                    if (pi == null) continue;
-                    if (pi.Attributes.HasFlag(System.Reflection.PropertyAttributes.SpecialName | System.Reflection.PropertyAttributes.RTSpecialName)) continue;
-                    var colAttr = mi.GetCustomAttribute<ColumnAttribute>();
-                    d[colAttr?.Name??mi.Name] = mi;
-                }
-                return d;
-            });
+                    var d = new Dictionary<string, MemberInfo>();
+                    foreach (var mi in t.GetMembers(BindingFlags.Public|BindingFlags.Instance|BindingFlags.SetProperty))
+                    {
+                        var pi = mi as PropertyInfo;
+                        if (pi == null) continue;
+                        if (pi.Attributes.HasFlag(System.Reflection.PropertyAttributes.SpecialName | System.Reflection.PropertyAttributes.RTSpecialName)) continue;
+                        var colAttr = mi.GetCustomAttribute<ColumnAttribute>();
+                        d[colAttr?.Name??mi.Name] = mi;
+                    }
+                    return d;
+                });
         }
 
         public static TItem Get<TItem>(this IDataReader reader, IDictionary<string, MemberInfo> map = null) where TItem : new()

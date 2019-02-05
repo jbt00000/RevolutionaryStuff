@@ -325,31 +325,30 @@ namespace RevolutionaryStuff.Core
             Task.WaitAll(tasks.ToArray());
         }
 
-        private static readonly ICache<string, string> GetPathFromSerializedPathCache = Cache.CreateSynchronized<string, string>();
-
         public static string GetPathFromSerializedPath(Type t, string serializedPath)
-        {
-            return GetPathFromSerializedPathCache.Do(Cache.CreateKey(t, serializedPath), () => {
-                if (serializedPath == null) return null;
-                string left = serializedPath.LeftOf(".");
-                string right = StringHelpers.TrimOrNull(serializedPath.RightOf("."));
-
-                foreach (var pi in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            => Cache.DataCacher.FindOrCreateValue(
+                Cache.CreateKey(typeof(Stuff), nameof(GetPathFromSerializedPath), t, serializedPath), 
+                () => 
                 {
-                    if (pi.GetCustomAttribute<Newtonsoft.Json.JsonIgnoreAttribute>() != null) continue;
-                    var jpn = pi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>();
-                    if ((jpn == null && pi.Name == left) || (jpn!=null && jpn.PropertyName == left))
+                    if (serializedPath == null) return null;
+                    string left = serializedPath.LeftOf(".");
+                    string right = StringHelpers.TrimOrNull(serializedPath.RightOf("."));
+
+                    foreach (var pi in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                     {
-                        left = pi.Name;
-                        if (right == null) return left;
-                        right = GetPathFromSerializedPath(pi.PropertyType, right);
-                        if (right == null) return null;
-                        return left + "." + right;
+                        if (pi.GetCustomAttribute<Newtonsoft.Json.JsonIgnoreAttribute>() != null) continue;
+                        var jpn = pi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>();
+                        if ((jpn == null && pi.Name == left) || (jpn!=null && jpn.PropertyName == left))
+                        {
+                            left = pi.Name;
+                            if (right == null) return left;
+                            right = GetPathFromSerializedPath(pi.PropertyType, right);
+                            if (right == null) return null;
+                            return left + "." + right;
+                        }
                     }
-                }
-                return null;
-            });
-        }
+                    return null;
+                });
 
         public static ParallelOptions CreateParallelOptions(bool canParallelize, int? degrees=null)
         {

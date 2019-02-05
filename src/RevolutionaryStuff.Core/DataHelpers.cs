@@ -99,6 +99,7 @@ namespace RevolutionaryStuff.Core
                 {
                     var dc = dt.Columns[columnNames[colNum]];
                     if (dc.DataType != typeof(string)) continue;
+                    if (dc.PreserveTypeInformation()) continue;
                     dc.AllowDBNull = true;
                     Trace.WriteLine($"{nameof(RightType)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
                     var len = 0;

@@ -13,6 +13,7 @@ namespace RevolutionaryStuff.Core
             public const string Unicode = "Unicode";
             public const string NumericPrecision = "NumericPrecision";
             public const string NumericScale = "NumericScale";
+            public const string PreserveTypeInformation = "PreserveTypeInformation";
         }
 
         public static void AddRange(this DataColumnCollection dcc, IEnumerable<string> fieldNames)
@@ -59,6 +60,9 @@ namespace RevolutionaryStuff.Core
         private static bool BooleanExtendedProperty(this DataColumn dc, string propertyName, bool? val = null, bool missingValue = false)
             => dc.ExtendedProperty(propertyName, val, missingValue);
 
+        public static bool PreserveTypeInformation(this DataColumn dc, bool? preserveTypeInformation = null)
+            => dc.BooleanExtendedProperty(CommonDataColumnExtendedPropertyNames.PreserveTypeInformation, preserveTypeInformation, false);
+
         public static bool Unicode(this DataColumn dc, bool? isUnicode = null)
             => dc.BooleanExtendedProperty(CommonDataColumnExtendedPropertyNames.Unicode, isUnicode, true);
 
@@ -81,5 +85,54 @@ namespace RevolutionaryStuff.Core
 
         public static string ToCsv(this DataRow dr)
             => CSV.FormatLine(dr.ItemArray, true);
+
+        public static DataColumn Clone(this DataColumn dc)
+        {
+            var c = new DataColumn(dc.ColumnName, dc.DataType, dc.Expression, dc.ColumnMapping);
+            foreach (var propertyName in dc.ExtendedProperties)
+            {
+                var propertyVal = dc.ExtendedProperties[propertyName];
+                c.ExtendedProperties[propertyName] = propertyVal;
+            }
+            return c;
+        }
+
+        public static DataTable UnPivot(this DataTable dt, ICollection<string> dimensionColumnNames, string pivotKeyColumnName, string pivotValueColumnName)
+        {
+            var updt = new DataTable(dt.TableName);
+            var frontCols = new List<DataColumn>();
+            var zippyCols = new List<DataColumn>();
+            var dcn = new HashSet<string>(dimensionColumnNames, Comparers.CaseInsensitiveStringComparer);
+            foreach (DataColumn dc in dt.Columns)
+            {
+                if (dcn.Contains(dc.ColumnName))
+                {
+                    updt.Columns.Add(dc.Clone());
+                    frontCols.Add(dc);
+                }
+                else
+                {
+                    zippyCols.Add(dc);
+                }
+            }
+            Requires.Positive(zippyCols.Count, $"{nameof(zippyCols)}.{nameof(zippyCols.Count)}");
+            updt.Columns.Add(pivotKeyColumnName);
+            updt.Columns.Add(pivotValueColumnName);
+            foreach (DataRow sourceRow in dt.Rows)
+            {
+                foreach (var zippyCol in zippyCols)
+                {
+                    var destRow = updt.NewRow();
+                    foreach (var dc in frontCols)
+                    {
+                        destRow[dc.ColumnName] = sourceRow[dc];
+                    }
+                    destRow[pivotKeyColumnName] = zippyCol.ColumnName;
+                    destRow[pivotValueColumnName] = sourceRow[zippyCol];
+                    updt.Rows.Add(destRow);
+                }
+            }
+            return updt;
+        }
     }
 }

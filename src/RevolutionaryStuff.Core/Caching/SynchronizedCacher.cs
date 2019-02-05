@@ -14,7 +14,7 @@ namespace RevolutionaryStuff.Core.Caching
             Inner = inner;
         }
 
-        Task<ICacheEntry> ICacher.FindOrCreateEntryAsync(string key, Func<string, Task<ICacheEntry>> asyncCreator, bool forceCreate)
+        Task<ICacheEntry> ICacher.FindOrCreateEntryAsync(string key, Func<string, Task<ICacheEntry>> asyncCreator, IFindOrCreateEntrySettings settings)
         {
             var lockName = Cache.GetLockKeyName(Inner, key);
             Start:
@@ -34,7 +34,7 @@ namespace RevolutionaryStuff.Core.Caching
             Run:
             try
             {
-                return Inner.FindOrCreateEntryAsync(key, asyncCreator, forceCreate);
+                return Inner.FindOrCreateEntryAsync(key, asyncCreator, settings);
             }
             finally
             {

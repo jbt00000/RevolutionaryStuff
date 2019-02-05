@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace RevolutionaryStuff.Core
@@ -23,5 +24,45 @@ namespace RevolutionaryStuff.Core
 
         public static T GetRequiredScopedService<T>(this IServiceProvider provider)
             => provider.CreateScope().ServiceProvider.GetRequiredService<T>();
+
+        public static SERVICE_TYPE InstantiateServiceWithOverriddenDependencies<SERVICE_TYPE>(this IServiceProvider provider, ServiceCollection services, params object[] overriddenLoadedDependencies)
+        {
+            var serviceType = typeof(SERVICE_TYPE);
+            Type implementationType = null;
+            foreach (var sd in services)
+            {
+                if (sd.Lifetime == ServiceLifetime.Singleton) continue;
+                if (!serviceType.IsA(sd.ServiceType)) continue;
+                implementationType = sd.ImplementationType;
+            }
+            if (implementationType == null) throw new TypeLoadException($"Could not find a seervice description for {typeof(SERVICE_TYPE)}");
+
+            foreach (var ci in implementationType.GetConstructors().OrderByDescending(ci => ci.GetParameters().Length))
+            {
+                var args = new List<object>();
+                foreach (var p in ci.GetParameters())
+                {
+                    var paramType = p.ParameterType;
+                    foreach (var dep in overriddenLoadedDependencies)
+                    {
+                        if (dep != null && dep.GetType().IsA(paramType))
+                        {
+                            args.Add(dep);
+                            goto NextParam;
+                        }
+                    }
+                    var o = provider.GetService(paramType);
+                    if (o == null) goto NextConstructor;
+                    args.Add(o);
+NextParam:
+                    Stuff.Noop();
+                }
+                var service = (SERVICE_TYPE) ci.Invoke(args.ToArray());
+                return service;
+NextConstructor:
+                Stuff.Noop();
+            }
+            throw new TypeLoadException($"Could not find a workable constructor to instantiate {typeof(SERVICE_TYPE)}");
+        }
     }
 }

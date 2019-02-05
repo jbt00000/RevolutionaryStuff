@@ -1,8 +1,8 @@
-﻿using RevolutionaryStuff.Core.Caching;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Core
 {
@@ -10,14 +10,10 @@ namespace RevolutionaryStuff.Core
     {
         public const RegexOptions IgnoreCaseSingleLineCompiled = RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled;
 
-        private static readonly ICache<string, Regex> RegexCache = Cache.CreateSynchronized<string, Regex>(1024);
-
         public static Regex Create(string pattern, RegexOptions options = RegexOptions.None)
-        {
-            options = options | RegexOptions.Compiled;
-            var key = string.Format("{0};{1}", options, pattern);
-            return RegexCache.Do(key, () => new Regex(pattern, options));
-        }
+            => Cache.DataCacher.FindOrCreateValue(
+                Cache.CreateKey(typeof(RegexHelpers), nameof(Create), pattern, options | RegexOptions.Compiled),
+                () => new Regex(pattern, options | RegexOptions.Compiled));
 
         public static class Common
         {

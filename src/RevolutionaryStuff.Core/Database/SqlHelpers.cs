@@ -1,6 +1,4 @@
-﻿using System.Data;
-
-namespace RevolutionaryStuff.Core.Database
+﻿namespace RevolutionaryStuff.Core.Database
 {
     public static class SqlHelpers
     {

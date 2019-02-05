@@ -11,10 +11,6 @@ namespace RevolutionaryStuff.Core
 {
     public static class AttributeStuff
     {
-        private static readonly ICache<string, ICollection<Attribute>> GetCustomAttributeCache =
-            Cache.CreateSynchronized<string, ICollection<Attribute>>();
-
-
         public static bool HasCustomAttribute<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute
         {
             return t.GetCustomAttribute<TAttribute>(inherit) != null;
@@ -32,14 +28,10 @@ namespace RevolutionaryStuff.Core
         public static TAttribute GetCustomAttribute<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute => t.GetCustomAttributes<TAttribute>(inherit).FirstOrDefault();
 
         public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute
-        {
-            return GetCustomAttributeCache.Do(
-                Cache.CreateKey(t, typeof(TAttribute), inherit),
-                () =>
-                {
-                    return t.GetTypeInfo().GetCustomAttributes(inherit).OfType<TAttribute>().ConvertAll(a => (Attribute)a).AsReadOnly();
-                }).OfType<TAttribute>();
-        }
+            => Cache.DataCacher.FindOrCreateValue(
+                Cache.CreateKey(typeof(AttributeStuff), nameof(GetCustomAttributes), t, typeof(TAttribute), inherit),
+                () => t.GetTypeInfo().GetCustomAttributes(inherit).OfType<TAttribute>().ConvertAll(a => (Attribute)a).AsReadOnly()
+                ).OfType<TAttribute>();
 
         public static IEnumerable<MemberInfo> GetAttributedMembers<TAttribute>(this Type t, BindingFlags flags) where TAttribute : Attribute
         {

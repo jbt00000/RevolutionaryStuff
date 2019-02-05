@@ -8,10 +8,10 @@ namespace RevolutionaryStuff.Core
 {
     public static class SerializationHelpers
     {
-        private static readonly ICache<Type, DataContractJsonSerializer> JsonSerializerCache = Cache.CreateSynchronized<Type, DataContractJsonSerializer>();
-
         public static DataContractJsonSerializer GetJsonSerializer(this Type t)
-            => JsonSerializerCache.Do(t, () => new DataContractJsonSerializer(t));
+            => Cache.DataCacher.FindOrCreateValue(
+                Cache.CreateKey(typeof(SerializationHelpers), nameof(GetJsonSerializer), t), 
+                () => new DataContractJsonSerializer(t));
 
         public static DataContractJsonSerializer GetJsonSerializer<TSerializationType>()
             => GetJsonSerializer(typeof(TSerializationType));

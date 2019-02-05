@@ -16,6 +16,7 @@ namespace RevolutionaryStuff.TheLoader
         MySqlDump,
         Json,
         OData4,
+        Html,
         ELF, //https://en.wikipedia.org/wiki/Extended_Log_Format
     }
 
@@ -26,6 +27,9 @@ namespace RevolutionaryStuff.TheLoader
             var ext = Path.GetExtension(source?.AbsolutePath ?? filePath).ToLower();
             switch (ext)
             {
+                case ".htm":
+                case ".html":
+                    return FileFormats.Html;
                 case ".dbf":
                     return FileFormats.FoxPro;
                 case ".csv":

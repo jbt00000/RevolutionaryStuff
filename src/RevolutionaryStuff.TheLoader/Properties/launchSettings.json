@@ -2,7 +2,7 @@
   "profiles": {
     "RevolutionaryStuff.TheLoader": {
       "commandName": "Project",
-      "commandLineArgs": "-m:import -schema:IP2Location -CSN:Ref -filename:C:\\Users\\jason\\Downloads\\DB24\\IP-COUNTRY-REGION-CITY-LATITUDE-LONGITUDE-ZIPCODE-TIMEZONE-ISP-DOMAIN-NETSPEED-AREACODE-WEATHER-MOBILE-ELEVATION-USAGETYPE.CSV -table:DB24"
+      "commandLineArgs": "-m:import -schema:usps -CSN:PersonalJason -filename:\"f:\\ACRS-Export.xls\" -table:acrs_export_raw  -FileFormat:Html"
     }
   }
 }

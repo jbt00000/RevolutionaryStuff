@@ -1,10 +1,14 @@
-﻿create function dbo.LeftOf(@s nvarchar(4000), @pivot nvarchar(4000))
+﻿create function [dbo].[LeftOf](@s nvarchar(4000), @pivot nvarchar(4000))
 returns nvarchar(4000)
 begin
 
 	declare @z int
 	set @z = charindex(@pivot, @s)
-	if (@z is not null)
+	if (@z is null or @z<1)
+	begin
+		set @s = null
+	end
+	else 
 	begin
 		set @s = left(@s, @z-1)
 	end
@@ -14,7 +18,7 @@ end
 
 GO
 
-create function dbo.RightOf(@s nvarchar(4000), @pivot nvarchar(4000))
+create function [dbo].[RightOf](@s nvarchar(4000), @pivot nvarchar(4000))
 returns nvarchar(4000)
 begin
 
@@ -22,7 +26,7 @@ begin
 	set @z = charindex(@pivot, @s)
 	if (@z is not null)
 	begin
-		set @s = right(@s, len(@s)-@z)
+		set @s = right(@s, len(@s)-@z-len(@pivot))
 	end
 	else begin
 		set @s = null

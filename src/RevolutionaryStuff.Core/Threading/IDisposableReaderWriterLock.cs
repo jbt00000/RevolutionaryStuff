@@ -2,7 +2,7 @@
 
 namespace RevolutionaryStuff.Core.Threading
 {
-    public interface IDisposableReaderWriterLock
+    public interface IDisposableReaderWriterLock : IDisposable
     {
         IDisposable UseWrite();
     }

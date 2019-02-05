@@ -17,13 +17,11 @@ namespace RevolutionaryStuff.Core.ApplicationParts
             FactoryName = factoryName;
         }
 
-        private static ICache<string, ICollection<Type>> FindCache = Cache.CreateSynchronized<string, ICollection<Type>>();
-
         public static ICollection<Type> Find(Predicate<string> factoryNameFilter, Type interfaceType = null)
         {
             factoryNameFilter = factoryNameFilter ?? delegate (string z) { return true; };
-            return FindCache.Do(
-                Cache.CreateKey(factoryNameFilter, interfaceType == null ? "" : interfaceType.AssemblyQualifiedName),
+            return Cache.DataCacher.FindOrCreateValue(
+                Cache.CreateKey(typeof(NamedFactoryAttribute), nameof(Find), factoryNameFilter, interfaceType == null ? "" : interfaceType.AssemblyQualifiedName),
                 delegate ()
                 {
                     var m = AttributeStuff.GetAttributesByPublicType(
@@ -81,20 +79,20 @@ namespace RevolutionaryStuff.Core.ApplicationParts
             return InstantiateFactories<I>(name => filter.Contains(name));
         }
 
-        private static readonly ICache<Type, object> FactoryCache = Cache.CreateSynchronized<Type, object>();
-
         public static ICollection<I> InstantiateFactories<I>(Predicate<string> factoryNameFilter=null) where I : class
         {
             var factories = new List<I>();
             var types = Find(factoryNameFilter, typeof(I));
             foreach (var t in types)
             {
-                var factory = FactoryCache.Do(t, ()=>
-                {
-                    var factoryConstructorInfo = t.GetTypeInfo().GetConstructor(Empty.TypeArray);
-                    return factoryConstructorInfo.Invoke(Empty.ObjectArray);
-                });
-                factories.Add((I)factory);
+                var factory = Cache.DataCacher.FindOrCreateValue(
+                    Cache.CreateKey(typeof(NamedFactoryAttribute), nameof(InstantiateFactories), t, nameof(InstantiateFactories)),
+                    () =>
+                    {
+                        var factoryConstructorInfo = t.GetTypeInfo().GetConstructor(Empty.TypeArray);
+                        return factoryConstructorInfo.Invoke(Empty.ObjectArray);
+                    });
+                    factories.Add((I)factory);
             }
             return factories;
         }

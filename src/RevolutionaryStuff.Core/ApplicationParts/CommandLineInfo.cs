@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using RevolutionaryStuff.Core.Collections;
-using System.Text;
 using Microsoft.Extensions.Configuration;
 
 namespace RevolutionaryStuff.Core.ApplicationParts

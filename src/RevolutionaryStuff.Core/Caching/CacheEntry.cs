@@ -19,7 +19,7 @@ namespace RevolutionaryStuff.Core.Caching
         public CacheEntry(TVal val, TimeSpan? expiresIn=null)
         {
             Value = val;
-            ExpiresAt = expiresIn.HasValue ? CreatedAt.Add(expiresIn.Value) : DateTime.MaxValue;
+            ExpiresAt = expiresIn.HasValue ? CreatedAt.Add(expiresIn.Value) : DateTimeOffset.MaxValue;
         }
 
         public static ICacheEntry Create(TVal val, TimeSpan? expiresIn = null)
