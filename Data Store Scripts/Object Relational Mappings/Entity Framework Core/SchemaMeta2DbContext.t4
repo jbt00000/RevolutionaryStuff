@@ -162,7 +162,7 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 		var schemaTable = GetAttrVal(z, "schema") + "." + GetAttrVal(z, "name");
 		tablesInDbContext.Add(schemaTable);
 #>		
-		public <#=containerType#><<#=GetClassName(z)#>> <#=z.Attribute("name").Value#> { get; set; } //<#=schemaTable#>
+		public virtual <#=containerType#><<#=GetClassName(z)#>> <#=z.Attribute("name").Value#> { get; set; } //<#=schemaTable#>
 
 <#+
 	foreach (XElement icp in z.XPathSelectElements("Properties/Property"))
@@ -173,7 +173,7 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 		var collName = RightOf(icpn, ",");
 		if (collName==null) continue;
 #>
-		public <#=containerType#><<#=className#>> <#=collName#> { get; set; }
+		public virtual <#=containerType#><<#=className#>> <#=collName#> { get; set; }
 
 <#+
 	}
