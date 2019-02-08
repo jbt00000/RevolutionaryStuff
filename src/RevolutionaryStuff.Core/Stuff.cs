@@ -327,8 +327,8 @@ namespace RevolutionaryStuff.Core
 
         public static string GetPathFromSerializedPath(Type t, string serializedPath)
             => Cache.DataCacher.FindOrCreateValue(
-                Cache.CreateKey(typeof(Stuff), nameof(GetPathFromSerializedPath), t, serializedPath), 
-                () => 
+                Cache.CreateKey(typeof(Stuff), nameof(GetPathFromSerializedPath), t, serializedPath),
+                () =>
                 {
                     if (serializedPath == null) return null;
                     string left = serializedPath.LeftOf(".");
@@ -338,7 +338,7 @@ namespace RevolutionaryStuff.Core
                     {
                         if (pi.GetCustomAttribute<Newtonsoft.Json.JsonIgnoreAttribute>() != null) continue;
                         var jpn = pi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>();
-                        if ((jpn == null && pi.Name == left) || (jpn!=null && jpn.PropertyName == left))
+                        if ((jpn == null && pi.Name == left) || (jpn != null && jpn.PropertyName == left))
                         {
                             left = pi.Name;
                             if (right == null) return left;

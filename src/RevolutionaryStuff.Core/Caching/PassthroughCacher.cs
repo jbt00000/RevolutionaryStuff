@@ -3,12 +3,15 @@ using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
 {
-    internal class PassthroughCacher : ICacher
+    internal class PassthroughCacher : BaseCacher
     {
-        async Task<ICacheEntry> ICacher.FindOrCreateEntryAsync(string key, Func<string, Task<ICacheEntry>> asyncCreator, IFindOrCreateEntrySettings settings)
-            => await asyncCreator(key);
+        protected override Task OnWriteEntryAsync(string key, ICacheEntry entry)
+            => Task.CompletedTask;
 
-        Task ICacher.RemoveAsync(string key)
+        protected override Task<ICacheEntry> OnFindEntryAsync(string key)
+            => Task.FromResult<ICacheEntry>(null);
+
+        protected override Task OnRemoveAsync(string key)
             => Task.CompletedTask;
     }
 }

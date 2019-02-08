@@ -12,28 +12,24 @@ namespace RevolutionaryStuff.Core.Caching
         public static ICacher CreateScope(this ICacher inner, params object[] keyParts)
             => new ScopedCacher(inner, keyParts);
 
-
-        public static Task<ICacheEntry> FindOrCreateEntryAsync(this ICacher cacher, string key, Func<string, Task<ICacheEntry>> asyncCreator = null, bool forceCreate = false, TimeSpan? cacheEntryTimeout = null)
-            => cacher.FindOrCreateEntryAsync(key, asyncCreator, new FindOrCreateEntrySettings(false, cacheEntryTimeout));
-
-        public static async Task<TVal> FindOrCreateValueAsync<TVal>(this ICacher cacher, string key, Func<Task<TVal>> asyncCreator, bool forceCreate = false, TimeSpan? cacheEntryTimeout = null)
+        public static async Task<TVal> FindOrCreateValueAsync<TVal>(this ICacher cacher, string key, Func<Task<TVal>> asyncCreator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
         {
-            var entry = await cacher.FindOrCreateEntryAsync(
-                key, 
-                async k => 
+            Requires.NonNull(asyncCreator, nameof(asyncCreator));
+
+            var entry = await cacher.FindEntryOrCreateValueAsync(
+                key,
+                async k =>
                 {
                     var val = await asyncCreator();
-                    return new CacheEntry<TVal>(val, cacheEntryTimeout);
-                }, 
-                forceCreate, cacheEntryTimeout);
-            return (TVal) entry.Value;
+                    return new CacheCreationResult(val, new CacheEntryRetentionPolicy(cacheEntryTimeout));
+                },
+                forceCreate ? FindOrCreateEntrySettings.ForceCreateTrue : FindOrCreateEntrySettings.ForceCreateFalse
+                );
+            return entry.GetValue<TVal>();
         }
 
-        public static ICacheEntry FindOrCreateEntry(this ICacher cacher, string key, Func<string, ICacheEntry> creator = null, bool forceCreate = false)
-            => cacher.FindOrCreateEntryAsync(key, k => Task.FromResult(creator(k)), forceCreate).ExecuteSynchronously();
-
-        public static TVal FindOrCreateValue<TVal>(this ICacher cacher, string key, Func<TVal> creator, bool forceCreate = false, TimeSpan? cacheEntryTimeout = null)
-            => cacher.FindOrCreateValueAsync(key, () => Task.FromResult(creator()), forceCreate, cacheEntryTimeout).ExecuteSynchronously();
+        public static TVal FindOrCreateValue<TVal>(this ICacher cacher, string key, Func<TVal> creator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
+            => cacher.FindOrCreateValueAsync<TVal>(key, () => Task.FromResult(creator()), cacheEntryTimeout, forceCreate).ExecuteSynchronously();
 
         public static TVal FindOrPrimeValues<TVal>(this ICacher cacher, string key, Func<IEnumerable<Tuple<string, TVal>>> primer, TimeSpan? cacheEntryTimeout = null)
         {
@@ -42,7 +38,7 @@ namespace RevolutionaryStuff.Core.Caching
             {
                 foreach (var t in primer())
                 {
-                    cacher.FindOrCreateValue(t.Item1, () => t.Item2, true, cacheEntryTimeout);
+                    cacher.FindOrCreateValue<TVal>(t.Item1, () => t.Item2, cacheEntryTimeout, true);
                     if (t.Item1 == key)
                     {
                         ret = t.Item2;

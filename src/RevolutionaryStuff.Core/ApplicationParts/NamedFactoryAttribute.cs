@@ -28,7 +28,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts
                         new[] { typeof(NamedFactoryAttribute) },
                         TypeHelpers.GetLoadedAssemblies(),
                         Directory.GetFiles(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "*.dll", SearchOption.TopDirectoryOnly),
-                        test=>test.GetCustomAttribute<PluginDomainAttribute>()!=null);
+                        test => test.GetCustomAttribute<PluginDomainAttribute>() != null);
                     var ret = new List<Type>();
                     foreach (var kvp in m.AtomEnumerable)
                     {

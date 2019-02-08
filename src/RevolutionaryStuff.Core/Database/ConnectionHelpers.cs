@@ -272,13 +272,13 @@ namespace RevolutionaryStuff.Core.Database
                 () =>
                 {
                     var d = new Dictionary<string, MemberInfo>();
-                    foreach (var mi in t.GetMembers(BindingFlags.Public|BindingFlags.Instance|BindingFlags.SetProperty))
+                    foreach (var mi in t.GetMembers(BindingFlags.Public | BindingFlags.Instance | BindingFlags.SetProperty))
                     {
                         var pi = mi as PropertyInfo;
                         if (pi == null) continue;
                         if (pi.Attributes.HasFlag(System.Reflection.PropertyAttributes.SpecialName | System.Reflection.PropertyAttributes.RTSpecialName)) continue;
                         var colAttr = mi.GetCustomAttribute<ColumnAttribute>();
-                        d[colAttr?.Name??mi.Name] = mi;
+                        d[colAttr?.Name ?? mi.Name] = mi;
                     }
                     return d;
                 });

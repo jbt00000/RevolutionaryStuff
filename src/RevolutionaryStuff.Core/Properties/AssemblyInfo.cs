@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following
@@ -22,3 +23,6 @@ using System.Runtime.InteropServices;
 
 //This assembly contains plugins and is eligible for dynamic exploration
 [assembly: RevolutionaryStuff.Core.ApplicationParts.PluginDomain()]
+
+//For the unit tests
+[assembly: InternalsVisibleTo("RevolutionaryStuff.Core.Tests")]

@@ -191,7 +191,8 @@ namespace RevolutionaryStuff.Core
         {
             if (s == null) return null;
             string left, right;
-            return s.Split(pivot, true, out left, out right) || !returnFullStringIfPivotIsMissing ? right : s;
+            if (s.Split(pivot, true, out left, out right)) return right;
+            return returnFullStringIfPivotIsMissing ? s : null;
         }
 
         public static bool Contains(this string s, string value, bool ignoreCase=false)

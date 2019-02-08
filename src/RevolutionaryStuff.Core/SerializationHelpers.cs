@@ -10,7 +10,7 @@ namespace RevolutionaryStuff.Core
     {
         public static DataContractJsonSerializer GetJsonSerializer(this Type t)
             => Cache.DataCacher.FindOrCreateValue(
-                Cache.CreateKey(typeof(SerializationHelpers), nameof(GetJsonSerializer), t), 
+                Cache.CreateKey(typeof(SerializationHelpers), nameof(GetJsonSerializer), t),
                 () => new DataContractJsonSerializer(t));
 
         public static DataContractJsonSerializer GetJsonSerializer<TSerializationType>()

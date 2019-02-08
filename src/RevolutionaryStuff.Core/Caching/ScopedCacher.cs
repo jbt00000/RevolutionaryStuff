@@ -19,10 +19,10 @@ namespace RevolutionaryStuff.Core.Caching
         private string CreateScopedKey(string key)
             => Cache.CreateKey(key, ScopeKey);
 
-        Task<ICacheEntry> ICacher.FindOrCreateEntryAsync(string key, Func<string, Task<ICacheEntry>> asyncCreator, IFindOrCreateEntrySettings settings)
-            => Inner.FindOrCreateEntryAsync(CreateScopedKey(key), asyncCreator, settings);
+        public Task<ICacheEntry> FindEntryOrCreateValueAsync(string key, Func<string, Task<CacheCreationResult>> asyncCreator = null, IFindOrCreateEntrySettings findOrCreateSettings = null)
+            => Inner.FindEntryOrCreateValueAsync(CreateScopedKey(key), asyncCreator, findOrCreateSettings);
 
-        Task ICacher.RemoveAsync(string key)
+        public Task RemoveAsync(string key)
             => Inner.RemoveAsync(CreateScopedKey(key));
     }
 }

@@ -1,33 +1,40 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
 {
-    public class BasicCacher : ICacher
+    public class BasicCacher : BaseCacher
     {
-        private readonly IDictionary<string, ICacheEntry> EntriesByKey = new Dictionary<string, ICacheEntry>();
+        //This is internal to support unit testing
+        internal readonly IDictionary<string, ICacheEntry> CacheEntryByCacheKey = new Dictionary<string, ICacheEntry>();
 
-        public async Task<ICacheEntry> FindOrCreateEntryAsync(string key, Func<string, Task<ICacheEntry>> asyncCreator = null, IFindOrCreateEntrySettings settings=null)
+        protected readonly int MaxEntries;
+
+        public BasicCacher(int? maxEntries=null)
         {
-            ICacheEntry e = null;
-
-            settings = settings ?? FindOrCreateEntrySettings.Default;
-            if (settings.ForceCreate || !EntriesByKey.TryGetValue(key, out e) || e.IsExpired)
-            {
-                e = null;
-                if (asyncCreator != null)
-                {
-                    e = await asyncCreator(key);
-                }
-                EntriesByKey[key] = e;
-            }
-            return e;
+            MaxEntries = maxEntries.GetValueOrDefault(int.MaxValue);
         }
 
-        Task ICacher.RemoveAsync(string key)
+        protected override Task<ICacheEntry> OnFindEntryAsync(string key)
+            => Task.FromResult(CacheEntryByCacheKey.FindOrDefault(key));
+
+        protected override Task OnWriteEntryAsync(string key, ICacheEntry entry)
         {
-            EntriesByKey.Remove(key);
+            if (CacheEntryByCacheKey.Count >= MaxEntries)
+            {
+                var keys = CacheEntryByCacheKey.Keys.ToList();
+                keys.ShuffleList();
+                CacheEntryByCacheKey.Remove(keys[0]);
+            }
+            CacheEntryByCacheKey[key] = entry;
+            return Task.CompletedTask;
+        }
+
+        protected override Task OnRemoveAsync(string key)
+        {
+            CacheEntryByCacheKey.Remove(key);
             return Task.CompletedTask;
         }
     }
