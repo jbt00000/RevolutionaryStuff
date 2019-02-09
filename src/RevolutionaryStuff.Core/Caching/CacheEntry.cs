@@ -4,29 +4,26 @@ namespace RevolutionaryStuff.Core.Caching
 {
     public class CacheEntry : ICacheEntry
     {
-        public DateTimeOffset CreatedAt { get; } = DateTimeOffset.UtcNow;
+        public DateTimeOffset CreatedAt { get; }
 
-        public DateTimeOffset ExpiresAt { get; private set; }
+        public DateTimeOffset ExpiresAt { get; }
 
-        public string CreatedOn { get; } = Environment.MachineName;
+        public string CreatedOn { get; }
 
-        public object Value { get; private set; }
-
-        object ICacheEntry.Value => Value;
+        public object Value { get; }
 
         bool ICacheEntry.IsExpired => ExpiresAt < DateTimeOffset.Now;
 
-        public CacheEntry(object val, TimeSpan? expiresIn=null)
+        public CacheEntry(object val, TimeSpan? expiresIn=null, DateTimeOffset? createdAt=null, string createdOn=null)
         {
             Value = val;
+            CreatedAt = createdAt.HasValue ? createdAt.Value : DateTimeOffset.UtcNow;
             ExpiresAt = expiresIn.HasValue ? CreatedAt.Add(expiresIn.Value) : DateTimeOffset.MaxValue;
+            CreatedOn = createdOn ?? Environment.MachineName;
         }
 
         public CacheEntry(object val, ICacheEntryRetentionPolicy settings)
             : this(val, settings?.CacheEntryTimeout)
         { }
-
-        public static ICacheEntry Create(object val, TimeSpan? expiresIn = null)
-            => new CacheEntry(val, expiresIn);
     }
 }

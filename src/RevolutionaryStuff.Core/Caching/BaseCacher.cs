@@ -5,7 +5,13 @@ using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
 {
-    public abstract class BaseCacher : ICacher
+    public abstract class BaseCacher : BaseCacher<CacheEntry>
+    {
+        protected override CacheEntry CreateEntry(CacheCreationResult res)
+            => new CacheEntry(res.Val, res.RetentionPolicy);
+    }
+
+    public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : ICacheEntry
     {
         protected readonly ReaderWriterLock RWL = new ReaderWriterLock();
 
@@ -15,21 +21,20 @@ namespace RevolutionaryStuff.Core.Caching
         protected virtual ICacheEntryRetentionPolicy DefaultCacheEntryRetentionPolicy
             => CacheEntryRetentionPolicy.Default;
 
-        protected virtual ICacheEntry CreateEntry(CacheCreationResult res)
-            => new CacheEntry(res.Val, res.RetentionPolicy);
+        protected abstract T_CACHE_ENTRY CreateEntry(CacheCreationResult res);
 
-        protected Task<ICacheEntry> FindEntryAsync(string key)
+        protected async Task<ICacheEntry> FindEntryAsync(string key)
         {
             Requires.NonNull(key, nameof(key));
             using (RWL.UseRead())
             {
-                return OnFindEntryAsync(key);
+                return await OnFindEntryAsync(key);
             }
         }
 
-        protected abstract Task<ICacheEntry> OnFindEntryAsync(string key);
+        protected abstract Task<T_CACHE_ENTRY> OnFindEntryAsync(string key);
 
-        protected Task WriteEntryAsync(string key, ICacheEntry entry)
+        protected Task WriteEntryAsync(string key, T_CACHE_ENTRY entry)
         {
             Requires.NonNull(key, nameof(key));
             using (RWL.UseWrite())
@@ -38,7 +43,7 @@ namespace RevolutionaryStuff.Core.Caching
             }
         }
 
-        protected abstract Task OnWriteEntryAsync(string key, ICacheEntry entry);
+        protected abstract Task OnWriteEntryAsync(string key, T_CACHE_ENTRY entry);
 
         Task<ICacheEntry> ICacher.FindEntryOrCreateValueAsync(string key, Func<string, Task<CacheCreationResult>> asyncCreator, IFindOrCreateEntrySettings findOrCreateSettings)
         {
@@ -51,10 +56,10 @@ namespace RevolutionaryStuff.Core.Caching
         {
             using (var l = RWL.UseRead())
             {
-                ICacheEntry entry = null;
+                T_CACHE_ENTRY entry = default(T_CACHE_ENTRY);
                 if (!findOrCreateSettings.ForceCreate)
                 {
-                    entry = await FindEntryAsync(key);
+                    entry = (T_CACHE_ENTRY) await FindEntryAsync(key);
                 }
                 if (entry != null && !entry.IsExpired) return entry;
                 if (asyncCreator == null) return null;

@@ -8,7 +8,7 @@ namespace RevolutionaryStuff.Core.Caching
     public class BasicCacher : BaseCacher
     {
         //This is internal to support unit testing
-        internal readonly IDictionary<string, ICacheEntry> CacheEntryByCacheKey = new Dictionary<string, ICacheEntry>();
+        internal readonly IDictionary<string, CacheEntry> CacheEntryByCacheKey = new Dictionary<string, CacheEntry>();
 
         protected readonly int MaxEntries;
 
@@ -17,10 +17,10 @@ namespace RevolutionaryStuff.Core.Caching
             MaxEntries = maxEntries.GetValueOrDefault(int.MaxValue);
         }
 
-        protected override Task<ICacheEntry> OnFindEntryAsync(string key)
+        protected override Task<CacheEntry> OnFindEntryAsync(string key)
             => Task.FromResult(CacheEntryByCacheKey.FindOrDefault(key));
 
-        protected override Task OnWriteEntryAsync(string key, ICacheEntry entry)
+        protected override Task OnWriteEntryAsync(string key, CacheEntry entry)
         {
             if (CacheEntryByCacheKey.Count >= MaxEntries)
             {
