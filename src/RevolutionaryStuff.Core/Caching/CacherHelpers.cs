@@ -12,6 +12,9 @@ namespace RevolutionaryStuff.Core.Caching
         public static ICacher CreateScope(this ICacher inner, params object[] keyParts)
             => new ScopedCacher(inner, keyParts);
 
+        public static void Remove(this ICacher cacher, string key)
+            => cacher.RemoveAsync(key).ExecuteSynchronously();
+
         public static async Task<TVal> FindOrCreateValueAsync<TVal>(this ICacher cacher, string key, Func<Task<TVal>> asyncCreator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
         {
             Requires.NonNull(asyncCreator, nameof(asyncCreator));

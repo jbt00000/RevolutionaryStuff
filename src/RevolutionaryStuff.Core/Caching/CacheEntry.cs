@@ -12,7 +12,8 @@ namespace RevolutionaryStuff.Core.Caching
 
         public object Value { get; }
 
-        bool ICacheEntry.IsExpired => ExpiresAt < DateTimeOffset.Now;
+        public virtual bool IsExpired 
+            => ExpiresAt < DateTimeOffset.Now;
 
         public CacheEntry(object val, TimeSpan? expiresIn=null, DateTimeOffset? createdAt=null, string createdOn=null)
         {

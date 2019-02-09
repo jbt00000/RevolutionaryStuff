@@ -7,8 +7,11 @@ namespace RevolutionaryStuff.Core.Caching
 {
     public abstract class BaseCacher : BaseCacher<CacheEntry>
     {
+        protected virtual ICacheEntryRetentionPolicy DefaultCacheEntryRetentionPolicy
+            => CacheEntryRetentionPolicy.Default;
+
         protected override CacheEntry CreateEntry(CacheCreationResult res)
-            => new CacheEntry(res.Val, res.RetentionPolicy);
+            => new CacheEntry(res.Val, res.RetentionPolicy ?? DefaultCacheEntryRetentionPolicy);
     }
 
     public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : ICacheEntry
@@ -17,9 +20,6 @@ namespace RevolutionaryStuff.Core.Caching
 
         protected BaseCacher()
         { }
-
-        protected virtual ICacheEntryRetentionPolicy DefaultCacheEntryRetentionPolicy
-            => CacheEntryRetentionPolicy.Default;
 
         protected abstract T_CACHE_ENTRY CreateEntry(CacheCreationResult res);
 
