@@ -97,5 +97,23 @@ namespace RevolutionaryStuff.Core.Tests
         {
             Assert.IsFalse(StringHelpers.IsSameIgnoreCase("hello", "HE LO"));
         }
+
+        [TestMethod]
+        public void LeftTests()
+        {
+            Assert.IsNull(StringHelpers.Left(null, 3));
+            Assert.AreEqual("", "".Left(3));
+            Assert.AreEqual("jas", "jason".Left(3));
+            Assert.AreEqual("jason", "jason".Left(300));
+        }
+
+        [TestMethod]
+        public void RightTests()
+        {
+            Assert.IsNull(StringHelpers.Right(null, 3));
+            Assert.AreEqual("", "".Right(3));
+            Assert.AreEqual("son", "jason".Right(3));
+            Assert.AreEqual("jason", "jason".Right(300));
+        }
     }
 }

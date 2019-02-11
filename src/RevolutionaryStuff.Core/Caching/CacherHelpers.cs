@@ -31,6 +31,18 @@ namespace RevolutionaryStuff.Core.Caching
             return entry.GetValue<TVal>();
         }
 
+        public static TVal FindValue<TVal>(this ICacher cacher, string key, TVal missing = default(TVal))
+            => cacher.FindValueAsync(key, missing).ExecuteSynchronously();
+
+        public static async Task<TVal> FindValueAsync<TVal>(this ICacher cacher, string key, TVal missing=default(TVal))
+        {
+            var entry = await cacher.FindEntryAsync(key);
+            return entry == null ? missing : entry.GetValue<TVal>();
+        }
+
+        public static Task<ICacheEntry> FindEntryAsync(this ICacher cacher, string key)
+            => cacher.FindEntryOrCreateValueAsync(key);
+
         public static TVal FindOrCreateValue<TVal>(this ICacher cacher, string key, Func<TVal> creator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
             => cacher.FindOrCreateValueAsync<TVal>(key, () => Task.FromResult(creator()), cacheEntryTimeout, forceCreate).ExecuteSynchronously();
 
