@@ -25,6 +25,9 @@ namespace RevolutionaryStuff.TheLoader
 {
     public class Program : CommandLineProgram
     {
+        static void Main(string[] args)
+            => Main<Program>(args);
+
         public enum Modes
         {
             Import,
@@ -46,8 +49,8 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitchModeSwitch(CommandLineSwitchAttribute.CommonArgNames.Mode)]
         public Modes Mode = Modes.Import;
 
-        [CommandLineSwitch("RemoteServerType", Mandatory = false)]
-        public RemoteServerTypes RemoteServerType = RemoteServerTypes.SqlServer;
+        [CommandLineSwitch("SinkType", Mandatory = false)]
+        public SinkTypes SinkType = SinkTypes.SqlServer;
 
         [CommandLineSwitch("SkipZeroRowTables", Mandatory = false, Mode = NameofModeImport)]
         public bool SkipZeroRowTables = true;
@@ -846,25 +849,21 @@ namespace RevolutionaryStuff.TheLoader
                 {
                     dt.IdealizeStringColumns(TrimAndNullifyStringData);
                 }
-                using (new TraceRegion($"Operating on {Schema}.{dt.TableName}; Table {tableNum}/{ds.Tables.Count}; RemoteServerType={RemoteServerType}"))
+                using (new TraceRegion($"Operating on {Schema}.{dt.TableName}; Table {tableNum}/{ds.Tables.Count}; RemoteServerType={SinkType}"))
                 {
                     if (dt.Rows.Count == 0 && SkipZeroRowTables) return;
-                    switch (RemoteServerType)
+                    switch (SinkType)
                     {
-                        case RemoteServerTypes.SqlServer:
+                        case SinkTypes.SqlServer:
                             LoadIntoSqlServerAsync(
                                 dt, 
                                 ()=>new SqlConnection(ConnectionString), 
                                 new UploadIntoSqlServerSettings { Schema = Schema, GenerateTable = true, RowsTransferredNotifyIncrement = NotifyIncrement } 
                                 ).ExecuteSynchronously();
                             break;
-                        /*
-                                                case RemoteServerTypes.DocumentDB:
-                                                    LoadIntoDocumentDB(dt);
-                                                    break;
-                        */
+                        case SinkTypes.FlatFile:
                         default:
-                            throw new UnexpectedSwitchValueException(RemoteServerType);
+                            throw new UnexpectedSwitchValueException(SinkType);
                     }
                 }
             });
@@ -931,8 +930,5 @@ namespace RevolutionaryStuff.TheLoader
                 Trace.TraceInformation($"{copy.DestinationTableName} uploaded {dt.Rows.Count}/{dt.Rows.Count} rows.  Upload is complete.");
             }
         }
-
-        static void Main(string[] args)
-            => Main<Program>(args);
     }
 }

@@ -2,6 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.2</TargetFramework>
+    <RuntimeFrameworkVersion>2.2.2</RuntimeFrameworkVersion>
     <AssemblyName>RevolutionaryStuff.Core.Tests</AssemblyName>
     <PackageId>RevolutionaryStuff.Core.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>

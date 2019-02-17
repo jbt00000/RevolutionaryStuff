@@ -1,6 +1,5 @@
-﻿using RevolutionaryStuff.Core.Threading;
+﻿using Nito.AsyncEx;
 using System;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
@@ -16,7 +15,7 @@ namespace RevolutionaryStuff.Core.Caching
 
     public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : ICacheEntry
     {
-        protected readonly ReaderWriterLock RWL = new ReaderWriterLock();
+        protected readonly AsyncReaderWriterLock RWL = new AsyncReaderWriterLock();
 
         protected BaseCacher()
         { }
@@ -26,7 +25,7 @@ namespace RevolutionaryStuff.Core.Caching
         protected async Task<ICacheEntry> FindEntryAsync(string key)
         {
             Requires.NonNull(key, nameof(key));
-            using (RWL.UseRead())
+            using (await RWL.ReaderLockAsync())
             {
                 return await OnFindEntryAsync(key);
             }
@@ -34,12 +33,12 @@ namespace RevolutionaryStuff.Core.Caching
 
         protected abstract Task<T_CACHE_ENTRY> OnFindEntryAsync(string key);
 
-        protected Task WriteEntryAsync(string key, T_CACHE_ENTRY entry)
+        protected async Task WriteEntryAsync(string key, T_CACHE_ENTRY entry)
         {
             Requires.NonNull(key, nameof(key));
-            using (RWL.UseWrite())
+            using (await RWL.WriterLockAsync())
             {
-                return OnWriteEntryAsync(key, entry);
+                await OnWriteEntryAsync(key, entry);
             }
         }
 
@@ -54,35 +53,35 @@ namespace RevolutionaryStuff.Core.Caching
 
         protected virtual async Task<ICacheEntry> OnFindEntryOrCreateValueAsync(string key, Func<string, Task<CacheCreationResult>> asyncCreator, IFindOrCreateEntrySettings findOrCreateSettings)
         {
-            using (var l = RWL.UseRead())
+            T_CACHE_ENTRY entry = default(T_CACHE_ENTRY);
+            using (var l = await RWL.ReaderLockAsync())
             {
-                T_CACHE_ENTRY entry = default(T_CACHE_ENTRY);
                 if (!findOrCreateSettings.ForceCreate)
                 {
-                    entry = (T_CACHE_ENTRY) await FindEntryAsync(key);
+                    entry = (T_CACHE_ENTRY)await FindEntryAsync(key);
                 }
                 if (entry != null && !entry.IsExpired) return entry;
                 if (asyncCreator == null) return null;
-                using (l.UseWrite())
+            }
+            using (await RWL.WriterLockAsync())
+            {
+                if (entry != null)
                 {
-                    if (entry != null)
-                    {
-                        await OnRemoveAsync(key);
-                    }
-                    var creationResult = await asyncCreator(key);
-                    entry = CreateEntry(creationResult);
-                    await OnWriteEntryAsync(key, entry);
-                    return entry;
+                    await OnRemoveAsync(key);
                 }
+                var creationResult = await asyncCreator(key);
+                entry = CreateEntry(creationResult);
+                await OnWriteEntryAsync(key, entry);
+                return entry;
             }
         }
 
-        Task ICacher.RemoveAsync(string key)
+        async Task ICacher.RemoveAsync(string key)
         {
             Requires.NonNull(key, nameof(key));
-            using (RWL.UseWrite())
+            using (await RWL.WriterLockAsync())
             {
-                return OnRemoveAsync(key);
+                await OnRemoveAsync(key);
             }
         }
 

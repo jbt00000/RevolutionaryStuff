@@ -1,8 +1,9 @@
 ﻿namespace RevolutionaryStuff.TheLoader
 {
-    public enum RemoteServerTypes
+    public enum SinkTypes
     {
         SqlServer,
+        FlatFile,
 //        DocumentDB,
     }
 }
