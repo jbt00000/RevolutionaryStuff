@@ -1,5 +1,7 @@
 ﻿using Nito.AsyncEx;
 using System;
+using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
@@ -22,12 +24,37 @@ namespace RevolutionaryStuff.Core.Caching
 
         protected abstract T_CACHE_ENTRY CreateEntry(CacheCreationResult res);
 
+        private long CacheHits_p;
+        private long CacheMisses_p;
+        private long CacheEntryGenerationMilliseconds_p;
+
+        public long CacheHits
+            => CacheHits_p;
+
+        public long CacheMisses
+            => CacheMisses_p;
+
+        public TimeSpan CacheEntryGenerationTime
+            => TimeSpan.FromMilliseconds(CacheEntryGenerationMilliseconds_p);
+
+        public TimeSpan CacheEntryGenerationHitSavings
+            => CacheMisses_p == 0 ? TimeSpan.Zero : TimeSpan.FromMilliseconds(CacheEntryGenerationMilliseconds_p / CacheMisses_p * CacheHits_p);
+
         protected async Task<ICacheEntry> FindEntryAsync(string key)
         {
             Requires.NonNull(key, nameof(key));
             using (await RWL.ReaderLockAsync())
             {
-                return await OnFindEntryAsync(key);
+                var e = await OnFindEntryAsync(key);
+                if (e == null)
+                {
+                    Interlocked.Increment(ref CacheMisses_p);
+                }
+                else
+                {
+                    Interlocked.Increment(ref CacheHits_p);
+                }
+                return e;
             }
         }
 
@@ -69,7 +96,11 @@ namespace RevolutionaryStuff.Core.Caching
                 {
                     await OnRemoveAsync(key);
                 }
+                var sw = new Stopwatch();
+                sw.Start();
                 var creationResult = await asyncCreator(key);
+                sw.Stop();
+                Interlocked.Add(ref CacheEntryGenerationMilliseconds_p, sw.ElapsedMilliseconds);
                 entry = CreateEntry(creationResult);
                 await OnWriteEntryAsync(key, entry);
                 return entry;
