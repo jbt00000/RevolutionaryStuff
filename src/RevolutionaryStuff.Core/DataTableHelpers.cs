@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core
 {
@@ -71,6 +73,19 @@ namespace RevolutionaryStuff.Core
 
         public static int NumericPrecision(this DataColumn dc, int? val = null)
             => dc.IntegerExtendedProperty(CommonDataColumnExtendedPropertyNames.NumericPrecision, val);
+
+        public static async Task ToCsvAsync(this DataTable dt, StreamWriter sw, char fieldDelimChar=CSV.FieldDelimDefault)
+        {
+            var sb = new StringBuilder();
+            CSV.FormatLine(sb, dt.Columns.OfType<DataColumn>().ConvertAll(z => z.ColumnName), false, fieldDelimChar);
+            await sw.WriteLineAsync(sb.ToString());
+            foreach (DataRow r in dt.Rows)
+            {
+                sb.Clear();
+                CSV.FormatLine(sb, r.ItemArray, false, fieldDelimChar);
+                await sw.WriteLineAsync(sb.ToString());
+            }
+        }
 
         public static string ToCsv(this DataTable dt)
         {

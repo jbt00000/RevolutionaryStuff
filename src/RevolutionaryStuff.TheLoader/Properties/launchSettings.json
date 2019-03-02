@@ -2,7 +2,7 @@
   "profiles": {
     "RevolutionaryStuff.TheLoader": {
       "commandName": "Project",
-      "commandLineArgs": "-m:import -schema:usps -CSN:PersonalJason -filename:\"f:\\ACRS-Export.xls\" -table:acrs_export_raw  -FileFormat:Html"
+      "commandLineArgs": "-m:import -filename:\"C:\\Users\\jason\\Documents\\Traffk\\phi\\Test_TRAFFK_eligibility20180720_110638.xlsx\"   -CSN:\"C:\\Users\\jason\\Documents\\Traffk\\phi\\a.csv\" -SinkType:FlatFile -SinkCsvFieldDelim:| -RightType:No -TrimAndNullifyStringData:0"
     }
   }
 }

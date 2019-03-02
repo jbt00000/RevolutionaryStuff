@@ -16,9 +16,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using RevolutionaryStuff.Core;
 using RevolutionaryStuff.Core.ApplicationParts;
-using RevolutionaryStuff.Core.Database;
 using RevolutionaryStuff.Core.Diagnostics;
 using RevolutionaryStuff.ETL;
+using RevolutionaryStuff.TheLoader.Uploaders;
 using Simple.OData.Client;
 
 namespace RevolutionaryStuff.TheLoader
@@ -72,11 +72,11 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("Sql", Mandatory = true, Mode = NameofModeExport)]
         public string Sql;
 
-        [CommandLineSwitch("Schema", Mandatory = true, Mode = NameofModeImport)]
-        public string Schema;
+        [CommandLineSwitch("Schema", Mandatory = false, Mode = NameofModeImport)]
+        public string SinkSchema="dbo";
 
         [CommandLineSwitch("Table", Mandatory = false, Mode = NameofModeImport)]
-        public string Table;
+        public string SinkTable;
 
         [CommandLineSwitch("CSN", Mandatory = true)]
         public string ConnectionStringName;
@@ -120,6 +120,9 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("CsvFieldDelim", Mandatory = false, Mode = NameofModeImport)]
         public char CsvFieldDelim = ',';
 
+        [CommandLineSwitch("SinkCsvFieldDelim", Mandatory = false, Mode = NameofModeImport)]
+        public char SinkCsvFieldDelim = ',';
+
         [CommandLineSwitch("CsvQuoteChar", Mandatory = false, Mode = NameofModeImport)]
         public char CsvQuoteChar = '"';
 
@@ -154,7 +157,7 @@ namespace RevolutionaryStuff.TheLoader
 
         public HashSet<string> SkipCols = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
 
-        private string ConnectionString;
+        public string ConnectionString;
 
         protected override void OnPostProcessCommandLineArgs()
         {
@@ -168,7 +171,15 @@ namespace RevolutionaryStuff.TheLoader
             {
                 foreach (var s in SkipColsArr) SkipCols.Add(s);
             }
-            ConnectionString = Configuration.GetConnectionString(ConnectionStringName);
+            switch (SinkType)
+            {
+                case SinkTypes.SqlServer:
+                    ConnectionString = Configuration.GetConnectionString(ConnectionStringName);
+                    break;
+                default:
+                    ConnectionString = Path.GetFullPath(ConnectionStringName);
+                    break;
+            }
         }
 
         protected override async Task OnGoAsync()
@@ -537,7 +548,7 @@ namespace RevolutionaryStuff.TheLoader
 
         private async Task OnImportAsync()
         {
-            Table = Stuff.CoalesceStrings(Table, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
+            SinkTable = Stuff.CoalesceStrings(SinkTable, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
 
 //            await FigureItOutAsync();
 
@@ -545,7 +556,6 @@ namespace RevolutionaryStuff.TheLoader
             var rowErrors = new List<Tuple<int, Exception>>();
             DataSet ds = null;
             DataTable dt = null;
-            IList<string[]> st = null;
             if (FileFormat == FileFormats.Auto)
             {
                 FileFormat = FileFormatHelpers.GetImpliedFormat(FilePath, SourceUrl);
@@ -768,7 +778,7 @@ namespace RevolutionaryStuff.TheLoader
                     }
                     if (entityNames.Count() == 1)
                     {
-                        edt.TableName = StringHelpers.TrimOrNull(Table) ?? edt.TableName;
+                        edt.TableName = StringHelpers.TrimOrNull(SinkTable) ?? edt.TableName;
                     }
                     lock (ds)
                     {
@@ -803,7 +813,7 @@ namespace RevolutionaryStuff.TheLoader
             if (ds == null)
             {
                 Requires.NonNull(dt, nameof(dt));
-                dt.TableName = Stuff.CoalesceStrings(dt.TableName, Table);
+                dt.TableName = Stuff.CoalesceStrings(dt.TableName, SinkTable);
                 ds = new DataSet();
                 ds.Tables.Add(dt);
             }
@@ -849,86 +859,28 @@ namespace RevolutionaryStuff.TheLoader
                 {
                     dt.IdealizeStringColumns(TrimAndNullifyStringData);
                 }
-                using (new TraceRegion($"Operating on {Schema}.{dt.TableName}; Table {tableNum}/{ds.Tables.Count}; RemoteServerType={SinkType}"))
+                using (new TraceRegion($"Operating on {SinkSchema}.{dt.TableName}; Table {tableNum}/{ds.Tables.Count}; RemoteServerType={SinkType}"))
                 {
                     if (dt.Rows.Count == 0 && SkipZeroRowTables) return;
+                    IUploader uploader;
                     switch (SinkType)
                     {
                         case SinkTypes.SqlServer:
-                            LoadIntoSqlServerAsync(
-                                dt, 
-                                ()=>new SqlConnection(ConnectionString), 
-                                new UploadIntoSqlServerSettings { Schema = Schema, GenerateTable = true, RowsTransferredNotifyIncrement = NotifyIncrement } 
-                                ).ExecuteSynchronously();
+                            uploader = new SqlServerUploader(
+                                this,
+                                () => new SqlConnection(ConnectionString),
+                                new UploadIntoSqlServerSettings { Schema = SinkSchema, GenerateTable = true, RowsTransferredNotifyIncrement = NotifyIncrement }
+                                );
                             break;
                         case SinkTypes.FlatFile:
+                            uploader = new FlatFileUploader(this);
+                            break;
                         default:
                             throw new UnexpectedSwitchValueException(SinkType);
                     }
+                    uploader.UploadAsync(dt).ExecuteSynchronously();
                 }
             });
-        }
-
-        private async Task LoadIntoSqlServerAsync(DataTable dt, Func<SqlConnection> createConnection, UploadIntoSqlServerSettings settings = null)
-        {
-            Requires.NonNull(dt, nameof(dt));
-            Requires.NonNull(createConnection, nameof(createConnection));
-            settings = settings ?? new UploadIntoSqlServerSettings();
-
-            var schemaTable = $"[{settings.Schema}].[{dt.TableName}]";
-
-            dt.MakeDateColumnsFitSqlServerBounds();
-            dt.MakeColumnNamesSqlServerFriendly();
-
-            //Create table and insert 1 batch at a time
-            using (var conn = createConnection())
-            {
-                conn.InfoMessage += Conn_InfoMessage;
-                if (conn.TableExists(dt.TableName, settings.Schema))
-                {
-                    switch (TableAlreadyExistsAction)
-                    {
-                        case AlreadyExistsActions.Append:
-                            Trace.TraceWarning($"{settings.Schema}.{dt.TableName} already exists.  Will append.");
-                            break;
-                        case AlreadyExistsActions.Skip:
-                            Trace.TraceWarning($"{settings.Schema}.{dt.TableName} already exists.  Will skip.");
-                            return;
-                        default:
-                            throw new UnexpectedSwitchValueException(TableAlreadyExistsAction);
-                    }
-                }
-                else
-                {
-                    if (settings.GenerateTable)
-                    {
-                        var sql = dt.GenerateCreateTableSQL(settings.Schema, autoNumberColumnName: AutoNumberColumnName);
-                        Trace.TraceInformation(sql);
-                        conn.ExecuteNonQuery(sql);
-                        foreach (var propertyName in dt.ExtendedProperties.Keys.OfType<string>())
-                        {
-                            var propertyValue = dt.ExtendedProperties[propertyName];
-                            await conn.TablePropertySetAsync(dt.TableName, propertyName, propertyValue, settings.Schema);
-                        }
-                    }
-                    else
-                    {
-                        throw new Exception($"{schemaTable} does not exist but we have not been asked to generate it");
-                    }
-                }
-                var copy = new SqlBulkCopy(conn);
-                copy.BulkCopyTimeout = 60 * 60 * 4;
-                copy.DestinationTableName = $"[{settings.Schema}].[{dt.TableName}]";
-                copy.NotifyAfter = settings.RowsTransferredNotifyIncrement;
-                copy.SqlRowsCopied += (sender, e) => Trace.TraceInformation($"{copy.DestinationTableName} uploaded {e.RowsCopied}/{dt.Rows.Count} rows...");
-                foreach (DataColumn dc in dt.Columns)
-                {
-                    copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
-                }
-                await copy.WriteToServerAsync(dt);
-                copy.Close();
-                Trace.TraceInformation($"{copy.DestinationTableName} uploaded {dt.Rows.Count}/{dt.Rows.Count} rows.  Upload is complete.");
-            }
         }
     }
 }

@@ -295,21 +295,24 @@ namespace RevolutionaryStuff.Core
                         {
                             hasNulls = true;
                         }
-                        else if (trimAndNullifyStringData)
+                        else 
                         {
-                            var ts = StringHelpers.TrimOrNull(s);
-                            if (ts != s)
+                            if (trimAndNullifyStringData)
                             {
-                                if (ts == null)
+                                var ts = StringHelpers.TrimOrNull(s);
+                                if (ts != s)
                                 {
-                                    hasNulls = true;
-                                    dr[colNum] = DBNull.Value;
-                                    continue;
-                                }
-                                else
-                                {
-                                    s = ts;
-                                    dr[colNum] = s;
+                                    if (ts == null)
+                                    {
+                                        hasNulls = true;
+                                        dr[colNum] = DBNull.Value;
+                                        continue;
+                                    }
+                                    else
+                                    {
+                                        s = ts;
+                                        dr[colNum] = s;
+                                    }
                                 }
                             }
                             len = Stuff.Max(len, s.Length);

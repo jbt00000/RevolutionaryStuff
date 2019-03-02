@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Linq;
 using System.IO;
 
@@ -10,20 +9,39 @@ namespace RevolutionaryStuff.Core
 {
     public static class CSV
     {
+        public const char FieldDelimPipe = '|';
         public const char FieldDelimComma = ',';
+        public const char FieldDelimDefault = FieldDelimComma;
+
         public const char QuoteChar = '"';
 
-        private static readonly Regex Escapable = new Regex(
-            string.Format(
-                @"(^\s)|(\s$)|([{0}])",
-                Regex.Escape(",'\"")),
-            RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Multiline);
+        private static char[] CreateEscapeTriggers(char fieldDelim)
+            => new[] { '\r', '\n', '\"', fieldDelim };
 
-        public static string Format(string s)
+        private static readonly char[] CsvEscapeTrigger = CreateEscapeTriggers(FieldDelimComma);
+
+        private static readonly char[] PipeEscapeTrigger = CreateEscapeTriggers(FieldDelimPipe);
+
+        private static char[] FindOrCreateEscapeTrigger(char fieldDelim)
+        {
+            switch (fieldDelim)
+            {
+                case FieldDelimComma:
+                    return CsvEscapeTrigger;
+                case FieldDelimPipe:
+                    return PipeEscapeTrigger;
+                default:
+                    return CreateEscapeTriggers(fieldDelim);
+            }
+        }
+
+        public static string Format(string s, char[] escapeTriggers = null)
         {
             if (string.IsNullOrEmpty(s)) return s;
 
-            if (Escapable.IsMatch(s))
+            escapeTriggers = escapeTriggers ?? CsvEscapeTrigger;
+
+            if (s.IndexOfAny(escapeTriggers)>=0)
             {
                 return '"' + s.Replace("\"", "\"\"") + '"';
             }
@@ -53,9 +71,11 @@ namespace RevolutionaryStuff.Core
             FormatLine(sb, l, true);
         }
 
-        public static void FormatLine(StringBuilder sb, IEnumerable l, bool eol = true)
+        public static void FormatLine(StringBuilder sb, IEnumerable l, bool eol = true, char fieldDelim = FieldDelimComma)
         {
             int n = 0;
+
+            var escapeTrigger = FindOrCreateEscapeTrigger(fieldDelim);
 
             if (l!=null)
             {
@@ -63,11 +83,11 @@ namespace RevolutionaryStuff.Core
                 {
                     if (n++ > 0)
                     {
-                        sb.Append(",");
+                        sb.Append(fieldDelim);
                     }
                     if (null != o)
                     {
-                        sb.Append(Format(o.ToString()));
+                        sb.Append(Format(o.ToString(), escapeTrigger));
                     }
                 }
             }
