@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace RevolutionaryStuff.Core.Caching
+﻿namespace RevolutionaryStuff.Core.Caching
 {
     public class FindOrCreateEntrySettings : IFindOrCreateEntrySettings
     {

@@ -49,15 +49,41 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-public static Stream Create(string s, Encoding e=null)
-{            
-    var st = new MemoryStream();
-    var sr = new StreamWriter(st, e ?? UTF8Encoding.UTF8);
-    sr.Write(s);
-    sr.Flush();
-    st.Position = 0;
-    return st;
-}
+        public static async Task CopyToAsync(this Stream st, Stream dst, Action<int, long, long?> progress, int? bufferSize=null)
+        {
+            Requires.ReadableStreamArg(st, nameof(st));
+            Requires.WriteableStreamArg(dst, nameof(dst));
+
+            var bufSize = bufferSize.GetValueOrDefault(1024 * 256);
+            Requires.Positive(bufSize, nameof(bufferSize));
+
+            var buf = new byte[bufSize];
+            long tot = 0;
+            long? len = 0;
+            if (st.CanSeek)
+            {
+                len = st.Length - st.Position;
+            }
+            for (; ; )
+            {
+                int read = await st.ReadAsync(buf, 0, buf.Length);
+                if (read <= 0) break;
+                await dst.WriteAsync(buf, 0, read);
+                tot += read;
+                progress(read, tot, len);
+            }
+            progress(0, tot, len);
+        }
+
+        public static Stream Create(string s, Encoding e=null)
+        {            
+            var st = new MemoryStream();
+            var sr = new StreamWriter(st, e ?? UTF8Encoding.UTF8);
+            sr.Write(s);
+            sr.Flush();
+            st.Position = 0;
+            return st;
+        }
 
         public static void Write(this Stream st, byte[] buffer)
         {

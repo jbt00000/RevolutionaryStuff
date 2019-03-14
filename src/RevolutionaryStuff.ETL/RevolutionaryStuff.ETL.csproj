@@ -14,9 +14,9 @@
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>2.4.2.0</FileVersion>
-    <AssemblyVersion>2.4.2.0</AssemblyVersion>
-    <Version>2.4.2</Version>
+    <FileVersion>2.4.3.0</FileVersion>
+    <AssemblyVersion>2.4.3.0</AssemblyVersion>
+    <Version>2.4.3</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />

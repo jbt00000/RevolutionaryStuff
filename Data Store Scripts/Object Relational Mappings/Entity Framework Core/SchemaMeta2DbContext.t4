@@ -104,6 +104,8 @@ namespace <#=dbContextNamespace#>
 {
     public partial class <#=databaseContextClassName#>
     {
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
             base.OnModelCreating(modelBuilder);
@@ -140,6 +142,7 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
             AddFluentKeys(modelBuilder);
 			AddFluentRelationships(modelBuilder);
 			AddQueryFilters(modelBuilder);
+            OnModelCreatingPartial(modelBuilder);
 		}
 
 		#region Collections
