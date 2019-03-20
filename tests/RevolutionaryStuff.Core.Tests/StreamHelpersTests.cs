@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Diagnostics;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -19,6 +20,7 @@ namespace RevolutionaryStuff.Core.Tests
             await sourceStream.CopyToAsync(destStream, (read, totRead, tot) => 
             {
                 ++callbackCount;
+                Trace.WriteLine($"CopyToAsync(read={read}, totRead={totRead}, tot={tot}) CallbackCount={callbackCount}");
                 Assert.IsTrue(totRead >= lastTotRead);
                 Assert.AreEqual(totRead, lastTotRead+read);
                 lastTotRead = totRead;

@@ -13,11 +13,11 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>- Modified caching options around the AzureActiveDirectoryResourceAuthorizationGetter</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>2.4.3.0</FileVersion>
-    <AssemblyVersion>2.4.3.0</AssemblyVersion>
-    <Version>2.4.3</Version>
+    <FileVersion>2.5.1.0</FileVersion>
+    <AssemblyVersion>2.5.1.0</AssemblyVersion>
+    <Version>2.5.1</Version>
     <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>

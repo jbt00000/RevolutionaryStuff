@@ -27,6 +27,8 @@ namespace RevolutionaryStuff.Core
 
             public class AuthenticatorConfig : IValidate
             {
+                public bool ForceFetchNew { get; set; }
+
                 public string Name { get; set; }
 
                 public Uri LoginUrl { get; set; }
@@ -140,7 +142,7 @@ namespace RevolutionaryStuff.Core
             Requires.NonNull(configOptions, nameof(configOptions));
 
             ConfigOptions = configOptions;
-            ResultCache = resultCache ?? new BasicCacher();
+            ResultCache = resultCache ?? Cache.Passthrough;
         }
 
         public AzureActiveDirectoryResourceAuthorizationGetter(Config config, ICacher resultCache = null)
@@ -175,7 +177,7 @@ namespace RevolutionaryStuff.Core
             }, resultCache)
         { }
 
-        public async Task<AuthenticationResult> AuthorizeAsync(string name=null)
+        public async Task<AuthenticationResult> AuthorizeAsync(string name=null, bool forceFetchNew = false)
         {
             var config = ConfigOptions.Value;
             Requires.Valid(config, nameof(config));
@@ -216,7 +218,7 @@ namespace RevolutionaryStuff.Core
                 var response = await client.PostAsync(authenticatorConfig.LoginUrl ?? DefaultLoginUrl, WebHelpers.CreateHttpContent(datas));
                 var json = await response.Content.ReadAsStringAsync();
                 return AuthenticationResult.CreateFromJson(json);
-            });
+            }, null, authenticatorConfig.ForceFetchNew || forceFetchNew);
 
             return res;
         }

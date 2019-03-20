@@ -14,9 +14,10 @@
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>2.4.3.0</FileVersion>
-    <AssemblyVersion>2.4.3.0</AssemblyVersion>
-    <Version>2.4.3</Version>
+    <FileVersion>2.5.1.0</FileVersion>
+    <AssemblyVersion>2.5.1.0</AssemblyVersion>
+    <Version>2.5.1</Version>
+    <PackageReleaseNotes>- Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
