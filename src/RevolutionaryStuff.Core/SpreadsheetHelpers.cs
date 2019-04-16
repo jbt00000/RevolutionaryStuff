@@ -303,7 +303,7 @@ namespace RevolutionaryStuff.Core
             return cr;
         }
 
-        private static int FindOrCreateSharedString(IDictionary<string, int> indexBySharedString, string s)
+        internal static int FindOrCreateSharedString(this IDictionary<string, int> indexBySharedString, string s)
         {
             int pos;
             if (!indexBySharedString.TryGetValue(s, out pos))
@@ -316,23 +316,32 @@ namespace RevolutionaryStuff.Core
 
         private static IDictionary<string, int> LoadSharedStrings(string sharedStringsPath)
         {
-            var d = new Dictionary<string, int>();
-            if (File.Exists(sharedStringsPath))
+            Requires.Text(sharedStringsPath, nameof(sharedStringsPath));
+
+            using (var st = File.Exists(sharedStringsPath) ? (Stream) File.OpenRead(sharedStringsPath) : new MemoryStream())
             {
-                using (var st = File.OpenRead(sharedStringsPath))
+                return LoadSharedStrings(st);
+            }
+        }
+
+        internal static IDictionary<string, int> LoadSharedStrings(Stream st)
+        {
+            Requires.ReadableStreamArg(st, nameof(st));
+
+            var d = new Dictionary<string, int>();
+            if (st.Length>0)
+            {
+                var reader = XmlReader.Create(st, new XmlReaderSettings { CloseInput = false });
+                while (reader.Read())
                 {
-                    var reader = XmlReader.Create(st, new XmlReaderSettings { CloseInput = false });
-                    while (reader.Read())
+                    if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "t" && reader.NamespaceURI == CommonNamespaces.SpreadsheetMain)
                     {
-                        if (reader.NodeType == XmlNodeType.Element && reader.LocalName == "t" && reader.NamespaceURI == CommonNamespaces.SpreadsheetMain)
+                        for (; reader.Read();)
                         {
-                            for (; reader.Read();)
+                            if (reader.NodeType == XmlNodeType.Text)
                             {
-                                if (reader.NodeType == XmlNodeType.Text)
-                                {
-                                    d[reader.Value] = d.Count;
-                                    break;
-                                }
+                                d[reader.Value] = d.Count;
+                                break;
                             }
                         }
                     }
@@ -343,7 +352,19 @@ namespace RevolutionaryStuff.Core
 
         private static void SaveSharedStrings(string sharedStringsPath, IDictionary<string, int> sharedStrings)
         {
-            using (var writer = XmlWriter.Create(sharedStringsPath))
+            Requires.Text(sharedStringsPath, nameof(sharedStringsPath));
+            using (var st = File.Create(sharedStringsPath))
+            {
+                SaveSharedStrings(st, sharedStrings);
+            }
+        }
+
+        internal static void SaveSharedStrings(Stream st, IDictionary<string, int> sharedStrings=null)
+        {
+            Requires.WriteableStreamArg(st, nameof(st));
+            sharedStrings = sharedStrings ?? new Dictionary<string, int>();
+
+            using (var writer = XmlWriter.Create(st))
             {
                 writer.WriteStartDocument(true);
                 writer.WriteStartElement("sst", CommonNamespaces.SpreadsheetMain);

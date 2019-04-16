@@ -104,7 +104,7 @@ namespace <#=dbContextNamespace#>
 {
     public partial class <#=databaseContextClassName#>
     {
-        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+            partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder)
 		{
@@ -139,6 +139,7 @@ foreach (var z in doc.XPathSelectElements("/SchemaMeta/Tables/Table[Properties/P
 <#+
 }
 #>
+            AddPrecision(modelBuilder);
             AddFluentKeys(modelBuilder);
 			AddFluentRelationships(modelBuilder);
 			AddQueryFilters(modelBuilder);
@@ -472,7 +473,8 @@ foreach (var f in z.XPathSelectElements("Columns/Column"))
 	string maxLen;
 	string jsonSettingsClass;
 	string dataTypeAttributeValue;
-	string dataType = GetClrTypeFromColumn(f, out isNullable, out maxLen, out jsonSettingsClass, out dataTypeAttributeValue);
+    string sqlType;
+	string dataType = GetClrTypeFromColumn(f, out isNullable, out maxLen, out jsonSettingsClass, out dataTypeAttributeValue, out sqlType);
 	if (dataType==null) continue;
 	if (isPrimaryKey && keyParts==1)
 	{
@@ -610,7 +612,7 @@ foreach (var f in z.XPathSelectElements("Columns/Column"))
 #>		[DataType(<#=dataTypeAttributeValue#>)]
 <#+	
 	}
-	if (maxLen != null)
+	if (dataType=="string" && maxLen != null)
 	{
 		validators.Add("Requires.Text("+propertyName+", nameof("+propertyName+"), true, 0, "+maxLen+");");
 #>		[MaxLength(<#=maxLen#>)]
@@ -644,7 +646,7 @@ foreach (var f in z.XPathSelectElements("Columns/Column"))
 		}
 	}
 #>
-		[Column("<#=GetAttrVal(f, "name")#>")]
+		[Column("<#=GetAttrVal(f, "name")#>"<#+ if (sqlType.IndexOf("(")>0){#>, TypeName="<#=sqlType#>"<#+}#>)]
 		<#=accessModifier#> <#=inheritanceModifier==null?"":inheritanceModifier+" "#><#=dataType#> <#=propertyName#> { get; set; } <#=(defaultValue??"")#>	
 
 <#+
@@ -807,6 +809,13 @@ foreach (var v in validators)
 
     public partial class <#=databaseContextClassName#>
     {
+        partial void OnAddPrecision(ModelBuilder modelBuilder);
+
+        private void AddPrecision(ModelBuilder modelBuilder)
+        {
+            OnAddPrecision(modelBuilder);        
+        }
+
         partial void OnAddFluentKeys(ModelBuilder modelBuilder);
 
         private void AddFluentKeys(ModelBuilder modelBuilder)
@@ -956,9 +965,10 @@ public string GetAccessModifier(XElement xel)
 	var access = GetPropertyValue(xel, "AccessModifier") ?? GetPropertyValue(xel, "accessModifier") ?? "public";
 	return access;
 }
-public int GetAttrValAsInt(XElement xel, string attrName)
+public int GetAttrValAsInt(XElement xel, string attrName, int missingVal=0)
 {
 	string val = GetAttrVal(xel, attrName);
+    if (val==null || val=="") return missingVal;
 	return int.Parse(val);
 }
 public bool GetAttrValAsBool(XElement xel, string attrName)
@@ -1075,7 +1085,7 @@ public string LeftOf(string s, string pivot)
 	return s.Substring(0, x);
 }
 
-public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string maxLen, out string jsonSettingsClass, out string dataTypeAttributeValue)
+public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string maxLen, out string jsonSettingsClass, out string dataTypeAttributeValue, out string sqlType)
 {
 	dataTypeAttributeValue = null;
 	isNullable = GetAttrValAsBool(f, "isNullable");
@@ -1083,6 +1093,8 @@ public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string m
 	jsonSettingsClass = null;
 	string dataType = null;
 	bool canUseMaxLen = false;
+    int precision = GetAttrValAsInt(f, "numericPrecision");
+    int scale = GetAttrValAsInt(f, "numericScale");
 	switch (GetAttrVal(f, "name"))
 	{
 		case "PhoneNumber":
@@ -1101,7 +1113,8 @@ public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string m
 			dataTypeAttributeValue = "DataType.EmailAddress";
 			break;
 	}
-	switch (GetAttrVal(f, "sqlType"))
+    sqlType = GetAttrVal(f, "sqlType");
+	switch (sqlType)
 	{	
 		case "uniqueidentifier":
 			dataType = "Guid";
@@ -1115,10 +1128,12 @@ public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string m
 		case "money":
 			dataType = "decimal" + (isNullable ? "?" : "");
 			dataTypeAttributeValue = "DataType.Currency";
+            sqlType += $"({precision}, {scale})";
 			break;
 		case "decimal":
 		case "numeric":
 			dataType = "decimal" + (isNullable ? "?" : "");
+            sqlType += $"({precision}, {scale})";
 			break;
 		case "float":
 			dataType = "double" + (isNullable ? "?" : "");
@@ -1130,6 +1145,7 @@ public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string m
 			dataType = "long" + (isNullable ? "?" : "");
 			break;
 		case "char":
+			canUseMaxLen = true;
 			dataType = "string";
 			//could not be mapped, because it is of type 'char' which is not a supported primitive type or a valid entity type
 			//https://github.com/aspnet/EntityFrameworkCore/issues/9447
@@ -1150,6 +1166,9 @@ public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string m
 			break;
 		case "varbinary":
 		case "binary":
+            canUseMaxLen = true;
+			dataType = "byte[]";
+			break;
 		case "timestamp":
 			dataType = "byte[]";
 			break;
@@ -1172,7 +1191,15 @@ public string GetClrTypeFromColumn(XElement f, out bool isNullable, out string m
 	if (canUseMaxLen)
 	{
 		maxLen = GetAttrVal(f, "maxLen");
-		if (maxLen=="-1") maxLen = null;	
+		if (maxLen=="-1")
+        {
+            sqlType += $"(max)";
+            maxLen = null;
+        }
+        else
+        {
+            sqlType += $"({maxLen})";
+        }
 	}
 	return dataType;
 }

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.26730.0
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.28729.10
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Core", "src\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj", "{1D5979C8-2F75-4F8F-9288-3938F6D92BE2}"
 EndProject
@@ -41,6 +41,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Entity Framework Core", "En
 		Data Store Scripts\Object Relational Mappings\Entity Framework Core\SchemaMeta2DbContext.t4 = Data Store Scripts\Object Relational Mappings\Entity Framework Core\SchemaMeta2DbContext.t4
 		Data Store Scripts\Object Relational Mappings\Entity Framework Core\SchemaMeta2DbContext.tt = Data Store Scripts\Object Relational Mappings\Entity Framework Core\SchemaMeta2DbContext.tt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.ETL.Tests", "tests\RevolutionaryStuff.ETL.Tests\RevolutionaryStuff.ETL.Tests.csproj", "{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{5C225173-831E-4797-B946-845F185EE359}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -112,16 +116,30 @@ Global
 		{4C2ADF1B-6E56-43E6-8DAF-A88326414FE1}.VSTS-CI|Any CPU.Build.0 = Release|Any CPU
 		{4C2ADF1B-6E56-43E6-8DAF-A88326414FE1}.VSTS-CI|x64.ActiveCfg = Release|Any CPU
 		{4C2ADF1B-6E56-43E6-8DAF-A88326414FE1}.VSTS-CI|x64.Build.0 = Release|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.Debug|x64.Build.0 = Debug|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.Release|x64.ActiveCfg = Release|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.Release|x64.Build.0 = Release|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D}.VSTS-CI|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6} = {5C225173-831E-4797-B946-845F185EE359}
 		{64C30BE0-EC17-4C9E-874B-D80D24640FDC} = {FA8F958C-71DA-4287-9F53-5536A70AA274}
 		{2F7A5F12-2EE2-444E-90FA-A838768B4509} = {FA8F958C-71DA-4287-9F53-5536A70AA274}
 		{E106E553-9FEC-45E5-9A3F-886D6908AC33} = {64C30BE0-EC17-4C9E-874B-D80D24640FDC}
 		{0AF8B3E9-E08A-4BF1-B29A-D4AC65C385DB} = {E106E553-9FEC-45E5-9A3F-886D6908AC33}
 		{149194AE-A6C1-4F65-BC3B-289241E3F628} = {2F7A5F12-2EE2-444E-90FA-A838768B4509}
+		{0FAA05EA-AA87-477C-AAFE-171DD7AD483D} = {5C225173-831E-4797-B946-845F185EE359}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {32963F03-EC23-4F51-A9D4-FB17A528947E}
