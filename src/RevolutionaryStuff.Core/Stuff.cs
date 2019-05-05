@@ -294,26 +294,32 @@ namespace RevolutionaryStuff.Core
 
         public static TResult ExecuteSynchronously<TResult>(this Task<TResult> task)
         {
-            try
+            if (!task.IsCompleted)
             {
-                Task.WaitAll(task);
-            }
-            catch (AggregateException ae)
-            {
-                throw ae.InnerException;
+                try
+                {
+                    Task.WaitAll(task);
+                }
+                catch (AggregateException ae)
+                {
+                    throw ae.InnerException;
+                }
             }
             return task.Result;
         }
 
         public static void ExecuteSynchronously(this Task task)
         {
-            try
+            if (!task.IsCompleted)
             {
-                Task.WaitAll(task);
-            }
-            catch (AggregateException ae)
-            {
-                throw ae.InnerException;
+                try
+                {
+                    Task.WaitAll(task);
+                }
+                catch (AggregateException ae)
+                {
+                    throw ae.InnerException;
+                }
             }
         }
 

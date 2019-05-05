@@ -226,10 +226,6 @@ namespace RevolutionaryStuff.Core
             }
             try
             {
-                return Convert.ChangeType(val, t);
-            }
-            catch (InvalidCastException)
-            {
                 if (t == typeof(TimeSpan))
                 {
                     return TimeSpan.Parse(val);
@@ -246,8 +242,10 @@ namespace RevolutionaryStuff.Core
                 {
                     return Enum.Parse(t, val, true);
                 }
-                throw new NotSupportedException();
             }
+            catch (Exception)
+            { }
+            return Convert.ChangeType(val, t);
         }
 
         public static object ConvertValue(Type t, object val)

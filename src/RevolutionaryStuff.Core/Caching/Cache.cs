@@ -22,6 +22,24 @@ namespace RevolutionaryStuff.Core.Caching
 
         public static readonly ICacher Passthrough = new PassthroughCacher();
 
+        public static string CreateKey<T>()
+            => CreateKey(new object[] { typeof(T) });
+
+        public static string CreateKey<T>(object a0)
+            => CreateKey(new object[] { typeof(T), a0 });
+
+        public static string CreateKey<T>(object a0, object a1)
+            => CreateKey(new object[] { typeof(T), a0, a1 });
+
+        public static string CreateKey<T>(object a0, object a1, object a2)
+            => CreateKey(new object[] { typeof(T), a0, a1, a2 });
+
+        public static string CreateKey<T>(object a0, object a1, object a2, object a3)
+            => CreateKey(new object[] { typeof(T), a0, a1, a2, a3 });
+
+        public static string CreateKey<T>(object a0, object a1, object a2, object a3, object a4)
+            => CreateKey(new object[] { typeof(T), a0, a1, a2, a3, a4 });
+
         public static string CreateKey(params object[] args)
             => CreateKey((IEnumerable<object>)args);
 

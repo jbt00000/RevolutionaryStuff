@@ -20,9 +20,7 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         /// <param name="buf">The buffer</param>
         /// <returns>An encoded string that holds the contents of the inputs</returns>
         public static string Encode(byte[] buf)
-        {
-            return Encode(buf, 0, buf.Length);
-        }
+            => Encode(buf, 0, buf==null?0:buf.Length);
 
         /// <summary>
         /// Encode part of a buffer using the default options
@@ -32,9 +30,7 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         /// <param name="length">The amount of data to encode</param>
         /// <returns>An encoded string that holds the contents of the inputs</returns>
         public static string Encode(byte[] buf, int offset, int length)
-        {
-            return Encode(buf, offset, length, Caps);
-        }
+            => Encode(buf, offset, length, Caps);
 
         /// <summary>
         /// Encode part of a buffer
@@ -63,9 +59,7 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         }
 
         public static string ToBase16String(this byte[] buf)
-        {
-            return Encode(buf);
-        }
+            => Encode(buf);
 
         /// <summary>
         /// Decode a hex string into a byte array
@@ -74,6 +68,9 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         /// <returns>The decoded byte array</returns>
         public static byte[] Decode(string s)
         {
+            s = StringHelpers.TrimOrNull(s);
+            if (s == null) return Empty.ByteArray;
+
             byte[] bLine = Encoding.ASCII.GetBytes(s);
             var buf = new byte[bLine.Length / 2];
             byte ba, bb;
@@ -103,15 +100,18 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
     public static class Base32
     {
         /* lookup table used to encode() groups of 5 bits of data */
-        private const string base32Chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
-        private const string errorCanonicalEnd = "non canonical bits at end of Base32 string";
-        private const string errorCanonicalLength = "non canonical Base32 string length";
-        private const string errorInvalidChar = "invalid character in Base32 string";
+        private const string Characterset = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+        public class ErrorStrings
+        {
+            public const string CanonicalEnd = "non canonical bits at end of Base32 string";
+            public const string CanonicalLength = "non canonical Base32 string length";
+            public const string InvalidChar = "invalid character in Base32 string";
+        }
 
         private const byte XX = 255;
         /* lookup table used to decode() characters in Base32 strings */
 
-        private static readonly byte[] base32Lookup =
+        private static readonly byte[] Lookup =
             {
                 26, 27, 28, 29, 30, 31, XX, XX, XX, XX, XX, XX, XX, XX, //   23456789:;<=>?
                 XX, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, // @ABCDEFGHIJKLMNO
@@ -120,7 +120,7 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25 // pqrstuvwxyz
             };
 
-        private static readonly int base32LookupLength = base32Lookup.Length;
+        private static readonly int LookupLength = Lookup.Length;
 
         /* Messsages for Illegal Parameter Exceptions in decode() */
 
@@ -142,50 +142,50 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 // of the 5 least bits of digit, the other bits are 0.
                 ////// STEP n = 0; insert new 5 bits, leave 3 bits
                 currByte = bytes[i++] & 255;
-                base32.Append(base32Chars[currByte >> 3]);
+                base32.Append(Characterset[currByte >> 3]);
                 digit = (currByte & 7) << 2;
                 if (i >= len)
                 {
                     // put the last 3 bits
-                    base32.Append(base32Chars[digit]);
+                    base32.Append(Characterset[digit]);
                     break;
                 }
                 ////// STEP n = 3: insert 2 new bits, then 5 bits, leave 1 bit
                 currByte = bytes[i++] & 255;
-                base32.Append(base32Chars[digit | (currByte >> 6)]);
-                base32.Append(base32Chars[(currByte >> 1) & 31]);
+                base32.Append(Characterset[digit | (currByte >> 6)]);
+                base32.Append(Characterset[(currByte >> 1) & 31]);
                 digit = (currByte & 1) << 4;
                 if (i >= len)
                 {
                     // put the last 1 bit
-                    base32.Append(base32Chars[digit]);
+                    base32.Append(Characterset[digit]);
                     break;
                 }
                 ////// STEP n = 1: insert 4 new bits, leave 4 bit
                 currByte = bytes[i++] & 255;
-                base32.Append(base32Chars[digit | (currByte >> 4)]);
+                base32.Append(Characterset[digit | (currByte >> 4)]);
                 digit = (currByte & 15) << 1;
                 if (i >= len)
                 {
                     // put the last 4 bits
-                    base32.Append(base32Chars[digit]);
+                    base32.Append(Characterset[digit]);
                     break;
                 }
                 ////// STEP n = 4: insert 1 new bit, then 5 bits, leave 2 bits
                 currByte = bytes[i++] & 255;
-                base32.Append(base32Chars[digit | (currByte >> 7)]);
-                base32.Append(base32Chars[(currByte >> 2) & 31]);
+                base32.Append(Characterset[digit | (currByte >> 7)]);
+                base32.Append(Characterset[(currByte >> 2) & 31]);
                 digit = (currByte & 3) << 3;
                 if (i >= len)
                 {
                     // put the last 2 bits
-                    base32.Append(base32Chars[digit]);
+                    base32.Append(Characterset[digit]);
                     break;
                 }
                 ///// STEP n = 2: insert 3 new bits, then 5 bits, leave 0 bit
                 currByte = bytes[i++] & 255;
-                base32.Append(base32Chars[digit | (currByte >> 5)]);
-                base32.Append(base32Chars[currByte & 31]);
+                base32.Append(Characterset[digit | (currByte >> 5)]);
+                base32.Append(Characterset[currByte & 31]);
                 //// This point is reached for len multiple of 5
             }
             string s = base32.ToString();
@@ -199,9 +199,7 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         }
 
         public static string ToBase32String(this byte[] buf)
-        {
-            return Encode(buf);
-        }
+            => Encode(buf);
 
         /// <summary>
         /// Decode a Base32 string into a byte array
@@ -210,6 +208,9 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         /// <returns>The decoded byte array</returns>
         public static byte[] Decode(string base32)
         {
+            base32 = StringHelpers.TrimOrNull(base32);
+            if (base32 == null) return Empty.ByteArray;
+
             int len = base32.Length;
             // Note that the code below detects could detect non canonical
             // Base32 length within the loop. However canonical Base32 length
@@ -225,7 +226,7 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 case 1: //  5 bits in subblock:  0 useful bits but 5 discarded
                 case 3: // 15 bits in subblock:  8 useful bits but 7 discarded
                 case 6: // 30 bits in subblock: 24 useful bits but 6 discarded
-                    throw new ArgumentException(errorCanonicalLength);
+                    throw new ArgumentException(ErrorStrings.CanonicalLength);
             }
 
             var bytes = new byte[len * 5 / 8];
@@ -239,14 +240,14 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 // Read the 1st char in a 8-chars subblock
                 // check that chars are not outside the lookup table and valid
                 lookup = base32[i++] - '2';
-                if (lookup < 0 || lookup >= base32LookupLength)
+                if (lookup < 0 || lookup >= LookupLength)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
-                digit = base32Lookup[lookup];
+                digit = Lookup[lookup];
                 if (digit == XX)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
                 //// STEP n = 0: leave 5 bits
                 nextByte = (byte)(digit << 3);
@@ -254,14 +255,14 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 // Read the 2nd char in a 8-chars subblock
                 // Check that chars are not outside the lookup table and valid
                 lookup = base32[i++] - '2';
-                if (lookup < 0 || lookup >= base32LookupLength)
+                if (lookup < 0 || lookup >= LookupLength)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
-                digit = base32Lookup[lookup];
+                digit = Lookup[lookup];
                 if (digit == XX)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
                 //// STEP n = 5: insert 3 bits, leave 2 bits
                 bytes[offset++] = (byte)(nextByte | (digit >> 2));
@@ -270,21 +271,21 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 {
                     if (nextByte != 0)
                     {
-                        throw new ArgumentException(errorCanonicalEnd);
+                        throw new ArgumentException(ErrorStrings.CanonicalEnd);
                     }
                     break; // discard the remaining 2 bits
                 }
                 // Read the 3rd char in a 8-chars subblock
                 // Check that chars are not outside the lookup table and valid
                 lookup = base32[i++] - '2';
-                if (lookup < 0 || lookup >= base32LookupLength)
+                if (lookup < 0 || lookup >= LookupLength)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
-                digit = base32Lookup[lookup];
+                digit = Lookup[lookup];
                 if (digit == XX)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
                 //// STEP n = 2: leave 7 bits
                 nextByte |= (byte)(digit << 1);
@@ -292,14 +293,14 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 // Read the 4th char in a 8-chars subblock
                 // Check that chars are not outside the lookup table and valid
                 lookup = base32[i++] - '2';
-                if (lookup < 0 || lookup >= base32LookupLength)
+                if (lookup < 0 || lookup >= LookupLength)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
-                digit = base32Lookup[lookup];
+                digit = Lookup[lookup];
                 if (digit == XX)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
                 //// STEP n = 7: insert 1 bit, leave 4 bits
                 bytes[offset++] = (byte)(nextByte | (digit >> 4));
@@ -308,21 +309,21 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 {
                     if (nextByte != 0)
                     {
-                        throw new ArgumentException(errorCanonicalEnd);
+                        throw new ArgumentException(ErrorStrings.CanonicalEnd);
                     }
                     break; // discard the remaining 4 bits
                 }
                 // Read the 5th char in a 8-chars subblock
                 // Assert that chars are not outside the lookup table and valid
                 lookup = base32[i++] - '2';
-                if (lookup < 0 || lookup >= base32LookupLength)
+                if (lookup < 0 || lookup >= LookupLength)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
-                digit = base32Lookup[lookup];
+                digit = Lookup[lookup];
                 if (digit == XX)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
                 //// STEP n = 4: insert 4 bits, leave 1 bit
                 bytes[offset++] = (byte)(nextByte | (digit >> 1));
@@ -331,21 +332,21 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 {
                     if (nextByte != 0)
                     {
-                        throw new ArgumentException(errorCanonicalEnd);
+                        throw new ArgumentException(ErrorStrings.CanonicalEnd);
                     }
                     break; // discard the remaining 1 bit
                 }
                 // Read the 6th char in a 8-chars subblock
                 // Check that chars are not outside the lookup table and valid
                 lookup = base32[i++] - '2';
-                if (lookup < 0 || lookup >= base32LookupLength)
+                if (lookup < 0 || lookup >= LookupLength)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
-                digit = base32Lookup[lookup];
+                digit = Lookup[lookup];
                 if (digit == XX)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
                 //// STEP n = 1: leave 6 bits
                 nextByte |= (byte)(digit << 2);
@@ -353,14 +354,14 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 // Read the 7th char in a 8-chars subblock
                 // Check that chars are not outside the lookup table and valid
                 lookup = base32[i++] - '2';
-                if (lookup < 0 || lookup >= base32LookupLength)
+                if (lookup < 0 || lookup >= LookupLength)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
-                digit = base32Lookup[lookup];
+                digit = Lookup[lookup];
                 if (digit == XX)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
                 //// STEP n = 6: insert 2 bits, leave 3 bits
                 bytes[offset++] = (byte)(nextByte | (digit >> 3));
@@ -369,21 +370,21 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
                 {
                     if (nextByte != 0)
                     {
-                        throw new ArgumentException(errorCanonicalEnd);
+                        throw new ArgumentException(ErrorStrings.CanonicalEnd);
                     }
                     break; // discard the remaining 3 bits
                 }
                 // Read the 8th char in a 8-chars subblock
                 // Check that chars are not outside the lookup table and valid
                 lookup = base32[i++] - '2';
-                if (lookup < 0 || lookup >= base32LookupLength)
+                if (lookup < 0 || lookup >= LookupLength)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
-                digit = base32Lookup[lookup];
+                digit = Lookup[lookup];
                 if (digit == XX)
                 {
-                    throw new ArgumentException(errorInvalidChar);
+                    throw new ArgumentException(ErrorStrings.InvalidChar);
                 }
                 //// STEP n = 3: insert 5 bits, leave 0 bit
                 bytes[offset++] = (byte)(nextByte | digit);
@@ -405,9 +406,7 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         /// <param name="buf">The buffer</param>
         /// <returns>An encoded string that holds the contents of the inputs</returns>
         public static string Encode(byte[] buf)
-        {
-            return Encode(buf, 0, buf.Length);
-        }
+            => Encode(buf, 0, buf==null?0:buf.Length);
 
         /// <summary>
         /// Encode part of a buffer using the default options
@@ -417,9 +416,7 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         /// <param name="length">The amount of data to encode</param>
         /// <returns>An encoded string that holds the contents of the inputs</returns>
         public static string Encode(byte[] buf, int offset, int length)
-        {
-            return Convert.ToBase64String(buf, offset, length);
-        }
+            => Convert.ToBase64String(buf, offset, length);
 
         /// <summary>
         /// Decode a Base64 string into a byte array
@@ -428,12 +425,12 @@ namespace RevolutionaryStuff.Core.EncoderDecoders
         /// <returns>The decoded byte array</returns>
         public static byte[] Decode(string s)
         {
+            s = StringHelpers.TrimOrNull(s);
+            if (s == null) return Empty.ByteArray;
             return Convert.FromBase64String(s);
         }
 
         public static string ToBase64String(this byte[] buf)
-        {
-            return Encode(buf);
-        }
+            => Encode(buf);
     }
 }
