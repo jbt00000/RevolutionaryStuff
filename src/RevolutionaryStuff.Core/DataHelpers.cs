@@ -83,11 +83,46 @@ namespace RevolutionaryStuff.Core
             return dt;
         }
 
-        public static void RightType(this DataTable dt, bool nullifyBlankStrings=true)
+        private class RightTypeInfo
+        {
+            public readonly DataColumn SourceColumn;
+            public Func<string, object> Converter;
+            public Type DataType;
+            public int? MaxLength;
+            public bool AllowNull;
+            public bool? Unicode;
+
+            public RightTypeInfo(DataColumn sourceColumn)
+            {
+                SourceColumn = sourceColumn;
+            }
+
+            public override string ToString()
+                => $"{this.GetType().Name} colName=[{SourceColumn.ColumnName}] type={DataType.Name} maxLength={this.MaxLength} nullable={AllowNull} unicode={Unicode} ";
+
+            public DataColumn CreateDataColumn()
+            {
+                var c = SourceColumn.Xerox();
+                c.DataType = this.DataType;
+                if (this.MaxLength.HasValue)
+                {
+                    c.MaxLength = this.MaxLength.Value;
+                }
+                c.AllowDBNull = this.AllowNull;
+                if (c.DataType == typeof(string))
+                {
+                    c.Unicode(this.Unicode);
+                }
+                return c;
+            }
+        }
+
+        public static DataTable RightType(this DataTable dt, bool nullifyBlankStrings=true, bool returnNewTable=false)
         {
             Requires.NonNull(dt, nameof(dt));
             using (new TraceRegion($"{nameof(RightType)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows"))
             {
+                var rtis = new List<RightTypeInfo>();
                 var columnNames = new List<string>();
                 for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
                 {
@@ -117,6 +152,7 @@ namespace RevolutionaryStuff.Core
                     bool canBeInt16 = true;
                     bool canBeInt8 = true;
                     bool canBeFloat = true;
+                    bool canBeIntFromFloat = true;
                     bool canBeDecimal = true;
                     bool canBeDateTimeOffset = true;
                     for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
@@ -155,7 +191,9 @@ namespace RevolutionaryStuff.Core
                         canBeInt32 = canBeInt32 && Int32.TryParse(zs, out var int32Test);
                         canBeInt16 = canBeInt16 && Int16.TryParse(zs, out var int16Test);
                         canBeInt8 = canBeInt8 && Byte.TryParse(zs, out var int8Test);
-                        canBeFloat = canBeFloat && double.TryParse(zs, out var doubleTest);
+                        var doubleTest = 0.1;
+                        canBeFloat = canBeFloat && double.TryParse(zs, out doubleTest);
+                        canBeIntFromFloat = canBeIntFromFloat && canBeFloat && doubleTest == Math.Truncate(doubleTest) && doubleTest <= int.MaxValue && doubleTest >= int.MinValue;
                         canBeDecimal = canBeDecimal && Decimal.TryParse(zs, out var decimalTest);
                         canBeDateTimeOffset = canBeDateTimeOffset && DateTimeOffset.TryParse(zs, out var dateTimeOffsetTest);
                         hasLeadingZeros = hasLeadingZeros || (zs.Length > 1 && zs[0] == '0' && zs[1] != '.');
@@ -165,113 +203,192 @@ namespace RevolutionaryStuff.Core
                         }
                         len = Stuff.Max(len, zs.Length);
                     }
-                    Func<string, object> converter = null;
-                    Type convertedDataType = typeof(object);
+                    var rti = new RightTypeInfo(dc)
+                    {
+                        AllowNull = hasNulls,
+                        DataType = typeof(object)
+                    };
+                    rtis.Add(rti);
                     if (canBeBit)
                     {
-                        converter = q => q == "1";
-                        convertedDataType = typeof(bool);
+                        rti.Converter = q => q == "1";
+                        rti.DataType = typeof(bool);
                     }
                     else if (canBeYN)
                     {
-                        converter = q => string.Compare(q, "y", true);
-                        convertedDataType = typeof(bool);
+                        rti.Converter = q => string.Compare(q, "y", true);
+                        rti.DataType = typeof(bool);
                     }
                     else if (canBeYesNo)
                     {
-                        converter = q => string.Compare(q, "yes", true);
-                        convertedDataType = typeof(bool);
+                        rti.Converter = q => string.Compare(q, "yes", true);
+                        rti.DataType = typeof(bool);
                     }
                     else if (canBeTrueFalse)
                     {
-                        converter = q => string.Compare(q, "true", true);
-                        convertedDataType = typeof(bool);
+                        rti.Converter = q => string.Compare(q, "true", true);
+                        rti.DataType = typeof(bool);
                     }
                     else if (canBeInt8 && !hasLeadingZeros)
                     {
-                        converter = q => Byte.Parse(q);
-                        convertedDataType = typeof(Byte);
+                        rti.Converter = q => Byte.Parse(q);
+                        rti.DataType = typeof(Byte);
                     }
                     else if (canBeInt16 && !hasLeadingZeros)
                     {
-                        converter = q => Int16.Parse(q);
-                        convertedDataType = typeof(Int16);
+                        rti.Converter = q => Int16.Parse(q);
+                        rti.DataType = typeof(Int16);
                     }
                     else if (canBeInt32 && !hasLeadingZeros)
                     {
-                        converter = q => Int32.Parse(q);
-                        convertedDataType = typeof(Int32);
+                        rti.Converter = q => Int32.Parse(q);
+                        rti.DataType = typeof(Int32);
                     }
                     else if (canBeInt64 && !hasLeadingZeros)
                     {
-                        converter = q => Int64.Parse(q);
-                        convertedDataType = typeof(Int64);
+                        rti.Converter = q => Int64.Parse(q);
+                        rti.DataType = typeof(Int64);
+                    }
+                    else if (canBeIntFromFloat && !hasLeadingZeros)
+                    {
+                        rti.Converter = q => (int) Math.Truncate(Double.Parse(q));
+                        rti.DataType = typeof(Int32);
                     }
                     else if (canBeFloat && !hasLeadingZeros)
                     {
-                        converter = q => Double.Parse(q);
-                        convertedDataType = typeof(Double);
+                        rti.Converter = q => Double.Parse(q);
+                        rti.DataType = typeof(Double);
                     }
                     else if (canBeDecimal && !hasLeadingZeros)
                     {
-                        converter = q => Decimal.Parse(q);
-                        convertedDataType = typeof(Decimal);
+                        rti.Converter = q => Decimal.Parse(q);
+                        rti.DataType = typeof(Decimal);
                     }
                     else if (canBeDateTimeOffset)
                     {
-                        converter = q => DateTimeOffset.Parse(q);
-                        convertedDataType = typeof(DateTimeOffset);
+                        rti.Converter = q => DateTimeOffset.Parse(q);
+                        rti.DataType = typeof(DateTimeOffset);
                     }
                     else if (canBeDate)
                     {
-                        converter = q => DateTime.Parse(q);
-                        convertedDataType = typeof(DateTime);
+                        rti.Converter = q => DateTime.Parse(q);
+                        rti.DataType = typeof(DateTime);
                     }
                     else if (canBeDatetime)
                     {
-                        converter = q => DateTime.Parse(q);
-                        convertedDataType = typeof(DateTime);
+                        rti.Converter = q => DateTime.Parse(q);
+                        rti.DataType = typeof(DateTime);
                     }
                     else if (canBeVarchar)
                     {
-                        dc.Unicode(false);
-                        dc.MaxLength = Math.Max(1, len);
+                        rti.Unicode = false;
+                        rti.MaxLength = Math.Max(1, len);
+                        rti.DataType = typeof(string);
+                        if (!returnNewTable)
+                        {
+                            dc.Unicode(false);
+                            dc.MaxLength = Math.Max(1, len);
+                        }
                     }
                     else
                     {
-                        dc.MaxLength = Math.Max(1, len);
-                    }
-                    dc.AllowDBNull = hasNulls;
-                    if (converter != null)
-                    {
-                        Trace.WriteLine($"Converting {dc.ColumnName} to {convertedDataType}");
-                        var colName = dc.ColumnName;
-                        dc.ColumnName = "___DEAD___" + dc.ColumnName;
-                        var newCol = new DataColumn(colName, convertedDataType) { AllowDBNull = dc.AllowDBNull };
-                        dt.Columns.Add(newCol);
-                        var convertedColNum = dt.Columns.IndexOf(colName);
-                        string lastStr = null;
-                        object lastConv = null;
-                        for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+                        rti.Unicode = true;
+                        rti.MaxLength = Math.Max(1, len);
+                        rti.DataType = typeof(string);
+                        if (!returnNewTable)
                         {
-                            var dr = dt.Rows[rowNum];
-                            var s = dr[colNum] as string;
-                            if (s == null) continue;
-                            if (s == lastStr)
+                            dc.MaxLength = Math.Max(1, len);
+                        }
+                    }
+                    if (returnNewTable)
+                    {
+                        Trace.WriteLine($"Will convert {dc.ColumnName} via {rti}");
+                    }
+                    else
+                    {
+                        dc.AllowDBNull = rti.AllowNull;
+                        if (rti.Converter != null)
+                        {
+                            Trace.WriteLine($"Converting {dc.ColumnName} to {rti.DataType}");
+                            var colName = dc.ColumnName;
+                            dc.ColumnName = "___DEAD___" + dc.ColumnName;
+                            var newCol = new DataColumn(colName, rti.DataType) { AllowDBNull = dc.AllowDBNull };
+                            dt.Columns.Add(newCol);
+                            var convertedColNum = dt.Columns.IndexOf(colName);
+                            string lastStr = null;
+                            object lastConv = null;
+                            for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                             {
-                                dr[convertedColNum] = lastConv;
+                                var dr = dt.Rows[rowNum];
+                                var s = dr[colNum] as string;
+                                if (s == null) continue;
+                                if (s == lastStr)
+                                {
+                                    dr[convertedColNum] = lastConv;
+                                }
+                                else
+                                {
+                                    dr[convertedColNum] = lastConv = rti.Converter(s);
+                                    lastStr = s;
+                                }
                             }
-                            else
+                            dt.Columns.Remove(dc);
+                            newCol.SetOrdinal(colNum);
+                        }
+                    }
+                }
+                if (returnNewTable)
+                {
+                    using (new TraceRegion($"converting into new datatable"))
+                    {
+                        var sdt = dt;
+                        dt = new DataTable(sdt.TableName, sdt.Namespace);
+                        foreach (var rti in rtis)
+                        {
+                            var c = rti.CreateDataColumn();
+                            dt.Columns.Add(c);
+                        }
+                        var rowCount = sdt.Rows.Count;
+                        while (sdt.Rows.Count > 0)
+                        {
+                            var srow = sdt.Rows[0];
+                            var drow = dt.NewRow();
+                            for (int z = 0; z < rtis.Count; ++z)
                             {
-                                dr[convertedColNum] = lastConv = converter(s);
-                                lastStr = s;
+                                var rti = rtis[z];
+                                var v = srow[z];
+                                if (v == DBNull.Value)
+                                {
+                                    drow[z] = DBNull.Value;
+                                }
+                                else if (rti.Converter == null)
+                                {
+                                    drow[z] = v;
+                                }
+                                else
+                                {
+                                    v = rti.Converter(v as string);
+                                    if (v == null)
+                                    {
+                                        drow[z] = DBNull.Value;
+                                    }
+                                    else
+                                    {
+                                        drow[z] = v;
+                                    }
+                                }
+                            }
+                            dt.Rows.Add(drow);
+                            sdt.Rows.RemoveAt(0);
+                            if (dt.Rows.Count % 100000 == 0)
+                            {
+                                Trace.WriteLine($"converted {dt.Rows.Count}/{rowCount} rows");
                             }
                         }
-                        dt.Columns.Remove(dc);
-                        newCol.SetOrdinal(colNum);
                     }
                 }
             }
+            return dt;
         }
 
         public static void IdealizeStringColumns(this DataTable dt, bool trimAndNullifyStringData = false)

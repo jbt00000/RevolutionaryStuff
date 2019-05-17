@@ -286,10 +286,11 @@ namespace RevolutionaryStuff.ETL
             {
                 throw new UnexpectedSwitchValueException(settings.Format);
             }
+            Trace.WriteLine($"Parsed {rows.Count} raw rows from raw text");
             GC.Collect();
             if (settings.ColumnNames != null && settings.ColumnNames.Length > 0)
             {
-                return dt.LoadRowsInternal(PrependColumnNames(settings.ColumnNames, rows.Skip(settings.SkipRawRows)), settings);
+                dt = dt.LoadRowsInternal(PrependColumnNames(settings.ColumnNames, rows.Skip(settings.SkipRawRows)), settings);
             }
             else if (!string.IsNullOrEmpty(settings.ColumnNameTemplate))
             {
@@ -299,12 +300,14 @@ namespace RevolutionaryStuff.ETL
                     var name = string.Format(settings.ColumnNameTemplate, z);
                     names.Add(name);
                 }
-                return dt.LoadRowsInternal(PrependColumnNames(names, rows.Skip(settings.SkipRawRows)), settings);
+                dt = dt.LoadRowsInternal(PrependColumnNames(names, rows.Skip(settings.SkipRawRows)), settings);
             }
             else
             {
-                return dt.LoadRowsInternal(rows.Skip(settings.SkipRawRows), settings);
+                dt = dt.LoadRowsInternal(rows.Skip(settings.SkipRawRows), settings);
             }
+            Trace.WriteLine($"Loaded {dt.Rows.Count} into the datatable");
+            return dt;
         }
 
         private static IEnumerable<IList<object>> PrependColumnNames(IEnumerable<string> columnNames, IEnumerable<IList<object>> rows)

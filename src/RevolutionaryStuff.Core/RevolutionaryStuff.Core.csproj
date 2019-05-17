@@ -15,19 +15,14 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>- Modified caching options around the AzureActiveDirectoryResourceAuthorizationGetter</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>2.5.3.0</FileVersion>
-    <AssemblyVersion>2.5.3.0</AssemblyVersion>
-    <Version>2.5.3</Version>
+    <FileVersion>2.6.1.0</FileVersion>
+    <AssemblyVersion>2.6.1.0</AssemblyVersion>
+    <Version>2.6.1</Version>
     <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
-
-
-
-    <RuntimeIdentifiers>rhel-x64</RuntimeIdentifiers>
-
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
@@ -51,6 +46,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.4" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
@@ -61,7 +57,7 @@
     <PackageReference Include="Newtonsoft.Json" Version="12.0.2" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.5.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />
-    <PackageReference Include="System.Data.SqlClient" Version="4.6.0" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.6.1" />
     <PackageReference Include="System.Diagnostics.TraceSource" Version="4.3.0" />
     <PackageReference Include="System.IO.Compression" Version="4.3.0" />
     <PackageReference Include="System.Runtime.Loader" Version="4.3.0" />

@@ -7,10 +7,16 @@
         public static string SchemaOrDefault(string schemaName)
             => StringHelpers.TrimOrNull(schemaName) ?? DefaultSchema;
 
-        /// <summary>
-        /// Remove single quotes within the text for SQL
-        /// </summary>
         public static string EscapeForSql(this string source)
-            => source.Replace("\'", "");
+            => source.Replace("'", "''");
+
+        public static string PlaceInSqlStatement(this string source)
+            => source == null ? " null " : " '" + source.EscapeForSql() + "' ";
+
+        public static string PlaceInSqlStatement(this int? source)
+            => source == null ? " null " : $" {source} ";
+
+        public static string PlaceInSqlStatement(this bool? source)
+            => source == null ? " null " : source.Value ? " 1 " : " 0 ";
     }
 }

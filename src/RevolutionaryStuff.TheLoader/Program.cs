@@ -184,16 +184,24 @@ namespace RevolutionaryStuff.TheLoader
 
         protected override async Task OnGoAsync()
         {
-            switch (Mode)
+            try
             {
-                case Modes.Import:
-                    await OnImportAsync();
-                    break;
-                case Modes.Export:
-                    OnExport();
-                    break;
-                default:
-                    throw new UnexpectedSwitchValueException(Mode);
+                switch (Mode)
+                {
+                    case Modes.Import:
+                        await OnImportAsync();
+                        break;
+                    case Modes.Export:
+                        OnExport();
+                        break;
+                    default:
+                        throw new UnexpectedSwitchValueException(Mode);
+                }
+            }
+            catch (Exception ex)
+            {
+                Trace.WriteLine(ex.ToString());
+                throw;
             }
         }
 
@@ -853,7 +861,7 @@ namespace RevolutionaryStuff.TheLoader
                 }
                 if (RightType==YesNoAuto.Yes)
                 {
-                    dt.RightType();
+                    dt = dt.RightType(returnNewTable:true);
                 }
                 else
                 {

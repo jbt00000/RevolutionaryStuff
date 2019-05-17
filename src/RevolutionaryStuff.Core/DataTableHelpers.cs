@@ -33,6 +33,31 @@ namespace RevolutionaryStuff.Core
             }
         }
 
+        internal static DataColumn Xerox(this DataColumn dc)
+        {
+            var c = new DataColumn(dc.ColumnName, dc.DataType, dc.Expression)
+            {
+                AllowDBNull = dc.AllowDBNull,
+                AutoIncrement = dc.AutoIncrement,
+                AutoIncrementSeed = dc.AutoIncrementSeed,
+                AutoIncrementStep = dc.AutoIncrementStep,
+                Caption = dc.Caption,
+                ColumnMapping = dc.ColumnMapping,
+                DateTimeMode = dc.DateTimeMode,
+                DefaultValue = dc.DefaultValue,
+                MaxLength = dc.MaxLength,
+                Namespace = dc.Namespace,
+                Prefix = dc.Prefix,
+                ReadOnly = dc.ReadOnly,
+                Unique = dc.Unique
+            };
+            foreach (var propertyName in dc.ExtendedProperties.Keys)
+            {
+                c.ExtendedProperties[propertyName] = dc.ExtendedProperties[propertyName];
+            }
+            return c;
+        }
+
         private static T ExtendedProperty<T>(this DataColumn dc, string propertyName, T? val=null, T missingValue=default(T)) where T : struct
         {
             if (val != null)

@@ -135,13 +135,13 @@ namespace RevolutionaryStuff.Core
         private static string[] ParseLine(string sText, long start, long len, out long amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
             => ParseLine(new StringCharacterReader(sText), start, len, out amtParsed, fieldDelim, quoteChar);
 
-        private static string[] ParseLine(ICharacterReader sText, long start, long len, out long amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
+        private static string[] ParseLine(ICharacterReader sText, long start, long len, out long amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar, StringBuilder sb=null)
         {
             amtParsed = 0;
             long x = start;
             if (len == 0) return null;
             var b = new List<string>();
-            var sb = new StringBuilder(1024 * 8);
+            sb = sb ?? new StringBuilder(1024 * 8);
             for (; x <= len + start;)
             {
                 if (x > start)
@@ -247,14 +247,17 @@ namespace RevolutionaryStuff.Core
 
         private static IEnumerable<string[]> ParseTextEnumerable(ICharacterReader sText, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
         {
+            var sb = new StringBuilder(1024 * 8);
             long len = sText == null ? 0 : sText.Length;
+            int rowCount = 0;
             if (len > 0)
             {
                 for (long start = 0; ;)
                 {
                     long amt;
-                    string[] line = ParseLine(sText, start, len, out amt, fieldDelim, quoteChar);
+                    string[] line = ParseLine(sText, start, len, out amt, fieldDelim, quoteChar, sb);
                     if (line == null) break;
+                    ++rowCount;
                     yield return line;
                     start += amt;
                     len -= amt;
