@@ -6,6 +6,10 @@ using System.Reflection;
 using RevolutionaryStuff.Core.ApplicationParts;
 using System.Collections;
 using System.Data;
+using System.Xml;
+using System.Xml.Schema;
+using RevolutionaryStuff.Core.Caching;
+using System.Xml.Linq;
 
 namespace RevolutionaryStuff.Core
 {
@@ -250,6 +254,31 @@ namespace RevolutionaryStuff.Core
         {
             Requires.NonNull(dt, argName ?? nameof(dt));
             if (dt.Columns.Count > 0) throw new ArgumentException("dt must not already have any columns", nameof(dt));
+        }
+
+        public static void Xml(string xml, string argName, string xsd = null, string ns=null, bool cacheXmlSchema=false)
+        {
+            Requires.Text(xml, argName);
+            var doc = XDocument.Parse(xml);
+            if (xsd != null)
+            {
+                ns = ns ?? doc.Root.Name.NamespaceName;
+                var xss = Cache.DataCacher.FindOrCreateValue<XmlSchemaSet>(ns, () => {
+                    var schemaReader = XmlReader.Create(StreamHelpers.Create(xsd));
+                    var z = new XmlSchemaSet();
+                    z.Add(ns, schemaReader);
+                    return z;
+                }, null, !cacheXmlSchema);
+                var exs = new List<Exception>();
+                doc.Validate(xss, (sender, e) =>
+                {
+                    exs.Add(e.Exception);
+                });
+                if (exs.Count > 0)
+                {
+                    throw new AggregateException($"Validation of xml with primary ns=[{ns}] against schema failed.", exs);
+                }
+            }
         }
     }
 }

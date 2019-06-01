@@ -19,8 +19,16 @@ namespace RevolutionaryStuff.Core
         public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Enum e) where TAttribute : Attribute
         {
             var ti = e.GetType().GetTypeInfo();
-            var mi = ti.GetMember(e.ToString())[0];
-            return mi.GetCustomAttributes<TAttribute>();
+            var members = ti.GetMember(e.ToString());
+            if (members.Length == 0)
+            {
+                return new TAttribute[0];
+            }
+            else
+            {
+                var mi = ti.GetMember(e.ToString())[0];
+                return mi.GetCustomAttributes<TAttribute>();
+            }
         }
 
         public static TAttribute GetCustomAttribute<TAttribute>(this Enum e) where TAttribute : Attribute => e.GetCustomAttributes<TAttribute>().FirstOrDefault();

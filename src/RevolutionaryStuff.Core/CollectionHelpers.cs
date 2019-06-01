@@ -124,10 +124,25 @@ namespace RevolutionaryStuff.Core
         }
 
         /// <summary>
+        /// Given a list of objects, return a random element
+        /// </summary>
+        /// <typeparam name="T">Type of argument in the list</typeparam>
+        /// <param name="list">List of items</param>
+        /// <param name="r">random number generator, null is ok</param>
+        /// <returns>A random item from the list</returns>
+        public static T Random<T>(this IList<T> list, Random r = null)
+        {
+            r = r ?? Stuff.Random;
+            var n = r.Next(list.Count);
+            return list[n];
+        }
+
+        /// <summary>
         /// Given a list of objects, randomizes the order
         /// </summary>
         /// <param name="list">List of items to be randomized in place</param>
         /// <param name="random">The random number generator to be used, when null, use the default</param>
+        [Obsolete("Use Shuffle instead", false)]
         public static void ShuffleList(this IList list, Random random = null)
         {
             Requires.NonNull(list, nameof(list));
@@ -139,6 +154,26 @@ namespace RevolutionaryStuff.Core
             }
             int x, y;
             object o;
+            for (x = 0; x < len; ++x)
+            {
+                y = random.Next(len);
+                o = list[x];
+                list[x] = list[y];
+                list[y] = o;
+            }
+        }
+
+        public static void Shuffle<T>(this IList<T> list, Random random = null)
+        {
+            Requires.NonNull(list, nameof(list));
+            int len = list.Count;
+            if (len < 2) return;
+            if (null == random)
+            {
+                random = Stuff.Random;
+            }
+            int x, y;
+            T o;
             for (x = 0; x < len; ++x)
             {
                 y = random.Next(len);
