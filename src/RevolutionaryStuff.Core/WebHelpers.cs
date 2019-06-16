@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Net.Http.Headers;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RevolutionaryStuff.Core
@@ -121,10 +122,11 @@ namespace RevolutionaryStuff.Core
             }
         }
 
+        public static HttpContent CreateJsonContent(string json, Encoding encoding = null)
+            => new StringContent(json, encoding ?? Encoding.UTF8, "application/json");
+
         public static HttpContent CreateHttpContent(IEnumerable<KeyValuePair<string, string>> datas)
-        {
-            return CreateHttpContent(datas.UrlEncode());
-        }
+            => CreateHttpContent(datas.UrlEncode());
 
         public static HttpContent CreateHttpContent(string postData)
         {

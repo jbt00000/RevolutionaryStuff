@@ -52,6 +52,18 @@ namespace RevolutionaryStuff.Core
         /// </summary>
         public static readonly Random Random = RandomWithRandomSeed;
 
+        public static string NextString(this Random r, int characterCount, string characterSet)
+        {
+            var s = "";
+            for (int z = 0; z < characterCount; ++z)
+            {
+                var i = r.Next(characterSet.Length);
+                var ch = characterSet[i];
+                s += ch;
+            }
+            return s;
+        }
+
         /// <summary>
         /// Does nothing.  It is simply used as a line where one can set breakpoints
         /// </summary>
@@ -282,14 +294,21 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-        public static void FileTryDelete(string fn)
+        public static void FileTryDelete(params string[] fileNames)
+            => FileTryDelete((IEnumerable<string>)fileNames);
+
+        public static void FileTryDelete(IEnumerable<string> fileNames)
         {
-            if (string.IsNullOrEmpty(fn)) return;
-            try
+            if (fileNames == null) return;
+            foreach (var fn in fileNames)
             {
-                File.Delete(fn);
+                if (string.IsNullOrEmpty(fn)) return;
+                try
+                {
+                    File.Delete(fn);
+                }
+                catch (Exception) { }
             }
-            catch (Exception) { }
         }
 
         public static TResult ExecuteSynchronously<TResult>(this Task<TResult> task)

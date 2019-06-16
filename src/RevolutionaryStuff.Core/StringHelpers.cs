@@ -7,6 +7,21 @@ namespace RevolutionaryStuff.Core
 {
     public static class StringHelpers
     {
+        public static string DecodeBase64String(this string base64)
+        {
+            base64 = StringHelpers.TrimOrNull(base64);
+            if (base64 == null) return null;
+            var buf = Convert.FromBase64String(base64);
+            return Encoding.UTF8.GetString(buf);
+        }
+
+        public static string ToBase64String(this string s)
+        {
+            if (s == null) return null;
+            var buf = Encoding.UTF8.GetBytes(s);
+            return Convert.ToBase64String(buf);
+        }
+
         public static string AppendWithConditionalAppendPrefix(this string baseString, string conditionalAppendPrefix, string baseAppend)
         {
             baseString = baseString ?? "";

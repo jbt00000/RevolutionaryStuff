@@ -19,6 +19,33 @@ namespace RevolutionaryStuff.Core.Tests
         }
 
         [TestMethod]
+        public void ToStringStringKeyValuePairsTest()
+        {
+            var ins = new List<KeyValuePair<string, object>> {
+                new KeyValuePair<string, object>("a", 1),
+                new KeyValuePair<string, object>("b", 2),
+                new KeyValuePair<string, object>("b", "jason"),
+                new KeyValuePair<string, object>("c", null)
+            };
+            var outs = ins.ToStringStringKeyValuePairs();
+            Assert.AreEqual(ins.Count, outs.Count);
+            for (int z = 0; z < ins.Count; ++z)
+            {
+                var i = ins[z];
+                var o = outs[z];
+                Assert.AreEqual(i.Key, o.Key);
+                if (i.Value == null)
+                {
+                    Assert.IsNull(o.Value);
+                }
+                else
+                {
+                    Assert.AreEqual(i.Value.ToString(), o.Value);
+                }
+            }
+        }
+
+        [TestMethod]
         public void ShuffleTest()
         {
             var a = CreateInOrderList();

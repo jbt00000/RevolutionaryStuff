@@ -10,6 +10,19 @@ namespace RevolutionaryStuff.Core
 {
     public static class CollectionHelpers
     {
+        public static IList<KeyValuePair<string, string>> ToStringStringKeyValuePairs(this IEnumerable<KeyValuePair<string, object>> kvps)
+        {
+            var ret = new List<KeyValuePair<string, string>>();
+            if (kvps != null)
+            {
+                foreach (var kvp in kvps)
+                {
+                    ret.Add(new KeyValuePair<string, string>(kvp.Key, Stuff.ObjectToString(kvp.Value)));
+                }
+            }
+            return ret;
+        }
+
         public static IEnumerator GetEnumerator<K, V>(IEnumerable<KeyValuePair<K, V>> e)
         {
             foreach (var kvp in e)

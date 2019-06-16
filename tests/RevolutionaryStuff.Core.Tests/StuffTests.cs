@@ -1,4 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
+using System.IO;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace RevolutionaryStuff.Core.Tests
 {
@@ -37,6 +39,46 @@ namespace RevolutionaryStuff.Core.Tests
         {
             Assert.AreEqual(12, Stuff.Max(12, 5));
             Assert.AreEqual(12, Stuff.Max(5, 12));
+        }
+
+        [TestMethod]
+        public void FileDeleteWhileClosedTest()
+        {
+            var fileNames = new List<string>();
+            for (int z = 0; z < 10; ++z)
+            {
+                var fn = Path.GetTempFileName();
+                fileNames.Add(fn);
+            }
+            for (int z = 0; z < 10; ++z)
+            {
+                var fn = Stuff.GetTempFileName(".dat");
+                fileNames.Add(fn);
+            }
+            foreach (var fn in fileNames)
+            {
+                Assert.IsTrue(File.Exists(fn));
+            }
+            Stuff.FileTryDelete(fileNames);
+            foreach (var fn in fileNames)
+            {
+                Assert.IsFalse(File.Exists(fn));
+            }
+        }
+
+        [TestMethod]
+        public void FileDeleteSkipWhileOpenTest()
+        {
+            var fn = Stuff.GetTempFileName(".dat");
+            using (var st = File.OpenRead(fn))
+            {
+                Assert.IsTrue(File.Exists(fn));
+                Stuff.FileTryDelete(fn);
+                Assert.IsTrue(File.Exists(fn));
+            }
+            Assert.IsTrue(File.Exists(fn));
+            Stuff.FileTryDelete(fn);
+            Assert.IsFalse(File.Exists(fn));
         }
     }
 }

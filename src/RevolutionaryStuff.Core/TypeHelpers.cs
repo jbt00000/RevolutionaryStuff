@@ -354,6 +354,21 @@ namespace RevolutionaryStuff.Core
             return new List<Assembly>(d.Values);
         }
 
+        public static PropertyInfo[] GetPropertiesPublicInstanceRead(this Type test)
+            => test.GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance);
+
+        public static PropertyInfo[] GetPropertiesPublicInstanceReadWrite(this Type test)
+            => test.GetProperties(BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance);
+
+        public static FieldInfo[] GetFieldsPublicInstanceRead(this Type test)
+            => test.GetFields(BindingFlags.GetField | BindingFlags.Public | BindingFlags.Instance);
+
+        public static FieldInfo[] GetFieldsPublicInstanceReadWrite(this Type test)
+            => test.GetFields(BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Public | BindingFlags.Instance);
+
+        public static bool IsA<T>(this Type test)
+            => IsA(test, typeof(T));
+
         public static bool IsA(this Type test, Type potentialBaseType)
         {
             return potentialBaseType.GetTypeInfo().IsAssignableFrom(test);

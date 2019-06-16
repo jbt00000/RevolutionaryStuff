@@ -27,6 +27,8 @@ namespace RevolutionaryStuff.Core
 
             public static readonly Regex Space = new Regex(" ", RegexOptions.Compiled);
 
+            public static readonly Regex NonDigits = new Regex(@"\D", RegexOptions.Compiled);
+            public static readonly Regex Digits = new Regex(@"\d", RegexOptions.Compiled);
             public static readonly Regex WordChars = new Regex(@"\w", RegexOptions.Compiled);
             public static readonly Regex NonWordChars = new Regex(@"\W", RegexOptions.Compiled);
             public static readonly Regex Whitespace = new Regex(@"\s", RegexOptions.Compiled);

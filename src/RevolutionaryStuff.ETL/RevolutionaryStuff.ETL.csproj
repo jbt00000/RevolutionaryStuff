@@ -9,21 +9,26 @@
     <Company>Revolutionary Stuff, LLC</Company>
     <Description>Utility library to help with ETL.</Description>
     <Copyright>Copyright ©  2019</Copyright>
-    <PackageLicenseUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/LICENSE</PackageLicenseUrl>
+    <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>2.6.3.0</FileVersion>
-    <AssemblyVersion>2.6.3.0</AssemblyVersion>
-    <Version>2.6.3</Version>
+    <FileVersion>2.6.5.0</FileVersion>
+    <AssemblyVersion>2.6.5.0</AssemblyVersion>
+    <Version>2.6.5</Version>
     <PackageReleaseNotes>- Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
+    <PackageLicenseFile>license.txt</PackageLicenseFile>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
 
   <ItemGroup>
     <None Remove="SpreadsheetResources\Styles.xml" />
+    <None Include="license\license.txt">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
