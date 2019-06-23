@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Reflection;
@@ -7,6 +8,22 @@ namespace RevolutionaryStuff.Core
 {
     public static class TypeHelpers
     {
+        public static object Construct(Type t)
+        {
+            var ci = t.GetConstructor(Empty.TypeArray);
+            var o = ci.Invoke(Empty.ObjectArray);
+            return o;
+        }
+
+        public static T Construct<T>() where T : new()
+            => (T)Construct(typeof(T));
+
+        public static IList ConstructList(Type itemType)
+        {
+            var gt = typeof(List<>).MakeGenericType(new[] { itemType });
+            return (IList)Construct(gt);
+        }
+
         public static IDictionary<string, object> ToPropertyValueDictionary(object o)
         {
             if (o != null)

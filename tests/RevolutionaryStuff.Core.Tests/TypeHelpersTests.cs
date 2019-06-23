@@ -52,5 +52,20 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public void ConvertFromNumberNeg7String()
             => Assert.AreEqual(-7, TypeHelpers.ConvertValue(typeof(int), "-7"));
+
+
+        public class MySimpleClass
+        {
+            public const int DefaultA = 123;
+            public int A { get; set; } = DefaultA;
+        }
+
+        [TestMethod]
+        public void ConstructSimpleClass()
+        {
+            var msc = TypeHelpers.Construct<MySimpleClass>();
+            Assert.IsNotNull(msc);
+            Assert.AreEqual(MySimpleClass.DefaultA, msc.A);
+        }
     }
 }

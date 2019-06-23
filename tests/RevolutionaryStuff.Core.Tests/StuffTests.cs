@@ -7,6 +7,26 @@ namespace RevolutionaryStuff.Core.Tests
     [TestClass]
     public class StuffTests
     {
+        private void RandomBool(bool response, int attempts=1000, double rMin = .45, double rMax = .55)
+        {
+            int hits = 0;
+            for (int z = 0; z < attempts; ++z)
+            {
+                hits += Stuff.Random.NextBoolean() == response ? 1 : 0;
+            }
+            double r = hits / (0.0 + attempts);
+            Assert.IsTrue(r >= rMin);
+            Assert.IsTrue(r <= rMax);
+        }
+
+        [TestMethod]
+        public void RandomBoolTrue()
+            => RandomBool(true);
+
+        [TestMethod]
+        public void RandomBoolFalse()
+            => RandomBool(false);
+
         [TestMethod]
         public void SwapTests()
         {

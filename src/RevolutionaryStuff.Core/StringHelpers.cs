@@ -263,7 +263,9 @@ namespace RevolutionaryStuff.Core
             {
                 for (int x = 0; x < vals.Length; ++x)
                 {
-                    if (vals[x] != null && vals[x].Length > 0) return vals[x];
+                    var s = vals[x];
+                    if (string.IsNullOrWhiteSpace(s)) continue;
+                    return s;
                 }
             }
             return null;
@@ -280,7 +282,7 @@ namespace RevolutionaryStuff.Core
 
         public static string RemoveSpecialCharacters(this string str)
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             foreach (char c in str)
             {
                 if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))

@@ -73,25 +73,5 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public void XmlWithBoringXmlData()
             => Requires.Xml("<root>yeah, we found xml!</root>", "xml");
-
-        [TestMethod]
-        public void XmlWithXsdValid()
-            => Requires.Xml(CustomersOrdersXml, "xml", CustomerOrdersXsd, null, false);
-
-        [TestMethod]
-        public void XmlWithXsdValidAndCorrectPrimaryNamespaceGiven()
-            => Requires.Xml(CustomersOrdersXml, "xml", CustomerOrdersXsd, CustomerOrdersNamespaceUri, false);
-
-        [TestMethod]
-        [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
-        public void XmlWithXsdValidAndIncorrectPrimaryNamespaceGiven()
-            => Requires.Xml(CustomersOrdersXml, "xml", CustomerOrdersXsd, CustomerOrdersNamespaceUri+"zzz", false);
-
-        private static readonly string CustomerOrdersXsd = ResourceHelpers.GetEmbeddedResourceAsString(Assembly.GetExecutingAssembly(), "CustomerOrders.xsd");
-
-        private const string CustomerOrdersNamespaceUri = "http://www.adventure-works.com";
-
-        private static readonly string CustomersOrdersXml = ResourceHelpers.GetEmbeddedResourceAsString(Assembly.GetExecutingAssembly(), "CustomersOrdersInNamespace.xml");
-
     }
 }

@@ -1,15 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text.RegularExpressions;
-using System.Reflection;
-using RevolutionaryStuff.Core.ApplicationParts;
 using System.Collections;
+using System.Collections.Generic;
 using System.Data;
-using System.Xml;
-using System.Xml.Schema;
-using RevolutionaryStuff.Core.Caching;
+using System.IO;
+using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Core
 {
@@ -239,10 +236,8 @@ namespace RevolutionaryStuff.Core
             Requires.Between(buf.Length, $"{argName}.Length", minLength.GetValueOrDefault(0), maxLength.GetValueOrDefault(int.MaxValue));
         }
 
-        public static void PortNumber(int portNumber, string argName, bool allowZero=false)
-        {
-            Requires.Between(portNumber, argName, allowZero?0:1, 65536);
-        }
+        public static void PortNumber(int portNumber, string argName, bool allowZero = false) 
+            => Requires.Between(portNumber, argName, allowZero ? 0 : 1, 65536);
 
         public static void ZeroRows(DataTable dt, string argName = null)
         {
@@ -256,29 +251,10 @@ namespace RevolutionaryStuff.Core
             if (dt.Columns.Count > 0) throw new ArgumentException("dt must not already have any columns", nameof(dt));
         }
 
-        public static void Xml(string xml, string argName, string xsd = null, string ns=null, bool cacheXmlSchema=false)
+        public static void Xml(string xml, string argName)
         {
             Requires.Text(xml, argName);
-            var doc = XDocument.Parse(xml);
-            if (xsd != null)
-            {
-                ns = ns ?? doc.Root.Name.NamespaceName;
-                var xss = Cache.DataCacher.FindOrCreateValue<XmlSchemaSet>(ns, () => {
-                    var schemaReader = XmlReader.Create(StreamHelpers.Create(xsd));
-                    var z = new XmlSchemaSet();
-                    z.Add(ns, schemaReader);
-                    return z;
-                }, null, !cacheXmlSchema);
-                var exs = new List<Exception>();
-                doc.Validate(xss, (sender, e) =>
-                {
-                    exs.Add(e.Exception);
-                });
-                if (exs.Count > 0)
-                {
-                    throw new AggregateException($"Validation of xml with primary ns=[{ns}] against schema failed.", exs);
-                }
-            }
+            XDocument.Parse(xml);
         }
     }
 }

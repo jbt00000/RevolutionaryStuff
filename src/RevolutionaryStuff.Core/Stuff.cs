@@ -52,18 +52,6 @@ namespace RevolutionaryStuff.Core
         /// </summary>
         public static readonly Random Random = RandomWithRandomSeed;
 
-        public static string NextString(this Random r, int characterCount, string characterSet)
-        {
-            var s = "";
-            for (int z = 0; z < characterCount; ++z)
-            {
-                var i = r.Next(characterSet.Length);
-                var ch = characterSet[i];
-                s += ch;
-            }
-            return s;
-        }
-
         /// <summary>
         /// Does nothing.  It is simply used as a line where one can set breakpoints
         /// </summary>
@@ -76,21 +64,9 @@ namespace RevolutionaryStuff.Core
         public static string ToString(this object o)
             => o == null ? null : o.ToString();
 
-        /// <summary>
-        /// Returns the first non-null, non-blank string in the input
-        /// </summary>
-        /// <param name="vals">The list of strings</param>
-        /// <returns>The first non-null value.  If all are null, null is returned</returns>
+        [Obsolete("Use StringHelpers.Coalesce", false)]
         public static string CoalesceStrings(params string[] vals)
-        {
-            for (int x = 0; x < vals.Length; ++x)
-            {
-                var s = vals[x];
-                if (string.IsNullOrWhiteSpace(s)) continue;
-                return s;
-            }
-            return null;
-        }
+            => StringHelpers.Coalesce(vals);
 
         public static void Swap<T>(ref T a, ref T b)
         {
