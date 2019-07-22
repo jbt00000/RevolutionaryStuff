@@ -14,9 +14,9 @@
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>2.6.6.0</FileVersion>
-    <AssemblyVersion>2.6.6.0</AssemblyVersion>
-    <Version>2.6.6</Version>
+    <FileVersion>2.6.7.0</FileVersion>
+    <AssemblyVersion>2.6.7.0</AssemblyVersion>
+    <Version>2.6.7</Version>
     <PackageReleaseNotes>- Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
   </PropertyGroup>
@@ -37,7 +37,7 @@
 
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.9.1" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.7" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.11" />
   </ItemGroup>
 
   <ItemGroup>

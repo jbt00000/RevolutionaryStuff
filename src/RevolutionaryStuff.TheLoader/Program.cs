@@ -502,7 +502,7 @@ namespace RevolutionaryStuff.TheLoader
                         {
                             Trace.WriteLine($"Downloading {u}");
                             var source = await client.GetStreamAsync(u);
-                            fileName = Stuff.GetTempFileName(Stuff.CoalesceStrings(Path.GetExtension(u.LocalPath), ".tmp"));
+                            fileName = Stuff.GetTempFileName(StringHelpers.Coalesce(Path.GetExtension(u.LocalPath), ".tmp"));
                             Stuff.MarkFileForCleanup(fileName);
                             using (var dest = File.Create(fileName))
                             {
@@ -556,7 +556,7 @@ namespace RevolutionaryStuff.TheLoader
 
         private async Task OnImportAsync()
         {
-            SinkTable = Stuff.CoalesceStrings(SinkTable, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
+            SinkTable = StringHelpers.Coalesce(SinkTable, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
 
 //            await FigureItOutAsync();
 
@@ -821,7 +821,7 @@ namespace RevolutionaryStuff.TheLoader
             if (ds == null)
             {
                 Requires.NonNull(dt, nameof(dt));
-                dt.TableName = Stuff.CoalesceStrings(dt.TableName, SinkTable);
+                dt.TableName = StringHelpers.Coalesce(dt.TableName, SinkTable);
                 ds = new DataSet();
                 ds.Tables.Add(dt);
             }

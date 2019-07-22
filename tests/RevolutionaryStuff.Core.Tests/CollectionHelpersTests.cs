@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -7,6 +8,27 @@ namespace RevolutionaryStuff.Core.Tests
     [TestClass]
     public class CollectionHelpersTests
     {
+        [ExpectedException(typeof(Exception), AllowDerivedTypes =true)]
+        [TestMethod]
+        public void EnumerateNullList()
+        {
+            IList<int> l = null;
+            foreach (var e in l)
+            { }
+        }
+
+        [TestMethod]
+        public void SafeEnumerateNullList()
+        {
+            IList<int> l = null;
+            int cnt = 0;
+            foreach (var e in l.NullSafeEnumerable())
+            {
+                ++cnt;
+            }
+            Assert.AreEqual(0, cnt);
+        }
+
         private static IList<int> CreateInOrderList(int elementCount = 100)
             => Enumerable.Range(0, elementCount).ToList();
 

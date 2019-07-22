@@ -10,6 +10,12 @@ namespace RevolutionaryStuff.Core
 {
     public static class CollectionHelpers
     {
+        public static IEnumerable<T> NullSafeEnumerable<T>(this IEnumerable<T> e)
+        {
+            if (e == null) return new T[0];
+            return e;
+        }
+
         public static IList<KeyValuePair<string, string>> ToStringStringKeyValuePairs(this IEnumerable<KeyValuePair<string, object>> kvps)
         {
             var ret = new List<KeyValuePair<string, string>>();

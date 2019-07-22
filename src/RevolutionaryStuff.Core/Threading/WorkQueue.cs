@@ -21,7 +21,7 @@ namespace RevolutionaryStuff.Core.Threading
         public WorkQueue(int maxThreads, string poolName = null)
         {
             MaxThreads = maxThreads;
-            PoolName = Stuff.CoalesceStrings(poolName, this.GetType().Name);
+            PoolName = StringHelpers.Coalesce(poolName, this.GetType().Name);
             StopSnoozingHandles = new WaitHandle[] { PleaseStop, IsBored };
             CreateThread(true);
         }

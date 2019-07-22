@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.Core
         public const string StandardEnvironmentNameVariableName = "ENV";
 
         public static string GetEnvironmentName(string environmentNameVariableName = null)
-            => Environment.GetEnvironmentVariable(Stuff.CoalesceStrings(environmentNameVariableName, StandardEnvironmentNameVariableName));
+            => Environment.GetEnvironmentVariable(StringHelpers.Coalesce(environmentNameVariableName, StandardEnvironmentNameVariableName));
 
         public static class CommonEnvironmentNames
         {

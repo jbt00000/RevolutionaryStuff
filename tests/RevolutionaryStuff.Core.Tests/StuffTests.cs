@@ -39,12 +39,12 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public void CoalesceStringsTests()
         {
-            Assert.IsNull(Stuff.CoalesceStrings());
-            Assert.IsNull(Stuff.CoalesceStrings(""));
-            Assert.AreEqual("a", Stuff.CoalesceStrings("a"));
-            Assert.AreEqual("a", Stuff.CoalesceStrings("a", "b"));
-            Assert.AreEqual("b", Stuff.CoalesceStrings(null, "b"));
-            Assert.AreEqual("b", Stuff.CoalesceStrings("", "b"));
+            Assert.IsNull(StringHelpers.Coalesce());
+            Assert.IsNull(StringHelpers.Coalesce(""));
+            Assert.AreEqual("a", StringHelpers.Coalesce("a"));
+            Assert.AreEqual("a", StringHelpers.Coalesce("a", "b"));
+            Assert.AreEqual("b", StringHelpers.Coalesce(null, "b"));
+            Assert.AreEqual("b", StringHelpers.Coalesce("", "b"));
         }
 
         [TestMethod]
