@@ -38,6 +38,21 @@ namespace RevolutionaryStuff.Core.Tests.FormFields
             Assert.AreEqual(1, found);
         }
 
+        public class BoolTransformedClass
+        {
+            [BooleanTransformedFormField("yes", "no")]
+            [FormField("f1")]
+            public bool Yes { get; set; }
+
+            [BooleanTransformedFormField("yes", "no")]
+            [FormField("f2")]
+            public bool No { get; set; }
+
+            [BooleanTransformedFormField("1", "2", "3")]
+            [FormField("f3")]
+            public bool? YesNoNull { get; set; }
+        }
+
         public class SimpleClass
         {
             public string Field0;
@@ -55,6 +70,29 @@ namespace RevolutionaryStuff.Core.Tests.FormFields
             [FormFieldRepeater("item{I}{N}")]
             public IList<T> Items { get; set; }
         }
+
+        public class SimpleClassDefaultWithList<T> : SimpleClass
+        {
+            [FormFieldRepeater("item")]
+            public IList<T> Items { get; set; }
+        }
+
+        [TestMethod]
+        public void BoolTransformedTest()
+        {
+            var ret = FormFieldHelpers.ConvertObjectToKeyValuePairs(new BoolTransformedClass
+            {
+                Yes = true,
+                No = false,
+                YesNoNull = null,
+            });
+            Assert.IsNotNull(ret);
+            Assert.AreEqual(3, ret.Count());
+            AssertSingle("f1", "yes", ret);
+            AssertSingle("f2", "no", ret);
+            AssertSingle("f3", "3", ret);
+        }
+
 
         [TestMethod]
         public void ConvertNull()
@@ -91,6 +129,25 @@ namespace RevolutionaryStuff.Core.Tests.FormFields
         public void SerializeSimpleClassWithStringList()
         {
             var c = new SimpleClassWithList<string>
+            {
+                Prop1 = "p1",
+                Items = new[] {
+                    "a",
+                    "b"
+                }
+            };
+            var ret = FormFieldHelpers.ConvertObjectToKeyValuePairs(c);
+            Assert.IsNotNull(ret);
+            Assert.AreEqual(3, ret.Count());
+            AssertSingle("P1", "p1", ret);
+            AssertSingle("item0", "a", ret);
+            AssertSingle("item1", "b", ret);
+        }
+
+        [TestMethod]
+        public void SerializeSimpleClassSmartPatternWithStringList()
+        {
+            var c = new SimpleClassDefaultWithList<string>
             {
                 Prop1 = "p1",
                 Items = new[] {

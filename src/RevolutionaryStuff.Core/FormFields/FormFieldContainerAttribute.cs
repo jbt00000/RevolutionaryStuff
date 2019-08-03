@@ -11,7 +11,7 @@ namespace RevolutionaryStuff.Core.FormFields
 
         public FormFieldContainerAttribute(string pattern)
         {
-            Pattern = pattern;
+            Pattern = pattern.Contains(FieldNameToken) ? pattern : pattern + FieldNameToken;
         }
 
         public string TransformName(string name)

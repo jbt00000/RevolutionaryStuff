@@ -10,7 +10,7 @@ namespace RevolutionaryStuff.Core.FormFields
         public readonly int IndexBasis = 0;
 
         public FormFieldRepeaterAttribute(string pattern, int indexBasis = 0)
-            : base(pattern)
+            : base(pattern.Contains(IndexToken) ? pattern : pattern + IndexToken)
         {
             IndexBasis = indexBasis;
         }

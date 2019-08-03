@@ -30,18 +30,19 @@ namespace RevolutionaryStuff.Core.FormFields
             settings = settings ?? ConversionSettings.Default;
             var items = new List<KeyValuePair<string, object>>();
             var seen = new HashSet<object>();
-            ConvertObjectToKeyValuePairs(root, null, settings, items, seen, true);
+            if (root != null)
+            {
+                ConvertObjectToKeyValuePairs(root, root.GetType(), null, settings, items, seen, true);
+            }
             return items;
         }
 
         private static KeyValuePair<string, object> CreateItem(string key, object val)
             => new KeyValuePair<string, object>(key, val);
 
-        private static void ConvertObjectToKeyValuePairs(object o, MemberInfo mi, ConversionSettings settings, IList<KeyValuePair<string, object>> items, HashSet<object> seen, bool forceTreatAsContainer)
+        private static void ConvertObjectToKeyValuePairs(object o, Type t, MemberInfo mi, ConversionSettings settings, IList<KeyValuePair<string, object>> items, HashSet<object> seen, bool forceTreatAsContainer)
         {
-            if (o == null) return;
             if (seen.Contains(o)) return;
-            var t = o.GetType();
             var fra = mi?.GetCustomAttribute<FormFieldRepeaterAttribute>();
             if (fra != null && t.IsA(typeof(IEnumerable)))
             {
@@ -50,7 +51,7 @@ namespace RevolutionaryStuff.Core.FormFields
                 foreach (object kid in (IEnumerable)o)
                 {
                     var subs = new List<KeyValuePair<string, object>>();
-                    ConvertObjectToKeyValuePairs(kid, null, settings, subs, seen, true);
+                    ConvertObjectToKeyValuePairs(kid, kid==null?typeof(object):kid.GetType(), null, settings, subs, seen, true);
                     foreach (var kvp in subs)
                     {
                         items.Add(CreateItem(fra.TransformName(kvp.Key, i), kvp.Value));
@@ -81,7 +82,8 @@ namespace RevolutionaryStuff.Core.FormFields
                         if (pi.GetCustomAttribute<FormFieldSerializable>() == null) continue;
                         ++serializableChildren;
                         var val = pi.GetValue(o);
-                        ConvertObjectToKeyValuePairs(val, pi, settings, subs, seen, false);
+                        var valType = pi.PropertyType;
+                        ConvertObjectToKeyValuePairs(val, valType, pi, settings, subs, seen, false);
                     }
                     if (serializableChildren > 0)
                     {
@@ -122,7 +124,15 @@ namespace RevolutionaryStuff.Core.FormFields
                 {
                     fieldName = StringHelpers.Coalesce(ffa.FieldName, fieldName);
                 }
-                items.Add(new KeyValuePair<string, object>(fieldName, o));
+                var tffa = mi.GetCustomAttribute<TransformedFormFieldAttribute>();
+                if (tffa != null)
+                {
+                    o = tffa.Transform(o);
+                }
+                if (o != null)
+                {
+                    items.Add(new KeyValuePair<string, object>(fieldName, o));
+                }
             }
         }
     }
