@@ -15,9 +15,9 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>- Modified caching options around the AzureActiveDirectoryResourceAuthorizationGetter</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>2.6.8.0</FileVersion>
-    <AssemblyVersion>2.6.8.0</AssemblyVersion>
-    <Version>2.6.8</Version>
+    <FileVersion>2.6.9.0</FileVersion>
+    <AssemblyVersion>2.6.9.0</AssemblyVersion>
+    <Version>2.6.9</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>

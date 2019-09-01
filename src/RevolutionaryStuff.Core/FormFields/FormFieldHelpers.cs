@@ -42,74 +42,77 @@ namespace RevolutionaryStuff.Core.FormFields
 
         private static void ConvertObjectToKeyValuePairs(object o, Type t, MemberInfo mi, ConversionSettings settings, IList<KeyValuePair<string, object>> items, HashSet<object> seen, bool forceTreatAsContainer)
         {
-            if (seen.Contains(o)) return;
-            var fra = mi?.GetCustomAttribute<FormFieldRepeaterAttribute>();
-            if (fra != null && t.IsA(typeof(IEnumerable)))
+            if (o != null)
             {
-                seen.Add(o);
-                int i = 0;
-                foreach (object kid in (IEnumerable)o)
-                {
-                    var subs = new List<KeyValuePair<string, object>>();
-                    ConvertObjectToKeyValuePairs(kid, kid==null?typeof(object):kid.GetType(), null, settings, subs, seen, true);
-                    foreach (var kvp in subs)
-                    {
-                        items.Add(CreateItem(fra.TransformName(kvp.Key, i), kvp.Value));
-                    }
-                    ++i;
-                }
-                return;
-            }
-            var ffda = mi?.GetCustomAttribute<FormFieldDictionaryAttribute>();
-            if (ffda != null && o is IEnumerable<KeyValuePair<string, object>>)
-            {
-                foreach (var kvp in (IEnumerable<KeyValuePair<string, object>>)o)
-                {
-                    var name = ffda.TransformName(kvp.Key);
-                    items.Add(CreateItem(name, kvp.Value));
-                }
-            }
-            else
-            {
-                var ffca = mi?.GetCustomAttribute<FormFieldContainerAttribute>();
-                if (ffca != null || forceTreatAsContainer)
+                if (seen.Contains(o)) return;
+                var fra = mi?.GetCustomAttribute<FormFieldRepeaterAttribute>();
+                if (fra != null && t.IsA(typeof(IEnumerable)))
                 {
                     seen.Add(o);
-                    int serializableChildren = 0;
-                    var subs = new List<KeyValuePair<string, object>>();
-                    foreach (var pi in t.GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance))
+                    int i = 0;
+                    foreach (object kid in (IEnumerable)o)
                     {
-                        if (pi.GetCustomAttribute<FormFieldSerializable>() == null) continue;
-                        ++serializableChildren;
-                        var val = pi.GetValue(o);
-                        var valType = pi.PropertyType;
-                        ConvertObjectToKeyValuePairs(val, valType, pi, settings, subs, seen, false);
-                    }
-                    if (serializableChildren > 0)
-                    {
+                        var subs = new List<KeyValuePair<string, object>>();
+                        ConvertObjectToKeyValuePairs(kid, kid == null ? typeof(object) : kid.GetType(), null, settings, subs, seen, true);
                         foreach (var kvp in subs)
                         {
-                            var name = ffca?.TransformName(kvp.Key) ?? kvp.Key;
-                            items.Add(CreateItem(name, kvp.Value));
+                            items.Add(CreateItem(fra.TransformName(kvp.Key, i), kvp.Value));
                         }
-                        return;
+                        ++i;
+                    }
+                    return;
+                }
+                var ffda = mi?.GetCustomAttribute<FormFieldDictionaryAttribute>();
+                if (ffda != null && o is IEnumerable<KeyValuePair<string, object>>)
+                {
+                    foreach (var kvp in (IEnumerable<KeyValuePair<string, object>>)o)
+                    {
+                        var name = ffda.TransformName(kvp.Key);
+                        items.Add(CreateItem(name, kvp.Value));
                     }
                 }
-            }
-            if (t.IsEnum)
-            {
-                switch (settings.EnumerationSerializationOption)
+                else
                 {
-                    case EnumerationSerializationOptions.AsEnum:
-                        break;
-                    case EnumerationSerializationOptions.AsNumber:
-                        o = (int)(object)o;
-                        break;
-                    case EnumerationSerializationOptions.AsString:
-                        o = EnumeratedStringValueAttribute.GetValue((Enum)o) ?? o.ToString();
-                        break;
-                    default:
-                        throw new UnexpectedSwitchValueException(settings.EnumerationSerializationOption);
+                    var ffca = mi?.GetCustomAttribute<FormFieldContainerAttribute>();
+                    if (ffca != null || forceTreatAsContainer)
+                    {
+                        seen.Add(o);
+                        int serializableChildren = 0;
+                        var subs = new List<KeyValuePair<string, object>>();
+                        foreach (var pi in t.GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance))
+                        {
+                            if (pi.GetCustomAttribute<FormFieldSerializable>() == null) continue;
+                            ++serializableChildren;
+                            var val = pi.GetValue(o);
+                            var valType = pi.PropertyType;
+                            ConvertObjectToKeyValuePairs(val, valType, pi, settings, subs, seen, false);
+                        }
+                        if (serializableChildren > 0)
+                        {
+                            foreach (var kvp in subs)
+                            {
+                                var name = ffca?.TransformName(kvp.Key) ?? kvp.Key;
+                                items.Add(CreateItem(name, kvp.Value));
+                            }
+                            return;
+                        }
+                    }
+                }
+                if (t.IsEnum)
+                {
+                    switch (settings.EnumerationSerializationOption)
+                    {
+                        case EnumerationSerializationOptions.AsEnum:
+                            break;
+                        case EnumerationSerializationOptions.AsNumber:
+                            o = (int)(object)o;
+                            break;
+                        case EnumerationSerializationOptions.AsString:
+                            o = EnumeratedStringValueAttribute.GetValue((Enum)o) ?? o.ToString();
+                            break;
+                        default:
+                            throw new UnexpectedSwitchValueException(settings.EnumerationSerializationOption);
+                    }
                 }
             }
             if (mi == null)
