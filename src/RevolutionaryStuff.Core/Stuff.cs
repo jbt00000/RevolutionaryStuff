@@ -1,4 +1,5 @@
-﻿using RevolutionaryStuff.Core.Caching;
+﻿using Newtonsoft.Json;
+using RevolutionaryStuff.Core.Caching;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -61,8 +62,16 @@ namespace RevolutionaryStuff.Core
         {
         }
 
-        public static string ToString(this object o)
+        public static string ToString(object o)
             => o == null ? null : o.ToString();
+
+        private static readonly JsonSerializerSettings ToJsonJsonSerializerSettings = new JsonSerializerSettings
+        { 
+            NullValueHandling = NullValueHandling.Ignore
+        };
+
+        public static string ToJson(object o)
+            => JsonConvert.SerializeObject(o, Formatting.Indented, ToJsonJsonSerializerSettings);
 
         [Obsolete("Use StringHelpers.Coalesce", false)]
         public static string CoalesceStrings(params string[] vals)

@@ -2,7 +2,7 @@
   "profiles": {
     "RevolutionaryStuff.TheLoader": {
       "commandName": "Project",
-      "commandLineArgs": "-m:import -filename:\"C:\\Users\\jasonthomas\\downloads\\data_cleaned_county_cause.csv\" -csn:Ref -schema:icd10"
+      "commandLineArgs": "-m:import -filename:\"C:\\Users\\jasonthomas\\downloads\\example2.txt\" -csn:PersonalJason -schema:tva -FileFormat:pipe"
     }
   }
 }

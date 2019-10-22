@@ -216,17 +216,17 @@ namespace RevolutionaryStuff.Core
                     }
                     else if (canBeYN)
                     {
-                        rti.Converter = q => string.Compare(q, "y", true);
+                        rti.Converter = q => string.Compare(q, "y", true) == 0;
                         rti.DataType = typeof(bool);
                     }
                     else if (canBeYesNo)
                     {
-                        rti.Converter = q => string.Compare(q, "yes", true);
+                        rti.Converter = q => string.Compare(q, "yes", true)==0;
                         rti.DataType = typeof(bool);
                     }
                     else if (canBeTrueFalse)
                     {
-                        rti.Converter = q => string.Compare(q, "true", true);
+                        rti.Converter = q => string.Compare(q, "true", true) == 0;
                         rti.DataType = typeof(bool);
                     }
                     else if (canBeInt8 && !hasLeadingZeros)

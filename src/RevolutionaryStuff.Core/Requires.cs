@@ -41,8 +41,9 @@ namespace RevolutionaryStuff.Core
                 throw new ArgumentException(string.Format("size+offset must be <= {0}.Count", argName));
         }
 
-        public static void Valid(IValidate arg, string argName)
+        public static void Valid(IValidate arg, string argName, bool canBeNull=false)
         {
+            if (arg == null && canBeNull) return;
             NonNull(arg, argName);
             arg.Validate();
         }
@@ -110,6 +111,16 @@ namespace RevolutionaryStuff.Core
         public static void Null(object arg, string argName)
         {
             if (null != arg) throw new ArgumentOutOfRangeException(argName, "Must be null");
+        }
+
+        public static void ExactlyOneNonNull(params object[] items)
+        {
+            int cntNotNull = 0;
+            foreach (var i in items)
+            {
+                cntNotNull += i == null ? 0 : 1;
+            }
+            if (cntNotNull != 1) throw new ArgumentException($"EXACTLY 1 of the {items.Length} MUST be non-null. {cntNotNull} were not null");
         }
 
         public static void IsType(Type testType, Type isType)

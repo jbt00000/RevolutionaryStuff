@@ -178,6 +178,23 @@ namespace RevolutionaryStuff.Core
         }
     }
 
+    public class ParameterizedMessageException : Exception
+    {
+        public readonly object[] MessageArgs;
+
+        public ParameterizedMessageException(Exception inner, string message, params object[] args)
+            : base(message, inner)
+        {
+            MessageArgs = args;
+        }
+
+        public ParameterizedMessageException(string message, params object[] args)
+            : base(message)
+        {
+            MessageArgs = args;
+        }
+    }
+
     public static class ExceptionExtensions
     {
         public static IEnumerable<Exception> InnerExceptions(this Exception exception)
