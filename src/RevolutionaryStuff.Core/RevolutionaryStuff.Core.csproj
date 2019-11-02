@@ -13,11 +13,11 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>Use .NET 3.0 libabries that still run under .NETStandard2.0</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>2.6.11.0</FileVersion>
-    <AssemblyVersion>2.6.11.0</AssemblyVersion>
-    <Version>2.6.11</Version>
+    <FileVersion>2.7.1.0</FileVersion>
+    <AssemblyVersion>2.7.1.0</AssemblyVersion>
+    <Version>2.7.1</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
