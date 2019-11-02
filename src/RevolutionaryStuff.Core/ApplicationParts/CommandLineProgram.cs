@@ -7,11 +7,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.PlatformAbstractions;
 
 namespace RevolutionaryStuff.Core.ApplicationParts
 {
-    public abstract class CommandLineProgram : BaseDisposable
+    public abstract partial class CommandLineProgram : BaseDisposable
     {
         #region Command Line Args
 
@@ -95,7 +96,9 @@ namespace RevolutionaryStuff.Core.ApplicationParts
 
         protected virtual void OnConfigureLogging(IServiceCollection services, ILoggerFactory loggerFactory)
         {
-            loggerFactory.AddConsole().AddDebug();
+            var mon = new HardcodedOptionsMonitor<ConsoleLoggerOptions>(new ConsoleLoggerOptions());
+            var p = new ConsoleLoggerProvider(mon);
+            loggerFactory.AddProvider(p);
         }
 
         protected CommandLineProgram()
