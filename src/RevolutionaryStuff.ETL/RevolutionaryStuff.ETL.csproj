@@ -14,9 +14,9 @@
     <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>2.7.1.0</FileVersion>
-    <AssemblyVersion>2.7.1.0</AssemblyVersion>
-    <Version>2.7.1</Version>
+    <FileVersion>2.8.1.0</FileVersion>
+    <AssemblyVersion>2.8.1.0</AssemblyVersion>
+    <Version>2.8.1</Version>
     <PackageReleaseNotes>- Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
   </PropertyGroup>
