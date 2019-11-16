@@ -82,7 +82,7 @@ namespace RevolutionaryStuff.Core.Crypto
             checksum ^= -1;
             for (int z = 0; z < length; ++z)
             {
-                checksum = (long)crc_table[((int)checksum ^ buf[offset + z]) & 255] ^ checksum >> 8;
+                checksum = crc_table[((int)checksum ^ buf[offset + z]) & 255] ^ checksum >> 8;
             }
             checksum ^= -1;
         }

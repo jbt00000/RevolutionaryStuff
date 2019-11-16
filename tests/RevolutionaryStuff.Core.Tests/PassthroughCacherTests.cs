@@ -11,7 +11,7 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public async Task WorksAsync()
         {
-            var cacher = (ICacher) Cache.Passthrough;
+            var cacher = Cache.Passthrough;
             for (int z = 0; z < 10; ++z)
             {
                 string cacheKey = Cache.CreateKey(z);

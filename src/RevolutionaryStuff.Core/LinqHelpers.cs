@@ -233,7 +233,7 @@ namespace RevolutionaryStuff.Core
                     expr = GenerateStringConcat(Expression.Constant("UpFront_a_"), prop);
                     break;
                 case OrderByFieldUnmappedBehaviors.InPlace:
-                    expr = (Expression)prop;
+                    expr = prop;
                     break;
                 case OrderByFieldUnmappedBehaviors.AtEnd:
                     expr = GenerateStringConcat(Expression.Constant(last + "_AtEnd_"), prop);

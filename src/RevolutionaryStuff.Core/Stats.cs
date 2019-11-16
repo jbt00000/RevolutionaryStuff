@@ -122,7 +122,7 @@ namespace RevolutionaryStuff.Core
         /// <returns>The value if it exists, else missing</returns>
         public long GetVal(object key, long missing)
         {
-            var s = (Stat)StatsByKey[key];
+            var s = StatsByKey[key];
             if (null == s)
             {
                 return missing;
@@ -140,7 +140,7 @@ namespace RevolutionaryStuff.Core
         /// <returns>The corresponding stat.  If no such beast exists, a new stat with of the given key</returns>
         public Stat Get(object key)
         {
-            var s = (Stat)StatsByKey[key];
+            var s = StatsByKey[key];
             if (null == s)
             {
                 return new Stat(key);

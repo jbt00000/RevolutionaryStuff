@@ -1,6 +1,5 @@
 ﻿using Newtonsoft.Json;
 using RevolutionaryStuff.Core;
-using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Mergers
 {

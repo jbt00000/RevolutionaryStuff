@@ -105,7 +105,7 @@ namespace RevolutionaryStuff.Core.FormFields
                         case EnumerationSerializationOptions.AsEnum:
                             break;
                         case EnumerationSerializationOptions.AsNumber:
-                            o = (int)(object)o;
+                            o = (int)o;
                             break;
                         case EnumerationSerializationOptions.AsString:
                             o = EnumeratedStringValueAttribute.GetValue((Enum)o) ?? o.ToString();

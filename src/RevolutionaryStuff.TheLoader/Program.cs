@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -349,8 +349,8 @@ namespace RevolutionaryStuff.TheLoader
                 (s as IEdmEntityType)?.DeclaredKey?.ForEach(dk => keyNames.Add(dk.Name));
                 foreach (var p in s.DeclaredProperties)
                 {
-                    var pt = (Microsoft.OData.Edm.IEdmTypeReference)p.Type;
-                    var ptd = (Microsoft.OData.Edm.IEdmType)pt.Definition;
+                    var pt = p.Type;
+                    var ptd = pt.Definition;
                     Stuff.Noop(pt, ptd);
                     var col = new DataColumn(p.Name)
                     {

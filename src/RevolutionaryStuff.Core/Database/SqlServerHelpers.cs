@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Data;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 namespace RevolutionaryStuff.Core.Database
 {
@@ -22,7 +22,7 @@ namespace RevolutionaryStuff.Core.Database
 
             for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
             {
-                var dc = (DataColumn)dt.Columns[colNum];
+                var dc = dt.Columns[colNum];
                 if (dc.DataType != typeof(DateTime)) continue;
                 int changeCount = 0;
                 for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)

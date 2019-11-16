@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace RevolutionaryStuff.Mergers
+﻿namespace RevolutionaryStuff.Mergers
 {
     public enum MergerExceptionCodes
     {

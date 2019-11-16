@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RevolutionaryStuff.Core.ApplicationParts;
-using RevolutionaryStuff.Mergers;
 using RevolutionaryStuff.Mergers.Pdf;
 
 namespace RevolutionaryStuff.Functions.Merger.PdfMergerTests

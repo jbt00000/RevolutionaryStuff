@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data;
-using System.Data.SqlClient;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using Microsoft.Data.SqlClient;
 using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Core
@@ -13,7 +13,7 @@ namespace RevolutionaryStuff.Core
     {
         public static string ConnectionStringAlter(string connectionString, ApplicationIntent intent)
         {
-            var csb = new System.Data.SqlClient.SqlConnectionStringBuilder(connectionString);
+            var csb = new SqlConnectionStringBuilder(connectionString);
             csb.ApplicationIntent = intent;
             return csb.ConnectionString;
         }

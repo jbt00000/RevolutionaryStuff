@@ -336,7 +336,7 @@ namespace RevolutionaryStuff.ETL
             }
             throw new Exception(string.Format(
                 "Sheet [{0}] was not found",
-                (object)settings.SheetNumber ?? (object)settings.SheetName));
+                settings.SheetNumber ?? (object)settings.SheetName));
         }
 
         private static readonly Regex ColRowExpr = new Regex(@"\s*([A-Z]+)(\d+)\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);

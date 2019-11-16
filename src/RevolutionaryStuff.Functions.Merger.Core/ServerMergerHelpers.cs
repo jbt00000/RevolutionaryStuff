@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using RevolutionaryStuff.Mergers;
+﻿using RevolutionaryStuff.Mergers;
 
 namespace RevolutionaryStuff.Functions.Mergers
 {

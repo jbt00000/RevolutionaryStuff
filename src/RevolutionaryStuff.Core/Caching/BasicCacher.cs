@@ -24,7 +24,7 @@ namespace RevolutionaryStuff.Core.Caching
             if (CacheEntryByCacheKey.Count >= MaxEntries)
             {
                 var keys = CacheEntryByCacheKey.Keys.ToList();
-                keys.ShuffleList();
+                keys.Shuffle();
                 CacheEntryByCacheKey.Remove(keys[0]);
             }
             CacheEntryByCacheKey[key] = entry;
