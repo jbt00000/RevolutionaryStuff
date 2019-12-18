@@ -11,12 +11,12 @@
     <Copyright>Copyright ©  2019</Copyright>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
-    <PackageIconUrl>https://github.com/jbt00000/RevolutionaryStuff/blob/master/RevolutionaryStuffLogo.png</PackageIconUrl>
+    <PackageIcon>RevolutionaryStuffLogo.png</PackageIcon>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>2.9.1.0</FileVersion>
-    <AssemblyVersion>2.9.1.0</AssemblyVersion>
-    <Version>2.9.1</Version>
+    <FileVersion>3.1.0.0</FileVersion>
+    <AssemblyVersion>3.1.0.0</AssemblyVersion>
+    <Version>3.1.0</Version>
     <PackageReleaseNotes>- Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
   </PropertyGroup>
@@ -37,11 +37,15 @@
 
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.9.1" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.16" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.17" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\RevolutionaryStuffLogo.png" Pack="true" PackagePath="\"/>
   </ItemGroup>
 
 </Project>
