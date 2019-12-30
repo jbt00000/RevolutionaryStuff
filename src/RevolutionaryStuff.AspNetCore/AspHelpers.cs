@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Text;
+using System.Threading;
 using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace RevolutionaryStuff.AspNetCore
@@ -29,7 +30,7 @@ namespace RevolutionaryStuff.AspNetCore
             return (DisplayAttribute)attributes.FirstOrDefault();
         }
 
-        public static IList<SelectListItem> ConvertToSelectList<TStruct>(this IEnumerable<TStruct> itemsToConvert) where TStruct : struct
+        public static IList<SelectListItem> CreateSelectList<TStruct>(this IEnumerable<TStruct> itemsToConvert) where TStruct : struct
         {
             var stringsSelect = new List<SelectListItem>();
 
@@ -41,24 +42,53 @@ namespace RevolutionaryStuff.AspNetCore
             return stringsSelect;
         }
 
+        private const string LateContentPrefix = "_late_";
+        private static long LateContentId = 1;
+        public static void AppendLateContent(this HttpContext context, object o)
+        {
+            var id = Interlocked.Increment(ref LateContentId);
+            var name = $"{LateContentPrefix}{id:000000000000}";
+            context.Items[name] = o;
+        }
+
         /// <remarks>https://rburnham.wordpress.com/2015/03/13/asp-net-mvc-defining-scripts-in-partial-views/</remarks>
         public static HtmlString Script(this IHtmlHelper htmlHelper, Func<object, Microsoft.AspNetCore.Mvc.Razor.HelperResult> template)
         {
-            htmlHelper.ViewContext.HttpContext.Items["_script_" + Guid.NewGuid()] = template;
+            htmlHelper.ViewContext.HttpContext.AppendLateContent(template);
             return HtmlString.Empty;
         }
 
         /// <remarks>https://rburnham.wordpress.com/2015/03/13/asp-net-mvc-defining-scripts-in-partial-views/</remarks>
+        [Obsolete("Use " + nameof(RenderLateContent), false)]
         public static HtmlString RenderPartialViewScripts(this IHtmlHelper htmlHelper)
+            => htmlHelper.RenderLateContent();
+
+        public static HtmlString RenderLateContent(this IHtmlHelper htmlHelper)
         {
+            List<string> orderedKeys = null;
             foreach (object key in htmlHelper.ViewContext.HttpContext.Items.Keys)
             {
-                if (key.ToString().StartsWith("_script_"))
+                var sk = key as string;
+                if (sk != null && sk.StartsWith(LateContentPrefix))
                 {
-                    var template = htmlHelper.ViewContext.HttpContext.Items[key] as Func<object, Microsoft.AspNetCore.Mvc.Razor.HelperResult>;
+                    orderedKeys = orderedKeys ?? new List<string>();
+                    orderedKeys.Add(sk);
+                }
+            }
+            if (orderedKeys != null)
+            {
+                orderedKeys.Sort();
+                foreach (var sk in orderedKeys)
+                {
+                    var v = htmlHelper.ViewContext.HttpContext.Items[sk];
+                    var template = v as Func<object, Microsoft.AspNetCore.Mvc.Razor.HelperResult>;
                     if (template != null)
                     {
                         htmlHelper.ViewContext.Writer.Write(template(null));
+                    }
+                    else if (v is string)
+                    {
+                        htmlHelper.ViewContext.Writer.Write(v as string);
                     }
                 }
             }
