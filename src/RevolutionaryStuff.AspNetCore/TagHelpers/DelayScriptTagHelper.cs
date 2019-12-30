@@ -34,7 +34,7 @@ namespace RevolutionaryStuff.AspNetCore.TagHelpers
             output.Content = inner;
             output.WriteTo(tw, HtmlEncoder);
             var s = sb.ToString();
-            ViewContext.HttpContext.AppendLateContent(s);
+            ViewContext.HttpContext.AppendLater(s);
             output.SuppressOutput();
         }
     }

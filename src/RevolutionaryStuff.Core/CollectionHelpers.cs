@@ -480,5 +480,36 @@ namespace RevolutionaryStuff.Core
             }
             return ret;
         }
+
+        public static int? IndexOfOccurrence<T>(this IList<T> items, Func<T, bool> test, int nthOccurrence, int? zeroThValue = null, int? missingValue = null)
+        {
+            Requires.NonNegative(nthOccurrence, nameof(nthOccurrence));
+
+            if (nthOccurrence == 0) return zeroThValue;
+
+            int cnt = 0;
+            for (int z = 0; z < items.Count; ++z)
+            {
+                var i = items[z];
+                bool hit = test(i);
+                if (hit && ++cnt == nthOccurrence)
+                {
+                    return z;
+                }
+            }
+            return missingValue;
+        }
+
+        public static int? IndexOfOccurrence<T>(this IList<T> items, T match, int nthOccurrence, int? zeroThValue = null, int? missingValue = null)
+           => items.IndexOfOccurrence(i => {
+               if (i == null)
+               {
+                   return match == null;
+               }
+               else
+               {
+                   return i.Equals(match);
+               }
+           }, nthOccurrence, zeroThValue, missingValue);
     }
 }

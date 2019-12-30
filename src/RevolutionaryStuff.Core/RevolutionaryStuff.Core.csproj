@@ -15,16 +15,21 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Uses .NET 3.1 libraries that still run under .NETStandard2.0</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.1.0.0</FileVersion>
-    <AssemblyVersion>3.1.0.0</AssemblyVersion>
-    <Version>3.1.0</Version>
+    <FileVersion>3.1.4.0</FileVersion>
+    <AssemblyVersion>3.1.4.0</AssemblyVersion>
+    <Version>3.1.4</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
-    <PackageIcon>RevolutionaryStuffLogo.png</PackageIcon>
-    <PackageLicenseFile>license.txt</PackageLicenseFile>
+    <PackageIcon>package\icon.png</PackageIcon>
+    <PackageLicenseFile>package\license.txt</PackageLicenseFile>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
+    <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
 
@@ -32,10 +37,6 @@
     <Compile Remove="Data\**" />
     <EmbeddedResource Remove="Data\**" />
     <None Remove="Data\**" />
-    <None Include="license\license.txt">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
   </ItemGroup>
 
   <ItemGroup>
@@ -70,10 +71,6 @@
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.1" />
     <PackageReference Include="System.Security.Cryptography.Primitives" Version="4.3.0" />
     <PackageReference Include="System.Threading.Thread" Version="4.3.0" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="..\..\RevolutionaryStuffLogo.png" Pack="true" PackagePath="\" />
   </ItemGroup>
 
 </Project>

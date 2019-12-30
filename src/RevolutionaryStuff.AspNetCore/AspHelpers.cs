@@ -6,6 +6,7 @@ using System.Threading;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using RevolutionaryStuff.Core;
 
 namespace RevolutionaryStuff.AspNetCore
 {
@@ -30,40 +31,95 @@ namespace RevolutionaryStuff.AspNetCore
             return (DisplayAttribute)attributes.FirstOrDefault();
         }
 
-        public static IList<SelectListItem> CreateSelectList<TStruct>(this IEnumerable<TStruct> itemsToConvert) where TStruct : struct
+        #region SelectList
+
+        public static IList<SelectListItem> CreateSelectList(this IEnumerable<SelectListItem> selectListItems)
+        {
+            var selectList = new List<SelectListItem>();
+
+            foreach (var selectListItem in selectListItems)
+            {
+                selectList.Add(selectListItem);
+            }
+            return selectList;
+        }
+
+        public static IList<SelectListItem> CreateSelectList(this System.Collections.IEnumerable itemsToConvert)
         {
             var stringsSelect = new List<SelectListItem>();
 
-            foreach (var stringToConvert in itemsToConvert)
+            foreach (var o in itemsToConvert)
             {
-                var val = stringToConvert.ToString();
+                if (o == null) continue;
+                var val = o.ToString();
                 stringsSelect.Add(new SelectListItem { Text = val, Value = val });
             }
             return stringsSelect;
         }
 
-        private const string LateContentPrefix = "_late_";
+        public static IList<SelectListItem> CreateSelectList<TEnum>(bool valAsName = true, bool sortByText = false) where TEnum : Enum
+           => ((IEnumerable<TEnum>)Enum.GetValues(typeof(TEnum))).CreateSelectList(valAsName, sortByText);
+
+        public static IList<SelectListItem> CreateSelectList<TEnum>(this IEnumerable<TEnum> enums, bool valAsName = true, bool sortByText = false) where TEnum : Enum
+        {
+            var items = new List<SelectListItem>();
+
+            foreach (var e in enums)
+            {
+                var displayName = e.GetDisplayName();
+                var desc = e.GetDescription();
+                string value;
+                if (valAsName)
+                {
+                    value = e.ToString();
+                }
+                else
+                {
+                    value = ((int)Enum.Parse(typeof(TEnum), e.ToString())).ToString();
+                }
+                items.Add(new ExtendedSelectListItem { Text = displayName, Value = value, Description = desc });
+            }
+            if (sortByText)
+            {
+                items.Sort((a, b) => a.Text.CompareTo(b.Text));
+            }
+            return items;
+        }
+
+        public static IList<SelectListItem> Select(this IList<SelectListItem> items, object selectedValue)
+        {
+            var v = Stuff.ObjectToString(selectedValue);
+            foreach (var i in items)
+            {
+                i.Selected = i.Value == v;
+            }
+            return items;
+        }
+
+        #endregion
+
+        private const string LateContentPrefix = "_later_";
         private static long LateContentId = 1;
-        public static void AppendLateContent(this HttpContext context, object o)
+        public static void AppendLater(this HttpContext context, object o)
         {
             var id = Interlocked.Increment(ref LateContentId);
-            var name = $"{LateContentPrefix}{id:000000000000}";
+            var name = $"{LateContentPrefix}{id:0000000000000}";
             context.Items[name] = o;
         }
 
         /// <remarks>https://rburnham.wordpress.com/2015/03/13/asp-net-mvc-defining-scripts-in-partial-views/</remarks>
         public static HtmlString Script(this IHtmlHelper htmlHelper, Func<object, Microsoft.AspNetCore.Mvc.Razor.HelperResult> template)
         {
-            htmlHelper.ViewContext.HttpContext.AppendLateContent(template);
+            htmlHelper.ViewContext.HttpContext.AppendLater(template);
             return HtmlString.Empty;
         }
 
         /// <remarks>https://rburnham.wordpress.com/2015/03/13/asp-net-mvc-defining-scripts-in-partial-views/</remarks>
-        [Obsolete("Use " + nameof(RenderLateContent), false)]
+        [Obsolete("Use " + nameof(RenderLaterContent), false)]
         public static HtmlString RenderPartialViewScripts(this IHtmlHelper htmlHelper)
-            => htmlHelper.RenderLateContent();
+            => htmlHelper.RenderLaterContent();
 
-        public static HtmlString RenderLateContent(this IHtmlHelper htmlHelper)
+        public static HtmlString RenderLaterContent(this IHtmlHelper htmlHelper)
         {
             List<string> orderedKeys = null;
             foreach (object key in htmlHelper.ViewContext.HttpContext.Items.Keys)
