@@ -27,6 +27,9 @@ namespace RevolutionaryStuff.AspNetCore
         public static bool IsSortDirAscending(string sortDir)
             => !StringHelpers.IsSameIgnoreCase(sortDir, SortDirDescending);
 
+        public static bool IsSortDirDescending(string sortDir)
+            => !IsSortDirAscending(sortDir);
+
         #endregion
 
         public static string GetDisplayName(this Enum value)

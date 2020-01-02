@@ -12,11 +12,11 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
         public static string HomeControllerHomeActionName = "Index";
         public static string IndexPageActionName = "Index";
 
-        protected ActionResult RedirectToHome()
-           => RedirectToAction(HomeControllerHomeActionName, HomeControllerName);
+        protected ActionResult RedirectToHome(object routeValues = null)
+           => RedirectToAction(HomeControllerHomeActionName, HomeControllerName, routeValues);
 
-        protected virtual ActionResult RedirectToIndex()
-            => RedirectToAction(IndexPageActionName);
+        protected virtual ActionResult RedirectToIndex(object routeValues = null)
+            => RedirectToAction(IndexPageActionName, routeValues);
 
         public override JsonResult Json(object data)
             => base.Json(data, JSO);
