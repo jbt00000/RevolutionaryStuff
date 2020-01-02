@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.IO;
 using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -12,6 +14,21 @@ namespace RevolutionaryStuff.AspNetCore
 {
     public static class AspHelpers
     {
+        #region Sorting
+
+        public static string SortDirAscending = "asc";
+
+        public static string SortDirDescending = "desc";
+
+        public static string SortColKeyName = "sortCol";
+
+        public static string SortDirKeyName = "sortDir";
+
+        public static bool IsSortDirAscending(string sortDir)
+            => !StringHelpers.IsSameIgnoreCase(sortDir, SortDirDescending);
+
+        #endregion
+
         public static string GetDisplayName(this Enum value)
             => value.GetDisplayAttribute()?.GetName() ?? value.ToString();
 
@@ -98,6 +115,8 @@ namespace RevolutionaryStuff.AspNetCore
 
         #endregion
 
+        #region Later
+
         private const string LateContentPrefix = "_later_";
         private static long LateContentId = 1;
         public static void AppendLater(this HttpContext context, object o)
@@ -149,6 +168,28 @@ namespace RevolutionaryStuff.AspNetCore
                 }
             }
             return HtmlString.Empty;
+        }
+
+        #endregion
+
+
+        public static MimeType BodyAsJsonMimeType = MimeType.Application.Json;
+
+        public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpRequest req, bool checkContentType=false)
+        {
+            if (checkContentType && BodyAsJsonMimeType!=null)
+            {
+                if (!BodyAsJsonMimeType.DoesContentTypeMatch(req.ContentType))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(req.ContentType), $"Content type does not match {nameof(BodyAsJsonMimeType)}");
+                }
+            }
+            if (req.Body.CanSeek)
+            {
+                req.Body.Seek(0, SeekOrigin.Begin);
+            }
+            var json = await req.Body.ReadToEndAsync();
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
         }
     }
 }

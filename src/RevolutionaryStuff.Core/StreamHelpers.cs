@@ -91,13 +91,17 @@ namespace RevolutionaryStuff.Core
             st.Write(buffer, 0, buffer.Length);
         }
 
+        public static async Task<string> ReadToEndAsync(this Stream st, Encoding enc = null)
+        {
+            using (var sr = new StreamReader(st, enc ?? Encoding.UTF8))
+            {
+                return await sr.ReadToEndAsync();
+            }
+        }
+
         public static string ReadToEnd(this Stream st, Encoding enc=null)
         {
-            if (null == enc)
-            {
-                enc = Encoding.UTF8;
-            }
-            using (var sr = new StreamReader(st, Encoding.UTF8))
+            using (var sr = new StreamReader(st, enc ?? Encoding.UTF8))
             {
                 return sr.ReadToEnd();
             }

@@ -115,11 +115,25 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-        public bool DoesExtensionMatch(string filename)
+        public bool DoesContentTypeMatch(string contentType, bool caseSensitive = false)
+        {
+            if (contentType == null) return false;
+            foreach (var ct in ContentTypes)
+            {
+                if (0 == string.Compare(ct, contentType, !caseSensitive)) return true;
+            }
+            return false;
+        }
+
+        public bool DoesExtensionMatch(string filename, bool caseSensitive=false)
         {
             if (filename == null) return false;
-            var ext = Path.GetExtension(filename).ToLower();
-            return FileExtensions.Contains(ext);
+            var ext = Path.GetExtension(filename);
+            foreach (var e in FileExtensions)
+            {
+                if (0 == string.Compare(e, ext, !caseSensitive)) return true;
+            }
+            return false;
         }
 
         /// <summary>
