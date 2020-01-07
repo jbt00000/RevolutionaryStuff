@@ -1,12 +1,18 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace RevolutionaryStuff.Core.Streams
 {
     public class IndestructibleStream : Stream
     {
-        public IndestructibleStream(Stream inner)
+        public bool PreventClose { get; private set; }
+        public event EventHandler DirtyEvent;
+        public event EventHandler CloseEvent;
+
+        public IndestructibleStream(Stream inner, bool preventClose=true)
         {
             Inner = inner;
+            PreventClose = preventClose;
         }
 
         public Stream Inner { get; }
@@ -31,12 +37,35 @@ namespace RevolutionaryStuff.Core.Streams
             => Inner.Seek(offset, origin);
 
         public override void SetLength(long value)
-            => Inner.SetLength(value);
+        { 
+            Inner.SetLength(value);
+            DelegateHelpers.SafeInvoke(DirtyEvent, this, EventArgs.Empty, false);
+        }
 
         public override void Write(byte[] buffer, int offset, int count)
-            => Inner.Write(buffer, offset, count);
+        {
+            Inner.Write(buffer, offset, count);
+            DelegateHelpers.SafeInvoke(DirtyEvent, this, EventArgs.Empty, false);
+        }
 
         public override void Close()
-        { }
+        {
+            base.Close();
+            DelegateHelpers.SafeInvoke(CloseEvent, this, EventArgs.Empty, false);
+            if (!PreventClose)
+            {
+                Inner.Close();
+            }
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            base.Dispose(disposing);
+            DelegateHelpers.SafeInvoke(CloseEvent, this, EventArgs.Empty, false);
+            if (!PreventClose)
+            {
+                Inner.Dispose();
+            }
+        }
     }
 }

@@ -5,20 +5,6 @@ using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core
 {
-    public class EventArgs<T> : EventArgs
-    {
-        /// <summary>
-        /// The event's data
-        /// </summary>
-        public readonly T Data;
-
-        [DebuggerStepThrough]
-        public EventArgs(T data)
-        {
-            Data = data;
-        }
-    }
-
     public static class DelegateHelpers
     {
         private static bool AllowAllExceptions(Exception ex) { return true; }
@@ -111,6 +97,27 @@ namespace RevolutionaryStuff.Core
             else
             {
                 lock (locker) { }
+            }
+        }
+
+        public static void SafeInvoke<EA>(this EventHandler<EventArgs<EA>> h, object sender, EventArgs<EA> e, bool throwException = false)
+        {
+            try
+            {
+                h?.Invoke(sender, e);
+            }
+            catch (Exception ex)
+            {
+                if (throwException)
+                {
+                    throw ex;
+                }
+                else
+                {
+#if DEBUG
+                    Debug.WriteLine(ex);
+#endif
+                }
             }
         }
 
