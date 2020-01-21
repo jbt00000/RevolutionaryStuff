@@ -1,18 +1,20 @@
 ﻿using System;
+using System.ComponentModel;
 using System.IO;
 
 namespace RevolutionaryStuff.Core.Streams
 {
-    public class IndestructibleStream : Stream
+    public class MonitoredStream : Stream
     {
-        public bool PreventClose { get; private set; }
+        public event EventHandler TouchedEvent;
         public event EventHandler DirtyEvent;
-        public event EventHandler CloseEvent;
+        public event CancelEventHandler CloseEvent;
+        public event CancelEventHandler DisposeEvent;
+        public event EventHandler<EventArgs<long>> NewLengthEvent;
 
-        public IndestructibleStream(Stream inner, bool preventClose=true)
+        public MonitoredStream(Stream inner)
         {
             Inner = inner;
-            PreventClose = preventClose;
         }
 
         public Stream Inner { get; }
@@ -37,34 +39,37 @@ namespace RevolutionaryStuff.Core.Streams
             => Inner.Seek(offset, origin);
 
         public override void SetLength(long value)
-        { 
+        {
+            NewLengthEvent.SafeInvoke(this, new EventArgs<long>(value));
             Inner.SetLength(value);
-            DelegateHelpers.SafeInvoke(DirtyEvent, this, EventArgs.Empty, false);
+            DirtyEvent.SafeInvoke(this);
         }
 
         public override void Write(byte[] buffer, int offset, int count)
         {
-            Inner.Write(buffer, offset, count);
-            DelegateHelpers.SafeInvoke(DirtyEvent, this, EventArgs.Empty, false);
+            if (count > 0)
+            {
+                NewLengthEvent.SafeInvoke(this, new EventArgs<long>(Inner.Position + count));
+                Inner.Write(buffer, offset, count);
+                DirtyEvent.SafeInvoke(this);
+            }
         }
 
         public override void Close()
         {
-            base.Close();
-            DelegateHelpers.SafeInvoke(CloseEvent, this, EventArgs.Empty, false);
-            if (!PreventClose)
+            if (!CloseEvent.SafeInvoke(this))
             {
                 Inner.Close();
+                base.Close();
             }
         }
 
         protected override void Dispose(bool disposing)
         {
-            base.Dispose(disposing);
-            DelegateHelpers.SafeInvoke(CloseEvent, this, EventArgs.Empty, false);
-            if (!PreventClose)
+            if (!DisposeEvent.SafeInvoke(this))
             {
                 Inner.Dispose();
+                base.Dispose(disposing);
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -100,11 +101,11 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-        public static void SafeInvoke<EA>(this EventHandler<EventArgs<EA>> h, object sender, EventArgs<EA> e, bool throwException = false)
+        public static void SafeInvoke<EA>(this EventHandler<EventArgs<EA>> h, object sender, EventArgs<EA> ea, bool throwException = false)
         {
             try
             {
-                h?.Invoke(sender, e);
+                h?.Invoke(sender, ea);
             }
             catch (Exception ex)
             {
@@ -121,11 +122,11 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-        public static void SafeInvoke(this EventHandler h, object sender, EventArgs e=null, bool throwException=false)
+        public static void SafeInvoke(this EventHandler h, object sender, EventArgs ea = null, bool throwException = false)
         {
             try
             {
-                h?.Invoke(sender, e ?? EventArgs.Empty);
+                h?.Invoke(sender, ea ?? EventArgs.Empty);
             }
             catch (Exception ex)
             {
@@ -140,6 +141,29 @@ namespace RevolutionaryStuff.Core
 #endif
                 }
             }
+        }
+
+        public static bool SafeInvoke(this CancelEventHandler h, object sender, CancelEventArgs ea = null, bool throwException = false)
+        {
+            ea = ea ?? new CancelEventArgs();
+            try
+            {
+                h?.Invoke(sender, ea);
+            }
+            catch (Exception ex)
+            {
+                if (throwException)
+                {
+                    throw ex;
+                }
+                else
+                {
+#if DEBUG
+                    Debug.WriteLine(ex);
+#endif
+                }
+            }
+            return ea.Cancel;
         }
     }
 }

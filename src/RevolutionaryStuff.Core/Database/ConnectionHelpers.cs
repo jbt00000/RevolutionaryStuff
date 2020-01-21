@@ -378,10 +378,18 @@ namespace RevolutionaryStuff.Core.Database
 
             public T GetOutputParameterVal<T>(string name)
             {
-
+                if (name.StartsWith("@"))
+                {
+                    name = name.Substring(1);
+                }
                 foreach (SqlParameter p in Parameters)
                 {
-                    if (0 == string.Compare(p.ParameterName, name, true) && p.Direction.HasFlag(ParameterDirection.Output))
+                    var pn = p.ParameterName;
+                    if (pn.StartsWith("@"))
+                    {
+                        pn = pn.Substring(1);
+                    }
+                    if (0 == string.Compare(pn, name, true) && p.Direction.HasFlag(ParameterDirection.Output))
                     {
                         return (T)p.Value;
                     }
