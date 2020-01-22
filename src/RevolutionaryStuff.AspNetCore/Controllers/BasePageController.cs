@@ -101,5 +101,11 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
             }
             return q;
         }
+
+        protected void AddPageAlert(string toastMessage, bool autoDismiss = false, PageAlert.AlertTypes pageAlertType = PageAlert.AlertTypes.Info)
+           => AddPageAlert(new PageAlert(toastMessage, autoDismiss, pageAlertType));
+
+        protected void AddPageAlert(PageAlert pa)
+            => TempData.AddPageAlert(pa);
     }
 }
