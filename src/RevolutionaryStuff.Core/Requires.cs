@@ -41,6 +41,12 @@ namespace RevolutionaryStuff.Core
                 throw new ArgumentException(string.Format("size+offset must be <= {0}.Count", argName));
         }
 
+        public static void ListArg<T>(IList<T> arg, string argName, int minSize = 0)
+        {
+            Requires.NonNull(arg, argName);
+            if (arg.Count < minSize) throw new ArgumentOutOfRangeException(argName, $"Length must be >0 {minSize}");
+        }
+
         public static void Valid(IValidate arg, string argName, bool canBeNull=false)
         {
             if (arg == null && canBeNull) return;

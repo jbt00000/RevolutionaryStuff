@@ -215,5 +215,7 @@ namespace RevolutionaryStuff.Core
             }
             return missing;
         }
+        public static void AcceptJson(this HttpRequestHeaders headers)
+            => headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
     }
 }

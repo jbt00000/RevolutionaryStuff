@@ -86,9 +86,20 @@ namespace RevolutionaryStuff.Core.Caching
                     {
                         Stuff.Noop();
                     }
+                    else if (ot.Name.StartsWith("Func`"))
+                    {
+                        o = $"fo:{ot.Name}:{ot.GetHashCode()}";
+                    }
                     else
                     {
-                        o = JsonConvert.ToString(o);
+                        try
+                        {
+                            o = JsonConvert.ToString(o);
+                        }
+                        catch (Exception)
+                        {
+                            o = $"oo:{ot.GetHashCode()}";
+                        }
                     }
                 }
                 sb.AppendFormat("{1}`", pos, o);

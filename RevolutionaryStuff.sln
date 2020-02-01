@@ -58,7 +58,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Mergers.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Mergers", "src\RevolutionaryStuff.Mergers\RevolutionaryStuff.Mergers.csproj", "{BD31540D-3E04-4E75-A73F-737E1EC226C3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.AspNetCore", "src\RevolutionaryStuff.AspNetCore\RevolutionaryStuff.AspNetCore.csproj", "{7AF46B05-81C4-4633-878D-F9D33DE497F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.AspNetCore", "src\RevolutionaryStuff.AspNetCore\RevolutionaryStuff.AspNetCore.csproj", "{7AF46B05-81C4-4633-878D-F9D33DE497F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleApp1", "src\ConsoleApp1\ConsoleApp1.csproj", "{13D521F4-7A7D-4AE9-AE98-E749F081A21D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -214,6 +216,18 @@ Global
 		{7AF46B05-81C4-4633-878D-F9D33DE497F5}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
 		{7AF46B05-81C4-4633-878D-F9D33DE497F5}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
 		{7AF46B05-81C4-4633-878D-F9D33DE497F5}.VSTS-CI|x64.Build.0 = Debug|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.Debug|x64.Build.0 = Debug|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.Release|x64.ActiveCfg = Release|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.Release|x64.Build.0 = Release|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
+		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.VSTS-CI|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

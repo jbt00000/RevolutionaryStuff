@@ -2,18 +2,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Dynamic;
+using System.Linq;
 using System.Reflection;
 
 namespace RevolutionaryStuff.Core
 {
     public static class TypeHelpers
     {
-        public static object Construct(Type t)
+        public static object GetDefaultValue(this Type t)
         {
-            var ci = t.GetConstructor(Empty.TypeArray);
-            var o = ci.Invoke(Empty.ObjectArray);
-            return o;
+            if (t.GetTypeInfo().IsValueType)
+            {
+                return Activator.CreateInstance(t);
+            }
+            return null;
         }
+
+        public static object Construct(this Type t)
+            => Activator.CreateInstance(t);
 
         public static T Construct<T>() where T : new()
             => (T)Construct(typeof(T));
@@ -23,6 +29,9 @@ namespace RevolutionaryStuff.Core
             var gt = typeof(List<>).MakeGenericType(new[] { itemType });
             return (IList)Construct(gt);
         }
+
+        public static PropertyInfo GetIndexer(this Type itemType)
+            => itemType.GetProperties().SingleOrDefault(pi => pi.GetIndexParameters().Length == 1);
 
         public static IDictionary<string, object> ToPropertyValueDictionary(object o)
         {
@@ -370,6 +379,9 @@ namespace RevolutionaryStuff.Core
             }
             return new List<Assembly>(d.Values);
         }
+
+        public static ConstructorInfo GetConstructorNoParameters(this Type test)
+            => test.GetConstructors(BindingFlags.Public).FirstOrDefault(ci=>ci.GetParameters().Length==0);
 
         public static PropertyInfo[] GetPropertiesPublicInstanceRead(this Type test)
             => test.GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance);
