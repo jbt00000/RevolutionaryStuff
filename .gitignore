@@ -341,4 +341,5 @@ ASALocalRun/
 ################################################################################
 /src/RevolutionaryStuff.SSIS/deploy.bat
 /src/RevolutionaryStuff.TheLoader/App.config
+Appsettings.*
 
