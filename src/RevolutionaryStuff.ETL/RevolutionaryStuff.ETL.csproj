@@ -13,9 +13,9 @@
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>3.1.16.0</FileVersion>
-    <AssemblyVersion>3.1.16.0</AssemblyVersion>
-    <Version>3.1.16</Version>
+    <FileVersion>3.1.17.0</FileVersion>
+    <AssemblyVersion>3.1.17.0</AssemblyVersion>
+    <Version>3.1.17</Version>
     <PackageReleaseNotes>- Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
     <PackageIcon>package\icon.png</PackageIcon>
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>

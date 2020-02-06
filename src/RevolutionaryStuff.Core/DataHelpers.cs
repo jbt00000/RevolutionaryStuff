@@ -91,6 +91,7 @@ namespace RevolutionaryStuff.Core
             public int? MaxLength;
             public bool AllowNull;
             public bool? Unicode;
+            public bool AsIs;
 
             public RightTypeInfo(DataColumn sourceColumn)
             {
@@ -103,23 +104,35 @@ namespace RevolutionaryStuff.Core
             public DataColumn CreateDataColumn()
             {
                 var c = SourceColumn.Xerox();
-                c.DataType = this.DataType;
-                if (this.MaxLength.HasValue)
+                if (!AsIs)
                 {
-                    c.MaxLength = this.MaxLength.Value;
-                }
-                c.AllowDBNull = this.AllowNull;
-                if (c.DataType == typeof(string))
-                {
-                    c.Unicode(this.Unicode);
+                    c.DataType = this.DataType;
+                    if (this.MaxLength.HasValue)
+                    {
+                        c.MaxLength = this.MaxLength.Value;
+                    }
+                    c.AllowDBNull = this.AllowNull;
+                    if (c.DataType == typeof(string))
+                    {
+                        c.Unicode(this.Unicode);
+                    }
                 }
                 return c;
             }
         }
 
-        public static DataTable RightType(this DataTable dt, bool nullifyBlankStrings=true, bool returnNewTable=false)
+        public static DataTable RightType(this DataTable dt, bool nullifyBlankStrings=true, bool returnNewTable=false, Predicate<DataColumn> columnFilter=null)
         {
             Requires.NonNull(dt, nameof(dt));
+            if (columnFilter == null)
+            {
+                columnFilter = _ => true;
+            }
+            else
+            {
+                Requires.False(returnNewTable, nameof(returnNewTable));
+            }
+
             using (new TraceRegion($"{nameof(RightType)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows"))
             {
                 var rtis = new List<RightTypeInfo>();
@@ -133,8 +146,12 @@ namespace RevolutionaryStuff.Core
                 for (int colNum = 0; colNum < columnNames.Count; ++colNum)
                 {
                     var dc = dt.Columns[columnNames[colNum]];
-                    if (dc.DataType != typeof(string)) continue;
-                    if (dc.PreserveTypeInformation()) continue;
+                    //var dc = dt.Columns[colNum];
+                    if (dc.DataType != typeof(string) || dc.PreserveTypeInformation() || !columnFilter(dc))
+                    {
+                        rtis.Add(new RightTypeInfo(dc) { AsIs = true });
+                        continue;
+                    }
                     dc.AllowDBNull = true;
                     Trace.WriteLine($"{nameof(RightType)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
                     var len = 0;
@@ -231,22 +248,22 @@ namespace RevolutionaryStuff.Core
                     }
                     else if (canBeInt8 && !hasLeadingZeros)
                     {
-                        rti.Converter = q => Byte.Parse(q);
+                        rti.Converter = q => (byte)Convert.ToDouble(q);
                         rti.DataType = typeof(Byte);
                     }
                     else if (canBeInt16 && !hasLeadingZeros)
                     {
-                        rti.Converter = q => Int16.Parse(q);
+                        rti.Converter = q => (Int16)Convert.ToDouble(q);
                         rti.DataType = typeof(Int16);
                     }
                     else if (canBeInt32 && !hasLeadingZeros)
                     {
-                        rti.Converter = q => Int32.Parse(q);
+                        rti.Converter = q => (Int32)Convert.ToDouble(q);
                         rti.DataType = typeof(Int32);
                     }
                     else if (canBeInt64 && !hasLeadingZeros)
                     {
-                        rti.Converter = q => Int64.Parse(q);
+                        rti.Converter = q => (Int64)Convert.ToDouble(q);
                         rti.DataType = typeof(Int64);
                     }
                     else if (canBeIntFromFloat && !hasLeadingZeros)
@@ -302,7 +319,7 @@ namespace RevolutionaryStuff.Core
                     }
                     if (returnNewTable)
                     {
-                        Trace.WriteLine($"Will convert {dc.ColumnName} via {rti}");
+                        Trace.WriteLine($"Will convert col[{colNum}=`{dc.ColumnName}`] via {rti}");
                     }
                     else
                     {
@@ -361,7 +378,7 @@ namespace RevolutionaryStuff.Core
                                 {
                                     drow[z] = DBNull.Value;
                                 }
-                                else if (rti.Converter == null)
+                                else if (rti.Converter == null || !(v is string))
                                 {
                                     drow[z] = v;
                                 }

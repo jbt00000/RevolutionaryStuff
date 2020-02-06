@@ -5,8 +5,11 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core
@@ -327,12 +330,37 @@ namespace RevolutionaryStuff.Core
             }
         }
 
-        public static void TaskWaitAllForEach<TSource>(IEnumerable<TSource> items, Func<TSource, Task> body)
+        public static async Task TaskWhenAllForEach<TItem>(IEnumerable<TItem> items, Func<TItem, Task> taskCreator, int maxAtOnce = 2, [CallerMemberName] string caller = null)
         {
             var tasks = new List<Task>();
-            items.ForEach(z => tasks.Add(body(z)));
-            Task.WaitAll(tasks.ToArray());
+            long outstanding = 0;
+            foreach (var item in items)
+            {
+                while (Interlocked.Read(ref outstanding) >= maxAtOnce)
+                {
+                    await Task.Delay(10);
+                }
+                Interlocked.Increment(ref outstanding);
+                Debug.WriteLine($"{nameof(TaskWhenAllForEach)} from {caller}: Tot Started = {tasks.Count}; Outstanding = {outstanding}");
+                var t = taskCreator(item);
+                var tDone = t.ContinueWith(a => { Interlocked.Decrement(ref outstanding); return Task.CompletedTask; });
+                tasks.Add(t);
+            }
+            while (Interlocked.Read(ref outstanding) > 0)
+            {
+                await Task.Delay(10);
+            }
+            Debug.WriteLine($"{nameof(TaskWhenAllForEach)} from {caller}: Tot Started = {tasks.Count}; Outstanding = {outstanding}");
+            Debug.Assert(outstanding == 0);
+            var exceptions = tasks.Where(z => z.Exception != null).Select(z => z.Exception).ToList();
+            if (exceptions.Count > 0)
+            {
+                throw new AggregateException(exceptions);
+            }
         }
+
+        public static void TaskWaitAllForEach<TSource>(IEnumerable<TSource> items, Func<TSource, Task> body, [CallerMemberName] string caller = null)
+            => TaskWhenAllForEach(items, body, int.MaxValue, caller).ExecuteSynchronously();
 
         public static string GetPathFromSerializedPath(Type t, string serializedPath)
             => Cache.DataCacher.FindOrCreateValue(

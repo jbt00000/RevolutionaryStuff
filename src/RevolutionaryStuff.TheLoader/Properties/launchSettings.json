@@ -2,7 +2,7 @@
   "profiles": {
     "RevolutionaryStuff.TheLoader": {
       "commandName": "Project",
-      "commandLineArgs": "-m:import -filename:\"C:\\Users\\jasonthomas\\downloads\\example2.txt\" -csn:PersonalJason -schema:tva -FileFormat:pipe"
+      "commandLineArgs": "-m:import -filename:\"C:\\Users\\jasonthomas\\downloads\\AHRF DATA.csv\" -schema:ReferenceData -SinkType:Cosmos -RowNumberColumn:id -AutoFileNameColumnName:_fn -zColumnRenamingMode:LowerCamelNoSpecialCharacters -Profile:TraffkAhrf"
     }
   }
 }

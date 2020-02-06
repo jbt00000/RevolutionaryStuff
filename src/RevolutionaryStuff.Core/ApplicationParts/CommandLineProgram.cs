@@ -24,8 +24,14 @@ namespace RevolutionaryStuff.Core.ApplicationParts
 
         #endregion
 
-        private void Go() 
-            => OnGoAsync().ExecuteSynchronously();
+        private void Go()
+        {
+            OnPreGo();
+            OnGoAsync().ExecuteSynchronously();
+        }
+
+        protected virtual void OnPreGo()
+        { }
 
         protected abstract Task OnGoAsync();
 
@@ -137,6 +143,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts
                 p.BuildConfiguration();
                 p.ProcessCommandLineArgs(args);
                 p.ConfigureServices();
+
                 programInOperation = true;
                 p.Go();
             }

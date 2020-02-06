@@ -2,7 +2,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Data;
-using Microsoft.Data.SqlClient;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -10,7 +9,9 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -23,15 +24,15 @@ using Simple.OData.Client;
 
 namespace RevolutionaryStuff.TheLoader
 {
-    public class Program : CommandLineProgram
+    public partial class Program : CommandLineProgram
     {
         static void Main(string[] args)
             => Main<Program>(args);
 
-        public enum Modes
+        protected override void OnConfigureServices(IServiceCollection services)
         {
-            Import,
-            Export
+            base.OnConfigureServices(services);
+            ConfigureOptions<LoaderConfig>(LoaderConfig.ConfigSectionName);
         }
 
         public enum YesNoAuto
@@ -41,18 +42,12 @@ namespace RevolutionaryStuff.TheLoader
             Auto,
         }
 
-        private const string NameofModeImport = nameof(Modes.Import);
-        private const string NameofModeExport = nameof(Modes.Export);
-
         #region Command Line Args
-
-        [CommandLineSwitchModeSwitch(CommandLineSwitchAttribute.CommonArgNames.Mode)]
-        public Modes Mode = Modes.Import;
 
         [CommandLineSwitch("SinkType", Mandatory = false)]
         public SinkTypes SinkType = SinkTypes.SqlServer;
 
-        [CommandLineSwitch("SkipZeroRowTables", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("SkipZeroRowTables", Mandatory = false)]
         public bool SkipZeroRowTables = true;
 
         [CommandLineSwitch("Filename", Mandatory = true, Translator = CommandLineSwitchAttributeTranslators.FilePathOrUrl)]
@@ -69,28 +64,25 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("ODataElementNames", Translator = CommandLineSwitchAttributeTranslators.Csv)]
         public string[] ODataElementNames;
 
-        [CommandLineSwitch("Sql", Mandatory = true, Mode = NameofModeExport)]
-        public string Sql;
+        [CommandLineSwitch("Sql")]
+        public string SourceSql;
 
-        [CommandLineSwitch("Schema", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("Schema", Mandatory = false)]
         public string SinkSchema="dbo";
 
-        [CommandLineSwitch("Table", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("Table", Mandatory = false)]
         public string SinkTable;
 
-        [CommandLineSwitch("CSN", Mandatory = true)]
-        public string ConnectionStringName;
-
-        [CommandLineSwitch("ColumnNameFormat", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("ColumnNameFormat", Mandatory = false)]
         public ColumnNameFormats ColumnNameFormat = ColumnNameFormats.Auto;
 
-        [CommandLineSwitch("FileFormat", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("FileFormat", Mandatory = false)]
         public FileFormats FileFormat = FileFormats.Auto;
 
-        [CommandLineSwitch("ColumnRenamingMode", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("ColumnRenamingMode", Mandatory = false)]
         public ColumnRenamingModes ColumnRenamingMode = ColumnRenamingModes.Preserve;
 
-        [CommandLineSwitch("SheetNames", Mandatory = false, Mode = NameofModeImport, Translator = CommandLineSwitchAttributeTranslators.Csv)]
+        [CommandLineSwitch("SheetNames", Mandatory = false, Translator = CommandLineSwitchAttributeTranslators.Csv)]
         public string[] SheetNames;
 
         [CommandLineSwitch("SkipCols", Mandatory = false, Translator = CommandLineSwitchAttributeTranslators.Csv)]
@@ -111,47 +103,50 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("SkipRawRows", Mandatory = false, Description = "When a CSVish file, the number of raw rows to skip.  These should be prior to even the header row.")]
         public int SkipRawRows = 0;
 
-        [CommandLineSwitch("Parallelism", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("Parallelism", Mandatory = false)]
         public bool Parallelism = true;
 
-        [CommandLineSwitch("NotifyIncrement", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("NotifyIncrement", Mandatory = false)]
         public int NotifyIncrement = 1000;
 
-        [CommandLineSwitch("CsvFieldDelim", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("CsvFieldDelim", Mandatory = false)]
         public char CsvFieldDelim = ',';
 
-        [CommandLineSwitch("SinkCsvFieldDelim", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("SinkCsvFieldDelim", Mandatory = false)]
         public char SinkCsvFieldDelim = ',';
 
-        [CommandLineSwitch("CsvQuoteChar", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("CsvQuoteChar", Mandatory = false)]
         public char CsvQuoteChar = '"';
 
-        [CommandLineSwitch("TrimAndNullifyStringData", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("TrimAndNullifyStringData", Mandatory = false)]
         public bool TrimAndNullifyStringData = true;
 
-        [CommandLineSwitch("RightType", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("RightType", Mandatory = false)]
         public YesNoAuto RightType = YesNoAuto.Auto;
 
         [CommandLineSwitch("RowNumberColumn", Mandatory = false, Description = "When specified, the row number from the load should be added here")]
         public string RowNumberColumnName;
 
-        [CommandLineSwitch("MaxErrorRate", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("MaxErrorRate", Mandatory = false)]
         public float MaxErrorRate = 0;
 
-        [CommandLineSwitch("TableAlreadyExistsAction", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("TableAlreadyExistsAction", Mandatory = false)]
         public AlreadyExistsActions TableAlreadyExistsAction = AlreadyExistsActions.Skip;
 
-        [CommandLineSwitch("UseSocrataMetadata", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("UseSocrataMetadata", Mandatory = false)]
         public bool UseSocrataMetadata = false;
 
-        [CommandLineSwitch("UnpivotLeftColumnNames", Mandatory = false, Mode = NameofModeImport, Translator = CommandLineSwitchAttributeTranslators.Csv)]
+        [CommandLineSwitch("UnpivotLeftColumnNames", Mandatory = false, Translator = CommandLineSwitchAttributeTranslators.Csv)]
         public string[] UnpivotLeftColumnNames;
 
-        [CommandLineSwitch("UnpivotKeyColumnName", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("UnpivotKeyColumnName", Mandatory = false)]
         public string UnpivotKeyColumnName;
 
-        [CommandLineSwitch("UnpivotValueColumnName", Mandatory = false, Mode = NameofModeImport)]
+        [CommandLineSwitch("UnpivotValueColumnName", Mandatory = false)]
         public string UnpivotValueColumnName;
+
+        [CommandLineSwitch("profile", Mandatory =true)]
+        public string ProfileName;
 
         #endregion
 
@@ -171,37 +166,22 @@ namespace RevolutionaryStuff.TheLoader
             {
                 foreach (var s in SkipColsArr) SkipCols.Add(s);
             }
+        }
+
+        protected override void OnPreGo()
+        {
+            base.OnPreGo();
             switch (SinkType)
             {
                 case SinkTypes.SqlServer:
-                    ConnectionString = Configuration.GetConnectionString(ConnectionStringName);
+                    ConnectionString = Configuration.GetConnectionString(Profile.ConnectionStringName);
+                    break;
+                case SinkTypes.Cosmos:
+                    ConnectionString = Configuration.GetConnectionString(Profile.ConnectionStringName);
                     break;
                 default:
-                    ConnectionString = Path.GetFullPath(ConnectionStringName);
+                    ConnectionString = Path.GetFullPath(Profile.ConnectionStringName);
                     break;
-            }
-        }
-
-        protected override async Task OnGoAsync()
-        {
-            try
-            {
-                switch (Mode)
-                {
-                    case Modes.Import:
-                        await OnImportAsync();
-                        break;
-                    case Modes.Export:
-                        OnExport();
-                        break;
-                    default:
-                        throw new UnexpectedSwitchValueException(Mode);
-                }
-            }
-            catch (Exception ex)
-            {
-                Trace.WriteLine(ex.ToString());
-                throw;
             }
         }
 
@@ -221,7 +201,7 @@ namespace RevolutionaryStuff.TheLoader
             {
                 conn.InfoMessage += Conn_InfoMessage;
                 conn.Open();
-                using (var cmd = new SqlCommand(Sql, conn)
+                using (var cmd = new SqlCommand(SourceSql, conn)
                 {
                     CommandType = CommandType.Text,
                     CommandTimeout = 60 * 60
@@ -294,11 +274,24 @@ namespace RevolutionaryStuff.TheLoader
             }
         }
 
-        private static string MakeFriendly(string s)
+        private string MakeFriendly(string unfriendlyName)
         {
-            var r = RegexHelpers.Create("[^0-9a-z]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            var s = unfriendlyName;
+            foreach (var kvp in Config.MakeFriendlyReplacements)
+            {
+                s = s.Replace(kvp.Key, $" {kvp.Value} ");
+            }
+            var r = RegexHelpers.Create("[^0-9a-z_]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
             s = r.Replace(s, " ");
-            s = s.ToUpperCamelCase();
+            switch (ColumnRenamingMode)
+            {
+                case ColumnRenamingModes.LowerCamelNoSpecialCharacters:
+                    s = s.ToLowerCamelCase();
+                    break;
+                case ColumnRenamingModes.UpperCamelNoSpecialCharacters:
+                    s = s.ToUpperCamelCase();
+                    break;
+            }
             return s;
         }
 
@@ -533,6 +526,67 @@ namespace RevolutionaryStuff.TheLoader
             => OpenReadAsync(fileName, unzip).ExecuteSynchronously();
 
 
+        private void AddComputedColumns(DataTable dt)
+        { 
+            var tc = Profile.GetTableConfig(dt.TableName);
+            if (tc != null && tc.ComputedColumns != null && tc.ComputedColumns.Count > 0 && dt.Rows.Count>0)
+            {
+                using (new TraceRegion($"Adding Computed Columns to {dt.TableName}"))
+                {
+                    foreach (var kvp in tc.ComputedColumns)
+                    {
+                        var columnName = kvp.Key;
+                        using (new TraceRegion($"Settings [{kvp.Value}]=>[{columnName}]"))
+                        {
+                            var i = new DynamicExpresso.Interpreter();
+                            var parameters = new[] { new DynamicExpresso.Parameter("item", dt.Rows[0]) };
+                            var val = i.Eval(kvp.Value, parameters);
+                            var valType = val.GetType();
+                            const string tempColumnName = "_TEMP_COMPUTED_COLUMN_";
+                            var col = new DataColumn(tempColumnName, valType);
+                            dt.Columns.Add(col);
+                            bool canBeNull = false;
+                            int maxLen = 0;
+                            foreach (DataRow dr in dt.Rows)
+                            {
+                                parameters[0] = new DynamicExpresso.Parameter("item", dr);
+                                val = i.Eval(kvp.Value, parameters);
+                                if (val is string && val != null)
+                                {
+                                    maxLen = Stuff.Max(maxLen, ((string)val).Length);
+                                }
+                                if (val == null)
+                                {
+                                    canBeNull = true;
+                                    dr[col] = DBNull.Value;
+                                }
+                                else
+                                {
+                                    dr[col] = val;
+                                }
+                            }
+                            if (valType == typeof(string))
+                            {
+                                col.MaxLength = maxLen;
+                                col.AllowDBNull = canBeNull;
+                            }
+                            else
+                            {
+                                dt.RightType(true, false, rtc => 0 == string.Compare(rtc.ColumnName, col.ColumnName, true));
+                            }
+                            if (dt.Columns.Contains(columnName))
+                            {
+                                var origColumn = dt.Columns[columnName];
+                                col.SetOrdinal(origColumn.Ordinal);
+                                dt.Columns.Remove(origColumn);
+                            }
+                            col.ColumnName = columnName;
+                        }
+                    }
+                }
+            }
+        }
+
         private void AddAutoFileNameColumnName(DataTable dt)
         {
             if (AutoFileNameColumnName != null)
@@ -554,7 +608,7 @@ namespace RevolutionaryStuff.TheLoader
             return dt;
         }
 
-        private async Task OnImportAsync()
+        protected async override Task OnGoAsync()
         {
             SinkTable = StringHelpers.Coalesce(SinkTable, MakeFriendly(Path.GetFileNameWithoutExtension(FilePath)));
 
@@ -605,6 +659,7 @@ namespace RevolutionaryStuff.TheLoader
                     case ColumnRenamingModes.Preserve:
                         break;
                     case ColumnRenamingModes.UpperCamelNoSpecialCharacters:
+                    case ColumnRenamingModes.LowerCamelNoSpecialCharacters:
                         foreach (DataColumn dc in dt.Columns)
                         {
                             dc.ColumnName = MakeFriendly(dc.ColumnName);
@@ -828,24 +883,47 @@ namespace RevolutionaryStuff.TheLoader
 
             foreach (DataTable zdt in ds.Tables)
             {
-                AddAutoFileNameColumnName(zdt);
                 switch (ColumnRenamingMode)
                 {
                     case ColumnRenamingModes.Preserve:
                         break;
                     case ColumnRenamingModes.UpperCamelNoSpecialCharacters:
-                        for (int colNum = 0; colNum < zdt.Columns.Count; ++colNum)
+                    case ColumnRenamingModes.LowerCamelNoSpecialCharacters:
+                        using (new TraceRegion($"Renaming columns via {ColumnRenamingMode}"))
                         {
-                            var dc = zdt.Columns[colNum];
-                            dc.ColumnName = MakeFriendly(dc.ColumnName);
+                            for (int colNum = 0; colNum < zdt.Columns.Count; ++colNum)
+                            {
+                                var dc = zdt.Columns[colNum];
+                                var friendlyName = MakeFriendly(dc.ColumnName);
+                                if (ContainsColumnName(zdt.Columns, friendlyName, dc))
+                                {
+                                    int occ = 1;
+                                    while (ContainsColumnName(zdt.Columns, $"{friendlyName}_{++occ}", dc)) ;
+                                    friendlyName = $"{friendlyName}_{occ}";
+                                }
+                                if (dc.ColumnName == friendlyName) continue;
+                                Trace.WriteLine($"Renaming column {colNum} from [{dc.ColumnName}] to [{friendlyName}]");
+                                dc.ColumnName = friendlyName;
+                            }
                         }
                         break;
                     default:
                         throw new UnexpectedSwitchValueException(ColumnRenamingMode);
                 }
+                AddAutoFileNameColumnName(zdt);
             }
 
             Load(ds);
+        }
+
+        private static bool ContainsColumnName(DataColumnCollection dcc, string name, DataColumn otherThanThisColumn)
+        {
+            foreach (DataColumn dc in dcc)
+            {
+                if (dc == otherThanThisColumn) continue;
+                if (0 == string.Compare(dc.ColumnName, name, true)) return true;
+            }
+            return false;
         }
 
 
@@ -867,6 +945,7 @@ namespace RevolutionaryStuff.TheLoader
                 {
                     dt.IdealizeStringColumns(TrimAndNullifyStringData);
                 }
+                AddComputedColumns(dt);
                 using (new TraceRegion($"Operating on {SinkSchema}.{dt.TableName}; Table {tableNum}/{ds.Tables.Count}; RemoteServerType={SinkType}"))
                 {
                     if (dt.Rows.Count == 0 && SkipZeroRowTables) return;
@@ -882,6 +961,9 @@ namespace RevolutionaryStuff.TheLoader
                             break;
                         case SinkTypes.FlatFile:
                             uploader = new FlatFileUploader(this);
+                            break;
+                        case SinkTypes.Cosmos:
+                            uploader = new CosmosUploader(this, new CosmosUploader.AuthenticationConfig { ConnectionString = ConnectionString, DatabaseName= SinkSchema });
                             break;
                         default:
                             throw new UnexpectedSwitchValueException(SinkType);

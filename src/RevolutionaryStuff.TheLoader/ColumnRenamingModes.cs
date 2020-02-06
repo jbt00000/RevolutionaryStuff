@@ -4,5 +4,6 @@
     {
         Preserve,
         UpperCamelNoSpecialCharacters,
+        LowerCamelNoSpecialCharacters,
     }
 }

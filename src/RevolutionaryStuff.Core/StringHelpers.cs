@@ -113,6 +113,16 @@ namespace RevolutionaryStuff.Core
             return s;
         }
 
+        public static string ToLowerCamelCase(this string s)
+        {
+            s = s.ToUpperCamelCase();
+            if (s.Length > 0 && char.IsUpper(s[0]))
+            {
+                s = s[0].ToString().ToLower() + s.Substring(1);
+            }
+            return s;
+        }
+
         public static string ToTitleCase(this string s)
         {
             if (string.IsNullOrEmpty(s)) return "";

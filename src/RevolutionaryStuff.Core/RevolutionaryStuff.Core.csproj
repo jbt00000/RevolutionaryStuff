@@ -15,9 +15,9 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Uses .NET 3.1 libraries that still run under .NETStandard2.0</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.1.16.0</FileVersion>
-    <AssemblyVersion>3.1.16.0</AssemblyVersion>
-    <Version>3.1.16</Version>
+    <FileVersion>3.1.17.0</FileVersion>
+    <AssemblyVersion>3.1.17.0</AssemblyVersion>
+    <Version>3.1.17</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
@@ -60,7 +60,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.Options" Version="3.1.1" />
     <PackageReference Include="Microsoft.Extensions.PlatformAbstractions" Version="1.1.0" />
-    <PackageReference Include="MSTest.TestFramework" Version="2.0.0" />
+    <PackageReference Include="MSTest.TestFramework" Version="2.1.0" />
     <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
     <PackageReference Include="System.Data.Common" Version="4.3.0" />

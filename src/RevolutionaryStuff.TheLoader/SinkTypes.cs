@@ -4,6 +4,6 @@
     {
         SqlServer,
         FlatFile,
-//        DocumentDB,
+        Cosmos,
     }
 }
