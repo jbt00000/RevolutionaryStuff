@@ -106,12 +106,29 @@ namespace RevolutionaryStuff.AspNetCore
             return items;
         }
 
-        public static IList<SelectListItem> Select(this IList<SelectListItem> items, object selectedValue)
+        public static IList<SelectListItem> SelectItem(this IList<SelectListItem> items, object selectedValue, bool unselectOthers = true, bool ignoreCase=true)
+            => items.SelectItems(new[] { selectedValue }, unselectOthers, ignoreCase);
+
+        public static IList<SelectListItem> SelectItems<TVal>(this IList<SelectListItem> items, IEnumerable<TVal> selectedValues, bool unselectOthers = true, bool ignoreCase = true)
         {
-            var v = Stuff.ObjectToString(selectedValue);
-            foreach (var i in items)
+            var vals = ignoreCase ? new HashSet<string>(Comparers.CaseInsensitiveStringComparer) : new HashSet<string>();
+            if (selectedValues != null)
             {
-                i.Selected = i.Value == v;
+                foreach (var sv in selectedValues)
+                {
+                    vals.Add(Stuff.ObjectToString(sv));
+                }
+            }
+            foreach (var item in items)
+            {
+                if (vals.Contains(item.Value))
+                {
+                    item.Selected = true;
+                }
+                else if (unselectOthers)
+                {
+                    item.Selected = false;
+                }
             }
             return items;
         }

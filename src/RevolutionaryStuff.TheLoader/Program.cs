@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Microsoft.OData.Edm;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -19,6 +20,7 @@ using RevolutionaryStuff.Core;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Diagnostics;
 using RevolutionaryStuff.ETL;
+using RevolutionaryStuff.TheLoader.Sinks;
 using RevolutionaryStuff.TheLoader.Uploaders;
 using Simple.OData.Client;
 
@@ -32,7 +34,7 @@ namespace RevolutionaryStuff.TheLoader
         protected override void OnConfigureServices(IServiceCollection services)
         {
             base.OnConfigureServices(services);
-            ConfigureOptions<LoaderConfig>(LoaderConfig.ConfigSectionName);
+            services.ConfigureOptions<LoaderConfig>(LoaderConfig.ConfigSectionName);
         }
 
         public enum YesNoAuto
@@ -525,13 +527,37 @@ namespace RevolutionaryStuff.TheLoader
         private static Stream OpenRead(string fileName, bool? unzip=null)
             => OpenReadAsync(fileName, unzip).ExecuteSynchronously();
 
+        private void FilterRows(DataTable dt)
+        {
+            var tc = Profile.GetTableConfig(dt.TableName);
+            if (tc.RowFilter == null) return;
+            using (new TraceRegion($"{nameof(FilterRows)} to {dt.TableName} with [{tc.RowFilter}]"))
+            {
+                var removes = new List<DataRow>();
+                var i = new DynamicExpresso.Interpreter();
+                var parameters = new[] { new DynamicExpresso.Parameter("item", dt.NewRow()) };
+                foreach (DataRow dr in dt.Rows)
+                {
+                    parameters[0] = new DynamicExpresso.Parameter("item", dr);
+                    if (!i.Eval<bool>(tc.RowFilter))
+                    {
+                        removes.Add(dr);
+                    }
+                }
+                Trace.WriteLine($"Will remove {removes.Count} of {dt.Rows.Count} total rows");
+                foreach (var dr in removes)
+                {
+                    dt.Rows.Remove(dr);
+                }
+            }
+        }
 
         private void AddComputedColumns(DataTable dt)
         { 
             var tc = Profile.GetTableConfig(dt.TableName);
             if (tc != null && tc.ComputedColumns != null && tc.ComputedColumns.Count > 0 && dt.Rows.Count>0)
             {
-                using (new TraceRegion($"Adding Computed Columns to {dt.TableName}"))
+                using (new TraceRegion($"{nameof(AddComputedColumns)} to {dt.TableName}"))
                 {
                     foreach (var kvp in tc.ComputedColumns)
                     {
@@ -539,7 +565,11 @@ namespace RevolutionaryStuff.TheLoader
                         using (new TraceRegion($"Settings [{kvp.Value}]=>[{columnName}]"))
                         {
                             var i = new DynamicExpresso.Interpreter();
-                            var parameters = new[] { new DynamicExpresso.Parameter("item", dt.Rows[0]) };
+                            var parameters = new[] {
+                                new DynamicExpresso.Parameter("item", dt.Rows[0]),
+                                new DynamicExpresso.Parameter("startedAt", Stuff.ApplicationStartedAt),
+                                new DynamicExpresso.Parameter("startedAt8601", Stuff.ApplicationStartedAt.ToRfc8601())
+                            };
                             var val = i.Eval(kvp.Value, parameters);
                             var valType = val.GetType();
                             const string tempColumnName = "_TEMP_COMPUTED_COLUMN_";
@@ -913,7 +943,7 @@ namespace RevolutionaryStuff.TheLoader
                 AddAutoFileNameColumnName(zdt);
             }
 
-            Load(ds);
+            await LoadAsync(ds);
         }
 
         private static bool ContainsColumnName(DataColumnCollection dcc, string name, DataColumn otherThanThisColumn)
@@ -927,7 +957,7 @@ namespace RevolutionaryStuff.TheLoader
         }
 
 
-        private void Load(DataSet ds)
+        private Task LoadAsync(DataSet ds)
         {
             int tableNum = 0;
             Parallel.ForEach(ds.Tables.OfType<DataTable>(), Stuff.CreateParallelOptions(Parallelism), dt =>
@@ -946,24 +976,25 @@ namespace RevolutionaryStuff.TheLoader
                     dt.IdealizeStringColumns(TrimAndNullifyStringData);
                 }
                 AddComputedColumns(dt);
+                FilterRows(dt);
+                var tableConfigOptions = new OptionsWrapper<LoaderConfig.TableConfig>(Profile.GetTableConfig(dt.TableName)??new LoaderConfig.TableConfig());
                 using (new TraceRegion($"Operating on {SinkSchema}.{dt.TableName}; Table {tableNum}/{ds.Tables.Count}; RemoteServerType={SinkType}"))
                 {
                     if (dt.Rows.Count == 0 && SkipZeroRowTables) return;
-                    IUploader uploader;
+                    ISink uploader;
                     switch (SinkType)
                     {
                         case SinkTypes.SqlServer:
-                            uploader = new SqlServerUploader(
-                                this,
+                            uploader = new SqlServerSink(
                                 () => new SqlConnection(ConnectionString),
-                                new UploadIntoSqlServerSettings { Schema = SinkSchema, GenerateTable = true, RowsTransferredNotifyIncrement = NotifyIncrement }
-                                );
+                                new UploadIntoSqlServerSettings { Schema = SinkSchema, GenerateTable = true, RowsTransferredNotifyIncrement = NotifyIncrement },
+                                this, tableConfigOptions);
                             break;
                         case SinkTypes.FlatFile:
-                            uploader = new FlatFileUploader(this);
+                            uploader = new FlatFileSink(this, tableConfigOptions);
                             break;
                         case SinkTypes.Cosmos:
-                            uploader = new CosmosUploader(this, new CosmosUploader.AuthenticationConfig { ConnectionString = ConnectionString, DatabaseName= SinkSchema });
+                            uploader = new CosmosSink(new CosmosSink.AuthenticationConfig { ConnectionString = ConnectionString, DatabaseName = SinkSchema }, this, tableConfigOptions);
                             break;
                         default:
                             throw new UnexpectedSwitchValueException(SinkType);
@@ -971,6 +1002,7 @@ namespace RevolutionaryStuff.TheLoader
                     uploader.UploadAsync(dt).ExecuteSynchronously();
                 }
             });
+            return Task.CompletedTask;
         }
     }
 }

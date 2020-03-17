@@ -79,32 +79,17 @@ namespace RevolutionaryStuff.Core.ApplicationParts
             OnPostProcessCommandLineArgs();
         }
 
-        private IServiceCollection ConfigureOptionsServices;
-
-        protected void ConfigureOptions<TOptions>(string sectionName) where TOptions : class
-        {
-            Debug.Assert((bool)(this.ConfigureOptionsServices != null));
-            OptionsConfigurationServiceCollectionExtensions.Configure<TOptions>(this.ConfigureOptionsServices, this.Configuration.GetSection(sectionName));
-        }
-
         protected virtual void OnConfigureServices(IServiceCollection services)
         { }
 
         private void ConfigureServices()
         {
-            ConfigureOptionsServices = new ServiceCollection();
-            try
-            {
-                ConfigureOptionsServices.Add(new ServiceDescriptor(typeof(IConfiguration), Configuration));
-                ConfigureOptionsServices.AddOptions();
-                ConfigureLogging(ConfigureOptionsServices);
-                OnConfigureServices(ConfigureOptionsServices);
-                ServiceProvider = ConfigureOptionsServices.BuildServiceProvider();
-            }
-            finally
-            {
-                this.ConfigureOptionsServices = null;
-            }
+            var services = new ServiceCollection();
+            services.Add(new ServiceDescriptor(typeof(IConfiguration), Configuration));
+            services.AddOptions();
+            ConfigureLogging(services);
+            OnConfigureServices(services);
+            ServiceProvider = services.BuildServiceProvider();
         }
 
         private void ConfigureLogging(IServiceCollection services)

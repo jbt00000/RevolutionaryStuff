@@ -324,13 +324,15 @@ namespace RevolutionaryStuff.Core
             return ret;
         }
 
-        public static void Remove<T>(this ICollection<T> col, IEnumerable<T> items)
+        public static int Remove<T>(this ICollection<T> col, IEnumerable<T> items)
         {
-            if (items == null) return;
+            if (col==null || items == null) return 0;
+            int cnt = 0; 
             foreach (var item in items)
             {
-                col.Remove(item);
+                cnt += col.Remove(item) ? 1 : 0;
             }
+            return cnt;
         }
 
         public static IList<T> OrderBy<T>(this IEnumerable<T> items) where T : IComparable

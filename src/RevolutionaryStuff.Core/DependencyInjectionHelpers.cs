@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using RevolutionaryStuff.Core.ApplicationParts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,6 +9,22 @@ namespace RevolutionaryStuff.Core
 {
     public static class DependencyInjectionHelpers
     {
+        public static void ConfigureOptions<TOptions>(this IServiceCollection services, string sectionName, bool registerIPostConfigure=true) where TOptions : class
+        {
+            services.AddOptions<TOptions>()
+                            .Configure<IConfiguration>((settings, configuration) =>
+                            {
+                                configuration.GetSection(sectionName).Bind(settings);
+                            });
+            if (registerIPostConfigure && typeof(TOptions).IsA<IPostConfigure>())
+            {
+                services.PostConfigure<TOptions>(o => ((IPostConfigure)o).PostConfigure());
+            }
+        }
+
+        public static string GetConnectionString(this IServiceProvider sp, string connectionStringName)
+            => sp.GetService<IConfiguration>().GetConnectionString(connectionStringName);
+
         public static void Substitute<TInt, TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
         {
             var serviceDescriptors = services.Where(s => typeof(TInt).IsA(s.ServiceType) && (existingServiceLifetime == null || s.Lifetime == existingServiceLifetime.Value)).ToList();

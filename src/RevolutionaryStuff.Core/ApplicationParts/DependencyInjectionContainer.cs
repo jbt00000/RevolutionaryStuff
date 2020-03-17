@@ -106,7 +106,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts
         protected virtual void OnConfigureServices(IServiceCollection services)
         { }
 
-        public IServiceProvider CreateScopedProvider()
+        public virtual IServiceProvider CreateScopedProvider()
             => ServiceProvider.CreateScope().ServiceProvider;
     }
 }

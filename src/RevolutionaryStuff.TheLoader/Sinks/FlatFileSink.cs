@@ -1,14 +1,15 @@
 ﻿using System.Data;
 using System.IO;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core;
 
-namespace RevolutionaryStuff.TheLoader.Uploaders
+namespace RevolutionaryStuff.TheLoader.Sinks
 {
-    public class FlatFileUploader : BaseUploader
+    public class FlatFileSink : BaseSink
     {
-        public FlatFileUploader(Program program)
-            : base(program)
+        public FlatFileSink(Program program, IOptions<Program.LoaderConfig.TableConfig> tableConfigOptions)
+            : base(program, tableConfigOptions)
         { }
 
         protected string OutputFilename;

@@ -7,14 +7,15 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.1.17.0</FileVersion>
-    <AssemblyVersion>3.1.17.0</AssemblyVersion>
-    <Version>3.1.17</Version>
+    <FileVersion>3.7.301.0</FileVersion>
+    <AssemblyVersion>3.7.301.0</AssemblyVersion>
+    <Version>3.7.301</Version>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <PackageIcon>package\icon.png</PackageIcon>
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
+    <Copyright>Copyright ©  2020</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

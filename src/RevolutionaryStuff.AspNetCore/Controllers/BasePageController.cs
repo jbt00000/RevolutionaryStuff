@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
@@ -54,12 +55,12 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
         }
 
         private static readonly IDictionary<string, string> NoMappings = new Dictionary<string, string>().AsReadOnly();
-        
-        protected static readonly IDictionary<string, string> ApplySortDefaultMappings = new Dictionary<string, string>();
 
-        protected IQueryable<T> ApplySort<T>(IQueryable<T> q, string sortCol, string sortDir, IDictionary<string, string> colMapper = null)
+        protected static readonly IDictionary<string, string> ApplySortDefaultMappings = new Dictionary<string, string>(Comparers.CaseInsensitiveStringComparer);
+
+        protected virtual IQueryable<T> ApplySort<T>(IQueryable<T> q, Type sortColEnumType, string sortCol, string sortDir, IDictionary<string, string> colMapper = null, IEnumerable<string> orderedValues = null) 
         {
-            var m = new Dictionary<string, string>(colMapper ?? NoMappings);
+            var m = new Dictionary<string, string>(colMapper ?? NoMappings, Comparers.CaseInsensitiveStringComparer);
             if (ApplySortDefaultMappings.Count > 0)
             {
                 foreach (var kvp in ApplySortDefaultMappings)
@@ -75,7 +76,14 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
             if (sortCol != null)
             {
                 sortCol = m.FindOrMissing(sortCol, sortCol);
-                q = q.OrderByField(sortCol, isAscending);
+                if (sortColEnumType == null)
+                {
+                    q = q.OrderByField(sortCol, orderedValues, isAscending);
+                }
+                else
+                {
+                    q = q.OrderByField(sortCol, sortColEnumType, isAscending);
+                }
             }
             return q;
         }
@@ -87,7 +95,13 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
             return cnt;
         }
 
-        protected IQueryable<T> ApplyBrowse<T>(IQueryable<T> q, string sortCol, string sortDir, int? page, int? pageSize, IDictionary<string, string> colMapper = null)
+        protected virtual IQueryable<T> ApplyBrowse<T>(IQueryable<T> q, string sortCol, string sortDir, int? page, int? pageSize, IDictionary<string, string> colMapper = null, IEnumerable<string> orderedValues=null)
+            => ApplyBrowse(q, null, sortCol, sortDir, page, pageSize, colMapper, orderedValues);
+
+        protected virtual IQueryable<T> ApplyBrowse<T>(IQueryable<T> q, Type sortColEnumType, string sortCol, string sortDir, int? page, int? pageSize, IDictionary<string, string> colMapper = null)
+            => ApplyBrowse(q, sortColEnumType, sortCol, sortDir, page, pageSize, colMapper, null);
+
+        private IQueryable<T> ApplyBrowse<T>(IQueryable<T> q, Type sortColEnumType, string sortCol, string sortDir, int? page, int? pageSize, IDictionary<string, string> colMapper = null, IEnumerable<string> orderedValues = null)
         {
             var cnt = SetTotalItemCount(q);
             if (cnt == 0)
@@ -96,10 +110,11 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
             }
             else
             {
-                q = ApplySort(q, sortCol, sortDir, colMapper);
+                q = ApplySort(q, sortColEnumType, sortCol, sortDir, colMapper, orderedValues);
                 q = ApplyPagination(q, page, pageSize);
             }
             return q;
+
         }
 
         protected void AddPageAlert(string toastMessage, bool autoDismiss = false, PageAlert.AlertTypes pageAlertType = PageAlert.AlertTypes.Info)

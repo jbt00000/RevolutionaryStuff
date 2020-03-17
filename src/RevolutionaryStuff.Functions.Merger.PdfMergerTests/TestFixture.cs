@@ -1,5 +1,4 @@
-﻿using System;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Mergers.Pdf;
@@ -26,8 +25,5 @@ namespace RevolutionaryStuff.Functions.Merger.PdfMergerTests
 
             services.AddScoped<IPdfMerger, PdfMerger>();
         }
-
-        public IServiceProvider CreateScopedProvider()
-            => ServiceProvider.CreateScope().ServiceProvider;
     }
 }

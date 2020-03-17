@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,6 +21,91 @@ namespace RevolutionaryStuff.Core
             public const string PreserveTypeInformation = "PreserveTypeInformation";
         }
 
+        public static DataTable ToDataTable<TVP>(IEnumerable<TVP> items)
+        {
+            var t = typeof(TVP);
+            var dt = new DataTable();
+            var tableAttribute = t.GetCustomAttribute<TableAttribute>();
+            if (tableAttribute != null)
+            {
+                dt.TableName = tableAttribute.Name;
+                dt.Namespace = tableAttribute.Schema;
+            }
+            var props = t.GetPropertiesPublicInstanceRead();
+            var d = new Dictionary<PropertyInfo, DataColumn>();
+            foreach (var pi in props)
+            {
+                if (pi.GetCustomAttribute<NotMappedAttribute>() != null) continue;
+
+                var columnAttribute = pi.GetCustomAttribute<ColumnAttribute>();
+
+                var csType = pi.GetUnderlyingType();
+                var dbType = csType;
+                if (dbType.IsGenericType && dbType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                {
+                    dbType = dbType.GetGenericArguments()[0];
+                }
+                var col = new DataColumn(columnAttribute?.Name ?? pi.Name, dbType);
+                col.AllowDBNull = csType.IsNullable();
+                if (columnAttribute?.TypeName?.StartsWith("nvarchar", StringComparison.InvariantCultureIgnoreCase) == true)
+                {
+                    col.Unicode(true);
+                }
+                var maxLengthAttribute = pi.GetCustomAttribute<MaxLengthAttribute>();
+                if (maxLengthAttribute != null)
+                {
+                    col.MaxLength = maxLengthAttribute.Length;
+                }
+                dt.Columns.Add(col);
+                d[pi] = col;
+            }
+            foreach (var item in items)
+            {
+                var row = dt.NewRow();
+                foreach (var kvp in d)
+                {
+                    var col = kvp.Value;
+                    object val = kvp.Key.GetValue(item);
+                    if (val == null)
+                    {
+                        row[col] = DBNull.Value;
+                    }
+                    else
+                    {
+                        row[col] = val;
+                    }
+                }
+                dt.Rows.Add(row);
+            }
+            return dt;
+        }
+
+        public static void RemoveWhere(this DataRowCollection rows, Predicate<DataRow> removeQualifier)
+        {
+            var removes = new List<DataRow>();
+            foreach (DataRow dr in rows)
+            {
+                if (removeQualifier(dr))
+                {
+                    removes.Add(dr);
+                }
+            }
+            foreach (var dr in removes)
+            {
+                rows.Remove(dr);
+            }
+        }
+
+        public static void Sample(this DataRowCollection rows, int size, Random r = null)
+        {
+            r = r ?? Stuff.Random;
+            while (rows.Count > size)
+            {
+                int n = r.Next(0, rows.Count - 1);
+                rows.RemoveAt(n);
+            }
+        }
+
         public static void AddRange(this DataColumnCollection dcc, IEnumerable<string> fieldNames)
         {
             var existing = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
@@ -31,6 +119,16 @@ namespace RevolutionaryStuff.Core
                 existing.Add(colName);
                 dcc.Add(colName);
             }
+        }
+
+        public static IList<DataRow> ToList(this DataRowCollection rowCollection)
+        {
+            var rows = new List<DataRow>();
+            foreach (DataRow dr in rowCollection)
+            {
+                rows.Add(dr);
+            }
+            return rows;
         }
 
         internal static DataColumn Xerox(this DataColumn dc)

@@ -9,6 +9,15 @@ namespace RevolutionaryStuff.Core
 {
     public static class TypeHelpers
     {
+        public static bool IsNullable(this Type t)
+        {
+            if (t.IsValueType)
+            {
+                return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
+            }
+            return true;
+        }
+
         public static object GetDefaultValue(this Type t)
         {
             if (t.GetTypeInfo().IsValueType)

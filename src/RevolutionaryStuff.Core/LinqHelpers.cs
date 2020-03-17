@@ -208,12 +208,24 @@ namespace RevolutionaryStuff.Core
         {
             var d = new Dictionary<string, string>();
             string mapped = "o";
-            foreach (var v in orderedValues)
+            int cnt = 0;
+            if (orderedValues != null)
             {
-                d[v] = mapped;
-                mapped = mapped + "o";
+                foreach (var v in orderedValues)
+                {
+                    d[v] = mapped;
+                    mapped = mapped + "o";
+                    ++cnt;
+                }
             }
-            return q.OrderByField(sortColumn, d, isAscending, OrderByFieldUnmappedBehaviors.AtEnd);
+            if (cnt > 0)
+            {
+                return q.OrderByField(sortColumn, d, isAscending, OrderByFieldUnmappedBehaviors.AtEnd);
+            }
+            else
+            {
+                return q.OrderByField(sortColumn, isAscending);
+            }
         }
 
         public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IDictionary<string, string> valueMapper, bool isAscending = true, OrderByFieldUnmappedBehaviors unmappedValueBehavior = OrderByFieldUnmappedBehaviors.InPlace)

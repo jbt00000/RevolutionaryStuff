@@ -40,6 +40,8 @@ namespace RevolutionaryStuff.TheLoader
             { 
                 public string TableName { get; set; }
                 public IDictionary<string, string> ComputedColumns { get; set; }
+                public string RowFilter { get; set; }
+                public string PartitionKeyFieldName { get; set; }
             }
         }
 

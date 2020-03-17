@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.TheLoader.Uploaders
 {
-    public interface IUploader
+    public interface ISink
     {
         Task UploadAsync(DataTable dt);
     }

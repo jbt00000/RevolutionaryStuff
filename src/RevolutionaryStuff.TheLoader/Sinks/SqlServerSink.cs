@@ -7,16 +7,17 @@ using System.Threading.Tasks;
 using RevolutionaryStuff.Core;
 using RevolutionaryStuff.Core.Database;
 using RevolutionaryStuff.ETL;
+using Microsoft.Extensions.Options;
 
-namespace RevolutionaryStuff.TheLoader.Uploaders
+namespace RevolutionaryStuff.TheLoader.Sinks
 {
-    public class SqlServerUploader : BaseUploader
+    public class SqlServerSink : BaseSink
     {
         private readonly Func<SqlConnection> CreateConnection;
         private readonly UploadIntoSqlServerSettings Settings;
- 
-        public SqlServerUploader(Program program, Func<SqlConnection> createConnection, UploadIntoSqlServerSettings settings = null)
-            : base(program)
+
+        public SqlServerSink(Func<SqlConnection> createConnection, UploadIntoSqlServerSettings settings, Program program, IOptions<Program.LoaderConfig.TableConfig> tableConfigOptions)
+            : base(program, tableConfigOptions)
         {
             Requires.NonNull(createConnection, nameof(createConnection));
 
@@ -45,7 +46,7 @@ namespace RevolutionaryStuff.TheLoader.Uploaders
             //Create table and insert 1 batch at a time
             using (var conn = CreateConnection())
             {
-                conn.InfoMessage += (sender,e)=> Trace.TraceInformation(e.Message);
+                conn.InfoMessage += (sender, e) => Trace.TraceInformation(e.Message);
 
                 if (conn.TableExists(dt.TableName, Settings.Schema))
                 {
