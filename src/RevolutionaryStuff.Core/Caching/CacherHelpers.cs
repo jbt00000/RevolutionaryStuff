@@ -48,16 +48,15 @@ namespace RevolutionaryStuff.Core.Caching
 
         public static TVal FindOrPrimeValues<TVal>(this ICacher cacher, string key, Func<IEnumerable<Tuple<string, TVal>>> primer, TimeSpan? cacheEntryTimeout = null)
         {
-            var ret = cacher.FindOrCreateValue<TVal>(key, null);
-            if (ret == null)
+            var entry = cacher.FindEntryAsync(key).ExecuteSynchronously();
+            if (entry != null && !entry.IsExpired) return entry.GetValue<TVal>();
+            TVal ret = default;
+            foreach (var t in primer())
             {
-                foreach (var t in primer())
+                cacher.FindOrCreateValue<TVal>(t.Item1, () => t.Item2, cacheEntryTimeout, true);
+                if (t.Item1 == key)
                 {
-                    cacher.FindOrCreateValue<TVal>(t.Item1, () => t.Item2, cacheEntryTimeout, true);
-                    if (t.Item1 == key)
-                    {
-                        ret = t.Item2;
-                    }
+                    ret = t.Item2;
                 }
             }
             return ret;
