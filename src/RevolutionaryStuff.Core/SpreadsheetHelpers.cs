@@ -77,29 +77,26 @@ namespace RevolutionaryStuff.Core
                 templateSpreadsheetStream.CopyTo(tfn);
                 var workDir = Path.Combine(dir, "t");
                 ZipFile.ExtractToDirectory(tfn, workDir);
-                var sharedStringsPath = Path.Combine(workDir, "xl\\sharedStrings.xml");
+                var sharedStringsPath = Path.Combine(workDir, "xl", "sharedStrings.xml");
                 var indexBySharedString = LoadSharedStrings(sharedStringsPath);
 
                 var itemsByType = new MultipleValueDictionary<string, Item>();
                 itemsByType.Add(RelationshipTypeNames.SharedStrings, new Item("sharedStrings.xml"));
 
-                FindOrCreateSharedString(indexBySharedString, "Jason");
-                FindOrCreateSharedString(indexBySharedString, "Thomas");
-
                 var items = new List<Item>();
                 foreach (DataTable dt in ds.Tables)
                 {
                     var fn = RegexHelpers.Common.NonWordChars.Replace(dt.TableName, " ").ToUpperCamelCase();
-                    var sheetRelPath = $"xl\\worksheets\\{fn}.xml";
+                    var sheetRelPath = Path.Combine("xl", "worksheets", $"{fn}.xml");
                     var sheetPath = Path.Combine(workDir, sheetRelPath);
                     SaveSheet(sheetPath, indexBySharedString, dt);
-                    itemsByType.Add(RelationshipTypeNames.Worksheet, new Item(sheetRelPath.RightOf("\\")) { Name = dt.TableName });
+                    itemsByType.Add(RelationshipTypeNames.Worksheet, new Item(Path.Combine("worksheets", $"{fn}.xml")) { Name = dt.TableName });
                 }
 
                 SaveSharedStrings(sharedStringsPath, indexBySharedString);
 
-                SaveRels(Path.Combine(workDir, "xl\\_rels\\workbook.xml.rels"), itemsByType);
-                SaveWorkbook(Path.Combine(workDir, "xl\\workbook.xml"), itemsByType);
+                SaveRels(Path.Combine(workDir, "xl", "_rels", "workbook.xml.rels"), itemsByType);
+                SaveWorkbook(Path.Combine(workDir, "xl", "workbook.xml"), itemsByType);
                 Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
                 Stuff.FileTryDelete(outputPath);
                 ZipFile.CreateFromDirectory(workDir, outputPath);

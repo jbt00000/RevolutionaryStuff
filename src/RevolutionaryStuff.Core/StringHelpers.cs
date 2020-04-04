@@ -230,7 +230,7 @@ namespace RevolutionaryStuff.Core
         public static string TruncateWithEllipsis(this string s, int len, string ellipsis = "...")
         {
             if (s == null) return null;
-            if (s.Length >= len)
+            if (s.Length > len)
             {
                 s = s.Substring(0, len - ellipsis.Length) + ellipsis;
                 Debug.Assert(s.Length == len);
@@ -241,7 +241,7 @@ namespace RevolutionaryStuff.Core
         public static string TruncateWithMidlineEllipsis(this string s, int len, string ellipsis = "---")
         {
             if (s == null) return null;
-            if (s.Length >= len)
+            if (s.Length > len)
             {
                 int pivot = len * 2 / 3;
                 var left = s.Substring(0, pivot - ellipsis.Length);
@@ -253,14 +253,10 @@ namespace RevolutionaryStuff.Core
         }
 
         public static bool IsSameIgnoreCase(string a, string b)
-        {
-            return 0 == CompareIgnoreCase(a, b);
-        }
+            => 0 == CompareIgnoreCase(a, b);
 
         public static int CompareIgnoreCase(string a, string b)
-        {
-            return string.Compare(a, b, StringComparison.CurrentCultureIgnoreCase);
-        }
+            => string.Compare(a, b, StringComparison.CurrentCultureIgnoreCase);
 
         /// <summary>
         /// Returns the first non-empty string.  Or null if there are no such items

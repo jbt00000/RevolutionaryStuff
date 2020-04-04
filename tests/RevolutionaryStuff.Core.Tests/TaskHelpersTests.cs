@@ -13,7 +13,7 @@ namespace RevolutionaryStuff.Core.Tests
         public async Task TaskWhenAllForEachWorkingConcurrentlyTestAsync()
         {
             var items = new List<int>();
-            for (int z = 0; z < 100; ++z)
+            for (int z = 0; z < 200; ++z)
             {
                 items.Add(z);
             }
@@ -30,10 +30,12 @@ namespace RevolutionaryStuff.Core.Tests
                     threadIds.Add(Thread.CurrentThread.ManagedThreadId);
                     Interlocked.Decrement(ref concurrent);
                 }
-            }, 10);
-            Assert.IsTrue(maxConcurrent > 8);
-            Assert.IsTrue(maxConcurrent <= 10);
-            Assert.IsTrue(threadIds.Count > 5);
+            }, MAX_AT_ONCE);
+            Assert.IsTrue(maxConcurrent > MAX_AT_ONCE/2);
+            Assert.IsTrue(maxConcurrent <= MAX_AT_ONCE);
+            Assert.IsTrue(threadIds.Count > 2);
         }
+
+        private const int MAX_AT_ONCE = 20;
     }
 }

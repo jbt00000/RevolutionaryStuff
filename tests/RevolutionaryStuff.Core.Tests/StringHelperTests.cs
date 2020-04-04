@@ -120,6 +120,28 @@ dGlhbSBzaXQgYW1ldCBiaWJlbmR1bSBsaWd1bGEsIG5lYyBhbGlxdWFtIHJpc3VzLg=="
         }
 
         [TestMethod]
+        public void TruncateWithEllipsisTestExactLength()
+        {
+            var test = "hello world";
+            Assert.AreEqual(test, test.TruncateWithEllipsis(test.Length));
+        }
+
+        [TestMethod]
+        public void TruncateWithEllipsisTestLongerTruncation()
+        {
+            var test = "hello world";
+            Assert.AreEqual(test, test.TruncateWithEllipsis(test.Length + 1));
+        }
+        [TestMethod]
+        public void TruncateWithEllipsisTestShorterTruncation()
+        {
+            var test = "hello world";
+            var res = test.TruncateWithEllipsis(test.Length - 1);
+            Assert.AreNotEqual(test, res);
+            Assert.AreEqual(test.Length - 1, res.Length);
+        }
+
+        [TestMethod]
         public void TruncateWithEllipsisTestDifferentEllipsis()
         {
             Assert.AreEqual("hello ,,", "hello world".TruncateWithEllipsis(8, ",,"));
