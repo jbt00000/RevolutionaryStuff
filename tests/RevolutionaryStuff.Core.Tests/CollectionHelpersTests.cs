@@ -29,6 +29,30 @@ namespace RevolutionaryStuff.Core.Tests
             Assert.AreEqual(0, cnt);
         }
 
+        [TestMethod]
+        public void RemoveWhereNone()
+        {
+            var items = Enumerable.Range(0, 100).ToList();
+            items.Remove(z => false);
+            Assert.AreEqual(100, items.Count);
+        }
+
+        [TestMethod]
+        public void RemoveWhereAll()
+        {
+            var items = Enumerable.Range(0, 100).ToList();
+            items.Remove(z => true);
+            Assert.AreEqual(0, items.Count);
+        }
+
+        [TestMethod]
+        public void RemoveWhereOdd()
+        {
+            var items = Enumerable.Range(0, 100).ToList();
+            items.Remove(z => z.IsOdd());
+            Assert.AreEqual(50, items.Count);
+        }
+
         private static IList<int> CreateInOrderList(int elementCount = 100)
             => Enumerable.Range(0, elementCount).ToList();
 

@@ -324,6 +324,30 @@ namespace RevolutionaryStuff.Core
             return ret;
         }
 
+        public static void Remove<T>(this ICollection<T> col, Func<T, bool> toRemove)
+        {
+            if (col == null || toRemove == null) return;
+            var removes = new List<T>();
+            foreach (var item in col)
+            {
+                if (toRemove(item))
+                {
+                    removes.Add(item);
+                }
+            }
+            if (removes.Count > 0)
+            {
+                if (removes.Count == col.Count)
+                {
+                    col.Clear();
+                }
+                else
+                {
+                    col.Remove(removes);
+                }
+            }
+        }
+
         public static int Remove<T>(this ICollection<T> col, IEnumerable<T> items)
         {
             if (col==null || items == null) return 0;
