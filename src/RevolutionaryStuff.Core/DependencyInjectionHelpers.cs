@@ -55,7 +55,15 @@ namespace RevolutionaryStuff.Core
             }
             if (implementationType == null) throw new TypeLoadException($"Could not find a seervice description for {typeof(SERVICE_TYPE)}");
 
-            foreach (var ci in implementationType.GetConstructors().OrderByDescending(ci => ci.GetParameters().Length))
+            return (SERVICE_TYPE) provider.Construct(implementationType, overriddenLoadedDependencies);
+        }
+
+        public static T Construct<T>(this IServiceProvider provider, params object[] overriddenLoadedDependencies)
+            => (T)provider.Construct(typeof(T), overriddenLoadedDependencies);
+
+        public static object Construct(this IServiceProvider provider, Type t, params object[] overriddenLoadedDependencies)
+        {
+            foreach (var ci in t.GetConstructors().OrderByDescending(ci => ci.GetParameters().Length))
             {
                 var args = new List<object>();
                 foreach (var p in ci.GetParameters())
@@ -75,12 +83,12 @@ namespace RevolutionaryStuff.Core
 NextParam:
                     Stuff.Noop();
                 }
-                var service = (SERVICE_TYPE) ci.Invoke(args.ToArray());
-                return service;
+                var co = ci.Invoke(args.ToArray());
+                return co;
 NextConstructor:
                 Stuff.Noop();
             }
-            throw new TypeLoadException($"Could not find a workable constructor to instantiate {typeof(SERVICE_TYPE)}");
+            throw new TypeLoadException($"Could not find a workable constructor to instantiate {t}");
         }
     }
 }

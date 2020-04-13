@@ -75,32 +75,14 @@ namespace RevolutionaryStuff.Core.ApplicationParts
         protected virtual void OnPostBuildConfiguration(IConfigurationBuilder builder)
         { }
 
-
-        /// <remarks>ONLY call this from OnConfigureServices</remarks>
-        protected void ConfigureOptions<TOptions>(string sectionName) where TOptions : class
-        {
-            Debug.Assert(ConfigureOptionsServices != null);
-            ConfigureOptionsServices.Configure<TOptions>(Configuration.GetSection(sectionName));
-        }
-
-        private IServiceCollection ConfigureOptionsServices;
-
         private void ConfigureServices()
         {
             var services = new ServiceCollection();
-            ConfigureOptionsServices = services;
-            try
-            {
-                services.Add(new ServiceDescriptor(typeof(IConfiguration), Configuration));
-                services.AddOptions();
-                //ConfigureLogging(services);
-                OnConfigureServices(services);
-                ServiceProvider = services.BuildServiceProvider();
-            }
-            finally
-            {
-                ConfigureOptionsServices = null;
-            }
+            services.Add(new ServiceDescriptor(typeof(IConfiguration), Configuration));
+            services.AddOptions();
+            //ConfigureLogging(services);
+            OnConfigureServices(services);
+            ServiceProvider = services.BuildServiceProvider();
         }
 
         protected virtual void OnConfigureServices(IServiceCollection services)
