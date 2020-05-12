@@ -6,4 +6,4 @@ I've used these types of libraries since .NET 1.0 beta 1.0, but finally got off 
 
 **Use at your own risk!  Don't expect any support!  Don't expect me to accept any syncs!**
 
-That said... a couple of projects I've been part of for at least 2 different companies use these libraries, so I'm going to do my best to keep things stable. And in 2019, well perhaps mid-2019, I may be open to pull requests.
+That said... a couple of projects I've been part of for at least 2 different companies use these libraries, so I'm going to do my best to keep things stable. And in 2019, well perhaps mid-2019, I may be open to pull requests.  It's now 2020... If you want to pull, I'll try and keep an eye open.
