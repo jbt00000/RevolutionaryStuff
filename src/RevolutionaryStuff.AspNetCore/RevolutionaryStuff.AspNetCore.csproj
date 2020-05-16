@@ -7,9 +7,9 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.14.313.0</FileVersion>
-    <AssemblyVersion>3.14.313.0</AssemblyVersion>
-    <Version>3.14.313</Version>
+    <FileVersion>3.15.31.0</FileVersion>
+    <AssemblyVersion>3.15.31.0</AssemblyVersion>
+    <Version>3.15.31</Version>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
