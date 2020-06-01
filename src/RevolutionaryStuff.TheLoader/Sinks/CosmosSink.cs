@@ -36,7 +36,7 @@ namespace RevolutionaryStuff.TheLoader.Uploaders
         {
             var cco = new CosmosClientOptions();
             cco.AllowBulkExecution = true;
-            cco.ConnectionMode = ConnectionMode.Gateway;
+            cco.ConnectionMode = ConnectionMode.Direct;
 //            cco.Retry.MaxRetries = 5;
 //            cco.Retry.Mode = Azure.Core.RetryMode.Fixed;
 //            cco.Retry.Delay = TimeSpan.FromMilliseconds(100);
@@ -82,7 +82,7 @@ namespace RevolutionaryStuff.TheLoader.Uploaders
                         d.TryAdd(partitionKeyFieldName, missingPartitionKeyValue);
                         pk = new PartitionKey(missingPartitionKeyValue);
                     }
-                    return container.UpsertItemAsync<object>(d, pk);
+                    return container.UpsertItemAsync<object>(d, pk, new ItemRequestOptions { EnableContentResponseOnWrite=false });
                 }, MaxConcurrentAsyncTasks);
             }
         }

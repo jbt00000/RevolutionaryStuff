@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
@@ -18,6 +19,9 @@ namespace RevolutionaryStuff.AspNetCore.Services
     {
         private readonly IServiceProvider ServiceProvider;
         private readonly MyController Controller = new MyController();
+        public const string NoLayoutPrefix = "@{Layout=null;}";
+
+        public bool PrependNoLayout { get; set; } = true;
 
         public RazorTemplateProcessor(IServiceProvider serviceProvider)
         {
@@ -33,9 +37,22 @@ namespace RevolutionaryStuff.AspNetCore.Services
                 => View(viewPath, model);
         }
 
+        private class MyRouter : IRouter
+        {
+            VirtualPathData IRouter.GetVirtualPath(VirtualPathContext context)
+                => new VirtualPathData(this, "/");
+
+            Task IRouter.RouteAsync(RouteContext context)
+                => Task.CompletedTask;
+        }
+
         public async Task<string> ProcessAsync(string template, object model)
         {
             template = (template ?? "").Trim();
+            if (PrependNoLayout)
+            {
+                template = NoLayoutPrefix + template;
+            }
             var path = PathByTemplate.FindOrCreate(template, () => $"/Views/D{PathByTemplate.Count}.cshtml");
             TemplateItemByPath.FindOrCreate(path, () => new TemplateItem(path, template));
             var res = Controller.Go(path, model);
@@ -44,16 +61,19 @@ namespace RevolutionaryStuff.AspNetCore.Services
                 var ac = new ActionContext
                 {
                     HttpContext = new DefaultHttpContext { RequestServices = scope.ServiceProvider },
-                    RouteData = new Microsoft.AspNetCore.Routing.RouteData(),
-                    ActionDescriptor = new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor()
+                    ActionDescriptor = new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor(),
+                    RouteData = new RouteData()
                 };
-                var st = new MemoryStream();
-                ac.HttpContext.Response.Body = st;
-                await res.ExecuteResultAsync(ac);
-                st.Position = 0;
-                var sr = new StreamReader(st);
-                var s = sr.ReadToEnd();
-                return s;
+                ac.RouteData.Routers.Add(new MyRouter());
+                using (var st = new MemoryStream())
+                {
+                    ac.HttpContext.Response.Body = st;
+                    await res.ExecuteResultAsync(ac);
+                    st.Position = 0;
+                    var sr = new StreamReader(st);
+                    var s = sr.ReadToEnd();
+                    return s;
+                }
             }
         }
 
