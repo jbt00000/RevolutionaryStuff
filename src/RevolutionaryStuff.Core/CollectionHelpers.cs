@@ -10,6 +10,22 @@ namespace RevolutionaryStuff.Core
 {
     public static class CollectionHelpers
     {
+        public static void SetIfValNotNull<K, V>(this IDictionary<K, V> d, K key, V val) where V : class
+        {
+            if (val != null)
+            {
+                d[key] = val;
+            }
+        }
+
+        public static void SetIfKeyNotFound<K, V>(this IDictionary<K, V> d, K key, V val)
+        {
+            if (!d.ContainsKey(key))
+            {
+                d[key] = val;
+            }
+        }
+
         public static IEnumerable<T> NullSafeEnumerable<T>(this IEnumerable<T> e)
         {
             if (e == null) return new T[0];

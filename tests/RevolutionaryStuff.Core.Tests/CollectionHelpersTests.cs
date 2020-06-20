@@ -121,5 +121,47 @@ namespace RevolutionaryStuff.Core.Tests
                 Assert.AreNotEqual(r1, r2);
             }
         }
+
+        [TestMethod]
+        public void SetIfValNotNull_ValNotNullTest()
+        {
+            var d = new Dictionary<int, object>();
+            d.SetIfValNotNull(0, 1);
+            Assert.AreEqual(1, d.Count);
+            d.SetIfValNotNull(1, new object());
+            Assert.AreEqual(2, d.Count);
+            d.SetIfValNotNull(1, "hello");
+            Assert.AreEqual(2, d.Count);
+        }
+
+        [TestMethod]
+        public void SetIfValNotNull_ValIsNullTest()
+        {
+            var d = new Dictionary<int, object>();
+            d.SetIfValNotNull(0, (object)null);
+            Assert.AreEqual(0, d.Count);
+        }
+
+        [TestMethod]
+        public void SetIfKeyNotFound_KeysAreNotAlreadyThere()
+        {
+            var d = new Dictionary<int, object>();
+            d.SetIfKeyNotFound(1, "a");
+            d.SetIfKeyNotFound(2, "b");
+            d.SetIfKeyNotFound(3, "c");
+            Assert.AreEqual(3, d.Count);
+        }
+
+        [TestMethod]
+        public void SetIfKeyNotFound_KeysAreThere()
+        {
+            var d = new Dictionary<int, object>();
+            d.SetIfKeyNotFound(1, "a");
+            d.SetIfKeyNotFound(2, "b");
+            d.SetIfKeyNotFound(3, "c");
+            Assert.AreEqual(3, d.Count);
+            d.SetIfKeyNotFound(1, 2);
+            Assert.AreEqual("a", d[1]);
+        }
     }
 }
