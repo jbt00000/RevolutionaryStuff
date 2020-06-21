@@ -26,9 +26,11 @@ namespace RevolutionaryStuff.Core
             public static readonly MimeType SqlServerIntegrationServicesEtlPackage = new MimeType(OctetStream, ".dtsx");
             public static readonly MimeType Pdf = new MimeType("application/pdf", ".pdf");
             public static readonly MimeType Zip = new MimeType("application/zip", ".zip");
+
             public static class SpreadSheet
             {
                 public static readonly MimeType Xlsx = new MimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
+                internal static readonly IList<MimeType> All = new[] { Xlsx }.ToList().AsReadOnly();
             }
 
             public static class Encryption
@@ -36,8 +38,13 @@ namespace RevolutionaryStuff.Core
                 public static class PGP
                 {
                     public static readonly MimeType PgpEncrypted = new MimeType("application/pgp-encrypted", ".pgp");
+                    internal static readonly IList<MimeType> All = new[] { PgpEncrypted }.ToList().AsReadOnly();
                 }
+
+                internal static readonly IList<MimeType> All = PGP.All.ToList().AsReadOnly();
             }
+
+            internal static readonly IList<MimeType> All = new[] { Any, Json, OctetStream, SqlServerIntegrationServicesEtlPackage, Pdf, Zip }.Union(SpreadSheet.All).Union(Encryption.All).ToList().AsReadOnly();
         }
 
         public static class Image
@@ -48,13 +55,17 @@ namespace RevolutionaryStuff.Core
             public static readonly MimeType Jpg = new MimeType("image/jpeg", ".jpg");
             public static readonly MimeType Png = new MimeType("image/png", ".png");
             public static readonly MimeType Tiff = new MimeType("image/tiff", ".tif", ".tiff");
+            public static readonly MimeType WebP = new MimeType("image/webp", ".webp");
+            internal static readonly IList<MimeType> All = new[] { Any, Bmp, Gif, Jpg, Png, Tiff, WebP }.ToList().AsReadOnly();
         }
 
         public static class Text
         {
-            public static readonly MimeType Any = "text/*";
+            public static readonly MimeType Any = new MimeType("text/*");
             public static readonly MimeType Html = new MimeType("text/html", ".html", ".htm");
-            public static readonly MimeType Plain = new MimeType("text/plain", ".txt");
+            public static readonly MimeType Plain = new MimeType("text/plain", ".txt", ".text");
+            public static readonly MimeType Markdown = new MimeType("text/markdown", ".md");
+            internal static readonly IList<MimeType> All = new[] { Any, Html, Plain, Markdown }.ToList().AsReadOnly();
         }
 
         public static class Video
@@ -66,7 +77,42 @@ namespace RevolutionaryStuff.Core
             public static readonly MimeType H264 = new MimeType("video/h264");
             public static readonly MimeType Quicktime = new MimeType("video/quicktime", ".mov", ".qt");
             public static readonly MimeType Wmv = new MimeType("video/x-ms-wmv", "video/wmv", ".wmv");
+            internal static readonly IList<MimeType> All = new[] { Any, _3gp, Avi, Flv, H264, Quicktime, Wmv }.ToList().AsReadOnly();
         }
+
+        public static IList<MimeType> AllMimeTypes
+        {
+            get
+            {
+                if (AllMimeTypes_p==null)
+                {
+                    lock (typeof(MimeType))
+                    {
+                        if (AllMimeTypes_p == null)
+                        {
+                            AllMimeTypes_p = Video.All.Union(Text.All).Union(Image.All).Union(Application.All).ToList();
+                        }
+                    }
+                }
+                return AllMimeTypes_p;
+            }
+        }
+        private static IList<MimeType> AllMimeTypes_p = null;
+
+        public static MimeType FindByExtension(string extension)
+        {
+            extension = Path.GetExtension(extension) ?? "";
+            foreach (var m in AllMimeTypes)
+            {
+                if (0 == string.Compare(m.PrimaryFileExtension, extension, true)) return m;
+            }
+            foreach (var m in AllMimeTypes)
+            {
+                if (m.DoesExtensionMatch(extension)) return m;
+            }
+            return null;
+        }
+
 
         public readonly IList<string> ContentTypes = new List<string>();
 

@@ -14,6 +14,12 @@ namespace RevolutionaryStuff.AspNetCore
 {
     public static class AspHelpers
     {
+        public static string GetControllerName<C>() where C : Microsoft.AspNetCore.Mvc.ControllerBase
+        {
+            var name = typeof(C).Name;
+            return StringHelpers.Coalesce(name.LeftOf("Controller"), name);
+        }
+
         #region Sorting
 
         public static string SortDirAscending = "asc";

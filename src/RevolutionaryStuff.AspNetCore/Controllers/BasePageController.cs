@@ -54,7 +54,7 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
             return q.Skip((p - 1) * s).Take(s);
         }
 
-        private static readonly IDictionary<string, string> NoMappings = new Dictionary<string, string>().AsReadOnly();
+        protected static readonly IDictionary<string, string> NoMappings = new Dictionary<string, string>().AsReadOnly();
 
         protected static readonly IDictionary<string, string> ApplySortDefaultMappings = new Dictionary<string, string>(Comparers.CaseInsensitiveStringComparer);
 
