@@ -21,7 +21,8 @@ namespace RevolutionaryStuff.Core
         public static class Application
         {
             public static readonly MimeType Any = "application/*";
-            public static readonly MimeType Json = "application/json";
+            public static readonly MimeType Json = new MimeType("application/json", ".json");
+            public static readonly MimeType Xml = new MimeType("application/xml", ".xml");
             public static readonly MimeType OctetStream = "application/octet-stream";
             public static readonly MimeType SqlServerIntegrationServicesEtlPackage = new MimeType(OctetStream, ".dtsx");
             public static readonly MimeType Pdf = new MimeType("application/pdf", ".pdf");
@@ -44,7 +45,7 @@ namespace RevolutionaryStuff.Core
                 internal static readonly IList<MimeType> All = PGP.All.ToList().AsReadOnly();
             }
 
-            internal static readonly IList<MimeType> All = new[] { Any, Json, OctetStream, SqlServerIntegrationServicesEtlPackage, Pdf, Zip }.Union(SpreadSheet.All).Union(Encryption.All).ToList().AsReadOnly();
+            internal static readonly IList<MimeType> All = new[] { Any, Json, Xml, OctetStream, SqlServerIntegrationServicesEtlPackage, Pdf, Zip }.Union(SpreadSheet.All).Union(Encryption.All).ToList().AsReadOnly();
         }
 
         public static class Image
