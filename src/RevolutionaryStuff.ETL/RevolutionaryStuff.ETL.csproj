@@ -13,9 +13,9 @@
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>3.21.31.0</FileVersion>
-    <AssemblyVersion>3.21.31.0</AssemblyVersion>
-    <Version>3.21.31</Version>
+    <FileVersion>3.22.31.0</FileVersion>
+    <AssemblyVersion>3.22.31.0</AssemblyVersion>
+    <Version>3.22.31</Version>
     <PackageReleaseNotes>- Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
     <PackageIcon>package\icon.png</PackageIcon>
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DocumentFormat.OpenXml" Version="2.11.2" />
+    <PackageReference Include="DocumentFormat.OpenXml" Version="2.11.3" />
     <PackageReference Include="HtmlAgilityPack" Version="1.11.24" />
   </ItemGroup>
 

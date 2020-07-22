@@ -6,7 +6,6 @@ namespace RevolutionaryStuff.Core.Streams
 {
     public class MonitoredStream : Stream
     {
-        public event EventHandler TouchedEvent;
         public event EventHandler DirtyEvent;
         public event CancelEventHandler CloseEvent;
         public event CancelEventHandler DisposeEvent;
