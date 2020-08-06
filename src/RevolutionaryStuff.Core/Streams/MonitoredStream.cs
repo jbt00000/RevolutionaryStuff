@@ -1,6 +1,8 @@
 ﻿using System;
 using System.ComponentModel;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Streams
 {
@@ -29,7 +31,10 @@ namespace RevolutionaryStuff.Core.Streams
         public override long Position { get => Inner.Position; set => Inner.Position = value; }
 
         public override void Flush()
-            => Inner.Flush();
+        { 
+            Inner.Flush();
+            DirtyEvent.SafeInvoke(this);
+        }
 
         public override int Read(byte[] buffer, int offset, int count)
             => Inner.Read(buffer, offset, count);
@@ -44,12 +49,28 @@ namespace RevolutionaryStuff.Core.Streams
             DirtyEvent.SafeInvoke(this);
         }
 
+        public override async Task FlushAsync(CancellationToken cancellationToken)
+        {
+            await base.FlushAsync(cancellationToken);
+            DirtyEvent.SafeInvoke(this);
+        }
+
         public override void Write(byte[] buffer, int offset, int count)
         {
             if (count > 0)
             {
                 NewLengthEvent.SafeInvoke(this, new EventArgs<long>(Inner.Position + count));
                 Inner.Write(buffer, offset, count);
+                DirtyEvent.SafeInvoke(this);
+            }
+        }
+
+        public override async Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+        {
+            if (count > 0)
+            {
+                NewLengthEvent.SafeInvoke(this, new EventArgs<long>(Inner.Position + count));
+                await base.WriteAsync(buffer, offset, count, cancellationToken);
                 DirtyEvent.SafeInvoke(this);
             }
         }

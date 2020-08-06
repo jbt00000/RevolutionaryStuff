@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -13,12 +14,17 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
         public static string HomeControllerName = "Home";
         public static string HomeControllerHomeActionName = "Index";
         public static string IndexPageActionName = "Index";
-        protected readonly ILogger Logger;
 
         protected BasePageController(ILogger logger)
         {
+            Requires.NonNull(logger, nameof(logger));
+
             Logger = logger;
         }
+
+        #region Logging
+
+        protected readonly ILogger Logger;
 
         protected void LogInformation(string message, params object[] args)
             => Logger.LogInformation(message, args);
@@ -29,8 +35,13 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
         protected void LogError(Exception ex, string message, params object[] args)
             => Logger.LogError(ex, message, args);
 
+        protected void LogException(Exception ex, [CallerMemberName] string caller = null)
+            => Logger.LogError(ex, "Invoked from {caller}", caller);
+
         protected void LogDebug(string message, params object[] args)
             => Logger.LogDebug(message, args);
+
+        #endregion
 
         protected ActionResult RedirectToHome(object routeValues = null)
            => RedirectToAction(HomeControllerHomeActionName, HomeControllerName, routeValues);

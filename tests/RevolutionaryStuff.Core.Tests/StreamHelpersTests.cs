@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -27,6 +28,36 @@ namespace RevolutionaryStuff.Core.Tests
             });
             Assert.IsTrue(callbackCount > 1);
             Assert.IsTrue(CompareHelpers.Compare(sourceBuffer, destStream.ToArray()));
+        }
+
+        [TestMethod]
+        public async Task ReadToEndAsyncTest()
+        {
+            string test = $"{nameof(ReadToEndAsyncTest)} message.";
+            var st = new MemoryStream();
+            var sw = new StreamWriter(st, Encoding.UTF8);
+            sw.Write(test);
+            sw.Flush();
+            st.Position = 0;
+            var ans = await st.ReadToEndAsync();
+            Assert.AreEqual(test, ans);
+            //the below will throw an exception if readtoend closed the stream
+            st.Position = 0;
+        }
+
+        [TestMethod]
+        public void ReadToEndTest()
+        {
+            string test = $"{nameof(ReadToEndTest)} message.";
+            var st = new MemoryStream();
+            var sw = new StreamWriter(st, Encoding.UTF8);
+            sw.Write(test);
+            sw.Flush();
+            st.Position = 0;
+            var ans = st.ReadToEnd();
+            Assert.AreEqual(test, ans);
+            //the below will throw an exception if readtoend closed the stream
+            st.Position = 0;
         }
     }
 }

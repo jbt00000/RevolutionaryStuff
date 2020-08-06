@@ -2,6 +2,7 @@
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using RevolutionaryStuff.Core.Streams;
 
 namespace RevolutionaryStuff.Core
 {
@@ -93,7 +94,7 @@ namespace RevolutionaryStuff.Core
 
         public static async Task<string> ReadToEndAsync(this Stream st, Encoding enc = null)
         {
-            using (var sr = new StreamReader(st, enc ?? Encoding.UTF8))
+            using (var sr = new StreamReader(new IndestructibleStream(st), enc ?? Encoding.UTF8))
             {
                 return await sr.ReadToEndAsync();
             }
@@ -101,7 +102,7 @@ namespace RevolutionaryStuff.Core
 
         public static string ReadToEnd(this Stream st, Encoding enc=null)
         {
-            using (var sr = new StreamReader(st, enc ?? Encoding.UTF8))
+            using (var sr = new StreamReader(new IndestructibleStream(st), enc ?? Encoding.UTF8))
             {
                 return sr.ReadToEnd();
             }
