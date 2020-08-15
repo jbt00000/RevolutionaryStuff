@@ -72,14 +72,14 @@ namespace RevolutionaryStuff.Core.Tests
             }
             for (int z = 0; z < 10; ++z)
             {
-                var fn = Stuff.GetTempFileName(".dat");
+                var fn = FileSystemHelpers.GetTempFileName(".dat");
                 fileNames.Add(fn);
             }
             foreach (var fn in fileNames)
             {
                 Assert.IsTrue(File.Exists(fn));
             }
-            Stuff.FileTryDelete(fileNames);
+            FileSystemHelpers.FileTryDelete(fileNames);
             foreach (var fn in fileNames)
             {
                 Assert.IsFalse(File.Exists(fn));
@@ -89,15 +89,15 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public void FileDeleteSkipWhileOpenTest()
         {
-            var fn = Stuff.GetTempFileName(".dat");
+            var fn = FileSystemHelpers.GetTempFileName(".dat");
             using (var st = File.OpenRead(fn))
             {
                 Assert.IsTrue(File.Exists(fn));
-                Stuff.FileTryDelete(fn);
+                FileSystemHelpers.FileTryDelete(fn);
                 Assert.IsTrue(File.Exists(fn));
             }
             Assert.IsTrue(File.Exists(fn));
-            Stuff.FileTryDelete(fn);
+            FileSystemHelpers.FileTryDelete(fn);
             Assert.IsFalse(File.Exists(fn));
         }
     }

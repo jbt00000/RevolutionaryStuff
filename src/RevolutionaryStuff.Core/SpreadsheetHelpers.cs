@@ -57,7 +57,7 @@ namespace RevolutionaryStuff.Core
 
         public static void ToSpreadSheet(this DataSet ds, Stream outputStream, Stream templateSpreadsheetStream = null)
         {
-            var outFn = Stuff.GetTempFileName(MimeType.Application.SpreadSheet.Xlsx.PrimaryFileExtension);
+            var outFn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.Xlsx.PrimaryFileExtension);
             ds.ToSpreadSheet(outFn, templateSpreadsheetStream);
             outputStream.CopyFrom(outFn);
         }
@@ -73,7 +73,7 @@ namespace RevolutionaryStuff.Core
             Directory.CreateDirectory(dir);
             try
             {
-                var tfn = Stuff.GetTempFileName(MimeType.Application.SpreadSheet.Xlsx.PrimaryFileExtension, dir);
+                var tfn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.Xlsx.PrimaryFileExtension, dir);
                 templateSpreadsheetStream.CopyTo(tfn);
                 var workDir = Path.Combine(dir, "t");
                 ZipFile.ExtractToDirectory(tfn, workDir);
@@ -98,7 +98,7 @@ namespace RevolutionaryStuff.Core
                 SaveRels(Path.Combine(workDir, "xl", "_rels", "workbook.xml.rels"), itemsByType);
                 SaveWorkbook(Path.Combine(workDir, "xl", "workbook.xml"), itemsByType);
                 Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-                Stuff.FileTryDelete(outputPath);
+                FileSystemHelpers.FileTryDelete(outputPath);
                 ZipFile.CreateFromDirectory(workDir, outputPath);
                 Stuff.Noop(outputPath);
             }

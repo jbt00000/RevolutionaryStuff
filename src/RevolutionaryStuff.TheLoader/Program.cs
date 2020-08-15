@@ -271,7 +271,7 @@ namespace RevolutionaryStuff.TheLoader
                     }
                 }
                 conn.Close();
-                Stuff.FileTryDelete(this.FilePath);
+                FileSystemHelpers.FileTryDelete(this.FilePath);
                 ds.ToSpreadSheet(this.FilePath);
             }
         }
@@ -319,7 +319,7 @@ namespace RevolutionaryStuff.TheLoader
         {
             if (SourceUrl != null)
             {
-                FilePath = Stuff.GetTempFileName(localFileExtension);
+                FilePath = FileSystemHelpers.GetTempFileName(localFileExtension);
                 using (var client = new HttpClient())
                 {
                     Trace.TraceInformation($"Downloading [{SourceUrl}] to [{FilePath}]");
@@ -497,7 +497,7 @@ namespace RevolutionaryStuff.TheLoader
                         {
                             Trace.WriteLine($"Downloading {u}");
                             var source = await client.GetStreamAsync(u);
-                            fileName = Stuff.GetTempFileName(StringHelpers.Coalesce(Path.GetExtension(u.LocalPath), ".tmp"));
+                            fileName = FileSystemHelpers.GetTempFileName(StringHelpers.Coalesce(Path.GetExtension(u.LocalPath), ".tmp"));
                             Stuff.MarkFileForCleanup(fileName);
                             using (var dest = File.Create(fileName))
                             {

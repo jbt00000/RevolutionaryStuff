@@ -1,14 +1,28 @@
-﻿using Newtonsoft.Json;
+﻿using System.IO;
+using System.Text;
+using Newtonsoft.Json;
 using RevolutionaryStuff.Core;
 
 namespace Microsoft.AspNetCore.Mvc
 {
     public class NewtonsoftJsonResult : ContentResult
     {
-        public NewtonsoftJsonResult(object o)
+        public NewtonsoftJsonResult(object o, JsonSerializer serializer = null)
         {
-            Content = JsonConvert.SerializeObject(o, Formatting.Indented);
-            ContentType = MimeType.Application.Json.PrimaryContentType;
+            if (serializer == null)
+            {
+                base.Content = JsonConvert.SerializeObject(o, Formatting.Indented);
+            }
+            else
+            {
+                var sb = new StringBuilder();
+                using (var sw = new StringWriter(sb))
+                {
+                    serializer.Serialize(sw, o);
+                }
+                base.Content = sb.ToString();
+            }
+            base.ContentType = MimeType.Application.Json.PrimaryContentType;
         }
     }
 }
