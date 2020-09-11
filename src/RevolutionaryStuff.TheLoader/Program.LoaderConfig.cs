@@ -60,7 +60,7 @@ namespace RevolutionaryStuff.TheLoader
         {
             get
             {
-                Profile_p = Profile_p ?? Config.Profiles?.FirstOrDefault(p => 0 == string.Compare(p.ProfileName, ProfileName, true));
+                Profile_p = Profile_p ?? Config.Profiles?.FirstOrDefault(p => 0 == string.Compare(p.ProfileName, ProfileName, true)) ?? new LoaderConfig.Profile();
                 return Profile_p;
             }
         }

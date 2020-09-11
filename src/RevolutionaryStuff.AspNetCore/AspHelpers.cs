@@ -203,7 +203,13 @@ namespace RevolutionaryStuff.AspNetCore
 
         public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpRequest req, bool checkContentType=false)
         {
-            if (checkContentType && BodyAsJsonMimeType!=null)
+            var json = await req.BodyAsJsonAsync(checkContentType);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+        }
+
+        public static async Task<string> BodyAsJsonAsync(this HttpRequest req, bool checkContentType = false)
+        {
+            if (checkContentType && BodyAsJsonMimeType != null)
             {
                 if (!BodyAsJsonMimeType.DoesContentTypeMatch(req.ContentType))
                 {
@@ -215,7 +221,7 @@ namespace RevolutionaryStuff.AspNetCore
                 req.Body.Seek(0, SeekOrigin.Begin);
             }
             var json = await req.Body.ReadToEndAsync();
-            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            return json;
         }
     }
 }

@@ -9,6 +9,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using DocumentFormat.OpenXml.Drawing.Diagrams;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +50,9 @@ namespace RevolutionaryStuff.TheLoader
         [CommandLineSwitch("SinkType", Mandatory = false)]
         public SinkTypes SinkType = SinkTypes.SqlServer;
 
+        [CommandLineSwitch("SinkCSN", Mandatory = false)]
+        public string SinkConnectionStringName;
+
         [CommandLineSwitch("SkipZeroRowTables", Mandatory = false)]
         public bool SkipZeroRowTables = true;
 
@@ -65,6 +69,11 @@ namespace RevolutionaryStuff.TheLoader
 
         [CommandLineSwitch("ODataElementNames", Translator = CommandLineSwitchAttributeTranslators.Csv)]
         public string[] ODataElementNames;
+
+        [CommandLineSwitch("SourceCSN", Mandatory = false)]
+        public string SourceConnectionStringName;
+
+        public string SourceConnectionString;
 
         [CommandLineSwitch("Sql")]
         public string SourceSql;
@@ -170,21 +179,31 @@ namespace RevolutionaryStuff.TheLoader
             }
         }
 
+        private string GetConnectionString(string csn)
+            => Configuration.GetConnectionString(csn);
+
         protected override void OnPreGo()
         {
             base.OnPreGo();
             switch (SinkType)
             {
                 case SinkTypes.SqlServer:
-                    ConnectionString = Configuration.GetConnectionString(Profile.ConnectionStringName);
+                    ConnectionString =
+                        GetConnectionString(Profile.ConnectionStringName) ??
+                        GetConnectionString(SinkConnectionStringName);
                     break;
                 case SinkTypes.Cosmos:
-                    ConnectionString = Configuration.GetConnectionString(Profile.ConnectionStringName);
+                    ConnectionString = 
+                        Configuration.GetConnectionString(Profile.ConnectionStringName) ??
+                        GetConnectionString(SinkConnectionStringName);
                     break;
                 default:
-                    ConnectionString = Path.GetFullPath(Profile.ConnectionStringName);
+                    ConnectionString = 
+                        Path.GetFullPath(Profile.ConnectionStringName) ??
+                        GetConnectionString(SinkConnectionStringName);
                     break;
             }
+            SourceConnectionString = Configuration.GetConnectionString(SourceConnectionStringName);
         }
 
         private string LastConnectionMessage;
@@ -196,10 +215,10 @@ namespace RevolutionaryStuff.TheLoader
 
         private static readonly Regex TableNameExpr = new Regex(@"\Wtable:(\w+)\s*$", RegexOptions.IgnoreCase);
 
-        private void OnExport()
+        private Task<DataSet> SqlServerSourceExportAsync()
         {
             var ds = new DataSet();
-            using (var conn = new SqlConnection(ConnectionString))
+            using (var conn = new SqlConnection(SourceConnectionString))
             {
                 conn.InfoMessage += Conn_InfoMessage;
                 conn.Open();
@@ -272,7 +291,8 @@ namespace RevolutionaryStuff.TheLoader
                 }
                 conn.Close();
                 FileSystemHelpers.FileTryDelete(this.FilePath);
-                ds.ToSpreadSheet(this.FilePath);
+                //ds.ToSpreadSheet(this.FilePath);
+                return Task.FromResult(ds);
             }
         }
 
@@ -530,7 +550,7 @@ namespace RevolutionaryStuff.TheLoader
         private void FilterRows(DataTable dt)
         {
             var tc = Profile.GetTableConfig(dt.TableName);
-            if (tc.RowFilter == null) return;
+            if (tc?.RowFilter == null) return;
             using (new TraceRegion($"{nameof(FilterRows)} to {dt.TableName} with [{tc.RowFilter}]"))
             {
                 var removes = new List<DataRow>();
@@ -667,6 +687,10 @@ namespace RevolutionaryStuff.TheLoader
                 dt = ExtendedLogFileFormatHelpers.Load(OpenRead(FilePath), SkipCols);
                 ThrowNowSupportedWhenOptionSpecified(nameof(RowNumberColumnName), nameof(SkipRawRows), nameof(ColumnNames));
                 goto CleanDataTable;
+            }
+            else if (FileFormat == FileFormats.SqlServerDump)
+            {
+                ds = await SqlServerSourceExportAsync();
             }
             else if (FileFormat == FileFormats.MySqlDump)
             {

@@ -2,7 +2,7 @@
   "profiles": {
     "RevolutionaryStuff.TheLoader": {
       "commandName": "Project",
-      "commandLineArgs": "-m:import -filename:\"C:\\Users\\jasonthomas\\downloads\\AHRF DATA.csv\" -schema:ReferenceData -SinkType:Cosmos -RowNumberColumn:id -AutoFileNameColumnName:_fn -zColumnRenamingMode:LowerCamelNoSpecialCharacters -Profile:TraffkAhrf"
+      "commandLineArgs": "-m:import -sourceCSN:EJB -sql:\"select * from db.changelog\" -SinkType:SqlServer -SinkCSN:\"PersonalJason\" -Profile:ZZAAQQ -filename:boo -FileFormat:SqlServerDump -SinkSchema:ejb -SinkTable:ChangeLog"
     }
   }
 }

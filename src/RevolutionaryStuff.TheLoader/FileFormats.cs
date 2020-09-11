@@ -14,6 +14,7 @@ namespace RevolutionaryStuff.TheLoader
         FoxPro,
         Excel,
         MySqlDump,
+        SqlServerDump,
         Json,
         OData4,
         Html,

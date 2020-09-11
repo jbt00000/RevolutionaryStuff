@@ -114,6 +114,8 @@ namespace RevolutionaryStuff.Core
             return null;
         }
 
+        public static IList<MimeType> FindByContentType(string contentType, bool caseSensitive = false)
+            => AllMimeTypes.Where(m => m.DoesContentTypeMatch(contentType, caseSensitive)).ToList();
 
         public readonly IList<string> ContentTypes = new List<string>();
 
