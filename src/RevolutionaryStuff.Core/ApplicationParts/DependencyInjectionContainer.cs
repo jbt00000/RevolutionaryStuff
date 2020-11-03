@@ -23,7 +23,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts
         private bool InitCalled;
         private readonly Type UserSecretsAssemblyType;
 
-        public void Initialize()
+        public virtual void Initialize()
         {
             Requires.SingleCall(ref InitCalled);
             BuildConfiguration();

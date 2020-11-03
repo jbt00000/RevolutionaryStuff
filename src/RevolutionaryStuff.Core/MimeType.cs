@@ -167,6 +167,7 @@ namespace RevolutionaryStuff.Core
         public bool DoesContentTypeMatch(string contentType, bool caseSensitive = false)
         {
             if (contentType == null) return false;
+            contentType = StringHelpers.TrimOrNull(contentType.LeftOf(";"));
             foreach (var ct in ContentTypes)
             {
                 if (0 == string.Compare(ct, contentType, !caseSensitive)) return true;

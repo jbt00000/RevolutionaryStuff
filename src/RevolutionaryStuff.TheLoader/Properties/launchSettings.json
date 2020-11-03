@@ -2,7 +2,7 @@
   "profiles": {
     "RevolutionaryStuff.TheLoader": {
       "commandName": "Project",
-      "commandLineArgs": "-m:import -sourceCSN:EJB -sql:\"select * from db.changelog\" -SinkType:SqlServer -SinkCSN:\"PersonalJason\" -Profile:ZZAAQQ -filename:boo -FileFormat:SqlServerDump -SinkSchema:ejb -SinkTable:ChangeLog"
+      "commandLineArgs": "-m:import -Filename:\"C:\\Users\\JasonThomas\\Downloads\\WCF 262 Test File.xlsx\" -SinkType:SqlServer -SinkCSN:\"PersonalJason\" -Profile:ZZAAQQ -Table:\"PegasysObligationsStatusReportItems\" -SkipRawRows:3"
     }
   }
 }

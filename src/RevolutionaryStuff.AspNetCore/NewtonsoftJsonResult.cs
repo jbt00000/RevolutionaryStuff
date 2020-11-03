@@ -7,11 +7,18 @@ namespace Microsoft.AspNetCore.Mvc
 {
     public class NewtonsoftJsonResult : ContentResult
     {
-        public NewtonsoftJsonResult(object o, JsonSerializer serializer = null)
+        public static JsonSerializerSettings DefaultSerializerSettings = JsonNetHelpers.DefaultSerializerSettings;
+
+        public NewtonsoftJsonResult(object o, JsonSerializer serializer, JsonSerializerSettings settings = null)
+            : this(o, null, serializer, settings)
+        { }
+
+        public NewtonsoftJsonResult(object o, System.Net.HttpStatusCode? statusCode = null, JsonSerializer serializer = null, JsonSerializerSettings settings = null)
         {
             if (serializer == null)
             {
-                base.Content = JsonConvert.SerializeObject(o, Formatting.Indented);
+                settings = settings ?? DefaultSerializerSettings;
+                base.Content = JsonConvert.SerializeObject(o, Formatting.Indented, settings);
             }
             else
             {
@@ -23,6 +30,10 @@ namespace Microsoft.AspNetCore.Mvc
                 base.Content = sb.ToString();
             }
             base.ContentType = MimeType.Application.Json.PrimaryContentType;
+            if (statusCode != null)
+            {
+                base.StatusCode = (int)(statusCode.Value);
+            }
         }
     }
 }

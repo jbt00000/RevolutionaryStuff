@@ -391,6 +391,10 @@ namespace RevolutionaryStuff.Core.Database
                     }
                     if (0 == string.Compare(pn, name, true) && p.Direction.HasFlag(ParameterDirection.Output))
                     {
+                        if (p.Value == DBNull.Value)
+                        {
+                            return default;
+                        }
                         return (T)p.Value;
                     }
                 }

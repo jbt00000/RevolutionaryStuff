@@ -48,5 +48,24 @@ namespace RevolutionaryStuff.Core.Tests
             Assert.AreEqual(MimeType.Text.Plain, MimeType.FindByExtension(".txt"));
             Assert.AreEqual(MimeType.Image.Jpg, MimeType.FindByExtension(".jpg"));
         }
+
+        [TestMethod]
+        public void SimpleContentTypeMatches()
+        {
+            Assert.IsTrue(MimeType.Text.Plain.DoesContentTypeMatch("    text/plain "));
+            Assert.IsTrue(MimeType.Text.Plain.DoesContentTypeMatch("text/plain"));
+            Assert.IsTrue(MimeType.Text.Plain.DoesContentTypeMatch("teXt/plain"));
+            Assert.IsTrue(MimeType.Text.Plain.DoesContentTypeMatch("text/plain", true));
+            Assert.IsFalse(MimeType.Text.Plain.DoesContentTypeMatch("teXt/plain", true));
+        }
+
+        [TestMethod]
+        public void IgnoresCharsetEncoding()
+        {
+            Assert.IsTrue(MimeType.Application.Json.DoesContentTypeMatch("application/json"));
+            Assert.IsTrue(MimeType.Application.Json.DoesContentTypeMatch("application/json; charset=utf-8"));
+            Assert.IsTrue(MimeType.Application.Json.DoesContentTypeMatch("application/json ; charset=utf-8"));
+            Assert.IsFalse(MimeType.Application.Json.DoesContentTypeMatch("application/jNONONOson"));
+        }
     }
 }

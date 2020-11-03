@@ -201,26 +201,49 @@ namespace RevolutionaryStuff.AspNetCore
 
         public static MimeType BodyAsJsonMimeType = MimeType.Application.Json;
 
-        public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpRequest req, bool checkContentType=false)
+        public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpRequest r, bool checkContentType=false)
         {
-            var json = await req.BodyAsJsonAsync(checkContentType);
+            var json = await r.BodyAsJsonAsync(checkContentType);
             return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
         }
 
-        public static async Task<string> BodyAsJsonAsync(this HttpRequest req, bool checkContentType = false)
+        public static async Task<string> BodyAsJsonAsync(this HttpRequest r, bool checkContentType = false)
         {
             if (checkContentType && BodyAsJsonMimeType != null)
             {
-                if (!BodyAsJsonMimeType.DoesContentTypeMatch(req.ContentType))
+                if (!BodyAsJsonMimeType.DoesContentTypeMatch(r.ContentType))
                 {
-                    throw new ArgumentOutOfRangeException(nameof(req.ContentType), $"Content type does not match {nameof(BodyAsJsonMimeType)}");
+                    throw new ArgumentOutOfRangeException(nameof(r.ContentType), $"Content type does not match {nameof(BodyAsJsonMimeType)}");
                 }
             }
-            if (req.Body.CanSeek)
+            if (r.Body.CanSeek)
             {
-                req.Body.Seek(0, SeekOrigin.Begin);
+                r.Body.Seek(0, SeekOrigin.Begin);
             }
-            var json = await req.Body.ReadToEndAsync();
+            var json = await r.Body.ReadToEndAsync();
+            return json;
+        }
+
+        public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpResponse r, bool checkContentType = false)
+        {
+            var json = await r.BodyAsJsonAsync(checkContentType);
+            return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+        }
+
+        public static async Task<string> BodyAsJsonAsync(this HttpResponse r, bool checkContentType = false)
+        {
+            if (checkContentType && BodyAsJsonMimeType != null)
+            {
+                if (!BodyAsJsonMimeType.DoesContentTypeMatch(r.ContentType))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(r.ContentType), $"Content type does not match {nameof(BodyAsJsonMimeType)}");
+                }
+            }
+            if (r.Body.CanSeek)
+            {
+                r.Body.Seek(0, SeekOrigin.Begin);
+            }
+            var json = await r.Body.ReadToEndAsync();
             return json;
         }
     }
