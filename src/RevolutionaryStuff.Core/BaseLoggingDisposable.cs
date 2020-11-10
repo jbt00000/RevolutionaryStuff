@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Logging;
+using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Core
 {
@@ -18,6 +19,9 @@ namespace RevolutionaryStuff.Core
 
         protected readonly ILogger Logger;
 
+        protected void LogWarning(string message, params object[] args)
+            => Logger.LogWarning(message, args);
+
         protected void LogInformation(string message, params object[] args)
             => Logger.LogInformation(message, args);
 
@@ -32,6 +36,12 @@ namespace RevolutionaryStuff.Core
 
         protected void LogDebug(string message, params object[] args)
             => Logger.LogDebug(message, args);
+
+        protected void LogTrace(string message, params object[] args)
+            => Logger.LogTrace(message, args);
+
+        protected IDisposable CreateLogRegion([CallerMemberName] string message = null, params object[] args)
+            => new LogRegion(Logger, message, args);
 
         #endregion
     }
