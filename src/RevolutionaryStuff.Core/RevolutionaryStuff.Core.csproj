@@ -15,9 +15,9 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Uses .NET 3.1 libraries that still run under .NETStandard2.0</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.30.31.0</FileVersion>
-    <AssemblyVersion>3.30.31.0</AssemblyVersion>
-    <Version>3.30.31</Version>
+    <FileVersion>3.31.31.0</FileVersion>
+    <AssemblyVersion>3.31.31.0</AssemblyVersion>
+    <Version>3.31.31</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>
@@ -48,7 +48,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="2.1.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="3.1.9" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="3.1.9" />
