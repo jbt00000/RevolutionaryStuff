@@ -1,10 +1,64 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
+using System.Runtime.Serialization;
 using System.Xml;
+using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Core
 {
     public static class Parse
     {
+        public static TEnum? ParseNullableEnumWithEnumMemberValues<TEnum>(string val, bool caseSensitive = false, TEnum? missing = null) where TEnum : struct
+        {
+            if (!string.IsNullOrEmpty(val))
+            {
+                try
+                {
+                    var ret = ParseEnumWithEnumMemberValues(typeof(TEnum), val, caseSensitive, null);
+                    if (ret != null)
+                    {
+                        return (TEnum)(object)ret;
+                    }
+                }
+                catch (Exception)
+                { }
+            }
+            return missing;
+        }
+
+        public static TEnum ParseEnumWithEnumMemberValues<TEnum>(string val, bool caseSensitive = false, TEnum missing = default) where TEnum : System.Enum
+            => (TEnum)ParseEnumWithEnumMemberValues(typeof(TEnum), val, caseSensitive, missing);
+
+        public static System.Enum ParseEnumWithEnumMemberValues(Type t, string val, bool caseSensitive = false, System.Enum missing = default)
+        {
+            var d = Cache.DataCacher.FindOrCreateValue<IDictionary<string, object>>(
+                Cache.CreateKey(t, caseSensitive),
+                () => {
+                    var z = caseSensitive ?
+                        new Dictionary<string, object>() :
+                        new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
+                    foreach (object v in Enum.GetValues(t))
+                    {
+                        var mi = t.GetMember(v.ToString()).First();
+                        var em = mi.GetCustomAttribute<EnumMemberAttribute>();
+                        if (em != null)
+                        {
+                            z[em.Value] = v;
+                        }
+                        else
+                        {
+                            z[mi.Name] = v;
+                        }
+                    }
+                    return z;
+                }
+                );
+            if (d.ContainsKey(val)) return (System.Enum)d[val];
+            return missing;
+        }
+
         public static T? ParseNullableEnum<T>(string s, T? fallback=null) where T : struct
         {
             if (!string.IsNullOrEmpty(s))

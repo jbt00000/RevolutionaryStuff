@@ -9,6 +9,16 @@ namespace RevolutionaryStuff.Core
 {
     public static class TypeHelpers
     {
+        public static bool IsNullableEnum(this Type t)
+        {
+            if (t.IsValueType)
+            {
+                Type u = Nullable.GetUnderlyingType(t);
+                return (u != null) && u.IsEnum;
+            }
+            return false;
+        }
+
         public static bool IsNullable(this Type t)
         {
             if (t.IsValueType)

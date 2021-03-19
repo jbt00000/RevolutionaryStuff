@@ -27,4 +27,7 @@ namespace RevolutionaryStuff.Core.Caching
         /// <returns>Completion</returns>
         Task RemoveAsync(string key);
     }
+
+    public interface ILocalCacher : ICacher { }
+    public interface IRemoteCacher : ICacher { }
 }
