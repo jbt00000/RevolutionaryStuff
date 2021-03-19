@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.Caching
 {
-    public class BasicCacher : BaseCacher
+    public class BasicCacher : BaseCacher, ILocalCacher
     {
         //This is internal to support unit testing
         internal readonly IDictionary<string, CacheEntry> CacheEntryByCacheKey = new Dictionary<string, CacheEntry>();

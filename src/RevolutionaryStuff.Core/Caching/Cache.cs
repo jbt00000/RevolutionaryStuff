@@ -64,7 +64,7 @@ namespace RevolutionaryStuff.Core.Caching
                     }
                     else if (o is DateTime)
                     {
-                        o = ((DateTime)o).ToRfc8601();
+                        o = ((DateTime)o).ToIsoString();
                     }
                     else if (o.GetType().GetTypeInfo().IsEnum)
                     {
