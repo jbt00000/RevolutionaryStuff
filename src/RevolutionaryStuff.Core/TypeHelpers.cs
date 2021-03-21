@@ -38,10 +38,29 @@ namespace RevolutionaryStuff.Core
         }
 
         public static object Construct(this Type t)
-            => Activator.CreateInstance(t);
+        {
+            if (t.Name == "IList`1")
+            {
+                return TypeHelpers.ConstructList(t.GenericTypeArguments[0]);
+            }
+            else if (t.Name == "IDictionary`2")
+            {
+                return ConstructDictionary(t.GenericTypeArguments[0], t.GenericTypeArguments[1]);
+            }
+            else
+            {
+                return Activator.CreateInstance(t);
+            }
+        }
 
         public static T Construct<T>() where T : new()
             => (T)Construct(typeof(T));
+
+        public static System.Collections.IDictionary ConstructDictionary(Type keyType, Type valType)
+        {
+            var gt = typeof(System.Collections.Generic.Dictionary<,>).MakeGenericType(new[] { keyType, valType });
+            return (System.Collections.IDictionary)Construct(gt);
+        }
 
         public static IList ConstructList(Type itemType)
         {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
-using System.Xml;
+using System.Text.RegularExpressions;
 using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Core
@@ -122,6 +122,9 @@ namespace RevolutionaryStuff.Core
             return fallback;
         }
 
+        private static readonly Regex BoolTrueExpr = new Regex("^\\s*(true|1)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        private static readonly Regex BoolFalseExpr = new Regex("^\\s*(false|0)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+
         public static bool TryParseBool(string s, out bool v)
         {
             v = false;
@@ -129,13 +132,20 @@ namespace RevolutionaryStuff.Core
             {
                 if (null != s && s.Length > 0)
                 {
-                    v = XmlConvert.ToBoolean(s.ToLower());
-                    return true;
+                    if (BoolTrueExpr.IsMatch(s))
+                    {
+                        v = true;
+                        return true;
+                    }
+                    else if (BoolFalseExpr.IsMatch(s))
+                    {
+                        v = false;
+                        return true;
+                    }
                 }
             }
             catch (Exception)
-            {
-            }
+            { }
             return false;
         }
 

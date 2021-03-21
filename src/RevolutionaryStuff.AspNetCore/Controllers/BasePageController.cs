@@ -26,6 +26,9 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
 
         protected readonly ILogger Logger;
 
+        protected void LogWarning(string message, params object[] args)
+            => Logger.LogWarning(message, args);
+
         protected void LogInformation(string message, params object[] args)
             => Logger.LogInformation(message, args);
 
@@ -40,6 +43,9 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
 
         protected void LogDebug(string message, params object[] args)
             => Logger.LogDebug(message, args);
+
+        protected void LogTrace(string message, params object[] args)
+            => Logger.LogTrace(message, args);
 
         #endregion
 
