@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.Json;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core;
@@ -158,5 +159,21 @@ namespace RevolutionaryStuff.AspNetCore.Controllers
 
         protected void AddPageAlert(PageAlert pa)
             => TempData.AddPageAlert(pa);
+
+        protected async Task ActAsync(Func<Task> executeAsync, [CallerMemberName] string caller = null)
+        {
+            try
+            {
+                LogInformation("{caller} function started processing", caller);
+                Requires.NonNull(executeAsync, nameof(executeAsync));
+                await executeAsync();
+                LogInformation("{caller} function completed", caller);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+                throw;
+            }
+        }
     }
 }

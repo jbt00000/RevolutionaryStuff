@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.Diagnostics;
 
@@ -44,5 +45,21 @@ namespace RevolutionaryStuff.Core
             => new LogRegion(Logger, message, args);
 
         #endregion
+
+        protected async Task ActAsync(Func<Task> executeAsync, [CallerMemberName] string caller = null)
+        {
+            try
+            {
+                LogInformation("{caller} function started processing", caller);
+                Requires.NonNull(executeAsync, nameof(executeAsync));
+                await executeAsync();
+                LogInformation("{caller} function completed", caller);
+            }
+            catch (Exception ex)
+            {
+                LogException(ex);
+                throw;
+            }
+        }
     }
 }

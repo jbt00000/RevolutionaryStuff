@@ -13,10 +13,10 @@
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>3.35.31.0</FileVersion>
-    <AssemblyVersion>3.35.31.0</AssemblyVersion>
-    <Version>3.35.31</Version>
-    <PackageReleaseNotes>- Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
+    <FileVersion>3.36.31.0</FileVersion>
+    <AssemblyVersion>3.36.31.0</AssemblyVersion>
+    <Version>3.36.31</Version>
+    <PackageReleaseNotes>Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
     <PackageIcon>package\icon.png</PackageIcon>
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
   </PropertyGroup>
