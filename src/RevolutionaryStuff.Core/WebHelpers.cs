@@ -122,6 +122,15 @@ namespace RevolutionaryStuff.Core
             }
         }
 
+        public static string CreateBasicAuthorizationHeaderValueParameter(string username, string password)
+            => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
+
+        public static AuthenticationHeaderValue CreateBasicAuthorizationHeaderValue(string username, string password)
+            => new AuthenticationHeaderValue("Basic", CreateBasicAuthorizationHeaderValueParameter(username, password));
+
+        public static AuthenticationHeaderValue AddBasicAuthorization(this HttpRequestHeaders h, string username, string password)
+            => h.Authorization = CreateBasicAuthorizationHeaderValue(username, password);
+
         public static HttpContent CreateJsonContent(string json, Encoding encoding = null)
             => new StringContent(json, encoding ?? Encoding.UTF8, "application/json");
 

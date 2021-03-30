@@ -101,6 +101,8 @@ namespace RevolutionaryStuff.Core
             Requires.NonNull(baseObject, nameof(baseObject));
             Requires.NonNull(segments, nameof(segments));
 
+            var jval = val is JToken ? (JToken)val : new JValue(val);
+
             var c = (JContainer)baseObject;
             for (int z = 0; z < segments.Count; ++z)
             {
@@ -113,7 +115,7 @@ namespace RevolutionaryStuff.Core
                         {
                             c.Add(new JProperty(s.Name, new JObject()));
                         }
-                        c = (JContainer) c[s.Name];
+                        c = (JContainer)c[s.Name];
                         break;
                     case PathSegment.SegmentTypes.Array:
                         if (c[s.Name] == null)
@@ -133,9 +135,10 @@ namespace RevolutionaryStuff.Core
                         };
                         if (isLast)
                         {
-                            ja[s.Index] = new JValue(val);
+
+                            ja[s.Index] = jval;
                         }
-                        else if (ja.Count >= s.Index && ja[s.Index]!=null && ja[s.Index].HasValues)
+                        else if (ja.Count >= s.Index && ja[s.Index] != null && ja[s.Index].HasValues)
                         {
                             c = (JContainer)ja[s.Index];
                         }
@@ -153,7 +156,7 @@ namespace RevolutionaryStuff.Core
                         }
                         break;
                     case PathSegment.SegmentTypes.Property:
-                        c[s.Name] = new JValue(val);
+                        c[s.Name] = jval;
                         break;
                     default:
                         throw new UnexpectedSwitchValueException(s.SegmentType);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 
@@ -49,7 +50,21 @@ namespace RevolutionaryStuff.Core
         {
             if (1 != Interlocked.Increment(ref IsDisposed_p)) return;
             OnDispose(disposing);
+            DisposeActions.NullSafeEnumerable().ForEach(a => a());
         }
+
+        private IList<Action> DisposeActions;
+
+        protected void RegisterDisposeAction(Action a)
+        {
+            if (a == null) return;
+            DisposeActions = DisposeActions ?? new List<Action>();
+            DisposeActions.Add(a);
+        }
+
+        protected void RegisterDisposableObject(IDisposable d)
+            => RegisterDisposeAction(() => Stuff.Dispose(d));
+
 
         /// <summary>
         /// Override this function to handle calls to dispose.
