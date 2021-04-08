@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core
 {
@@ -42,7 +43,21 @@ namespace RevolutionaryStuff.Core
         /// <param name="name">The unqualified name of the resource</param>
         /// <param name="a">The assembly that houses the resource, if null, uses the caller</param>
         /// <returns>The string, else null</returns>
+        [Obsolete("Use the async version instead")]
         public static string GetEmbeddedResourceAsString(this Assembly a, string name)
             => a.GetEmbeddedResourceAsStream(name)?.ReadToEnd();
+
+        /// <summary>
+        /// Get an embedded resource as a string
+        /// </summary>
+        /// <param name="name">The unqualified name of the resource</param>
+        /// <param name="a">The assembly that houses the resource, if null, uses the caller</param>
+        /// <returns>The string, else null</returns>
+        public static Task<string> GetEmbeddedResourceAsStringAsync(this Assembly a, string name)
+        {
+            var st = a.GetEmbeddedResourceAsStream(name);
+            if (st == null) return null;
+            return st.ReadToEndAsync();
+        }
     }
 }

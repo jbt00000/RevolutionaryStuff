@@ -10,7 +10,7 @@ namespace RevolutionaryStuff.Core.Diagnostics
         public static string DefaultOpeningPrefix = "vvvvvvvvvvvvvvvvvvvv ";
         public static string DefaultClosingPrefix = "^^^^^^^^^^^^^^^^^^^^ ";
         public static string DefaultClosingSuffix = " Duration={duration}";
-        public static readonly LogLevel DefaultLogLevel = LogLevel.Debug;
+        public static LogLevel DefaultLogLevel = LogLevel.Debug;
 
         private readonly ILogger Logger;
         private readonly string Message;
