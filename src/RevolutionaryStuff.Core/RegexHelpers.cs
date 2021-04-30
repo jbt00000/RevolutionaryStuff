@@ -91,5 +91,21 @@ namespace RevolutionaryStuff.Core
             catch (Exception) { }
             return Empty.StringArray;
         }
+
+        public static string Replace(this string s, Regex r, Func<(Match Match, int Occurrence, string InputString, string CurrentString), string> replacer)
+        {
+            if (string.IsNullOrEmpty(s)) return s;
+            var input = s;
+            int cnt = 0;
+            for (int startAt = 0; ;)
+            {
+                var m = r.Match(s, startAt);
+                if (!m.Success) break;
+                string replacement = replacer == null ? "" : replacer((m, cnt++, input, s));
+                s = s.Substring(0, m.Index) + replacement + s.Substring(m.Index + m.Value.Length);
+                startAt = m.Index + replacement.Length;
+            }
+            return s;
+        }
     }
 }

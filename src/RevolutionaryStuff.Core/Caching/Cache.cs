@@ -18,9 +18,9 @@ namespace RevolutionaryStuff.Core.Caching
         internal static int GetLockKeyName(object cacheGuy, object key) 
             => (cacheGuy.GetHashCode() ^ (key ?? "").GetHashCode()) & 0x0FFF;
 
-        public static readonly ICacher DataCacher = new BasicCacher();
+        public static readonly ILocalCacher DataCacher = new BasicCacher();
 
-        public static readonly ICacher Passthrough = new PassthroughCacher();
+        public static readonly ILocalCacher Passthrough = new PassthroughCacher();
 
         public static string CreateKey<T>()
             => CreateKey(new object[] { typeof(T) });

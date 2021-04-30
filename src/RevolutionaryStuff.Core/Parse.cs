@@ -55,7 +55,10 @@ namespace RevolutionaryStuff.Core
                     return z;
                 }
                 );
-            if (d.ContainsKey(val)) return (System.Enum)d[val];
+            if (!string.IsNullOrEmpty(val))
+            {
+                if (d.ContainsKey(val)) return (System.Enum)d[val];
+            }
             return missing;
         }
 
