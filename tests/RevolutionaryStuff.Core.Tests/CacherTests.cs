@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Threading.Tasks;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Core.Tests
@@ -26,6 +27,27 @@ namespace RevolutionaryStuff.Core.Tests
                 Assert.AreEqual(r4, Cache.CreateKey("hello", nameof(CreateKeyTests)));
                 Assert.AreNotEqual(r4, Cache.CreateKey("helloworld", nameof(CreateKeyTests)));
             }
+        }
+
+        [TestMethod]
+        public async Task FindOrCreateTwiceShouldOnlyCreateOnceAsync()
+        {
+            const string expectedVal = "this is my cached value";
+            var cacher = new BasicCacher(16);
+            var res = await cacher.FindOrCreateValueAsync(
+                nameof(FindOrCreateTwiceShouldOnlyCreateOnceAsync),
+                () => Task.FromResult(expectedVal));
+            Assert.AreEqual(expectedVal, res);
+            bool fresh = false;
+            res = await cacher.FindOrCreateValueAsync(
+                nameof(FindOrCreateTwiceShouldOnlyCreateOnceAsync),
+                () =>
+                {
+                    fresh = true;
+                    return Task.FromResult(expectedVal);
+                });
+            Assert.AreEqual(expectedVal, res);
+            Assert.AreEqual(false, fresh);
         }
     }
 }
