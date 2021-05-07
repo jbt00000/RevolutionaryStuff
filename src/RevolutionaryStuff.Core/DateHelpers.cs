@@ -86,9 +86,12 @@ namespace RevolutionaryStuff.Core
 
         public static int Age(this DateTime dt)
         {
-            DateTime now = DateTime.Now;
+            var now = DateTime.Today;
             int age = now.Year - dt.Year;
-            age += now.DayOfYear < dt.DayOfYear ? -1 : 0;
+            if (dt.Month > now.Month || (dt.Month == now.Month && dt.Day > now.Day))
+            {
+                age -= 1;
+            }
             if (age < 0) age = 0;
             return age;
         }

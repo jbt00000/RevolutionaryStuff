@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -297,6 +298,30 @@ namespace RevolutionaryStuff.Core
                 }
             }
             return sb.ToString();
+        }
+
+        /// <summary>
+        /// Remove the funky ass Diacritic marks (accepts) from a string
+        /// </summary>
+        /// <param name="s">The input string which may contain accent marks</param>
+        /// <returns>The cleanup up output string</returns>
+        /// <remarks>http://blogs.msdn.com/michkap/archive/2005/02/19/376617.aspx</remarks>
+        /// <remarks>https://stackoverflow.com/questions/249087/how-do-i-remove-diacritics-accents-from-a-string-in-net</remarks>
+        public static string RemoveDiacritics(this string s)
+        {
+            string stFormD = s.Normalize(NormalizationForm.FormD);
+            var sb = new StringBuilder();
+
+            for (int ich = 0; ich < stFormD.Length; ich++)
+            {
+                var uc = CharUnicodeInfo.GetUnicodeCategory(stFormD[ich]);
+                if (uc != UnicodeCategory.NonSpacingMark)
+                {
+                    sb.Append(stFormD[ich]);
+                }
+            }
+
+            return (sb.ToString());
         }
     }
 }
