@@ -15,9 +15,9 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Uses .NET 3.1 libraries that still run under .NETStandard2.0</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.41.31.0</FileVersion>
-    <AssemblyVersion>3.41.31.0</AssemblyVersion>
-    <Version>3.41.31</Version>
+    <FileVersion>3.42.31.0</FileVersion>
+    <AssemblyVersion>3.42.31.0</AssemblyVersion>
+    <Version>3.42.31</Version>
     <PackageLicenseUrl></PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryType>GIT</RepositoryType>

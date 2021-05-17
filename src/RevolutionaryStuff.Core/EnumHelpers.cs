@@ -15,7 +15,7 @@ namespace RevolutionaryStuff.Core
         public static string EnumWithEnumMemberValuesToString<TEnum>(this TEnum e) where TEnum : System.Enum
         {
             var em = e.GetCustomAttribute<EnumMemberAttribute>();
-            var sval = em?.Value ?? em.ToString();
+            var sval = em?.Value ?? e.ToString();
             return sval;
         }
     }
