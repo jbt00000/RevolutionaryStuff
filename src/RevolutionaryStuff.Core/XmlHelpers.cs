@@ -1,4 +1,7 @@
-﻿using System.Xml;
+﻿using System.IO;
+using System.Text;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace RevolutionaryStuff.Core
 {
@@ -23,6 +26,16 @@ namespace RevolutionaryStuff.Core
                 writer.WriteString(value);
             }
             writer.WriteEndElement();
+        }
+
+        public static string ToXml(this XmlSerializer ser, object o)
+        {
+            var sb = new StringBuilder();
+            using (var sw = new StringWriter(sb))
+            {
+                ser.Serialize(sw, o);
+            }
+            return sb.ToString();
         }
     }
 }
