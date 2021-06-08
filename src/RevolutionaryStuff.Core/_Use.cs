@@ -8,16 +8,16 @@ namespace RevolutionaryStuff.Core
 {
     public static class _Use
     {
-        public class UseConfiguration
+        public class Settings
         {
             public string RevolutionaryStuffCoreConfigSectionName { get; set; }
         }
 
-        public static void UseRevolutionaryStuff(this IServiceCollection services, UseConfiguration useConfiguration=null)
+        public static void UseRevolutionaryStuffCore(this IServiceCollection services, Settings settings=null)
         {
             services.AddSingleton<ILocalCacher>(Cache.DataCacher);
 
-            services.ConfigureOptions<RevolutionaryStuffCoreConfig>(useConfiguration?.RevolutionaryStuffCoreConfigSectionName ?? RevolutionaryStuffCoreConfig.ConfigSectionName);
+            services.ConfigureOptions<RevolutionaryStuffCoreConfig>(settings?.RevolutionaryStuffCoreConfigSectionName ?? RevolutionaryStuffCoreConfig.ConfigSectionName);
 
             services.AddSingleton<IServiceCollectionAccessor>(new HardcodedServiceCollectionProvider(services));
             services.AddScoped<INamedFactory, NamedTypeNamedFactory>();

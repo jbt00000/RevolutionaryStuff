@@ -12,7 +12,14 @@ namespace RevolutionaryStuff.Core
     {
         public static TResult ExecuteSynchronously<TResult>(this Task<TResult> task)
         {
-            if (!task.IsCompleted)
+            if (task.IsCompleted)
+            {
+                if (task.Exception != null)
+                {
+                    throw task.Exception;
+                }
+            }
+            else
             {
                 try
                 {
@@ -28,7 +35,14 @@ namespace RevolutionaryStuff.Core
 
         public static void ExecuteSynchronously(this Task task)
         {
-            if (!task.IsCompleted)
+            if (task.IsCompleted)
+            {
+                if (task.Exception != null)
+                {
+                    throw task.Exception;
+                }
+            }
+            else
             {
                 try
                 {
