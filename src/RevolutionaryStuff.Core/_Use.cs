@@ -11,6 +11,8 @@ namespace RevolutionaryStuff.Core
         public class Settings
         {
             public string RevolutionaryStuffCoreConfigSectionName { get; set; }
+
+            public string TemporaryStreamFactoryConfigSectionName { get; set; }
         }
 
         public static void UseRevolutionaryStuffCore(this IServiceCollection services, Settings settings=null)
@@ -18,6 +20,9 @@ namespace RevolutionaryStuff.Core
             services.AddSingleton<ILocalCacher>(Cache.DataCacher);
 
             services.ConfigureOptions<RevolutionaryStuffCoreConfig>(settings?.RevolutionaryStuffCoreConfigSectionName ?? RevolutionaryStuffCoreConfig.ConfigSectionName);
+
+            services.ConfigureOptions<TemporaryStreamFactory.Config>(settings?.TemporaryStreamFactoryConfigSectionName ?? TemporaryStreamFactory.Config.ConfigSectionName);
+            services.AddSingleton<ITemporaryStreamFactory, TemporaryStreamFactory>();
 
             services.AddSingleton<IServiceCollectionAccessor>(new HardcodedServiceCollectionProvider(services));
             services.AddScoped<INamedFactory, NamedTypeNamedFactory>();

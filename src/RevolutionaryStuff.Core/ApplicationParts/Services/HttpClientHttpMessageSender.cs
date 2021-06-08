@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core.ApplicationParts.Services
 {
-    public class HttpClientHttpMessageSender : BaseDisposable, IHttpMessageSender
+    internal class HttpClientHttpMessageSender : BaseDisposable, IHttpMessageSender
     {
         public HttpClientHttpMessageSender(HttpClient httpClient)
         {
             Requires.NonNull(httpClient, nameof(httpClient));
+
             HttpClient = httpClient;
         }
 
