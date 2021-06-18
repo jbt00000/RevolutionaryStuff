@@ -128,8 +128,19 @@ namespace RevolutionaryStuff.Core
         public static AuthenticationHeaderValue CreateBasicAuthorizationHeaderValue(string username, string password)
             => new AuthenticationHeaderValue("Basic", CreateBasicAuthorizationHeaderValueParameter(username, password));
 
-        public static AuthenticationHeaderValue AddBasicAuthorization(this HttpRequestHeaders h, string username, string password)
-            => h.Authorization = CreateBasicAuthorizationHeaderValue(username, password);
+        public static HttpRequestHeaders AddBasicAuthorization(this HttpRequestHeaders h, string username, string password)
+        {
+            h.Authorization = CreateBasicAuthorizationHeaderValue(username, password);
+            return h;
+        }
+
+        public const string JwtAuthenticationScheme = "Bearer";
+
+        public static HttpRequestHeaders AddJwtAuthorization(this HttpRequestHeaders h, string bearerToken)
+        {
+            h.Authorization = new AuthenticationHeaderValue(JwtAuthenticationScheme, bearerToken);
+            return h;
+        }
 
         public static HttpContent CreateJsonContent(string json, Encoding encoding = null)
             => new StringContent(json, encoding ?? Encoding.UTF8, "application/json");
