@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace RevolutionaryStuff.Core
 {
@@ -115,6 +116,9 @@ namespace RevolutionaryStuff.Core
             return ret;
         }
 
+        public static IDictionary<TKey, TSource> ToDictionaryOnConflictKeepLast<TKey, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector)
+            => items.ToDictionaryOnConflictKeepLast(keySelector, z => z);
+
         public static IDictionary<TKey, TVal> ToDictionaryOnConflictKeepLast<TKey, TVal, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector, Func<TSource, TVal> valSelector)
         {
             var d = new Dictionary<TKey, TVal>();
@@ -128,6 +132,9 @@ namespace RevolutionaryStuff.Core
             return d;
         }
 
+        public static MultipleValueDictionary<TKey, TSource> ToMultipleValueDictionary<TKey, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector)
+            => items.ToMultipleValueDictionary(keySelector, z => z);
+
         public static MultipleValueDictionary<TKey, TVal> ToMultipleValueDictionary<TKey, TVal, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector, Func<TSource, TVal> valSelector)
         {
             var m = new MultipleValueDictionary<TKey, TVal>();
@@ -139,11 +146,6 @@ namespace RevolutionaryStuff.Core
                 }
             }
             return m;
-        }
-
-        public static MultipleValueDictionary<TKey, TSource> ToMultipleValueDictionary<TKey, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector)
-        {
-            return items.ToMultipleValueDictionary(keySelector, z => z);
         }
 
         public static R FirstValueOfType<R>(this IDictionary<string, object> d)
@@ -553,5 +555,29 @@ namespace RevolutionaryStuff.Core
                    return i.Equals(match);
                }
            }, nthOccurrence, zeroThValue, missingValue);
+
+        public static TColl FluentAdd<TColl, T>(this TColl col, T item) where TColl : ICollection<T>
+        {
+            col.Add(item);
+            return col;
+        }
+
+        public static IList<T> FluentAdd<T>(this IList<T> col, T item)
+        {
+            col.Add(item);
+            return col;
+        }
+
+        public static TColl FluentAddRange<TColl, T>(this TColl col, IEnumerable<T> items) where TColl : ICollection<T>
+        {
+            if (items != null)
+            {
+                foreach (var i in items)
+                {
+                    col.Add(i);
+                }
+            }
+            return col;
+        }
     }
 }

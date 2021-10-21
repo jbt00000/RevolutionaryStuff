@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -322,6 +324,20 @@ namespace RevolutionaryStuff.Core
             }
 
             return (sb.ToString());
+        }
+
+        private static readonly Regex NameArgExpr = new Regex("(?<!{){\\s*(?'term'\\w+)(?'modifiers'|[:,][^}]+)}", RegexOptions.Compiled);
+
+        public static string FormatWithNamedArgs(string format, string k0, object v0, object missingVal = null)
+            => FormatWithNamedArgs(format, new[] { new KeyValuePair<string, object>(k0, v0) }, missingVal);
+
+        public static string FormatWithNamedArgs(string format, IEnumerable<KeyValuePair<string, object>> args, object missingVal = null)
+        {
+            Requires.NonNull(format, nameof(format));
+
+            var d = args.NullSafeEnumerable().ToDictionary(z => z.Key, z => z.Value);
+
+            return NameArgExpr.Replace(format, me => string.Format("{0" + me.Groups["modifiers"].Value + "}", d.GetValue(me.Groups["term"].Value, missingVal)));
         }
     }
 }
