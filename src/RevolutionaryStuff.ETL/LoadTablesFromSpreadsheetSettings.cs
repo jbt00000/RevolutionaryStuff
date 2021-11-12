@@ -1,10 +1,7 @@
-﻿using System.Collections.Generic;
+﻿namespace RevolutionaryStuff.ETL;
 
-namespace RevolutionaryStuff.ETL
+public class LoadTablesFromSpreadsheetSettings : LoadTablesSettings
 {
-    public class LoadTablesFromSpreadsheetSettings : LoadTablesSettings
-    {
-        public List<LoadRowsFromSpreadsheetSettings> SheetSettings;
-        public LoadRowsSettings LoadAllSheetsDefaultSettings;
-    }
+    public List<LoadRowsFromSpreadsheetSettings> SheetSettings;
+    public LoadRowsSettings LoadAllSheetsDefaultSettings;
 }

@@ -1,9 +1,6 @@
-﻿using System.Collections.Generic;
+﻿namespace RevolutionaryStuff.ETL;
 
-namespace RevolutionaryStuff.ETL
+public class LoadRowsFromFixedWidthTextSettings : LoadRowsSettings
 {
-    public class LoadRowsFromFixedWidthTextSettings : LoadRowsSettings
-    {
-        public IList<IFixedWidthColumnInfo> ColumnInfos { get; set; }
-    }
+    public IList<IFixedWidthColumnInfo> ColumnInfos { get; set; }
 }

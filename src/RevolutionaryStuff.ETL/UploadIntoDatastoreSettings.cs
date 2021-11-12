@@ -1,9 +1,8 @@
-﻿namespace RevolutionaryStuff.ETL
-{
-    public class UploadIntoDatastoreSettings
-    {
-        public int RowsTransferredNotifyIncrement { get; set; } = 1000;
+﻿namespace RevolutionaryStuff.ETL;
 
-        public RowsTransferredEventHandler RowsTransferredEventHandler { get; set; }
-    }
+public class UploadIntoDatastoreSettings
+{
+    public int RowsTransferredNotifyIncrement { get; set; } = 1000;
+
+    public RowsTransferredEventHandler RowsTransferredEventHandler { get; set; }
 }

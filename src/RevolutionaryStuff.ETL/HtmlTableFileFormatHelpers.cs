@@ -1,79 +1,76 @@
-﻿using System.Collections.Generic;
-using System.Data;
+﻿using System.Data;
 using System.IO;
 using HtmlAgilityPack;
-using RevolutionaryStuff.Core;
 
-namespace RevolutionaryStuff.ETL
+namespace RevolutionaryStuff.ETL;
+
+public class LoadRowsFromHtmlSettings : LoadRowsSettings
 {
-    public class LoadRowsFromHtmlSettings : LoadRowsSettings
-    {
-        public string TableId { get; set; }
-        public string TableXPath { get; set; }
-    }
+    public string TableId { get; set; }
+    public string TableXPath { get; set; }
+}
 
-    public static class HtmlTableFileFormatHelpers
+public static class HtmlTableFileFormatHelpers
+{
+    public static DataTable Load(Stream st, LoadRowsFromHtmlSettings settings)
     {
-        public static DataTable Load(Stream st, LoadRowsFromHtmlSettings settings)
+        var doc = new HtmlDocument();
+        doc.Load(st);
+        string xpath;
+        if (settings.TableXPath != null)
         {
-            var doc = new HtmlDocument();
-            doc.Load(st);
-            string xpath;
-            if (settings.TableXPath != null)
+            xpath = settings.TableXPath;
+        }
+        else if (settings.TableId != null)
+        {
+            xpath = $"//table[id='{settings.TableId}']";
+        }
+        else
+        {
+            xpath = $"//table";
+        }
+        DataTable dt = null;
+        var tables = doc.DocumentNode.SelectNodes(xpath);
+        if (tables != null && tables.Count > 0)
+        {
+            dt = new DataTable();
+            var table = tables[0];
+            var headerRow = table.SelectSingleNode("descendant::tr[1]");
+            foreach (var cell in headerRow.ChildNodes)
             {
-                xpath = settings.TableXPath;
+                if (cell.NodeType != HtmlNodeType.Element) continue;
+                if (cell.Name == "td" || cell.Name == "th")
+                {
+                    dt.Columns.Add(cell.InnerText.Trim());
+                }
             }
-            else if (settings.TableId != null)
+            int skipRows = 0;
+            bool skipThRows = false;
+            var tableBodyRows = table.SelectNodes("descendant::tbody/tr");
+            if (tableBodyRows == null || tableBodyRows.Count == 0)
             {
-                xpath = $"//table[id='{settings.TableId}']";
+                tableBodyRows = table.SelectNodes("descendant::tr");
+                skipRows = 1;
+                skipThRows = true;
             }
-            else
+            int rowNum = 0;
+            var items = new List<object>(dt.Columns.Count);
+            foreach (var tr in tableBodyRows)
             {
-                xpath = $"//table";
-            }
-            DataTable dt = null;
-            var tables = doc.DocumentNode.SelectNodes(xpath);
-            if (tables != null && tables.Count>0)
-            {
-                dt = new DataTable();
-                var table = tables[0];
-                var headerRow = table.SelectSingleNode("descendant::tr[1]");
-                foreach (var cell in headerRow.ChildNodes)
+                if (rowNum++ < skipRows) continue;
+                items.Clear();
+                foreach (var cell in tr.ChildNodes)
                 {
                     if (cell.NodeType != HtmlNodeType.Element) continue;
-                    if (cell.Name == "td" || cell.Name == "th")
-                    {
-                        dt.Columns.Add(cell.InnerText.Trim());
-                    }
+                    if (skipThRows && items.Count == 0 && cell.Name == "th") goto NextRow;
+                    var val = cell.InnerText;
+                    items.Add(val);
                 }
-                int skipRows = 0;
-                bool skipThRows = false;
-                var tableBodyRows = table.SelectNodes("descendant::tbody/tr");
-                if (tableBodyRows == null || tableBodyRows.Count == 0)
-                {
-                    tableBodyRows = table.SelectNodes("descendant::tr");
-                    skipRows = 1;
-                    skipThRows = true;
-                }
-                int rowNum = 0;
-                var items = new List<object>(dt.Columns.Count);
-                foreach (var tr in tableBodyRows)
-                {
-                    if (rowNum++ < skipRows) continue;
-                    items.Clear();
-                    foreach (var cell in tr.ChildNodes)
-                    {
-                        if (cell.NodeType != HtmlNodeType.Element) continue;
-                        if (skipThRows && items.Count == 0 && cell.Name == "th") goto NextRow;
-                        var val = cell.InnerText;
-                        items.Add(val);
-                    }
-                    dt.Rows.Add(items.ToArray());
+                dt.Rows.Add(items.ToArray());
 NextRow:
-                    Stuff.Noop();
-                }
+                Stuff.Noop();
             }
-            return dt;
         }
+        return dt;
     }
 }

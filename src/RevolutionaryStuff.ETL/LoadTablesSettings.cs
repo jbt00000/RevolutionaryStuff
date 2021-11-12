@@ -1,10 +1,8 @@
-﻿using System;
-using System.Data;
+﻿using System.Data;
 
-namespace RevolutionaryStuff.ETL
+namespace RevolutionaryStuff.ETL;
+
+public class LoadTablesSettings
 {
-    public class LoadTablesSettings
-    {
-        public Func<DataTable> CreateDataTable;
-    }
+    public Func<DataTable> CreateDataTable;
 }

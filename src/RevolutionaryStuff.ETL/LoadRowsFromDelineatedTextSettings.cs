@@ -1,24 +1,23 @@
-﻿namespace RevolutionaryStuff.ETL
+﻿namespace RevolutionaryStuff.ETL;
+
+public enum LoadRowsFromDelineatedTextFormats
 {
-    public enum LoadRowsFromDelineatedTextFormats
-    {
-        CommaSeparatedValues,
-        PipeSeparatedValues,
-        Custom,
-    }
+    CommaSeparatedValues,
+    PipeSeparatedValues,
+    Custom,
+}
 
-    public class LoadRowsFromDelineatedTextSettings : LoadRowsSettings
-    {
-        public LoadRowsFromDelineatedTextFormats Format { get; set; } = LoadRowsFromDelineatedTextFormats.CommaSeparatedValues;
+public class LoadRowsFromDelineatedTextSettings : LoadRowsSettings
+{
+    public LoadRowsFromDelineatedTextFormats Format { get; set; } = LoadRowsFromDelineatedTextFormats.CommaSeparatedValues;
 
-        public char CustomFieldDelim { get; set; }
+    public char CustomFieldDelim { get; set; }
 
-        public char? CustomQuoteChar { get; set; }
+    public char? CustomQuoteChar { get; set; }
 
-        public int SkipRawRows { get; set; }
+    public int SkipRawRows { get; set; }
 
-        public string[] ColumnNames { get; set; }
+    public string[] ColumnNames { get; set; }
 
-        public string ColumnNameTemplate { get; set; }
-    }
+    public string ColumnNameTemplate { get; set; }
 }

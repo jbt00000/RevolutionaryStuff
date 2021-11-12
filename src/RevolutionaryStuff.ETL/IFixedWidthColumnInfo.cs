@@ -1,13 +1,10 @@
-﻿using System;
+﻿namespace RevolutionaryStuff.ETL;
 
-namespace RevolutionaryStuff.ETL
+public interface IFixedWidthColumnInfo
 {
-    public interface IFixedWidthColumnInfo
-    {
-        string ColumnName { get; }
-        int StartAt { get; }
-        int? EndAt { get; }
-        int? Length { get; }
-        Type DataType { get; }
-    }
+    string ColumnName { get; }
+    int StartAt { get; }
+    int? EndAt { get; }
+    int? Length { get; }
+    Type DataType { get; }
 }

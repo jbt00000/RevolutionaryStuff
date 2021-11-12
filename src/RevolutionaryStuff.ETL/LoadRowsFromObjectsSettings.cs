@@ -1,9 +1,8 @@
-﻿namespace RevolutionaryStuff.ETL
+﻿namespace RevolutionaryStuff.ETL;
+
+public class LoadRowsFromObjectsSettings : LoadRowsSettings
 {
-    public class LoadRowsFromObjectsSettings : LoadRowsSettings
-    {
-        public bool GetPropertiesFromRelection { get; set; } = true;
-        public bool GetFieldsFromRelection { get; set; } = true;
-        public bool ColumnsFromEachObject { get; set; } = false;
-    }
+    public bool GetPropertiesFromRelection { get; set; } = true;
+    public bool GetFieldsFromRelection { get; set; } = true;
+    public bool ColumnsFromEachObject { get; set; } = false;
 }
