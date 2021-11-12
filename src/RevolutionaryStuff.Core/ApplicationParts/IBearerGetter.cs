@@ -1,9 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
 
-namespace RevolutionaryStuff.Core.ApplicationParts
+public interface IBearerGetter
 {
-    public interface IBearerGetter
-    {
-        Task<string> GetBearerAsync(string name=null);
-    }
+    Task<string> GetBearerAsync(string name=null);
 }

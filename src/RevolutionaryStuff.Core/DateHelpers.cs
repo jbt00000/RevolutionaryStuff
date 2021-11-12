@@ -6,6 +6,9 @@ namespace RevolutionaryStuff.Core
     {
         public static DateTimeOffset UnixEarliestFileDate = new DateTimeOffset(1601, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
+        public static DateTime DateTimeFromUnixEpoch(int secondsSince1970) 
+            => new DateTime(1970, 1, 1, 0, 0, 0, (DateTimeKind)DateTimeKind.Utc).AddSeconds((double)secondsSince1970);
+        
         public static DateTimeOffset GetFirstSpecifiedFileDate(params DateTimeOffset?[] dtos)
         {
             foreach (var dto in dtos)
@@ -84,15 +87,18 @@ namespace RevolutionaryStuff.Core
         public static string ToIsoString(this DateTimeOffset dto)
             => dto.ToIsoString();
 
-        public static int Age(this DateTime dt)
+        public static int Age(this DateTime dt, DateTime? asOf = null)
         {
-            var now = DateTime.Today;
-            int age = now.Year - dt.Year;
-            if (dt.Month > now.Month || (dt.Month == now.Month && dt.Day > now.Day))
+            DateTime dateTime = !asOf.HasValue ? DateTime.Today : asOf.Value;
+            int age = dateTime.Year - dt.Year;
+            if (dt.Month > dateTime.Month || dt.Month == dateTime.Month && dt.Day > dateTime.Day)
             {
-                age -= 1;
+                --age;
             }
-            if (age < 0) age = 0;
+            if (age < 0)
+            {
+                age = 0;
+            }
             return age;
         }
     }

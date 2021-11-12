@@ -1,211 +1,207 @@
-﻿using System;
-using System.Collections.Generic;
+﻿namespace RevolutionaryStuff.Core;
 
-namespace RevolutionaryStuff.Core
+public abstract class BaseCodedException : Exception
 {
-    public abstract class BaseCodedException : Exception
+    public abstract object GetCode();
+
+    public static object GetCode(Exception ex, object missing = null)
     {
-        public abstract object GetCode();
+        var bce = ex as BaseCodedException;
+        return bce == null ? missing : bce.GetCode();
+    }
 
-        public static object GetCode(Exception ex, object missing = null)
-        {
-            var bce = ex as BaseCodedException;
-            return bce == null ? missing : bce.GetCode();
-        }
+    #region Constructors
 
-        #region Constructors
+    public BaseCodedException()
+    {
+    }
 
-        public BaseCodedException()
-        {
-        }
+    public BaseCodedException(string message) : base(message)
+    {
+    }
 
-        public BaseCodedException(string message) : base(message)
-        {
-        }
+    public BaseCodedException(string message, Exception inner) : base(message, inner)
+    {
+    }
+    #endregion
+}
 
-        public BaseCodedException(string message, Exception inner) : base(message, inner)
-        {
-        }
-        #endregion
+/// <summary>
+/// The base class for all coded exceptions
+/// </summary>
+public class CodedException<T> : BaseCodedException where T : struct
+{
+    public readonly T Code;
+
+    #region Constructors
+
+    /// <summary>
+    /// Construct an empty instance
+    /// </summary>
+    public CodedException(T code)
+        : base(code.ToString())
+    {
+        Code = code;
     }
 
     /// <summary>
-    /// The base class for all coded exceptions
+    /// Construct an instance with the given message as extra information
     /// </summary>
-    public class CodedException<T> : BaseCodedException where T : struct
+    /// <param name="message">The message that describes the error.</param>
+    public CodedException(T code, string message)
+        : base(string.Format("{0}: {1}", code, message))
     {
-        public readonly T Code;
-
-        #region Constructors
-
-        /// <summary>
-        /// Construct an empty instance
-        /// </summary>
-        public CodedException(T code)
-            : base(code.ToString())
-        {
-            Code = code;
-        }
-
-        /// <summary>
-        /// Construct an instance with the given message as extra information
-        /// </summary>
-        /// <param name="message">The message that describes the error.</param>
-        public CodedException(T code, string message)
-            : base(string.Format("{0}: {1}", code, message))
-        {
-            Code = code;
-        }
-
-        /// <summary>
-        /// Construct an instance with the given message as extra information
-        /// </summary>
-        /// <param name="message">The message that describes the error.</param>
-        /// <param name="inner">The exception that is the cause of the current exception, or a null reference</param>
-        public CodedException(T code, Exception inner)
-            : base(code.ToString(), inner)
-        {
-            Code = code;
-        }
-
-        #endregion
-
-        public override string ToString()
-        {
-            var s = string.Format("{0}({1})\n{2}", this.GetType().Name, Code, base.ToString());
-            if (InnerException != null)
-            {
-                s = string.Format("{0}\n{1}:{2}", s, InnerException.GetType(), InnerException.Message);
-            }
-            return s;
-        }
-
-        public override object GetCode()
-        {
-            return Code;
-        }
+        Code = code;
     }
 
-
-    public class NotNowException : Exception
+    /// <summary>
+    /// Construct an instance with the given message as extra information
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
+    /// <param name="inner">The exception that is the cause of the current exception, or a null reference</param>
+    public CodedException(T code, Exception inner)
+        : base(code.ToString(), inner)
     {
-        #region Constructors
-
-        public NotNowException()
-        {
-        }
-
-        public NotNowException(string message) : base(message)
-        {
-        }
-
-        public NotNowException(string message, Exception inner) : base(message, inner)
-        {
-        }
-
-        #endregion
+        Code = code;
     }
 
-    public class ReadOnlyException : NotNowException
+    #endregion
+
+    public override string ToString()
     {
-        #region Constructors
-
-        public ReadOnlyException()
+        var s = string.Format("{0}({1})\n{2}", this.GetType().Name, Code, base.ToString());
+        if (InnerException != null)
         {
+            s = string.Format("{0}\n{1}:{2}", s, InnerException.GetType(), InnerException.Message);
         }
-
-        public ReadOnlyException(string message) : base(message)
-        {
-        }
-
-        public ReadOnlyException(string message, Exception inner) : base(message, inner)
-        {
-        }
-
-        #endregion
+        return s;
     }
 
-    public class SingleCallException : NotNowException
+    public override object GetCode()
     {
-        #region Constructors
+        return Code;
+    }
+}
 
-        public SingleCallException()
-        {
-        }
 
-        public SingleCallException(string message) : base(message)
-        {
-        }
+public class NotNowException : Exception
+{
+    #region Constructors
 
-        public SingleCallException(string message, Exception inner) : base(message, inner)
-        {
-        }
-
-        #endregion
+    public NotNowException()
+    {
     }
 
-    public class MustOverrideException : Exception
+    public NotNowException(string message) : base(message)
     {
-        #region Constructors
-
-        public MustOverrideException()
-        {
-        }
-
-        public MustOverrideException(string message) : base(message)
-        {
-        }
-
-        public MustOverrideException(string message, Exception inner) : base(message, inner)
-        {
-        }
-        #endregion
     }
 
-    public class UnexpectedSwitchValueException : Exception
+    public NotNowException(string message, Exception inner) : base(message, inner)
     {
-        public UnexpectedSwitchValueException(object o)
-            : base(string.Format("Did not expect val [{0}] in the switch statement", o))
-        {
-        }
     }
 
-    public class InvalidMappingException : Exception
+    #endregion
+}
+
+public class ReadOnlyException : NotNowException
+{
+    #region Constructors
+
+    public ReadOnlyException()
     {
-        public InvalidMappingException(object from, object to)
-            : base(string.Format("Could not map {0} to {1}", from, to))
-        {
-        }
     }
 
-    public class ParameterizedMessageException : Exception
+    public ReadOnlyException(string message) : base(message)
     {
-        public readonly object[] MessageArgs;
-
-        public ParameterizedMessageException(Exception inner, string message, params object[] args)
-            : base(message, inner)
-        {
-            MessageArgs = args;
-        }
-
-        public ParameterizedMessageException(string message, params object[] args)
-            : base(message)
-        {
-            MessageArgs = args;
-        }
     }
 
-    public static class ExceptionExtensions
+    public ReadOnlyException(string message, Exception inner) : base(message, inner)
     {
-        public static IEnumerable<Exception> InnerExceptions(this Exception exception)
-        {
-            Exception ex = exception;
+    }
 
-            while (ex != null)
-            {
-                yield return ex;
-                ex = ex.InnerException;
-            }
+    #endregion
+}
+
+public class SingleCallException : NotNowException
+{
+    #region Constructors
+
+    public SingleCallException()
+    {
+    }
+
+    public SingleCallException(string message) : base(message)
+    {
+    }
+
+    public SingleCallException(string message, Exception inner) : base(message, inner)
+    {
+    }
+
+    #endregion
+}
+
+public class MustOverrideException : Exception
+{
+    #region Constructors
+
+    public MustOverrideException()
+    {
+    }
+
+    public MustOverrideException(string message) : base(message)
+    {
+    }
+
+    public MustOverrideException(string message, Exception inner) : base(message, inner)
+    {
+    }
+    #endregion
+}
+
+public class UnexpectedSwitchValueException : Exception
+{
+    public UnexpectedSwitchValueException(object o)
+        : base(string.Format("Did not expect val [{0}] in the switch statement", o))
+    {
+    }
+}
+
+public class InvalidMappingException : Exception
+{
+    public InvalidMappingException(object from, object to)
+        : base(string.Format("Could not map {0} to {1}", from, to))
+    {
+    }
+}
+
+public class ParameterizedMessageException : Exception
+{
+    public readonly object[] MessageArgs;
+
+    public ParameterizedMessageException(Exception inner, string message, params object[] args)
+        : base(message, inner)
+    {
+        MessageArgs = args;
+    }
+
+    public ParameterizedMessageException(string message, params object[] args)
+        : base(message)
+    {
+        MessageArgs = args;
+    }
+}
+
+public static class ExceptionExtensions
+{
+    public static IEnumerable<Exception> InnerExceptions(this Exception exception)
+    {
+        Exception ex = exception;
+
+        while (ex != null)
+        {
+            yield return ex;
+            ex = ex.InnerException;
         }
     }
 }

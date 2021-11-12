@@ -1,583 +1,579 @@
-﻿using RevolutionaryStuff.Core.Collections;
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections;
 using System.Linq.Expressions;
 using System.Text;
-using System.Threading.Tasks;
+using RevolutionaryStuff.Core.Collections;
 
-namespace RevolutionaryStuff.Core
+namespace RevolutionaryStuff.Core;
+
+public static class CollectionHelpers
 {
-    public static class CollectionHelpers
+    public static void SetIfValNotNull<K, V>(this IDictionary<K, V> d, K key, V val) where V : class
     {
-        public static void SetIfValNotNull<K, V>(this IDictionary<K, V> d, K key, V val) where V : class
+        if (val != null)
         {
-            if (val != null)
+            d[key] = val;
+        }
+    }
+
+    public static void SetIfKeyNotFound<K, V>(this IDictionary<K, V> d, K key, V val)
+    {
+        if (!d.ContainsKey(key))
+        {
+            d[key] = val;
+        }
+    }
+
+    public static IEnumerable<T> NullSafeEnumerable<T>(this IEnumerable<T> e)
+    {
+        if (e == null) return new T[0];
+        return e;
+    }
+
+    public static IList<KeyValuePair<string, string>> ToStringStringKeyValuePairs(this IEnumerable<KeyValuePair<string, object>> kvps)
+    {
+        var ret = new List<KeyValuePair<string, string>>();
+        if (kvps != null)
+        {
+            foreach (var kvp in kvps)
             {
-                d[key] = val;
+                ret.Add(new KeyValuePair<string, string>(kvp.Key, Stuff.ObjectToString(kvp.Value)));
             }
         }
+        return ret;
+    }
 
-        public static void SetIfKeyNotFound<K, V>(this IDictionary<K, V> d, K key, V val)
+    public static IEnumerator GetEnumerator<K, V>(IEnumerable<KeyValuePair<K, V>> e)
+    {
+        foreach (var kvp in e)
         {
-            if (!d.ContainsKey(key))
-            {
-                d[key] = val;
-            }
+            yield return e;
         }
+    }
 
-        public static IEnumerable<T> NullSafeEnumerable<T>(this IEnumerable<T> e)
+    public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, bool isAscending)
+    {
+        if (isAscending)
         {
-            if (e == null) return new T[0];
-            return e;
+            return source.OrderBy(keySelector);
         }
-
-        public static IList<KeyValuePair<string, string>> ToStringStringKeyValuePairs(this IEnumerable<KeyValuePair<string, object>> kvps)
+        else
         {
-            var ret = new List<KeyValuePair<string, string>>();
-            if (kvps != null)
-            {
-                foreach (var kvp in kvps)
-                {
-                    ret.Add(new KeyValuePair<string, string>(kvp.Key, Stuff.ObjectToString(kvp.Value)));
-                }
-            }
-            return ret;
+            return source.OrderByDescending(keySelector);
         }
+    }
 
-        public static IEnumerator GetEnumerator<K, V>(IEnumerable<KeyValuePair<K, V>> e)
+    public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, bool isAscending)
+    {
+        if (isAscending)
         {
-            foreach (var kvp in e)
-            {
-                yield return e;
-            }
+            return source.OrderBy(keySelector);
         }
-
-        public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, bool isAscending)
+        else
         {
-            if (isAscending)
-            {
-                return source.OrderBy(keySelector);
-            }
-            else
-            {
-                return source.OrderByDescending(keySelector);
-            }
+            return source.OrderByDescending(keySelector);
         }
+    }
 
-        public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, bool isAscending)
+    public static void AddRange<T>(this HashSet<T> hs, IEnumerable<T> items)
+    {
+        if (items != null)
         {
-            if (isAscending)
-            {
-                return source.OrderBy(keySelector);
-            }
-            else
-            {
-                return source.OrderByDescending(keySelector);
-            }
-        }
-
-        public static void AddRange<T>(this HashSet<T> hs, IEnumerable<T> items)
-        {
-            if (items != null)
-            {
-                foreach (var item in items)
-                {
-                    hs.Add(item);
-                }
-            }
-        }
-
-        public static IList<V> Map<TInput, K, V>(this IEnumerable<TInput> items, IDictionary<K, V> map, Func<TInput, K> keyGetter, bool omitMissing = false)
-        {
-            return items.Map(map, keyGetter, z => z, omitMissing);
-        }
-
-        public static IList<O> Map<TInput, K, V, O>(this IEnumerable<TInput> items, IDictionary<K, V> map, Func<TInput, K> keyGetter, Func<V, O> outputTransformer, bool omitMissing = false)
-        {
-            Requires.NonNull(map, nameof(map));
-            Requires.NonNull(keyGetter, nameof(keyGetter));
-            Requires.NonNull(outputTransformer, nameof(outputTransformer));
-
-            var ret = new List<O>();
             foreach (var item in items)
             {
-                var key = keyGetter(item);
-                if (map.TryGetValue(key, out V val))
-                {
-                    ret.Add(outputTransformer(val));
-                }
-                else if (!omitMissing)
-                {
-                    ret.Add(default(O));
-                }
+                hs.Add(item);
             }
-            return ret;
         }
+    }
 
-        public static IDictionary<TKey, TSource> ToDictionaryOnConflictKeepLast<TKey, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector)
-            => items.ToDictionaryOnConflictKeepLast(keySelector, z => z);
+    public static IList<V> Map<TInput, K, V>(this IEnumerable<TInput> items, IDictionary<K, V> map, Func<TInput, K> keyGetter, bool omitMissing = false)
+    {
+        return items.Map(map, keyGetter, z => z, omitMissing);
+    }
 
-        public static IDictionary<TKey, TVal> ToDictionaryOnConflictKeepLast<TKey, TVal, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector, Func<TSource, TVal> valSelector)
+    public static IList<O> Map<TInput, K, V, O>(this IEnumerable<TInput> items, IDictionary<K, V> map, Func<TInput, K> keyGetter, Func<V, O> outputTransformer, bool omitMissing = false)
+    {
+        Requires.NonNull(map, nameof(map));
+        Requires.NonNull(keyGetter, nameof(keyGetter));
+        Requires.NonNull(outputTransformer, nameof(outputTransformer));
+
+        var ret = new List<O>();
+        foreach (var item in items)
         {
-            var d = new Dictionary<TKey, TVal>();
-            if (items != null)
+            var key = keyGetter(item);
+            if (map.TryGetValue(key, out V val))
             {
-                foreach (var item in items)
-                {
-                    d[keySelector(item)] = valSelector(item);
-                }
+                ret.Add(outputTransformer(val));
             }
-            return d;
-        }
-
-        public static MultipleValueDictionary<TKey, TSource> ToMultipleValueDictionary<TKey, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector)
-            => items.ToMultipleValueDictionary(keySelector, z => z);
-
-        public static MultipleValueDictionary<TKey, TVal> ToMultipleValueDictionary<TKey, TVal, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector, Func<TSource, TVal> valSelector)
-        {
-            var m = new MultipleValueDictionary<TKey, TVal>();
-            if (items != null)
+            else if (!omitMissing)
             {
-                foreach (var item in items)
-                {
-                    m.Add(keySelector(item), valSelector(item));
-                }
-            }
-            return m;
-        }
-
-        public static R FirstValueOfType<R>(this IDictionary<string, object> d)
-        {
-            if (d != null)
-            {
-                foreach (object v in d.Values)
-                {
-                    if (v is R) return (R)v;
-                }
-            }
-            return default(R);
-        }
-
-        /// <summary>
-        /// Given a list of objects, return a random element
-        /// </summary>
-        /// <typeparam name="T">Type of argument in the list</typeparam>
-        /// <param name="list">List of items</param>
-        /// <param name="r">random number generator, null is ok</param>
-        /// <returns>A random item from the list</returns>
-        public static T Random<T>(this IList<T> list, Random r = null)
-        {
-            r = r ?? Stuff.Random;
-            var n = r.Next(list.Count);
-            return list[n];
-        }
-
-        /// <summary>
-        /// Given a list of objects, randomizes the order
-        /// </summary>
-        /// <param name="list">List of items to be randomized in place</param>
-        /// <param name="random">The random number generator to be used, when null, use the default</param>
-        [Obsolete("Use Shuffle instead", false)]
-        public static void ShuffleList(this IList list, Random random = null)
-        {
-            Requires.NonNull(list, nameof(list));
-            int len = list.Count;
-            if (len < 2) return;
-            if (null == random)
-            {
-                random = Stuff.Random;
-            }
-            int x, y;
-            object o;
-            for (x = 0; x < len; ++x)
-            {
-                y = random.Next(len);
-                o = list[x];
-                list[x] = list[y];
-                list[y] = o;
+                ret.Add(default(O));
             }
         }
+        return ret;
+    }
 
-        public static void Shuffle<T>(this IList<T> list, Random random = null)
+    public static IDictionary<TKey, TSource> ToDictionaryOnConflictKeepLast<TKey, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector)
+        => items.ToDictionaryOnConflictKeepLast(keySelector, z => z);
+
+    public static IDictionary<TKey, TVal> ToDictionaryOnConflictKeepLast<TKey, TVal, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector, Func<TSource, TVal> valSelector)
+    {
+        var d = new Dictionary<TKey, TVal>();
+        if (items != null)
         {
-            Requires.NonNull(list, nameof(list));
-            int len = list.Count;
-            if (len < 2) return;
-            if (null == random)
-            {
-                random = Stuff.Random;
-            }
-            int x, y;
-            T o;
-            for (x = 0; x < len; ++x)
-            {
-                y = random.Next(len);
-                o = list[x];
-                list[x] = list[y];
-                list[y] = o;
-            }
-        }
-
-        public static IList<T> AsReadOnly<T>(this IEnumerable<T> items)
-        {
-            if (items == null) return new T[0];
-            return new List<T>(items).AsReadOnly();
-        }
-
-        public static IDictionary<K, V> AsReadOnly<K, V>(this IDictionary<K, V> dict)
-        {
-            return new ReadonlyDictionary<K, V>(dict);
-        }
-
-        public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) where T : class
-        {
-            return items.Where(i => i != null);
-        }
-
-        public static void AddFormat(this ICollection<string> col, string format, params object[] args)
-        {
-            var msg = string.Format(format, args);
-            col.Add(msg);
-        }
-
-        public static void AddFormat<K>(this MultipleValueDictionary<K, string> m, K key, string format, params object[] args)
-        {
-            var msg = string.Format(format, args);
-            m.Add(key, msg);
-        }
-
-        public static string Format(this IEnumerable e, string sep="", string format="{0}")
-        {
-            if (null == e) return "";
-            var sb = new StringBuilder();
-            int x = 0;
-            foreach (object o in e)
-            {
-                if (x > 0 && null != sep)
-                {
-                    sb.Append(sep);
-                }
-                sb.AppendFormat(format, o, x++);
-            }
-            return sb.ToString();
-        }
-
-        public static string Format<T>(this IEnumerable<T> e, string sep, Func<T, int, string> formatter)
-        {
-            if (null == e) return "";
-            var sb = new StringBuilder();
-            int x = 0;
-            foreach (T o in e)
-            {
-                if (x > 0 && null != sep)
-                {
-                    sb.Append(sep);
-                }
-                sb.Append(formatter(o, x++));
-            }
-            return sb.ToString();
-        }
-
-        public static bool HasData(this IEnumerable e)
-        {
-            var z = e.GetEnumerator();
-            return z.MoveNext();
-        }
-
-        public static V GetValue<K, V>(this IDictionary<K, V> d, K key, V fallback = default(V))
-            => d.TryGetValue(key, out V ret) ? ret : fallback;
-
-        public static IEnumerable<T> ForEach<T>(this IEnumerable<T> items, Action<T> action)
-        {
-            if (items != null)
-            {
-                foreach (var d in items) { action(d); }
-            }
-            return items;
-        }
-
-        public static HashSet<T> ToSet<T>(this IEnumerable<T> items)
-        {
-            return items.ToSet(i => i);
-        }
-
-        public static HashSet<TOut> ToSet<TIn, TOut>(this IEnumerable<TIn> items, Func<TIn, TOut> converter)
-        {
-            var set = new HashSet<TOut>();
-            if (items != null)
-            {
-                foreach (var i in items)
-                {
-                    set.Add(converter(i));
-                }
-            }
-            return set;
-        }
-
-        public static HashSet<string> ToCaseInsensitiveSet(this IEnumerable<string> items)
-        {
-            var set = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
-            if (items!=null)
-            {
-                foreach (var s in items)
-                {
-                    set.Add(s);
-                }
-            }
-            return set;
-        }
-
-        public static List<TOutput> ConvertAll<T, TOutput>(this IEnumerable<T> datas, Func<T, TOutput> converter)
-        {
-            var ret = new List<TOutput>();
-            if (datas != null)
-            {
-                foreach (var data in datas)
-                {
-                    ret.Add(converter(data));
-                }
-            }
-            return ret;
-        }
-
-        public static void Remove<T>(this ICollection<T> col, Func<T, bool> toRemove)
-        {
-            if (col == null || toRemove == null) return;
-            var removes = new List<T>();
-            foreach (var item in col)
-            {
-                if (toRemove(item))
-                {
-                    removes.Add(item);
-                }
-            }
-            if (removes.Count > 0)
-            {
-                if (removes.Count == col.Count)
-                {
-                    col.Clear();
-                }
-                else
-                {
-                    col.Remove(removes);
-                }
-            }
-        }
-
-        public static int Remove<T>(this ICollection<T> col, IEnumerable<T> items)
-        {
-            if (col==null || items == null) return 0;
-            int cnt = 0; 
             foreach (var item in items)
             {
-                cnt += col.Remove(item) ? 1 : 0;
+                d[keySelector(item)] = valSelector(item);
             }
-            return cnt;
         }
+        return d;
+    }
 
-        public static IList<T> OrderBy<T>(this IEnumerable<T> items) where T : IComparable
-        {
-            var l = new List<T>(items);
-            l.Sort();
-            return l;
-        }
+    public static MultipleValueDictionary<TKey, TSource> ToMultipleValueDictionary<TKey, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector)
+        => items.ToMultipleValueDictionary(keySelector, z => z);
 
-        public static bool ContainsAnyElement<T>(this HashSet<T> set, IEnumerable<T> other)
+    public static MultipleValueDictionary<TKey, TVal> ToMultipleValueDictionary<TKey, TVal, TSource>(this IEnumerable<TSource> items, Func<TSource, TKey> keySelector, Func<TSource, TVal> valSelector)
+    {
+        var m = new MultipleValueDictionary<TKey, TVal>();
+        if (items != null)
         {
-            if (other != null)
+            foreach (var item in items)
             {
-                foreach (var z in other)
-                {
-                    if (set.Contains(z)) return true;
-                }
+                m.Add(keySelector(item), valSelector(item));
             }
-            return false;
         }
+        return m;
+    }
 
-        public static List<V> ToOrderedValuesList<K, V>(this IDictionary<K, V> d, IEnumerable<K> orderedKeys, bool throwOnMiss=false, V missingVal = default(V))
+    public static R FirstValueOfType<R>(this IDictionary<string, object> d)
+    {
+        if (d != null)
         {
-            var ret = new List<V>(d.Count);
-            foreach (var k in orderedKeys)
+            foreach (object v in d.Values)
             {
-                if (k != null && d.TryGetValue(k, out V v))
-                {
-                    Stuff.Noop();
-                }
-                else if (throwOnMiss)
-                {
-                    throw new InvalidMappingException(k, "something in results dictionary");
-                }
-                else
-                {
-                    v = missingVal;
-                }
-                ret.Add(v);
+                if (v is R) return (R)v;
             }
-            return ret;
         }
+        return default(R);
+    }
 
-        /// <summary>
-        /// Gets an item out of a collection.  The item selected is random.
-        /// Primary used when a collection has exactly 1 item.
-        /// </summary>
-        /// <param name="e">The enumerable in which the item exists</param>
-        /// <param name="itemNum">The item # you want to fetch</param>
-        /// <param name="missing">The object to return if the enumeralbe is empty</param>
-        /// <returns>The chosen item</returns>
-        internal static object GetItem(IEnumerable e, int itemNum, object missing)
+    /// <summary>
+    /// Given a list of objects, return a random element
+    /// </summary>
+    /// <typeparam name="T">Type of argument in the list</typeparam>
+    /// <param name="list">List of items</param>
+    /// <param name="r">random number generator, null is ok</param>
+    /// <returns>A random item from the list</returns>
+    public static T Random<T>(this IList<T> list, Random r = null)
+    {
+        r = r ?? Stuff.Random;
+        var n = r.Next(list.Count);
+        return list[n];
+    }
+
+    /// <summary>
+    /// Given a list of objects, randomizes the order
+    /// </summary>
+    /// <param name="list">List of items to be randomized in place</param>
+    /// <param name="random">The random number generator to be used, when null, use the default</param>
+    [Obsolete("Use Shuffle instead", false)]
+    public static void ShuffleList(this IList list, Random random = null)
+    {
+        Requires.NonNull(list, nameof(list));
+        int len = list.Count;
+        if (len < 2) return;
+        if (null == random)
         {
-            if (e != null)
+            random = Stuff.Random;
+        }
+        int x, y;
+        object o;
+        for (x = 0; x < len; ++x)
+        {
+            y = random.Next(len);
+            o = list[x];
+            list[x] = list[y];
+            list[y] = o;
+        }
+    }
+
+    public static void Shuffle<T>(this IList<T> list, Random random = null)
+    {
+        Requires.NonNull(list, nameof(list));
+        int len = list.Count;
+        if (len < 2) return;
+        if (null == random)
+        {
+            random = Stuff.Random;
+        }
+        int x, y;
+        T o;
+        for (x = 0; x < len; ++x)
+        {
+            y = random.Next(len);
+            o = list[x];
+            list[x] = list[y];
+            list[y] = o;
+        }
+    }
+
+    public static IList<T> AsReadOnly<T>(this IEnumerable<T> items)
+    {
+        if (items == null) return new T[0];
+        return new List<T>(items).AsReadOnly();
+    }
+
+    public static IDictionary<K, V> AsReadOnly<K, V>(this IDictionary<K, V> dict)
+    {
+        return new ReadonlyDictionary<K, V>(dict);
+    }
+
+    public static IEnumerable<T> WhereNotNull<T>(this IEnumerable<T> items) where T : class
+    {
+        return items.Where(i => i != null);
+    }
+
+    public static void AddFormat(this ICollection<string> col, string format, params object[] args)
+    {
+        var msg = string.Format(format, args);
+        col.Add(msg);
+    }
+
+    public static void AddFormat<K>(this MultipleValueDictionary<K, string> m, K key, string format, params object[] args)
+    {
+        var msg = string.Format(format, args);
+        m.Add(key, msg);
+    }
+
+    public static string Format(this IEnumerable e, string sep = "", string format = "{0}")
+    {
+        if (null == e) return "";
+        var sb = new StringBuilder();
+        int x = 0;
+        foreach (object o in e)
+        {
+            if (x > 0 && null != sep)
             {
-                int z = 0;
-                foreach (object o in e)
-                {
-                    if (z++ == itemNum)
-                    {
-                        return o;
-                    }
-                }
+                sb.Append(sep);
             }
-            return missing;
+            sb.AppendFormat(format, o, x++);
         }
+        return sb.ToString();
+    }
 
-        public static IList<IList<T>> Chunkify<T>(this IEnumerable<T> items, int sublistSize)
+    public static string Format<T>(this IEnumerable<T> e, string sep, Func<T, int, string> formatter)
+    {
+        if (null == e) return "";
+        var sb = new StringBuilder();
+        int x = 0;
+        foreach (T o in e)
         {
-            var ret = new List<IList<T>>();
-            List<T> sub = null;
+            if (x > 0 && null != sep)
+            {
+                sb.Append(sep);
+            }
+            sb.Append(formatter(o, x++));
+        }
+        return sb.ToString();
+    }
+
+    public static bool HasData(this IEnumerable e)
+    {
+        var z = e.GetEnumerator();
+        return z.MoveNext();
+    }
+
+    public static V GetValue<K, V>(this IDictionary<K, V> d, K key, V fallback = default(V))
+        => d.TryGetValue(key, out V ret) ? ret : fallback;
+
+    public static IEnumerable<T> ForEach<T>(this IEnumerable<T> items, Action<T> action)
+    {
+        if (items != null)
+        {
+            foreach (var d in items) { action(d); }
+        }
+        return items;
+    }
+
+    public static HashSet<T> ToSet<T>(this IEnumerable<T> items)
+    {
+        return items.ToSet(i => i);
+    }
+
+    public static HashSet<TOut> ToSet<TIn, TOut>(this IEnumerable<TIn> items, Func<TIn, TOut> converter)
+    {
+        var set = new HashSet<TOut>();
+        if (items != null)
+        {
             foreach (var i in items)
             {
-                if (sub == null)
-                {
-                    sub = new List<T>(sublistSize);
-                    ret.Add(sub);
-                }
-                sub.Add(i);
-                if (sub.Count == sublistSize)
-                {
-                    sub = null;
-                }
+                set.Add(converter(i));
             }
-            return ret;
         }
+        return set;
+    }
 
-        public static int Increment<K>(this IDictionary<K, int> d, K key)
+    public static HashSet<string> ToCaseInsensitiveSet(this IEnumerable<string> items)
+    {
+        var set = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
+        if (items != null)
         {
-            return d.Increment(key, 1);
-        }
-
-        public static int Increment<K>(this IDictionary<K, int> d, K key, int incrementAmount)
-        {
-            return d.Increment(key, incrementAmount, incrementAmount);
-        }
-
-        public static int Increment<K>(this IDictionary<K, int> d, K key, int incrementAmount, int initialAmount)
-        {
-            if (d.TryGetValue(key, out int val))
+            foreach (var s in items)
             {
-                val += incrementAmount;
+                set.Add(s);
+            }
+        }
+        return set;
+    }
+
+    public static List<TOutput> ConvertAll<T, TOutput>(this IEnumerable<T> datas, Func<T, TOutput> converter)
+    {
+        var ret = new List<TOutput>();
+        if (datas != null)
+        {
+            foreach (var data in datas)
+            {
+                ret.Add(converter(data));
+            }
+        }
+        return ret;
+    }
+
+    public static void Remove<T>(this ICollection<T> col, Func<T, bool> toRemove)
+    {
+        if (col == null || toRemove == null) return;
+        var removes = new List<T>();
+        foreach (var item in col)
+        {
+            if (toRemove(item))
+            {
+                removes.Add(item);
+            }
+        }
+        if (removes.Count > 0)
+        {
+            if (removes.Count == col.Count)
+            {
+                col.Clear();
             }
             else
             {
-                val = initialAmount;
+                col.Remove(removes);
             }
-            d[key] = val;
-            return val;
         }
+    }
 
-        public static V FindOrMissing<K, V>(this IDictionary<K, V> d, K key, V missing)
+    public static int Remove<T>(this ICollection<T> col, IEnumerable<T> items)
+    {
+        if (col == null || items == null) return 0;
+        int cnt = 0;
+        foreach (var item in items)
         {
-            if (!d.TryGetValue(key, out V ret))
+            cnt += col.Remove(item) ? 1 : 0;
+        }
+        return cnt;
+    }
+
+    public static IList<T> OrderBy<T>(this IEnumerable<T> items) where T : IComparable
+    {
+        var l = new List<T>(items);
+        l.Sort();
+        return l;
+    }
+
+    public static bool ContainsAnyElement<T>(this HashSet<T> set, IEnumerable<T> other)
+    {
+        if (other != null)
+        {
+            foreach (var z in other)
             {
-                ret = missing;
+                if (set.Contains(z)) return true;
             }
-            return ret;
         }
+        return false;
+    }
 
-
-        public static V FindOrDefault<K, V>(this IDictionary<K, V> d, K key)
+    public static List<V> ToOrderedValuesList<K, V>(this IDictionary<K, V> d, IEnumerable<K> orderedKeys, bool throwOnMiss = false, V missingVal = default(V))
+    {
+        var ret = new List<V>(d.Count);
+        foreach (var k in orderedKeys)
         {
-            if (!d.TryGetValue(key, out V ret))
+            if (k != null && d.TryGetValue(k, out V v))
             {
-                ret = default(V);
+                Stuff.Noop();
             }
-            return ret;
-        }
-
-        public static V FindOrCreate<K, V>(this IDictionary<K, V> d, K key, Func<V> creator)
-        {
-            if (!d.TryGetValue(key, out V ret))
+            else if (throwOnMiss)
             {
-                ret = creator();
-                d[key] = ret;
+                throw new InvalidMappingException(k, "something in results dictionary");
             }
-            return ret;
-        }
-
-        public static V FindOrCreate<K, V>(this IDictionary<K, V> d, K key, Func<K, V> creator)
-        {
-            if (!d.TryGetValue(key, out V ret))
+            else
             {
-                ret = creator(key);
-                d[key] = ret;
+                v = missingVal;
             }
-            return ret;
+            ret.Add(v);
         }
+        return ret;
+    }
 
-        public static int? IndexOfOccurrence<T>(this IList<T> items, Func<T, bool> test, int nthOccurrence, int? zeroThValue = null, int? missingValue = null)
+    /// <summary>
+    /// Gets an item out of a collection.  The item selected is random.
+    /// Primary used when a collection has exactly 1 item.
+    /// </summary>
+    /// <param name="e">The enumerable in which the item exists</param>
+    /// <param name="itemNum">The item # you want to fetch</param>
+    /// <param name="missing">The object to return if the enumeralbe is empty</param>
+    /// <returns>The chosen item</returns>
+    internal static object GetItem(IEnumerable e, int itemNum, object missing)
+    {
+        if (e != null)
         {
-            Requires.NonNegative(nthOccurrence, nameof(nthOccurrence));
-
-            if (nthOccurrence == 0) return zeroThValue;
-
-            int cnt = 0;
-            for (int z = 0; z < items.Count; ++z)
+            int z = 0;
+            foreach (object o in e)
             {
-                var i = items[z];
-                bool hit = test(i);
-                if (hit && ++cnt == nthOccurrence)
+                if (z++ == itemNum)
                 {
-                    return z;
+                    return o;
                 }
             }
-            return missingValue;
         }
+        return missing;
+    }
 
-        public static int? IndexOfOccurrence<T>(this IList<T> items, T match, int nthOccurrence, int? zeroThValue = null, int? missingValue = null)
-           => items.IndexOfOccurrence(i => {
-               if (i == null)
-               {
-                   return match == null;
-               }
-               else
-               {
-                   return i.Equals(match);
-               }
-           }, nthOccurrence, zeroThValue, missingValue);
-
-        public static TColl FluentAdd<TColl, T>(this TColl col, T item) where TColl : ICollection<T>
+    public static IList<IList<T>> Chunkify<T>(this IEnumerable<T> items, int sublistSize)
+    {
+        var ret = new List<IList<T>>();
+        List<T> sub = null;
+        foreach (var i in items)
         {
-            col.Add(item);
-            return col;
-        }
-
-        public static IList<T> FluentAdd<T>(this IList<T> col, T item)
-        {
-            col.Add(item);
-            return col;
-        }
-
-        public static TColl FluentAddRange<TColl, T>(this TColl col, IEnumerable<T> items) where TColl : ICollection<T>
-        {
-            if (items != null)
+            if (sub == null)
             {
-                foreach (var i in items)
-                {
-                    col.Add(i);
-                }
+                sub = new List<T>(sublistSize);
+                ret.Add(sub);
             }
-            return col;
+            sub.Add(i);
+            if (sub.Count == sublistSize)
+            {
+                sub = null;
+            }
         }
+        return ret;
+    }
+
+    public static int Increment<K>(this IDictionary<K, int> d, K key)
+    {
+        return d.Increment(key, 1);
+    }
+
+    public static int Increment<K>(this IDictionary<K, int> d, K key, int incrementAmount)
+    {
+        return d.Increment(key, incrementAmount, incrementAmount);
+    }
+
+    public static int Increment<K>(this IDictionary<K, int> d, K key, int incrementAmount, int initialAmount)
+    {
+        if (d.TryGetValue(key, out int val))
+        {
+            val += incrementAmount;
+        }
+        else
+        {
+            val = initialAmount;
+        }
+        d[key] = val;
+        return val;
+    }
+
+    public static V FindOrMissing<K, V>(this IDictionary<K, V> d, K key, V missing)
+    {
+        if (!d.TryGetValue(key, out V ret))
+        {
+            ret = missing;
+        }
+        return ret;
+    }
+
+
+    public static V FindOrDefault<K, V>(this IDictionary<K, V> d, K key)
+    {
+        if (!d.TryGetValue(key, out V ret))
+        {
+            ret = default(V);
+        }
+        return ret;
+    }
+
+    public static V FindOrCreate<K, V>(this IDictionary<K, V> d, K key, Func<V> creator)
+    {
+        if (!d.TryGetValue(key, out V ret))
+        {
+            ret = creator();
+            d[key] = ret;
+        }
+        return ret;
+    }
+
+    public static V FindOrCreate<K, V>(this IDictionary<K, V> d, K key, Func<K, V> creator)
+    {
+        if (!d.TryGetValue(key, out V ret))
+        {
+            ret = creator(key);
+            d[key] = ret;
+        }
+        return ret;
+    }
+
+    public static int? IndexOfOccurrence<T>(this IList<T> items, Func<T, bool> test, int nthOccurrence, int? zeroThValue = null, int? missingValue = null)
+    {
+        Requires.NonNegative(nthOccurrence, nameof(nthOccurrence));
+
+        if (nthOccurrence == 0) return zeroThValue;
+
+        int cnt = 0;
+        for (int z = 0; z < items.Count; ++z)
+        {
+            var i = items[z];
+            bool hit = test(i);
+            if (hit && ++cnt == nthOccurrence)
+            {
+                return z;
+            }
+        }
+        return missingValue;
+    }
+
+    public static int? IndexOfOccurrence<T>(this IList<T> items, T match, int nthOccurrence, int? zeroThValue = null, int? missingValue = null)
+       => items.IndexOfOccurrence(i =>
+       {
+           if (i == null)
+           {
+               return match == null;
+           }
+           else
+           {
+               return i.Equals(match);
+           }
+       }, nthOccurrence, zeroThValue, missingValue);
+
+    public static TColl FluentAdd<TColl, T>(this TColl col, T item) where TColl : ICollection<T>
+    {
+        col.Add(item);
+        return col;
+    }
+
+    public static IList<T> FluentAdd<T>(this IList<T> col, T item)
+    {
+        col.Add(item);
+        return col;
+    }
+
+    public static TColl FluentAddRange<TColl, T>(this TColl col, IEnumerable<T> items) where TColl : ICollection<T>
+    {
+        if (items != null)
+        {
+            foreach (var i in items)
+            {
+                col.Add(i);
+            }
+        }
+        return col;
     }
 }

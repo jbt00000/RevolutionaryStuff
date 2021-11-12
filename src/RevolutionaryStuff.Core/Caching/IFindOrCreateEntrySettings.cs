@@ -1,7 +1,6 @@
-﻿namespace RevolutionaryStuff.Core.Caching
+﻿namespace RevolutionaryStuff.Core.Caching;
+
+public interface IFindOrCreateEntrySettings
 {
-    public interface IFindOrCreateEntrySettings
-    {
-        bool ForceCreate { get; }
-    }
+    bool ForceCreate { get; }
 }

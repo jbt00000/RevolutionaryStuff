@@ -1,11 +1,8 @@
-﻿using System.Collections.Generic;
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
 
-namespace RevolutionaryStuff.Core.ApplicationParts
+public interface IComponentHost
 {
-    public interface IComponentHost
-    {
-        IDictionary<string, object> Properties { get; }
+    IDictionary<string, object> Properties { get; }
 
-        T Use<T>(params object[] args);
-    }
+    T Use<T>(params object[] args);
 }

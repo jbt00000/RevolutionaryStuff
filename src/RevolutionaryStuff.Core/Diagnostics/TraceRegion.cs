@@ -1,85 +1,83 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
-namespace RevolutionaryStuff.Core.Diagnostics
+namespace RevolutionaryStuff.Core.Diagnostics;
+
+public class TraceRegion : BaseDisposable
 {
-    public class TraceRegion : BaseDisposable
+    private readonly string Name;
+    private readonly Stopwatch Stopwatch;
+
+    #region Constructors
+
+    public TraceRegion([CallerMemberName] string name = null, params object[] args)
     {
-        private readonly string Name;
-        private readonly Stopwatch Stopwatch;
-
-        #region Constructors
-
-        public TraceRegion([CallerMemberName] string name = null, params object[] args)
+        Name = name;
+        if (!string.IsNullOrEmpty(Name))
         {
-            Name = name;
-            if (!string.IsNullOrEmpty(Name))
-            {
-                var s = string.Format("{0} vvvvvvvvvvvvvvvvvvvvvvvv", Name);
-                Trace.WriteLine(s);
-            }
-            Trace.Indent();
-            Stopwatch = Stopwatch.StartNew();
+            var s = string.Format("{0} vvvvvvvvvvvvvvvvvvvvvvvv", Name);
+            Trace.WriteLine(s);
         }
+        Trace.Indent();
+        Stopwatch = Stopwatch.StartNew();
+    }
 
-        #endregion
+    #endregion
 
-        protected override void OnDispose(bool disposing)
+    protected override void OnDispose(bool disposing)
+    {
+        string timing = null;
+        if (Stopwatch != null)
         {
-            string timing = null;
-            if (Stopwatch != null)
-            {
-                Stopwatch.Stop();
-                timing = string.Format(" duration={0}", Stopwatch.Elapsed);
-            }
-            Trace.Unindent();
-            if (!string.IsNullOrEmpty(Name))
-            {
-                var s = string.Format("{0} ^^^^^^^^^^^^^^^^^^^^^^^^{1}", Name, timing);
-                Trace.WriteLine(s);
-            }
-            base.OnDispose(disposing);
+            Stopwatch.Stop();
+            timing = string.Format(" duration={0}", Stopwatch.Elapsed);
         }
-
-        public static void Call(Action a, [CallerMemberName] string name=null, bool catchAndPrintExceptions = true, bool throwExceptions = true)
+        Trace.Unindent();
+        if (!string.IsNullOrEmpty(Name))
         {
-            using (new TraceRegion(name))
-            {
-                try
-                {
-                    a();
-                }
-                catch (Exception ex)
-                {
-                    if (catchAndPrintExceptions)
-                    {
-                        Debug.WriteLine(ex);
-                    }
-                    if (throwExceptions)
-                    {
-                        throw;
-                    }
-                }
-            }
+            var s = string.Format("{0} ^^^^^^^^^^^^^^^^^^^^^^^^{1}", Name, timing);
+            Trace.WriteLine(s);
         }
+        base.OnDispose(disposing);
+    }
 
-        public static R Call<R>(Func<R> a, [CallerMemberName] string name=null, bool catchAndPrintExceptions = true)
+    public static void Call(Action a, [CallerMemberName] string name = null, bool catchAndPrintExceptions = true, bool throwExceptions = true)
+    {
+        using (new TraceRegion(name))
         {
-            using (new TraceRegion(name))
+            try
             {
-                try
+                a();
+            }
+            catch (Exception ex)
+            {
+                if (catchAndPrintExceptions)
                 {
-                    return a();
+                    Debug.WriteLine(ex);
                 }
-                catch (Exception ex)
+                if (throwExceptions)
                 {
-                    if (catchAndPrintExceptions)
-                    {
-                        Trace.WriteLine(ex);
-                    }
                     throw;
                 }
+            }
+        }
+    }
+
+    public static R Call<R>(Func<R> a, [CallerMemberName] string name = null, bool catchAndPrintExceptions = true)
+    {
+        using (new TraceRegion(name))
+        {
+            try
+            {
+                return a();
+            }
+            catch (Exception ex)
+            {
+                if (catchAndPrintExceptions)
+                {
+                    Trace.WriteLine(ex);
+                }
+                throw;
             }
         }
     }

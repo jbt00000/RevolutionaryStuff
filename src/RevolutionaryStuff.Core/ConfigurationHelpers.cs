@@ -1,14 +1,12 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.IO;
 using System.Reflection;
-using System;
-using System.IO;
-using System.Linq;
-using Microsoft.Extensions.Options;
 using System.Runtime.Serialization;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 
-namespace RevolutionaryStuff.Core
-{
-    public static class ConfigurationHelpers
+namespace RevolutionaryStuff.Core;
+
+public static class ConfigurationHelpers
     {
         public static string CreateKeyFromSegments(params string[] segments)
             => segments.Format(":");
@@ -176,4 +174,3 @@ namespace RevolutionaryStuff.Core
             return o;
         }
     }
-}

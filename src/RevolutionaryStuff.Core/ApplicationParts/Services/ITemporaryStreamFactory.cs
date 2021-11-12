@@ -1,9 +1,8 @@
 ﻿using System.IO;
 
-namespace RevolutionaryStuff.Core.ApplicationParts.Services
+namespace RevolutionaryStuff.Core.ApplicationParts.Services;
+
+public interface ITemporaryStreamFactory
 {
-    public interface ITemporaryStreamFactory
-    {
-        Stream Create(int? capacity = null);
-    }
+    Stream Create(int? capacity = null);
 }

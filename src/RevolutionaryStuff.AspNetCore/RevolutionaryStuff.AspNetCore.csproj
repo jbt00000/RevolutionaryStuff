@@ -1,15 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <TargetFramework>net6.0</TargetFramework>
     <AssemblyName>RevolutionaryStuff.AspNetCore</AssemblyName>
     <PackageId>RevolutionaryStuff.AspNetCore</PackageId>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.56.31.0</FileVersion>
-    <AssemblyVersion>3.56.31.0</AssemblyVersion>
-    <Version>3.56.31</Version>
+    <FileVersion>3.60.60.0</FileVersion>
+    <AssemblyVersion>3.60.60.0</AssemblyVersion>
+    <Version>3.60.60</Version>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>

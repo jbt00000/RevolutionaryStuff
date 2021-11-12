@@ -1,14 +1,12 @@
-﻿using System;
+﻿namespace RevolutionaryStuff.Core.Crypto;
 
-namespace RevolutionaryStuff.Core.Crypto
+/// <summary>
+/// Implements the CRC32 Checksum
+/// </summary>
+public class CRC32Checksum : IChecksum
 {
-    /// <summary>
-    /// Implements the CRC32 Checksum
-    /// </summary>
-    public class CRC32Checksum : IChecksum
-    {
-        private static readonly uint[] crc_table = new uint[]
-                                                       {
+    private static readonly uint[] CrcTable = new uint[]
+                                                   {
                                                            0x0, 0x77073096, 0xee0e612c, 0x990951ba, 0x76dc419,
                                                            0x706af48f, 0xe963a535, 0x9e6495a3, 0xedb8832, 0x79dcb8a4,
                                                            0xe0d5e91e, 0x97d2d988, 0x9b64c2b, 0x7eb17cbd, 0xe7b82d07,
@@ -61,40 +59,39 @@ namespace RevolutionaryStuff.Core.Crypto
                                                            0xcdd70693, 0x54de5729, 0x23d967bf, 0xb3667a2e, 0xc4614ab8,
                                                            0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b,
                                                            0x2d02ef8d
-                                                       };
+                                                   };
 
-        private long checksum;
+    private long Checksum_p;
 
-        #region IChecksum Members
+    #region IChecksum Members
 
-        public long Checksum
+    public long Checksum
+    {
+        get { return Checksum_p; }
+    }
+
+    public void Update(byte[] buf, int offset, int length)
+    {
+        Requires.NonNull(buf, nameof(buf));
+        if (offset + length > buf.Length || offset < 0 || length < 0)
         {
-            get { return checksum; }
+            throw new ArgumentOutOfRangeException();
         }
-
-        public void Update(byte[] buf, int offset, int length)
+        Checksum_p ^= -1;
+        for (int z = 0; z < length; ++z)
         {
-            Requires.NonNull(buf, nameof(buf));
-            if (offset + length > buf.Length || offset < 0 || length < 0)
-            {
-                throw new ArgumentOutOfRangeException();
-            }
-            checksum ^= -1;
-            for (int z = 0; z < length; ++z)
-            {
-                checksum = crc_table[((int)checksum ^ buf[offset + z]) & 255] ^ checksum >> 8;
-            }
-            checksum ^= -1;
+            Checksum_p = CrcTable[((int)Checksum_p ^ buf[offset + z]) & 255] ^ Checksum_p >> 8;
         }
+        Checksum_p ^= -1;
+    }
 
-        #endregion
+    #endregion
 
-        public static uint Do(byte[] buf, int offset = 0, int length = -1)
-        {
-            if (length == -1) length = buf.Length;
-            var crc = new CRC32Checksum();
-            crc.Update(buf, offset, length);
-            return (uint) crc.Checksum;
-        }
+    public static uint Do(byte[] buf, int offset = 0, int length = -1)
+    {
+        if (length == -1) length = buf.Length;
+        var crc = new CRC32Checksum();
+        crc.Update(buf, offset, length);
+        return (uint)crc.Checksum;
     }
 }

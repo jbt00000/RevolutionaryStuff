@@ -1,11 +1,10 @@
 ﻿using System.Net.Http;
 using System.Threading;
-using System.Threading.Tasks;
 
-namespace RevolutionaryStuff.Core.ApplicationParts.Services
+namespace RevolutionaryStuff.Core.ApplicationParts.Services;
+
+public interface IHttpMessageSender
 {
-    public interface IHttpMessageSender
-    {
-        Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken=default);
-    }
+    Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken = default);
 }
+

@@ -1,28 +1,25 @@
-﻿using System;
+﻿namespace RevolutionaryStuff.Core.FormFields;
 
-namespace RevolutionaryStuff.Core.FormFields
+[AttributeUsage(AttributeTargets.Property)]
+public class BooleanTransformedFormFieldAttribute : TransformedFormFieldAttribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class BooleanTransformedFormFieldAttribute : TransformedFormFieldAttribute
+    public readonly string TrueVal;
+    public readonly string FalseVal;
+    public readonly string OtherVal;
+
+    public BooleanTransformedFormFieldAttribute(string trueVal, string falseVal, string otherVal = null)
     {
-        public readonly string TrueVal;
-        public readonly string FalseVal;
-        public readonly string OtherVal;
+        TrueVal = trueVal;
+        FalseVal = falseVal;
+        OtherVal = otherVal;
+    }
 
-        public BooleanTransformedFormFieldAttribute(string trueVal, string falseVal, string otherVal=null)
+    public override object Transform(object val)
+    {
+        if (val is bool)
         {
-            TrueVal = trueVal;
-            FalseVal = falseVal;
-            OtherVal = otherVal;
+            return val.Equals(true) ? TrueVal : FalseVal;
         }
-
-        public override object Transform(object val)
-        {
-            if (val is bool)
-            {
-                return val.Equals(true) ? TrueVal : FalseVal;
-            }
-            return OtherVal;
-        }
+        return OtherVal;
     }
 }

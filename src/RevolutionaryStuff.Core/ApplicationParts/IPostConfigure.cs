@@ -1,7 +1,6 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
+
+public interface IPostConfigure
 {
-    public interface IPostConfigure
-    {
-        void PostConfigure();
-    }
+    void PostConfigure();
 }

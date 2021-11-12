@@ -1,8 +1,7 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
+
+public interface IDeleteOnSave
 {
-    public interface IDeleteOnSave
-    {
-        void Delete();
-        bool IsMarkedForDeletion { get; }
-    }
+    void Delete();
+    bool IsMarkedForDeletion { get; }
 }

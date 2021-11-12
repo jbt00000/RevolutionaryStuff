@@ -1,5 +1,4 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts
-{
-    public interface IDataEntity
-    { }
-}
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
+
+public interface IDataEntity
+{ }

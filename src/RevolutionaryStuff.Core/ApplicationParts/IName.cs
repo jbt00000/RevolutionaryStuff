@@ -1,15 +1,14 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts
-{
-    public interface IName
-    {
-        string Name { get; }
-    }
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
 
-    public static class NameHelpers
+public interface IName
+{
+    string Name { get; }
+}
+
+public static class NameHelpers
+{
+    public static string GetName(object o, string fallback = null)
     {
-        public static string GetName(object o, string fallback = null)
-        {
-            return (o as IName)?.Name ?? o?.GetType().Name ?? fallback;
-        }
+        return (o as IName)?.Name ?? o?.GetType().Name ?? fallback;
     }
 }

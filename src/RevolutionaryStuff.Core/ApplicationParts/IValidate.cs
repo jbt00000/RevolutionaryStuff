@@ -1,6 +1,4 @@
 ﻿using RevolutionaryStuff.Core.ApplicationParts;
-using System;
-using System.Collections.Generic;
 
 namespace RevolutionaryStuff.Core.ApplicationParts
 {

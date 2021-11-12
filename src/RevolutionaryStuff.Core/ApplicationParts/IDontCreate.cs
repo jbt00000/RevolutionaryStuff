@@ -1,7 +1,5 @@
-﻿
-namespace RevolutionaryStuff.Core.ApplicationParts
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
+
+public interface IDontCreate
 {
-    public interface IDontCreate
-    {
-    }
 }

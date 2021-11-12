@@ -1,9 +1,6 @@
-﻿using System;
+﻿namespace RevolutionaryStuff.Core.Threading;
 
-namespace RevolutionaryStuff.Core.Threading
+public interface IDisposableReaderWriterLock : IDisposable
 {
-    public interface IDisposableReaderWriterLock : IDisposable
-    {
-        IDisposable UseWrite();
-    }
+    IDisposable UseWrite();
 }

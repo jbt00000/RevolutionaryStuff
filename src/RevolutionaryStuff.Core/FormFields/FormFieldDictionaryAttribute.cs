@@ -1,13 +1,10 @@
-﻿using System;
+﻿namespace RevolutionaryStuff.Core.FormFields;
 
-namespace RevolutionaryStuff.Core.FormFields
+[AttributeUsage(AttributeTargets.Property)]
+public class FormFieldDictionaryAttribute : FormFieldContainerAttribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class FormFieldDictionaryAttribute : FormFieldContainerAttribute
-    {
-        public FormFieldDictionaryAttribute(string pattern = FormFieldContainerAttribute.FieldNameToken)
-            : base(pattern)
-        { }
-    }
-
+    public FormFieldDictionaryAttribute(string pattern = FormFieldContainerAttribute.FieldNameToken)
+        : base(pattern)
+    { }
 }
+

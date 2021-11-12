@@ -1,8 +1,7 @@
-﻿namespace RevolutionaryStuff.Core.Caching
+﻿namespace RevolutionaryStuff.Core.Caching;
+
+public interface ICacheEntry
 {
-    public interface ICacheEntry
-    {
-        object Value { get; }
-        bool IsExpired { get; }
-    }
+    object Value { get; }
+    bool IsExpired { get; }
 }

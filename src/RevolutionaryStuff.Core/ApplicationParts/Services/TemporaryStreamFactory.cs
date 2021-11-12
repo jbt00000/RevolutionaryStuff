@@ -1,40 +1,39 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Options;
 
-namespace RevolutionaryStuff.Core.ApplicationParts.Services
+namespace RevolutionaryStuff.Core.ApplicationParts.Services;
+
+internal class TemporaryStreamFactory : ITemporaryStreamFactory
 {
-    internal class TemporaryStreamFactory : ITemporaryStreamFactory
+    private readonly IOptions<Config> ConfigOptions;
+
+    public class Config
     {
-        private readonly IOptions<Config> ConfigOptions;
+        public const string ConfigSectionName = "TemporaryStreamFactory";
 
-        public class Config
+        public int MemoryStreamExpectedCapacityLimit { get; set; } = 1024 * 32;
+
+        public int FileBufferSize { get; set; } = 1024 * 16;
+    }
+
+    public TemporaryStreamFactory(IOptions<Config> configOptions)
+    {
+        Requires.NonNull(configOptions, nameof(configOptions));
+
+        ConfigOptions = configOptions;
+    }
+
+    Stream ITemporaryStreamFactory.Create(int? capacity)
+    {
+        var config = ConfigOptions.Value;
+        if (capacity.GetValueOrDefault(int.MaxValue) < config.MemoryStreamExpectedCapacityLimit)
         {
-            public const string ConfigSectionName = "TemporaryStreamFactory";
-
-            public int MemoryStreamExpectedCapacityLimit { get; set; } = 1024 * 32;
-
-            public int FileBufferSize { get; set; } = 1024 * 16;
+            return new MemoryStream(capacity.Value);
         }
-
-        public TemporaryStreamFactory(IOptions<Config> configOptions)
+        else
         {
-            Requires.NonNull(configOptions, nameof(configOptions));
-
-            ConfigOptions = configOptions;
-        }
-
-        Stream ITemporaryStreamFactory.Create(int? capacity)
-        {
-            var config = ConfigOptions.Value;
-            if (capacity.GetValueOrDefault(int.MaxValue) < config.MemoryStreamExpectedCapacityLimit)
-            {
-                return new MemoryStream(capacity.Value);
-            }
-            else
-            {
-                var fn = Path.GetTempFileName();
-                return File.Create(fn, config.FileBufferSize, FileOptions.DeleteOnClose);
-            }
+            var fn = Path.GetTempFileName();
+            return File.Create(fn, config.FileBufferSize, FileOptions.DeleteOnClose);
         }
     }
 }

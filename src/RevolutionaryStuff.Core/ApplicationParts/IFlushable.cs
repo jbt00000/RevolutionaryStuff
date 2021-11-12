@@ -1,7 +1,6 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
+
+public interface IFlushable
 {
-    public interface IFlushable
-    {
-        void Flush();
-    }
+    void Flush();
 }

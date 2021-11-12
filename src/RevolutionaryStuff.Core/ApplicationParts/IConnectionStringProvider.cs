@@ -1,7 +1,6 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
+
+public interface IConnectionStringProvider
 {
-    public interface IConnectionStringProvider
-    {
-        string GetConnectionString(string connectionStringName);
-    }
+    string GetConnectionString(string connectionStringName);
 }

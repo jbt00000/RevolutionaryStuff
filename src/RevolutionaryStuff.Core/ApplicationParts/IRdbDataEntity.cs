@@ -1,6 +1,5 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
+
+public interface IRdbDataEntity : IDataEntity
 {
-    public interface IRdbDataEntity : IDataEntity
-    {
-    }
 }

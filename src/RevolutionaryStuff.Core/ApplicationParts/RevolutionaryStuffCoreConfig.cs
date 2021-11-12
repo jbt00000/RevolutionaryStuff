@@ -1,9 +1,8 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts
-{
-    public class RevolutionaryStuffCoreConfig
-    {
-        public const string ConfigSectionName = "RevolutionaryStuffCoreOptions";
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
 
-        public string ApplicationName { get; set; }
-    }
+public class RevolutionaryStuffCoreConfig
+{
+    public const string ConfigSectionName = "RevolutionaryStuffCoreOptions";
+
+    public string ApplicationName { get; set; }
 }

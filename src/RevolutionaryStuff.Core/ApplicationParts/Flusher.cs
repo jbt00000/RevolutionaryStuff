@@ -1,20 +1,17 @@
-﻿using System;
+﻿namespace RevolutionaryStuff.Core.ApplicationParts;
 
-namespace RevolutionaryStuff.Core.ApplicationParts
+public sealed class Flusher : IFlushable
 {
-    public sealed class Flusher : IFlushable
+    private readonly Action Flush;
+
+    public Flusher(Action flush)
     {
-        private readonly Action Flush;
+        Requires.NonNull(flush, nameof(flush));
+        Flush = flush;
+    }
 
-        public Flusher(Action flush)
-        {
-            Requires.NonNull(flush, nameof(flush));
-            Flush = flush;
-        }
-
-        void IFlushable.Flush()
-        {
-            Flush();
-        }
+    void IFlushable.Flush()
+    {
+        Flush();
     }
 }

@@ -1,9 +1,5 @@
-﻿using System;
+﻿namespace RevolutionaryStuff.Core.FormFields;
 
-namespace RevolutionaryStuff.Core.FormFields
-{
-    [AttributeUsage(AttributeTargets.Property)]
-    public class FormFieldSerializable : Attribute
-    { }
-
-}
+[AttributeUsage(AttributeTargets.Property)]
+public class FormFieldSerializable : Attribute
+{ }

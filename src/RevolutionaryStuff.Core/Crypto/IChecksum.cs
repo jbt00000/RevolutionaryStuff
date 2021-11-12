@@ -1,8 +1,7 @@
-﻿namespace RevolutionaryStuff.Core.Crypto
+﻿namespace RevolutionaryStuff.Core.Crypto;
+
+public interface IChecksum
 {
-    public interface IChecksum
-    {
-        long Checksum { get; }
-        void Update(byte[] buf, int offset, int length);
-    }
+    long Checksum { get; }
+    void Update(byte[] buf, int offset, int length);
 }

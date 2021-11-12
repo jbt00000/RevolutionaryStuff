@@ -1,19 +1,17 @@
-﻿using System;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
-namespace RevolutionaryStuff.Core
+namespace RevolutionaryStuff.Core;
+
+public class EventArgs<T> : EventArgs
 {
-    public class EventArgs<T> : EventArgs
-    {
-        /// <summary>
-        /// The event's data
-        /// </summary>
-        public readonly T Data;
+    /// <summary>
+    /// The event's data
+    /// </summary>
+    public readonly T Data;
 
-        [DebuggerStepThrough]
-        public EventArgs(T data)
-        {
-            Data = data;
-        }
+    [DebuggerStepThrough]
+    public EventArgs(T data)
+    {
+        Data = data;
     }
 }
