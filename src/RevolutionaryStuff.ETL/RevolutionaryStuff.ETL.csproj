@@ -14,9 +14,9 @@
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>3.60.60.0</FileVersion>
-    <AssemblyVersion>3.60.60.0</AssemblyVersion>
-    <Version>3.60.60</Version>
+    <FileVersion>3.61.60.0</FileVersion>
+    <AssemblyVersion>3.61.60.0</AssemblyVersion>
+    <Version>3.61.60</Version>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
@@ -41,7 +41,7 @@
 
   <ItemGroup>
     <PackageReference Include="DocumentFormat.OpenXml" Version="2.14.0" />
-    <PackageReference Include="HtmlAgilityPack" Version="1.11.38" />
+    <PackageReference Include="HtmlAgilityPack" Version="1.11.39" />
   </ItemGroup>
 
   <ItemGroup>

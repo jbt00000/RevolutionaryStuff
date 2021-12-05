@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Text;
+using System.Web;
 
 namespace RevolutionaryStuff.Core;
 
@@ -20,7 +21,7 @@ public static class Format
             if (kvp.Value != null)
             {
                 sb.Append("=");
-                sb.Append(Uri.EscapeDataString(kvp.Value));
+                sb.Append(HttpUtility.UrlEncode(kvp.Value));
             }
         }
         return sb.ToString();

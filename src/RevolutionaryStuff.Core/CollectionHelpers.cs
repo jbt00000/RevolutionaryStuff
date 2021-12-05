@@ -278,6 +278,7 @@ public static class CollectionHelpers
 
     public static bool HasData(this IEnumerable e)
     {
+        if (e == null) return false;
         var z = e.GetEnumerator();
         return z.MoveNext();
     }
