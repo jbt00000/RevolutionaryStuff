@@ -577,4 +577,10 @@ public static class CollectionHelpers
         }
         return col;
     }
+
+    public static IList<T> FluentClear<T>(this IList<T> col)
+    {
+        col.Clear();
+        return col;
+    }
 }
