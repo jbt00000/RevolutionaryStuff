@@ -146,9 +146,9 @@ public static class WebHelpers
     public static HttpContent CreateHttpContent(IEnumerable<KeyValuePair<string, string>> datas)
         => CreateHttpContent(datas.UrlEncode());
 
-    public static HttpContent CreateHttpContent(string postData)
+    public static HttpContent CreateHttpContent(string postData, Encoding e=null)
     {
-        var content = new StreamContent(StreamHelpers.Create(postData));
+        var content = new StreamContent(StreamHelpers.Create(postData, e??StreamHelpers.UTF8EncodingWithoutPreamble));
         content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
         return content;
     }

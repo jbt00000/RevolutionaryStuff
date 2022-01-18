@@ -75,10 +75,17 @@ public static class StreamHelpers
         progress(0, tot, len);
     }
 
+    public static readonly UTF8Encoding UTF8EncodingWithoutPreamble = new UTF8Encoding(false);
+
+    public static readonly UTF8Encoding UTF8EncodingWithPreamble = new UTF8Encoding(true);
+
+    public static Stream CreateUtf8WithoutPreamble(string s)
+        => Create(s, UTF8EncodingWithoutPreamble);
+
     public static Stream Create(string s, Encoding e = null)
     {
         var st = new MemoryStream();
-        var sr = new StreamWriter(st, e ?? UTF8Encoding.UTF8);
+        var sr = new StreamWriter(st, e ?? UTF8EncodingWithoutPreamble);
         sr.Write(s);
         sr.Flush();
         st.Position = 0;
