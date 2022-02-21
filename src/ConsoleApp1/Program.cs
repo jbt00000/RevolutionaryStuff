@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using Newtonsoft.Json;
+using RevolutionaryStuff.Core;
 
 namespace ConsoleApp1
 {
@@ -47,6 +48,14 @@ namespace ConsoleApp1
 
         static void Main(string[] args)
         {
+            Dictionary<string, string> d = new();
+            d["a"] = "b";
+            var c = WebHelpers.CreateHttpContent(d);
+            Stuff.Noop(c);
+
+
+
+
             WriteLine("Hello World!");
             try
             {
