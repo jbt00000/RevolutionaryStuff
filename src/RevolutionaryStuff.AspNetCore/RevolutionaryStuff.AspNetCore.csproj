@@ -8,9 +8,9 @@
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.63.60.0</FileVersion>
-    <AssemblyVersion>3.63.60.0</AssemblyVersion>
-    <Version>3.63.60</Version>
+    <FileVersion>3.64.60.0</FileVersion>
+    <AssemblyVersion>3.64.60.0</AssemblyVersion>
+    <Version>3.64.60</Version>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>

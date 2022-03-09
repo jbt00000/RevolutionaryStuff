@@ -1,4 +1,8 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RevolutionaryStuff.Core.Caching;
 
@@ -48,6 +52,65 @@ namespace RevolutionaryStuff.Core.Tests
                 });
             Assert.AreEqual(expectedVal, res);
             Assert.AreEqual(false, fresh);
+        }
+
+        [TestMethod]
+        public void DontRemainLockedOnException()
+        {
+            var cacher = new BasicCacher(16);
+
+            var key = nameof(DontRemainLockedOnException);
+            const int val = 1232;
+
+            try
+            {
+                cacher.FindOrCreateValue<int>(key, () => throw new Exception("bbsdsf"));
+                Assert.Fail("Exception should have been thrown");
+            }
+            catch (Exception)
+            { }
+
+            var actual = cacher.FindOrCreateValue(key, () => val);
+
+            Assert.AreEqual(val, actual);
+        }
+
+        [TestMethod]
+        public async Task OtherCallersWaitAsync()
+        {
+            var cacher = new BasicCacher(16);
+            var key1 = "one";
+            int calls1 = 0;
+            var key2 = "two";
+            int calls2 = 0;
+
+            var callWait = TimeSpan.FromSeconds(2);
+
+            Stopwatch sw = new();
+            sw.Start();
+
+            await Task.WhenAll(Enumerable.Range(1, 100).Select(z =>
+                cacher.FindOrCreateValueAsync(
+                    z % 2 == 0 ? key1 : key2,
+                    async () =>
+                    {
+                        await Task.Delay(callWait);
+                        if (z % 2 == 0)
+                        {
+                            return Interlocked.Increment(ref calls1);
+                        }
+                        else
+                        {
+                            return Interlocked.Increment(ref calls2);
+                        }
+                    }
+                    )));
+
+            sw.Stop();
+
+            Assert.AreEqual(1, calls1);
+            Assert.AreEqual(1, calls2);
+            Assert.IsTrue(sw.Elapsed < callWait * 2);
         }
     }
 }

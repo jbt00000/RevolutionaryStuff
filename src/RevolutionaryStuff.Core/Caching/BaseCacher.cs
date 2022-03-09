@@ -26,6 +26,8 @@ public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : 
     private long CacheMisses_p;
     private long CacheEntryGenerationMilliseconds_p;
 
+    protected TimeSpan PollDelayWhileSomeoneIsRunning = TimeSpan.FromMilliseconds(25);
+
     public long CacheHits
         => CacheHits_p;
 
@@ -67,15 +69,7 @@ public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : 
     protected async Task WriteEntryAsync(string key, T_CACHE_ENTRY entry)
     {
         Requires.NonNull(key, nameof(key));
-        await Lock.WaitAsync();
-        try
-        {
-            await OnWriteEntryAsync(key, entry);
-        }
-        finally
-        {
-            Lock.Release();
-        }
+        await Lock.ExecuteAsync(() => OnWriteEntryAsync(key, entry));
     }
 
     protected abstract Task OnWriteEntryAsync(string key, T_CACHE_ENTRY entry);
@@ -88,6 +82,7 @@ public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : 
 
     protected virtual async Task<ICacheEntry> OnFindEntryOrCreateValueAsync(string key, Func<string, Task<CacheCreationResult>> asyncCreator, IFindOrCreateEntrySettings findOrCreateSettings)
     {
+Again:
         T_CACHE_ENTRY entry = default(T_CACHE_ENTRY);
         if (!findOrCreateSettings.ForceCreate)
         {
@@ -100,28 +95,50 @@ public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : 
         {
             await RemoveAsync(key);
         }
-        var sw = new Stopwatch();
-        sw.Start();
-        var creationResult = await asyncCreator(key);
-        sw.Stop();
-        Interlocked.Add(ref CacheEntryGenerationMilliseconds_p, sw.ElapsedMilliseconds);
-        entry = CreateEntry(creationResult);
-        await WriteEntryAsync(key, entry);
+
+        bool wait = await Lock.ExecuteAsync(() =>
+        {
+            if (RunningKeys.Contains(key))
+            {
+                return true;
+            }
+            else
+            {
+                RunningKeys.Add(key);
+                return false;
+            }
+        }
+        );
+        if (wait)
+        {
+            await Task.Delay(PollDelayWhileSomeoneIsRunning);
+            goto Again;
+        }
+
+        try
+        {
+            var swGenerate = new Stopwatch();
+            swGenerate.Start();
+            var creationResult = await asyncCreator(key);
+            swGenerate.Stop();
+            Interlocked.Add(ref CacheEntryGenerationMilliseconds_p, swGenerate.ElapsedMilliseconds);
+            entry = CreateEntry(creationResult);
+            await WriteEntryAsync(key, entry);
+        }
+        finally
+        {
+            await Lock.ExecuteAsync(() =>RunningKeys.Remove(key));
+        }
+
         return entry;
     }
+
+    private readonly HashSet<string> RunningKeys = new ();
 
     public async Task RemoveAsync(string key)
     {
         Requires.NonNull(key, nameof(key));
-        await Lock.WaitAsync();
-        try
-        {
-            await OnRemoveAsync(key);
-        }
-        finally
-        {
-            Lock.Release();
-        }
+        await Lock.ExecuteAsync(() => OnRemoveAsync(key));
     }
 
     protected abstract Task OnRemoveAsync(string key);
