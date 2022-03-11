@@ -8,7 +8,7 @@ public class FindOrCreateEntrySettings : IFindOrCreateEntrySettings
 
     public bool ForceCreate { get; set; } = false;
 
-    public FindOrCreateEntrySettings(bool forceCreate=false)
+    public FindOrCreateEntrySettings(bool forceCreate = false)
     {
         ForceCreate = forceCreate;
     }

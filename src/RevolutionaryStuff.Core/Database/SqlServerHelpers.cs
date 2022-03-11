@@ -1,6 +1,5 @@
 ﻿using System.Data;
 using System.Diagnostics;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 
 namespace RevolutionaryStuff.Core.Database;

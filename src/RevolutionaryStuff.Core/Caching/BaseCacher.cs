@@ -127,13 +127,13 @@ Again:
         }
         finally
         {
-            await Lock.ExecuteAsync(() =>RunningKeys.Remove(key));
+            await Lock.ExecuteAsync(() => RunningKeys.Remove(key));
         }
 
         return entry;
     }
 
-    private readonly HashSet<string> RunningKeys = new ();
+    private readonly HashSet<string> RunningKeys = new();
 
     public async Task RemoveAsync(string key)
     {

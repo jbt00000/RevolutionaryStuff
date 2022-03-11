@@ -82,7 +82,7 @@ public abstract class TraceListenerBase : TraceListener
     /// Writes the trace data to the listener output, if allowed by the configured filter.
     /// The data is forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, object data)
+    public sealed override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, object data)
     {
         if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, null, null, data, null))
         {
@@ -94,7 +94,7 @@ public abstract class TraceListenerBase : TraceListener
     /// Writes the trace data to the listener output, if allowed by the configured filter.
     /// The data is forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
+    public sealed override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
     {
         if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, null, null, null, data))
         {
@@ -106,7 +106,7 @@ public abstract class TraceListenerBase : TraceListener
     /// Writes the event to the listener, if allowed by the configured filter.
     /// The event is forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message)
+    public sealed override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message)
     {
         if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, message, null, null, null))
         {
@@ -126,7 +126,7 @@ public abstract class TraceListenerBase : TraceListener
     /// unless the filter is first passed.
     /// </para>
     /// </remarks>
-    public override sealed void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string format, params object[] args)
+    public sealed override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string format, params object[] args)
     {
         if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, format, args, null, null))
         {
@@ -151,7 +151,7 @@ public abstract class TraceListenerBase : TraceListener
     /// Writes the transfer to the listener, if allowed by the configured filter.
     /// The transfer is forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void TraceTransfer(TraceEventCache eventCache, string source, int id, string message, Guid relatedActivityId)
+    public sealed override void TraceTransfer(TraceEventCache eventCache, string source, int id, string message, Guid relatedActivityId)
     {
         if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, TraceEventType.Transfer, id, message, null, null, null))
         {
@@ -165,7 +165,7 @@ public abstract class TraceListenerBase : TraceListener
     /// The object is forwared to the Write template method as data,
     /// which by default is then forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void Write(object o)
+    public sealed override void Write(object o)
     {
         Write(null, null, o);
     }
@@ -175,7 +175,7 @@ public abstract class TraceListenerBase : TraceListener
     /// The object is forwared to the Write template method as data,
     /// which by default is then forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void Write(object o, string category)
+    public sealed override void Write(object o, string category)
     {
         Write(category, null, o);
     }
@@ -185,7 +185,7 @@ public abstract class TraceListenerBase : TraceListener
     /// The message is forwared to the Write template method,
     /// which by default is then forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void Write(string message)
+    public sealed override void Write(string message)
     {
         Write(null, message, null);
     }
@@ -195,7 +195,7 @@ public abstract class TraceListenerBase : TraceListener
     /// The message is forwared to the Write template method,
     /// which by default is then forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void Write(string message, string category)
+    public sealed override void Write(string message, string category)
     {
         Write(category, message, null);
     }
@@ -205,7 +205,7 @@ public abstract class TraceListenerBase : TraceListener
     /// The object is forwared to the Write template method as data,
     /// which by default is then forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void WriteLine(object o)
+    public sealed override void WriteLine(object o)
     {
         WriteLine(null, null, o);
     }
@@ -215,7 +215,7 @@ public abstract class TraceListenerBase : TraceListener
     /// The object is forwared to the Write template method as data,
     /// which by default is then forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void WriteLine(object o, string category)
+    public sealed override void WriteLine(object o, string category)
     {
         WriteLine(category, null, o);
     }
@@ -225,7 +225,7 @@ public abstract class TraceListenerBase : TraceListener
     /// The message is forwared to the Write template method,
     /// which by default is then forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void WriteLine(string message)
+    public sealed override void WriteLine(string message)
     {
         WriteLine(null, message, null);
     }
@@ -235,7 +235,7 @@ public abstract class TraceListenerBase : TraceListener
     /// The message is forwared to the Write template method,
     /// which by default is then forwarded to the WriteTrace template method.
     /// </summary>
-    public override sealed void WriteLine(string message, string category)
+    public sealed override void WriteLine(string message, string category)
     {
         WriteLine(category, message, null);
     }

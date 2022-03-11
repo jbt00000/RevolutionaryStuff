@@ -2,5 +2,5 @@
 
 public interface IBearerGetter
 {
-    Task<string> GetBearerAsync(string name=null);
+    Task<string> GetBearerAsync(string name = null);
 }

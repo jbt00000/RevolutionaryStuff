@@ -1,9 +1,7 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using RevolutionaryStuff.Core.Caching;
 

@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Net.Http;
+﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -146,9 +145,9 @@ public static class WebHelpers
     public static HttpContent CreateHttpContent(IEnumerable<KeyValuePair<string, string>> datas)
         => CreateHttpContent(datas.UrlEncode());
 
-    public static HttpContent CreateHttpContent(string postData, Encoding e=null)
+    public static HttpContent CreateHttpContent(string postData, Encoding e = null)
     {
-        var content = new StreamContent(StreamHelpers.Create(postData, e??StreamHelpers.UTF8EncodingWithoutPreamble));
+        var content = new StreamContent(StreamHelpers.Create(postData, e ?? StreamHelpers.UTF8EncodingWithoutPreamble));
         content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
         return content;
     }

@@ -3,7 +3,6 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Data;
 using System.Diagnostics;
 using System.Reflection;
-using System.Threading.Tasks;
 using Microsoft.Data.SqlClient;
 using RevolutionaryStuff.Core.Caching;
 
@@ -167,7 +166,7 @@ public static class ConnectionHelpers
         }
     }
 
-    public async static Task<Result> ExecuteNonQueryAsync(
+    public static async Task<Result> ExecuteNonQueryAsync(
         this IDbConnection conn,
         IDbTransaction trans,
         string sql,
@@ -203,7 +202,7 @@ public static class ConnectionHelpers
         return conn.ExecuteReaderForEachAsync(trans, sql, timeout, parameters, actions).ExecuteSynchronously();
     }
 
-    public async static Task<Result> ExecuteReaderForEachAsync(
+    public static async Task<Result> ExecuteReaderForEachAsync(
         this IDbConnection conn,
         IDbTransaction trans,
         string sql,
@@ -245,7 +244,7 @@ public static class ConnectionHelpers
         }
     }
 
-    public async static Task<Result<TItem>> ExecuteReaderAsync<TItem>(
+    public static async Task<Result<TItem>> ExecuteReaderAsync<TItem>(
         this IDbConnection conn,
         IDbTransaction trans,
         string sql,

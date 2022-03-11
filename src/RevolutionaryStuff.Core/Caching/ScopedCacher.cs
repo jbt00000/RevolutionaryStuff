@@ -1,6 +1,4 @@
-﻿using System.Threading.Tasks;
-
-namespace RevolutionaryStuff.Core.Caching;
+﻿namespace RevolutionaryStuff.Core.Caching;
 
 internal class ScopedCacher : ICacher
 {

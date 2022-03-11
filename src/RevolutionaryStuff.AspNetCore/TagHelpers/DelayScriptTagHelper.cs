@@ -1,7 +1,6 @@
 ﻿using System.IO;
 using System.Text;
 using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.AspNetCore.Razor.TagHelpers;
@@ -25,7 +24,7 @@ public class DelayScriptTagHelper : TagHelper
         HtmlEncoder = htmlEncoder;
     }
 
-    public async override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
+    public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
         var sb = new StringBuilder();
         var tw = new StringWriter(sb);

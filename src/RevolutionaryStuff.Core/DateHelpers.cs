@@ -1,14 +1,12 @@
-﻿using System;
-
-namespace RevolutionaryStuff.Core
+﻿namespace RevolutionaryStuff.Core
 {
     public static class DateHelpers
     {
         public static DateTimeOffset UnixEarliestFileDate = new DateTimeOffset(1601, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
-        public static DateTime DateTimeFromUnixEpoch(int secondsSince1970) 
+        public static DateTime DateTimeFromUnixEpoch(int secondsSince1970)
             => new DateTime(1970, 1, 1, 0, 0, 0, (DateTimeKind)DateTimeKind.Utc).AddSeconds((double)secondsSince1970);
-        
+
         public static DateTimeOffset GetFirstSpecifiedFileDate(params DateTimeOffset?[] dtos)
         {
             foreach (var dto in dtos)
