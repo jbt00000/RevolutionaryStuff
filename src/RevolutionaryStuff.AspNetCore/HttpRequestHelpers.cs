@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using RevolutionaryStuff.Core;
 
 namespace RevolutionaryStuff.AspNetCore
 {
@@ -7,13 +8,16 @@ namespace RevolutionaryStuff.AspNetCore
         public static string GetStringFromFormOrQuery(this HttpRequest req, string key, string missing = null)
         {
             string s = null;
-            if (req.Form != null && req.Form.ContainsKey(key))
+            if (key != null)
             {
-                s = StringHelpers.TrimOrNull(req.Form[key]);
-            }
-            if (s == null && req.Query != null && req.Query.ContainsKey(key))
-            {
-                s = StringHelpers.TrimOrNull(req.Query[key]);
+                if (!WebHelpers.Methods.IsGetOrHead(req.Method) && req.HasFormContentType && req.Form != null && req.Form.ContainsKey(key))
+                {
+                    s = StringHelpers.TrimOrNull(req.Form[key]);
+                }
+                if (s == null && req.Query != null && req.Query.ContainsKey(key))
+                {
+                    s = StringHelpers.TrimOrNull(req.Query[key]);
+                }
             }
             return s ?? missing;
         }
@@ -21,9 +25,12 @@ namespace RevolutionaryStuff.AspNetCore
         public static string GetString(this IQueryCollection qc, string key, string missing = null)
         {
             string s = null;
-            if (s == null && qc != null && qc.ContainsKey(key))
+            if (key != null)
             {
-                s = StringHelpers.TrimOrNull(qc[key]);
+                if (s == null && qc != null && qc.ContainsKey(key))
+                {
+                    s = StringHelpers.TrimOrNull(qc[key]);
+                }
             }
             return s ?? missing;
         }
