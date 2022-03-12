@@ -4,7 +4,6 @@ using Newtonsoft.Json;
 
 namespace Microsoft.AspNetCore.Mvc;
 
-
 public class NewtonsoftJsonResult : ContentResult
 {
     public static JsonSerializerSettings DefaultSerializerSettings = JsonNetHelpers.DefaultSerializerSettings;
