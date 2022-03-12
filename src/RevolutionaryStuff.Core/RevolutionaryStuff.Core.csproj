@@ -16,9 +16,9 @@
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
     <PackageReleaseNotes>Uses .NET 3.1 libraries that still run under .NETStandard2.1</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.64.60.0</FileVersion>
-    <AssemblyVersion>3.64.60.0</AssemblyVersion>
-    <Version>3.64.60</Version>
+    <FileVersion>3.65.60.0</FileVersion>
+    <AssemblyVersion>3.65.60.0</AssemblyVersion>
+    <Version>3.65.60</Version>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageLicenseUrl></PackageLicenseUrl>

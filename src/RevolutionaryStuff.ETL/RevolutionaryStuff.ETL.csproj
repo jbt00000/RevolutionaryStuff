@@ -14,9 +14,9 @@
     <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
     <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
     <RepositoryType>GIT</RepositoryType>
-    <FileVersion>3.64.60.0</FileVersion>
-    <AssemblyVersion>3.64.60.0</AssemblyVersion>
-    <Version>3.64.60</Version>
+    <FileVersion>3.65.60.0</FileVersion>
+    <AssemblyVersion>3.65.60.0</AssemblyVersion>
+    <Version>3.65.60</Version>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <PackageReleaseNotes>Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
