@@ -50,7 +50,7 @@ public class MimeType
         public static readonly MimeType Any = new MimeType("image/*");
         public static readonly MimeType Bmp = new MimeType("image/bmp", ".bmp");
         public static readonly MimeType Gif = new MimeType("image/gif", ".gif");
-        public static readonly MimeType Jpg = new MimeType("image/jpeg", ".jpg");
+        public static readonly MimeType Jpg = new MimeType("image/jpeg", ".jpg", ".jpeg", ".jpe");
         public static readonly MimeType Png = new MimeType("image/png", ".png");
         public static readonly MimeType Tiff = new MimeType("image/tiff", ".tif", ".tiff");
         public static readonly MimeType WebP = new MimeType("image/webp", ".webp");
