@@ -1,37 +1,36 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-    <TargetFramework>net6.0</TargetFramework>
-    <AssemblyName>RevolutionaryStuff.AspNetCore</AssemblyName>
-    <PackageId>RevolutionaryStuff.AspNetCore</PackageId>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <Authors>jason@jasonthomas.com</Authors>
-    <FileVersion>3.65.60.0</FileVersion>
-    <AssemblyVersion>3.65.60.0</AssemblyVersion>
-    <Version>3.65.60</Version>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
-    <RepositoryType>GIT</RepositoryType>
-    <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
-    <PackageIcon>package\icon.png</PackageIcon>
-    <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-    <Copyright>Copyright ©  2020</Copyright>
-  </PropertyGroup>
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <AssemblyName>RevolutionaryStuff.AspNetCore</AssemblyName>
+        <PackageId>RevolutionaryStuff.AspNetCore</PackageId>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <Authors>jason@jasonthomas.com</Authors>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
+        <RepositoryType>GIT</RepositoryType>
+        <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
+        <PackageIcon>package\icon.png</PackageIcon>
+        <PackageLicenseFile>package\license.txt</PackageLicenseFile>
+        <Copyright>Copyright ©  2020</Copyright>
+        <FileVersion>3.66.60.0</FileVersion>
+        <AssemblyVersion>3.66.60.0</AssemblyVersion>
+        <Version>3.66.60</Version>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
-    <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
+        <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
+    <ItemGroup>
+        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
-  </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
+    </ItemGroup>
 
 </Project>

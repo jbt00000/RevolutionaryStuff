@@ -2,6 +2,7 @@
 using System.Data;
 using System.IO;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using RevolutionaryStuff.Core.ApplicationParts;
@@ -10,7 +11,7 @@ namespace RevolutionaryStuff.Core;
 
 public static class Requires
 {
-    public static void Url(string arg, string argName)
+    public static void Url(string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         Requires.Text(arg, argName);
         try
@@ -39,13 +40,13 @@ public static class Requires
             throw new ArgumentException(string.Format("size+offset must be <= {0}.Count", argName));
     }
 
-    public static void ListArg<T>(IList<T> arg, string argName, int minSize = 0)
+    public static void ListArg<T>(IList<T> arg, [CallerArgumentExpression("arg")] string argName = null, int minSize = 0)
     {
         Requires.NonNull(arg, argName);
         if (arg.Count < minSize) throw new ArgumentOutOfRangeException(argName, $"Length must be >0 {minSize}");
     }
 
-    public static void Valid(IValidate arg, string argName, bool canBeNull = false)
+    public static void Valid(IValidate arg, [CallerArgumentExpression("arg")] string argName = null, bool canBeNull = false)
     {
         if (arg == null && canBeNull) return;
         NonNull(arg, argName);
@@ -64,7 +65,7 @@ public static class Requires
         throw new ArgumentOutOfRangeException(argName, message);
     }
 
-    public static void FileExtension(string arg, string argName)
+    public static void FileExtension(string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         Requires.Text(arg, argName);
         if (Path.GetExtension(arg) != arg)
@@ -73,21 +74,21 @@ public static class Requires
         }
     }
 
-    public static void FileExists(string arg, string argName)
+    public static void FileExists(string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         Text(arg, argName);
         if (!File.Exists(arg))
             throw new ArgumentException($"File=[{arg}] does not exist", argName);
     }
 
-    public static void DirectoryExists(string arg, string argName)
+    public static void DirectoryExists(string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         Text(arg, argName);
         if (!Directory.Exists(arg))
             throw new ArgumentException($"Directory=[{arg}] does not exist", argName);
     }
 
-    public static void HasData(IEnumerable arg, string argName)
+    public static void HasData(IEnumerable arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         NonNull(arg, argName);
         var e = arg.GetEnumerator();
@@ -97,22 +98,22 @@ public static class Requires
         }
     }
 
-    public static void False(bool arg, string argName)
+    public static void False(bool arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg) throw new ArgumentOutOfRangeException(argName, "Must be false");
     }
 
-    public static void True(bool arg, string argName)
+    public static void True(bool arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (!arg) throw new ArgumentOutOfRangeException(argName, "Must be true");
     }
 
-    public static void NonNull(object arg, string argName)
+    public static void NonNull(object arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (null == arg) throw new ArgumentNullException(argName);
     }
 
-    public static void Null(object arg, string argName)
+    public static void Null(object arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (null != arg) throw new ArgumentOutOfRangeException(argName, "Must be null");
     }
@@ -135,52 +136,52 @@ public static class Requires
         throw new ArgumentException(string.Format("{0} is not a {1}", testType, isType));
     }
 
-    public static void Zero(double arg, string argName)
+    public static void Zero(double arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg != 0) throw new ArgumentOutOfRangeException(argName, "Must be = 0");
     }
 
-    public static void NonNegative(double arg, string argName)
+    public static void NonNegative(double arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg < 0) throw new ArgumentOutOfRangeException(argName, "Must be >= 0");
     }
 
-    public static void NonNegative(long arg, string argName)
+    public static void NonNegative(long arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg < 0) throw new ArgumentOutOfRangeException(argName, "Must be >= 0");
     }
 
-    public static void NonPositive(double arg, string argName)
+    public static void NonPositive(double arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg > 0) throw new ArgumentOutOfRangeException(argName, "Must be <= 0");
     }
 
-    public static void NonPositive(long arg, string argName)
+    public static void NonPositive(long arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg > 0) throw new ArgumentOutOfRangeException(argName, "Must be <= 0");
     }
 
-    public static void Positive(double arg, string argName)
+    public static void Positive(double arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg <= 0) throw new ArgumentOutOfRangeException(argName, "Must be > 0");
     }
 
-    public static void Positive(long arg, string argName)
+    public static void Positive(long arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg <= 0) throw new ArgumentOutOfRangeException(argName, "Must be > 0");
     }
 
-    public static void Negative(double arg, string argName)
+    public static void Negative(double arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg >= 0) throw new ArgumentOutOfRangeException(argName, "Must be < 0");
     }
 
-    public static void Negative(long arg, string argName)
+    public static void Negative(long arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg >= 0) throw new ArgumentOutOfRangeException(argName, "Must be < 0");
     }
 
-    public static void Match(Regex r, string arg, string argName)
+    public static void Match(Regex r, string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         Text(arg, argName, false, 0);
         if (!r.IsMatch(arg))
@@ -189,7 +190,7 @@ public static class Requires
         }
     }
 
-    public static void Text(string arg, string argName, bool allowNull = false, int minLen = 1, int maxLen = int.MaxValue)
+    public static void Text(string arg, [CallerArgumentExpression("arg")] string argName = null, bool allowNull = false, int minLen = 1, int maxLen = int.MaxValue)
     {
         if (minLen > maxLen) throw new ArgumentException("minLen cannot be > than maxLen");
         if (!allowNull && null == arg) throw new ArgumentNullException(argName);
@@ -204,7 +205,7 @@ public static class Requires
         }
     }
 
-    public static void EmailAddress(string arg, string argName)
+    public static void EmailAddress(string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         Match(RegexHelpers.Common.EmailAddress, arg, argName);
     }
@@ -219,7 +220,7 @@ public static class Requires
         if (mustBeSeekable && !stream.CanSeek) throw new ArgumentException("Cannot seek in this stream", argName);
     }
 
-    public static void WriteableStreamArg(Stream stream, string argName)
+    public static void WriteableStreamArg(Stream stream, [CallerArgumentExpression("stream")] string argName = null)
     {
         StreamArg(stream, argName, false, true, false);
     }
@@ -229,7 +230,7 @@ public static class Requires
         StreamArg(stream, argName, false, true, mustBeSeekable);
     }
 
-    public static void ReadableStreamArg(Stream stream, string argName)
+    public static void ReadableStreamArg(Stream stream, [CallerArgumentExpression("stream")] string argName = null)
     {
         StreamArg(stream, argName, true, false, false);
     }
@@ -239,13 +240,13 @@ public static class Requires
         StreamArg(stream, argName, true, false, mustBeSeekable);
     }
 
-    public static void Between(long val, string argName, long? minLength = null, long? maxLength = null)
+    public static void Between(long val, [CallerArgumentExpression("val")] string argName = null, long? minLength = null, long? maxLength = null)
     {
         if (val < minLength.GetValueOrDefault(long.MinValue)) throw new ArgumentOutOfRangeException(argName, $"must be >= {minLength}");
         if (val > maxLength.GetValueOrDefault(long.MaxValue)) throw new ArgumentOutOfRangeException(argName, $"must be <= {maxLength}");
     }
 
-    public static void Buffer(byte[] buf, string argName, long? minLength = null, long? maxLength = null)
+    public static void Buffer(byte[] buf, [CallerArgumentExpression("buf")] string argName = null, long? minLength = null, long? maxLength = null)
     {
         Requires.NonNull(buf, argName);
         Requires.Between(buf.Length, $"{argName}.Length", minLength.GetValueOrDefault(0), maxLength.GetValueOrDefault(int.MaxValue));
@@ -254,19 +255,19 @@ public static class Requires
     public static void PortNumber(int portNumber, string argName, bool allowZero = false)
         => Requires.Between(portNumber, argName, allowZero ? 0 : 1, 65536);
 
-    public static void ZeroRows(DataTable dt, string argName = null)
+    public static void ZeroRows(DataTable dt, [CallerArgumentExpression("dt")] string argName = null)
     {
         Requires.NonNull(dt, argName ?? nameof(dt));
         if (dt.Rows.Count > 0) throw new ArgumentException("dt must not already have any rows", nameof(dt));
     }
 
-    public static void ZeroColumns(DataTable dt, string argName = null)
+    public static void ZeroColumns(DataTable dt, [CallerArgumentExpression("dt")] string argName = null)
     {
         Requires.NonNull(dt, argName ?? nameof(dt));
         if (dt.Columns.Count > 0) throw new ArgumentException("dt must not already have any columns", nameof(dt));
     }
 
-    public static void Xml(string xml, string argName)
+    public static void Xml(string xml, [CallerArgumentExpression("xml")] string argName = null)
     {
         Requires.Text(xml, argName);
         XDocument.Parse(xml);

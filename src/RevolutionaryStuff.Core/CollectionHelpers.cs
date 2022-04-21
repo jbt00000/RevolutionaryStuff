@@ -583,4 +583,30 @@ public static class CollectionHelpers
         col.Clear();
         return col;
     }
+
+    public static void ForEach<T>(this IEnumerable<T> col, Action<T, int> a)
+    {
+        Requires.NonNull(col);
+        Requires.NonNull(a);
+
+        int z = 0;
+        foreach (var item in col)
+        {
+            a(item, z++);
+        }
+    }
+
+    public static async Task<IList<T>> ToListAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
+    {
+        Requires.NonNull(asyncEnumerable);
+
+        if (asyncEnumerable == null) return null;
+        var items = new List<T>();
+        await foreach (var item in asyncEnumerable)
+        {
+            items.Add(item);
+        }
+        return items;
+    }
+
 }

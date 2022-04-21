@@ -65,6 +65,26 @@ public class RequiresTests
         => Requires.NonNull(null, "hasnodata");
 
     [TestMethod]
+    public void NonNullInvalidCheckingCallerArgumentExpression()
+    {
+        string myVariableName = null;
+        try
+        {
+            Requires.NonNull(myVariableName);
+            Assert.Fail($"Expected {nameof(ArgumentNullException)}");
+        }
+        catch (ArgumentNullException anex)
+        {
+            Assert.AreEqual(nameof(myVariableName), anex.ParamName);
+        }
+        catch (Exception ex)
+        {
+            Assert.Fail($"Expected {nameof(ArgumentNullException)} instead of {ex.GetType().Name}");
+        }
+    }
+    
+
+    [TestMethod]
     [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     public void XmlWithNonXmlData()
         => Requires.Xml("honey, I don't think this is xml!", "nonxml");

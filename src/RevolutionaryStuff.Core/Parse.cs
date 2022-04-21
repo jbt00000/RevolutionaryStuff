@@ -126,6 +126,15 @@ public static class Parse
     private static readonly Regex BoolTrueExpr = new Regex("^\\s*(true|1)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
     private static readonly Regex BoolFalseExpr = new Regex("^\\s*(false|0)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
+    public static bool? ParseNullableBool(string sv, bool? fallback = null)
+    {
+        if (Parse.TryParseBool(sv, out var v))
+        {
+            return v;
+        }
+        return fallback;
+    }
+
     public static bool TryParseBool(string s, out bool v)
     {
         v = false;
