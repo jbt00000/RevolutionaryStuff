@@ -9,7 +9,7 @@ public class PeriodicAction : BaseDisposable
 
     public PeriodicAction(Action action, TimeSpan waitBetweenInvocationsDuration, TimeSpan? waitBeforeStartup = null)
     {
-        Requires.NonNull(action, nameof(action));
+        Requires.NonNull(action);
 
         T = new Timer(
             delegate (object state)

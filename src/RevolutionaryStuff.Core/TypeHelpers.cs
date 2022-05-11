@@ -200,7 +200,7 @@ public static class TypeHelpers
 
     private static void RequiresIsPropertyInfoOrFieldInfo(MemberInfo mi)
     {
-        Requires.NonNull(mi, nameof(mi));
+        Requires.NonNull(mi);
         if (mi is PropertyInfo or FieldInfo) return;
         throw new Exception(string.Format("we weren't expectecting a {0}", mi.GetType()));
     }
@@ -446,8 +446,8 @@ Again:
         HashSet<Type> loopChecker = null,
         MemberInfo baseTypeMemberInfo = null)
     {
-        Requires.NonNull(baseType, nameof(baseType));
-        Requires.NonNull(visit, nameof(visit));
+        Requires.NonNull(baseType);
+        Requires.NonNull(visit);
 
         recurse ??= delegate (TNodeContext a, Type b, MemberInfo c) { return true; };
         var nodeContext = createContext(parentNodeContext, baseType, baseTypeMemberInfo);

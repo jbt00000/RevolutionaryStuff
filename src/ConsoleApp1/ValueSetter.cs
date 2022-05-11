@@ -56,7 +56,7 @@ namespace ConsoleApp1
             public Segment(string part)
             {
                 part = StringHelpers.TrimOrNull(part);
-                Requires.Text(part, nameof(part));
+                Requires.Text(part);
                 if (StringHelpers.Split(part, "[", true, out string left, out string right))
                 {
                     right = right.LeftOf("]").Trim();
@@ -84,7 +84,7 @@ namespace ConsoleApp1
 
         public bool Set(object root, object val, IList<Segment> segments)
         {
-            Requires.NonNull(root, nameof(root));
+            Requires.NonNull(root);
             Requires.ListArg(segments, nameof(segments), 1);
 
             var baseVar = root;
@@ -122,8 +122,8 @@ namespace ConsoleApp1
 
         private bool Set(object root, object val, Segment segment)
         {
-            Requires.NonNull(root, nameof(root));
-            Requires.NonNull(segment, nameof(segment));
+            Requires.NonNull(root);
+            Requires.NonNull(segment);
 
             var pi = FindPropertyInfo(root, segment);
             if (segment.IsList)
@@ -148,7 +148,7 @@ namespace ConsoleApp1
 
         private object SetListValue(object collection, Segment segment, Func<Type, object, object, object> valueGetter)
         {
-            Requires.NonNull(collection, nameof(collection));
+            Requires.NonNull(collection);
             Requires.True(segment.IsList, nameof(segment.IsList));
 
             var collectionType = collection.GetType();

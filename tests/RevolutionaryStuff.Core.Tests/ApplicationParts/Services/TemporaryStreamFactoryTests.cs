@@ -30,7 +30,7 @@ namespace RevolutionaryStuff.Core.Tests.ApplicationParts.Services
             using var st = Factory.Create(capacity);
             Assert.AreEqual(expectedStreamType, st.GetType());
 
-            Requires.WriteableStreamArg(st, nameof(st));
+            Requires.WriteableStreamArg(st);
 
             Assert.AreEqual(0, st.Length);
             var buf = new byte[capacity / 2];

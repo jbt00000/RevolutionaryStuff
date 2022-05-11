@@ -37,7 +37,7 @@ public static class FileSystemHelpers
     /// <returns>The name of the temp file</returns>
     public static string GetTempFileName(string extension, string tempPath = null, bool deleteAfterReservation = false)
     {
-        Requires.FileExtension(extension, nameof(extension));
+        Requires.FileExtension(extension);
         var fn = $"{Stuff.ApplicationInstanceId}.{Math.Abs(Environment.TickCount)}{extension}";
         if (string.IsNullOrEmpty(tempPath))
         {

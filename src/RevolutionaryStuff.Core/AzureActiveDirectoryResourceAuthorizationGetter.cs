@@ -56,7 +56,7 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
 
         public void Validate()
         {
-            Requires.NonNull(Authenticators, nameof(Authenticators));
+            Requires.NonNull(Authenticators);
             foreach (var a in Authenticators)
             {
                 Requires.Valid(a, nameof(AuthenticatorConfig));
@@ -135,7 +135,7 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
 
     public AzureActiveDirectoryResourceAuthorizationGetter(IOptions<Config> configOptions, ICacher resultCache = null)
     {
-        Requires.NonNull(configOptions, nameof(configOptions));
+        Requires.NonNull(configOptions);
 
         ConfigOptions = configOptions;
         ResultCache = resultCache ?? Cache.Passthrough;
@@ -176,7 +176,7 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
     public async Task<AuthenticationResult> AuthorizeAsync(string name = null, bool forceFetchNew = false)
     {
         var config = ConfigOptions.Value;
-        Requires.Valid(config, nameof(config));
+        Requires.Valid(config);
 
         var authenticatorConfig = name == null ? config.Authenticators[0] : config.Authenticators.FirstOrDefault(ac => ac.Name == name);
         Requires.NonNull(authenticatorConfig, $"{nameof(config.Authenticators)}['{name}']");

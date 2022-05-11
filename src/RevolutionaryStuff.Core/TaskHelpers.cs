@@ -66,9 +66,9 @@ Again:
 
     public static async Task<IList<Task>> TaskWhenAllForEachAsync<TItem>(IEnumerable<TItem> items, Func<TItem, Task> taskCreator, int maxAtOnce = 2, [CallerMemberName] string caller = null, bool throwAggregatedException = false)
     {
-        Requires.NonNull(items, nameof(items));
-        Requires.NonNull(taskCreator, nameof(taskCreator));
-        Requires.Positive(maxAtOnce, nameof(maxAtOnce));
+        Requires.NonNull(items);
+        Requires.NonNull(taskCreator);
+        Requires.Positive(maxAtOnce);
 
         var tasks = new List<Task>();
         long outstanding = 0;

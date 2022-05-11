@@ -13,7 +13,7 @@ public static class CacherHelpers
 
     public static async Task<TVal> FindOrCreateValueAsync<TVal>(this ICacher cacher, string key, Func<Task<TVal>> asyncCreator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
     {
-        Requires.NonNull(asyncCreator, nameof(asyncCreator));
+        Requires.NonNull(asyncCreator);
 
         var entry = await cacher.FindEntryOrCreateValueAsync(
             key,

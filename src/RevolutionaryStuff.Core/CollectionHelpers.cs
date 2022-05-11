@@ -92,9 +92,9 @@ public static class CollectionHelpers
 
     public static IList<O> Map<TInput, K, V, O>(this IEnumerable<TInput> items, IDictionary<K, V> map, Func<TInput, K> keyGetter, Func<V, O> outputTransformer, bool omitMissing = false)
     {
-        Requires.NonNull(map, nameof(map));
-        Requires.NonNull(keyGetter, nameof(keyGetter));
-        Requires.NonNull(outputTransformer, nameof(outputTransformer));
+        Requires.NonNull(map);
+        Requires.NonNull(keyGetter);
+        Requires.NonNull(outputTransformer);
 
         var ret = new List<O>();
         foreach (var item in items)
@@ -178,7 +178,7 @@ public static class CollectionHelpers
     [Obsolete("Use Shuffle instead", false)]
     public static void ShuffleList(this IList list, Random random = null)
     {
-        Requires.NonNull(list, nameof(list));
+        Requires.NonNull(list);
         var len = list.Count;
         if (len < 2) return;
         random ??= Stuff.Random;
@@ -195,7 +195,7 @@ public static class CollectionHelpers
 
     public static void Shuffle<T>(this IList<T> list, Random random = null)
     {
-        Requires.NonNull(list, nameof(list));
+        Requires.NonNull(list);
         var len = list.Count;
         if (len < 2) return;
         random ??= Stuff.Random;
@@ -518,7 +518,7 @@ public static class CollectionHelpers
 
     public static int? IndexOfOccurrence<T>(this IList<T> items, Func<T, bool> test, int nthOccurrence, int? zeroThValue = null, int? missingValue = null)
     {
-        Requires.NonNegative(nthOccurrence, nameof(nthOccurrence));
+        Requires.NonNegative(nthOccurrence);
 
         if (nthOccurrence == 0) return zeroThValue;
 

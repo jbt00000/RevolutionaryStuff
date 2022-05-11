@@ -20,7 +20,7 @@ public class Missingable<T>
 
     public void ClearValue()
     {
-        Requires.False(IsReadonly, nameof(IsReadonly));
+        Requires.False(IsReadonly);
         HasValue = false;
     }
 
@@ -33,7 +33,7 @@ public class Missingable<T>
         }
         set
         {
-            Requires.False(IsReadonly, nameof(IsReadonly));
+            Requires.False(IsReadonly);
             Value_p = value;
             HasValue = true;
         }

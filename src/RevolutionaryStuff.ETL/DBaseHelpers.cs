@@ -287,7 +287,7 @@ public static class DBaseHelpers
 
     public static DataTable Load(Stream st, Stream memoStream = null)
     {
-        Requires.ReadableStreamArg(st, nameof(st));
+        Requires.ReadableStreamArg(st);
 
         var header = new byte[32];
         st.ReadExactSize(header);

@@ -7,7 +7,7 @@ internal class HttpClientHttpMessageSender : BaseDisposable, IHttpMessageSender
 {
     public HttpClientHttpMessageSender(HttpClient httpClient)
     {
-        Requires.NonNull(httpClient, nameof(httpClient));
+        Requires.NonNull(httpClient);
 
         HttpClient = httpClient;
     }

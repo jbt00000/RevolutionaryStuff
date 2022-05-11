@@ -61,10 +61,10 @@ public static class SpreadsheetHelpers
 
     public static void ToSpreadSheet(this DataSet ds, string outputPath, Stream templateSpreadsheetStream = null)
     {
-        Requires.NonNull(ds, nameof(ds));
-        Requires.Text(outputPath, nameof(outputPath));
+        Requires.NonNull(ds);
+        Requires.Text(outputPath);
         templateSpreadsheetStream ??= Stuff.ThisAssembly.GetEmbeddedResourceAsStream("Template.xlsx");
-        Requires.ReadableStreamArg(templateSpreadsheetStream, nameof(templateSpreadsheetStream));
+        Requires.ReadableStreamArg(templateSpreadsheetStream);
 
         var dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
         Directory.CreateDirectory(dir);
@@ -308,7 +308,7 @@ public static class SpreadsheetHelpers
 
     private static IDictionary<string, int> LoadSharedStrings(string sharedStringsPath)
     {
-        Requires.Text(sharedStringsPath, nameof(sharedStringsPath));
+        Requires.Text(sharedStringsPath);
 
         using var st = File.Exists(sharedStringsPath) ? (Stream)File.OpenRead(sharedStringsPath) : new MemoryStream();
         return LoadSharedStrings(st);
@@ -316,7 +316,7 @@ public static class SpreadsheetHelpers
 
     internal static IDictionary<string, int> LoadSharedStrings(Stream st)
     {
-        Requires.ReadableStreamArg(st, nameof(st));
+        Requires.ReadableStreamArg(st);
 
         var d = new Dictionary<string, int>();
         if (st.Length > 0)
@@ -342,14 +342,14 @@ public static class SpreadsheetHelpers
 
     private static void SaveSharedStrings(string sharedStringsPath, IDictionary<string, int> sharedStrings)
     {
-        Requires.Text(sharedStringsPath, nameof(sharedStringsPath));
+        Requires.Text(sharedStringsPath);
         using var st = File.Create(sharedStringsPath);
         SaveSharedStrings(st, sharedStrings);
     }
 
     internal static void SaveSharedStrings(Stream st, IDictionary<string, int> sharedStrings = null)
     {
-        Requires.WriteableStreamArg(st, nameof(st));
+        Requires.WriteableStreamArg(st);
         sharedStrings ??= new Dictionary<string, int>();
 
         using var writer = XmlWriter.Create(st);

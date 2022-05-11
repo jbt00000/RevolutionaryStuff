@@ -120,14 +120,14 @@ public static class DataHelpers
 
     public static DataTable RightType(this DataTable dt, bool nullifyBlankStrings = true, bool returnNewTable = false, Predicate<DataColumn> columnFilter = null)
     {
-        Requires.NonNull(dt, nameof(dt));
+        Requires.NonNull(dt);
         if (columnFilter == null)
         {
             columnFilter = _ => true;
         }
         else
         {
-            Requires.False(returnNewTable, nameof(returnNewTable));
+            Requires.False(returnNewTable);
         }
 
         using (new TraceRegion($"{nameof(RightType)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows"))
@@ -407,7 +407,7 @@ public static class DataHelpers
 
     public static void IdealizeStringColumns(this DataTable dt, bool trimAndNullifyStringData = false)
     {
-        Requires.NonNull(dt, nameof(dt));
+        Requires.NonNull(dt);
         using (new TraceRegion($"{nameof(IdealizeStringColumns)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows"))
         {
             for (var colNum = 0; colNum < dt.Columns.Count; ++colNum)

@@ -17,9 +17,9 @@ public static partial class DataLoadingHelpers
 
     public static void SetColumnWithValue<T>(this DataTable dt, string columnName, Func<DataRow, int, T> valueGenerator)
     {
-        Requires.NonNull(dt, nameof(dt));
-        Requires.Text(columnName, nameof(columnName));
-        Requires.NonNull(valueGenerator, nameof(valueGenerator));
+        Requires.NonNull(dt);
+        Requires.Text(columnName);
+        Requires.NonNull(valueGenerator);
 
         var pos = dt.Columns[columnName].Ordinal;
         for (var z = 0; z < dt.Rows.Count; ++z)
@@ -60,10 +60,10 @@ public static partial class DataLoadingHelpers
     public static DataTable LoadRowsFromFixedWidthText(this DataTable dt, Stream st, LoadRowsFromFixedWidthTextSettings settings)
     {
         dt ??= new DataTable();
-        Requires.ZeroColumns(dt, nameof(dt));
-        Requires.ZeroRows(dt, nameof(dt));
-        Requires.ReadableStreamArg(st, nameof(st));
-        Requires.Valid(settings, nameof(settings));
+        Requires.ZeroColumns(dt);
+        Requires.ZeroRows(dt);
+        Requires.ReadableStreamArg(st);
+        Requires.Valid(settings);
 
         foreach (var f in settings.ColumnInfos)
         {
@@ -151,9 +151,9 @@ public static partial class DataLoadingHelpers
     public static DataTable LoadRowsFromJObjects(this DataTable dt, IEnumerable<JObject> items)
     {
         dt ??= new DataTable();
-        Requires.ZeroColumns(dt, nameof(dt));
-        Requires.ZeroRows(dt, nameof(dt));
-        Requires.HasData(items, nameof(items));
+        Requires.ZeroColumns(dt);
+        Requires.ZeroRows(dt);
+        Requires.HasData(items);
 
         var colByName = new Dictionary<string, DataColumn>(Comparers.CaseInsensitiveStringComparer);
         foreach (var item in items)
@@ -182,10 +182,10 @@ public static partial class DataLoadingHelpers
     public static DataTable LoadRowsFromObjects(this DataTable dt, System.Collections.IEnumerable items, LoadRowsFromObjectsSettings settings)
     {
         dt ??= new DataTable();
-        Requires.ZeroColumns(dt, nameof(dt));
-        Requires.ZeroRows(dt, nameof(dt));
-        Requires.Valid(settings, nameof(settings));
-        Requires.HasData(items, nameof(items));
+        Requires.ZeroColumns(dt);
+        Requires.ZeroRows(dt);
+        Requires.Valid(settings);
+        Requires.HasData(items);
 
         var memberFlags =
             BindingFlags.Public |
@@ -228,10 +228,10 @@ public static partial class DataLoadingHelpers
     public static DataTable LoadRowsFromDelineatedText(this DataTable dt, Stream st, LoadRowsFromDelineatedTextSettings settings)
     {
         dt ??= new DataTable();
-        Requires.ZeroColumns(dt, nameof(dt));
-        Requires.ZeroRows(dt, nameof(dt));
-        Requires.ReadableStreamArg(st, nameof(st));
-        Requires.Valid(settings, nameof(settings));
+        Requires.ZeroColumns(dt);
+        Requires.ZeroRows(dt);
+        Requires.ReadableStreamArg(st);
+        Requires.Valid(settings);
 
         IList<string[]> rows = null;
         if (settings.Format == LoadRowsFromDelineatedTextFormats.PipeSeparatedValues)
@@ -314,8 +314,8 @@ public static partial class DataLoadingHelpers
 
     internal static DataTable LoadRowsInternal(this DataTable dt, IEnumerable<IList<object>> rows, LoadRowsSettings settings, bool headerRowEmbedded = true)
     {
-        Requires.ZeroRows(dt, nameof(dt));
-        Requires.NonNull(rows, nameof(rows));
+        Requires.ZeroRows(dt);
+        Requires.NonNull(rows);
         settings ??= new LoadRowsSettings();
         if (!((headerRowEmbedded && dt.Columns.Count == 0) || (!headerRowEmbedded && dt.Columns.Count > 0)))
         {
@@ -455,7 +455,7 @@ public static partial class DataLoadingHelpers
 
     public static void Append(this DataTable dt, DataTable other, bool appendOtherTableColumns = false)
     {
-        Requires.NonNull(other, nameof(other));
+        Requires.NonNull(other);
 
         var sameStructure = dt.Columns.Count == other.Columns.Count;
         var dtWasBlank = dt.Columns.Count == 0;
@@ -508,7 +508,7 @@ public static partial class DataLoadingHelpers
 
     public static Func<string, string> CreateDictionaryMapper(IDictionary<string, string> m, bool onMissingPassthrough = false)
     {
-        Requires.NonNull(m, nameof(m));
+        Requires.NonNull(m);
         var f = delegate (string s)
         {
             if (m.ContainsKey(s)) return m[s];

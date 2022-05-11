@@ -25,7 +25,7 @@ public static class MySqlHelpers
 
     public static DataSet LoadDump(Stream st)
     {
-        Requires.ReadableStreamArg(st, nameof(st));
+        Requires.ReadableStreamArg(st);
         var sr = new StreamReader(st);
 
         var ds = new DataSet();

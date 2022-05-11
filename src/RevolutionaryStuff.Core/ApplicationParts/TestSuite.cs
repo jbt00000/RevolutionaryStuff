@@ -13,7 +13,7 @@ public abstract class TestSuite<TSubject> : BaseDisposable
 
     protected TestSuite(IServiceProvider serviceProvider)
     {
-        Requires.NonNull(serviceProvider, nameof(serviceProvider));
+        Requires.NonNull(serviceProvider);
         ServiceProvider = serviceProvider;
     }
 

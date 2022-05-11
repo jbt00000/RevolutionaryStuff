@@ -143,8 +143,8 @@ public static class LinqHelpers
     /// <returns>The sorted input</returns>
     public static IOrderedQueryable<T> OrderByField<T, TMappedVal>(this IQueryable<T> q, string sortColumn, IDictionary<int, TMappedVal> sortPosByfieldVal, bool isAscending = true) where TMappedVal : IComparable<TMappedVal>
     {
-        Requires.Text(sortColumn, nameof(sortColumn));
-        Requires.NonNull(sortPosByfieldVal, nameof(sortPosByfieldVal));
+        Requires.Text(sortColumn);
+        Requires.NonNull(sortPosByfieldVal);
         Requires.Positive(sortPosByfieldVal.Count, nameof(sortPosByfieldVal.Count));
 
         var param = Expression.Parameter(typeof(T), "p");
@@ -183,7 +183,7 @@ public static class LinqHelpers
     /// <remarks>http://stackoverflow.com/questions/12284085/sort-using-linq-expressions-expression</remarks>
     public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, bool isAscending = true)
     {
-        Requires.Text(sortColumn, nameof(sortColumn));
+        Requires.Text(sortColumn);
 
         //Requires.Match(RegexHelpers.Common.CSharpIdentifier, sortColumn, nameof(sortColumn));
         var param = Expression.Parameter(typeof(T), "p");
@@ -227,7 +227,7 @@ public static class LinqHelpers
 
     public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IDictionary<string, string> valueMapper, bool isAscending = true, OrderByFieldUnmappedBehaviors unmappedValueBehavior = OrderByFieldUnmappedBehaviors.InPlace)
     {
-        Requires.Text(sortColumn, nameof(sortColumn));
+        Requires.Text(sortColumn);
         valueMapper ??= new Dictionary<string, string>();
 
         var param = Expression.Parameter(typeof(T), "p");

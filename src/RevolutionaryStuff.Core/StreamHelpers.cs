@@ -8,8 +8,8 @@ public static class StreamHelpers
 {
     public static async Task CopyFromAsync(this Stream st, string path)
     {
-        Requires.ReadableStreamArg(st, nameof(st));
-        Requires.FileExists(path, nameof(path));
+        Requires.ReadableStreamArg(st);
+        Requires.FileExists(path);
 
         await using var src = File.OpenRead(path);
         await src.CopyToAsync(st);
@@ -17,8 +17,8 @@ public static class StreamHelpers
 
     public static void CopyFrom(this Stream st, string path)
     {
-        Requires.ReadableStreamArg(st, nameof(st));
-        Requires.FileExists(path, nameof(path));
+        Requires.ReadableStreamArg(st);
+        Requires.FileExists(path);
 
         using var src = File.OpenRead(path);
         src.CopyTo(st);
@@ -26,7 +26,7 @@ public static class StreamHelpers
 
     public static void CopyTo(this Stream st, string path)
     {
-        Requires.ReadableStreamArg(st, nameof(st));
+        Requires.ReadableStreamArg(st);
 
         using var dst = File.Create(path);
         st.CopyTo(dst);
@@ -34,7 +34,7 @@ public static class StreamHelpers
 
     public static async Task CopyToAsync(this Stream st, string path)
     {
-        Requires.ReadableStreamArg(st, nameof(st));
+        Requires.ReadableStreamArg(st);
 
         await using var dst = File.Create(path);
         await st.CopyToAsync(dst);
@@ -42,8 +42,8 @@ public static class StreamHelpers
 
     public static async Task CopyToAsync(this Stream st, Stream dst, Action<int, long, long?> progress, int? bufferSize = null)
     {
-        Requires.ReadableStreamArg(st, nameof(st));
-        Requires.WriteableStreamArg(dst, nameof(dst));
+        Requires.ReadableStreamArg(st);
+        Requires.WriteableStreamArg(dst);
 
         var bufSize = bufferSize.GetValueOrDefault(1024 * 256);
         Requires.Positive(bufSize, nameof(bufferSize));

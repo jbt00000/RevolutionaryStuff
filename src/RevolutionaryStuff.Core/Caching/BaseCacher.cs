@@ -42,7 +42,7 @@ public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : 
 
     protected async Task<ICacheEntry> FindEntryAsync(string key)
     {
-        Requires.NonNull(key, nameof(key));
+        Requires.NonNull(key);
         T_CACHE_ENTRY e;
         await Lock.WaitAsync();
         try
@@ -68,7 +68,7 @@ public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : 
 
     protected async Task WriteEntryAsync(string key, T_CACHE_ENTRY entry)
     {
-        Requires.NonNull(key, nameof(key));
+        Requires.NonNull(key);
         await Lock.ExecuteAsync(() => OnWriteEntryAsync(key, entry));
     }
 
@@ -76,7 +76,7 @@ public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : 
 
     Task<ICacheEntry> ICacher.FindEntryOrCreateValueAsync(string key, Func<string, Task<CacheCreationResult>> asyncCreator, IFindOrCreateEntrySettings findOrCreateSettings)
     {
-        Requires.NonNull(key, nameof(key));
+        Requires.NonNull(key);
         return OnFindEntryOrCreateValueAsync(key, asyncCreator, findOrCreateSettings ?? FindOrCreateEntrySettings.Default);
     }
 
@@ -137,7 +137,7 @@ Again:
 
     public async Task RemoveAsync(string key)
     {
-        Requires.NonNull(key, nameof(key));
+        Requires.NonNull(key);
         await Lock.ExecuteAsync(() => OnRemoveAsync(key));
     }
 

@@ -239,7 +239,7 @@ internal class Stats : IEnumerable
     /// <returns>The resulting value</returns>
     public long Increment(object key, long val, int tickCount)
     {
-        Requires.NonNull(key, nameof(key));
+        Requires.NonNull(key);
         if (IsBitbucket) return 0;
         Stat s;
         if (StatsByKey.TryGetValue(key, out s))
@@ -265,7 +265,7 @@ internal class Stats : IEnumerable
 
     public void Merge(Stats stats, string formatName)
     {
-        Requires.NonNull(stats, nameof(stats));
+        Requires.NonNull(stats);
         if (IsBitbucket) return;
         foreach (var s in stats.StatsByKey.Values)
         {
@@ -284,7 +284,7 @@ internal class Stats : IEnumerable
     /// <param name="setParent">Whether or not to set the parent's value</param>
     public void Set(object key, long val, bool setParent = true)
     {
-        Requires.NonNull(key, nameof(key));
+        Requires.NonNull(key);
         if (IsBitbucket) return;
         Stat s;
         if (StatsByKey.TryGetValue(key, out s))

@@ -9,7 +9,7 @@ public static class SqlServerHelpers
 {
     public static void UploadIntoSqlServer(this DataTable dt, Func<SqlConnection> createConnection, UploadIntoSqlServerSettings settings = null)
     {
-        Requires.NonNull(dt, nameof(dt));
+        Requires.NonNull(dt);
         settings ??= new UploadIntoSqlServerSettings();
 
         //Create table and insert 1 batch at a time

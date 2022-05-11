@@ -27,7 +27,7 @@ public class AssemblyAttributeInfo
 
     public AssemblyAttributeInfo(Assembly a)
     {
-        Requires.NonNull(a, nameof(a));
+        Requires.NonNull(a);
 
         Assembly = a;
         FullName = a.FullName;

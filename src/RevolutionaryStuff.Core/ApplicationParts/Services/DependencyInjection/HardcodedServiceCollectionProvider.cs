@@ -8,7 +8,7 @@ public class HardcodedServiceCollectionProvider : IServiceCollectionAccessor
 
     public HardcodedServiceCollectionProvider(IServiceCollection serviceCollection)
     {
-        Requires.NonNull(serviceCollection, nameof(serviceCollection));
+        Requires.NonNull(serviceCollection);
         ServiceCollection = serviceCollection;
     }
 

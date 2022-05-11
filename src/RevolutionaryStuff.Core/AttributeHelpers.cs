@@ -55,8 +55,8 @@ public static class AttributeStuff
     public static MultipleValueDictionary<Type, Attribute> GetAttributesByPublicType(IEnumerable<Type> typeAttributeTypes,
                                                                                 Assembly assembly)
     {
-        Requires.NonNull(assembly, nameof(assembly));
-        Requires.NonNull(typeAttributeTypes, nameof(typeAttributeTypes));
+        Requires.NonNull(assembly);
+        Requires.NonNull(typeAttributeTypes);
         var attributesByPublicType = new MultipleValueDictionary<Type, Attribute>(null, () => new HashSet<Attribute>());
         foreach (var t in assembly.GetExportedTypes())
         {

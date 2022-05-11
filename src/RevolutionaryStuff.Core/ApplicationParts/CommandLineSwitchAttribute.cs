@@ -88,7 +88,7 @@ public class CommandLineSwitchAttribute : Attribute
 
     public static IEnumerable<KeyValuePair<CommandLineSwitchAttribute, MemberInfo>> Find(Type t)
     {
-        Requires.NonNull(t, nameof(t));
+        Requires.NonNull(t);
 
         var ti = t.GetTypeInfo();
         var ret = new List<KeyValuePair<CommandLineSwitchAttribute, MemberInfo>>();
@@ -161,7 +161,7 @@ public class CommandLineSwitchAttribute : Attribute
 
     public static string GetUsage(Type t, string newLine = "\n", Func<KeyValuePair<CommandLineSwitchAttribute, MemberInfo>, int, string> formatter = null)
     {
-        Requires.NonNull(t, nameof(t));
+        Requires.NonNull(t);
         var ti = t.GetTypeInfo();
         var switches = Find(t).OrderBy(z => z.Key.Mandatory ? 0 : 1).ThenBy(z => z.Key.Names.OrderBy().First()).ThenBy(z => z.Key.Names[0]);
         var mandates = ti.GetCustomAttributes(typeof(CommandLineMandateAttribute), true).OfType<CommandLineMandateAttribute>();
@@ -214,8 +214,8 @@ public class CommandLineSwitchAttribute : Attribute
 
     public static void SetArgs(CommandLineInfo cli, object o, bool throwOnDuplicateArgs = true, bool throwOnExtraNonMappedArgs = false)
     {
-        Requires.NonNull(cli, nameof(cli));
-        Requires.NonNull(o, nameof(o));
+        Requires.NonNull(cli);
+        Requires.NonNull(o);
 
         var argsSeen = new HashSet<CommandLineInfo.Arg>();
         var switchesSeen = new HashSet<CommandLineSwitchAttribute>();

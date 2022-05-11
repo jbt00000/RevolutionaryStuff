@@ -19,7 +19,7 @@ namespace RevolutionaryStuff.TheLoader.Sinks
         public SqlServerSink(Func<SqlConnection> createConnection, UploadIntoSqlServerSettings settings, Program program, IOptions<Program.LoaderConfig.TableConfig> tableConfigOptions)
             : base(program, tableConfigOptions)
         {
-            Requires.NonNull(createConnection, nameof(createConnection));
+            Requires.NonNull(createConnection);
 
             CreateConnection = createConnection;
             Settings = settings ?? new UploadIntoSqlServerSettings();

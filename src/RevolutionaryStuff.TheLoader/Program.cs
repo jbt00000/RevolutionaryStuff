@@ -350,7 +350,7 @@ namespace RevolutionaryStuff.TheLoader
             }
             else
             {
-                Requires.FileExists(FilePath, nameof(FilePath));
+                Requires.FileExists(FilePath);
             }
         }
 
@@ -928,7 +928,7 @@ namespace RevolutionaryStuff.TheLoader
             CreateTable:
             if (ds == null)
             {
-                Requires.NonNull(dt, nameof(dt));
+                Requires.NonNull(dt);
                 dt.TableName = StringHelpers.Coalesce(dt.TableName, SinkTable);
                 ds = new DataSet();
                 ds.Tables.Add(dt);

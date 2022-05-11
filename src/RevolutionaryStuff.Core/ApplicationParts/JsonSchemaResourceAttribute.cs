@@ -24,13 +24,13 @@ public sealed class JsonSchemaResourceAttribute : EmbeddedFileAttribute
             });
     public static void ValidateJson(Type t, string json)
     {
-        Requires.NonNull(t, nameof(t));
+        Requires.NonNull(t);
         var attr = t.GetCustomAttribute<JsonSchemaResourceAttribute>();
         Requires.NonNull(attr, $"{nameof(JsonSchemaResourceAttribute)} missing from {t}");
-        Requires.Text(json, nameof(json));
+        Requires.Text(json);
         var s = attr.GetAsJSchema(t.Assembly);
         var jo = JObject.Parse(json);
-        Requires.NonNull(jo, nameof(jo));
+        Requires.NonNull(jo);
         jo.Validate(s);
     }
 }

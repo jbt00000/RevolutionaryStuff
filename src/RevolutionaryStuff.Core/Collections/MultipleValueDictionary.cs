@@ -32,7 +32,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
 
     public IDictionary<K, VPrime> ToDictionary<VPrime>(Func<ICollection<V>, VPrime> elementsMapper)
     {
-        Requires.NonNull(elementsMapper, nameof(elementsMapper));
+        Requires.NonNull(elementsMapper);
 
         var d = new Dictionary<K, VPrime>(Count);
         foreach (var key in Keys)

@@ -80,7 +80,7 @@ public static class DelegateHelpers
     /// <param name="locker">A lock</param>
     public static void SingleActor(this Action actor, object locker = null)
     {
-        Requires.NonNull(actor, nameof(actor));
+        Requires.NonNull(actor);
         locker ??= actor;
         if (Monitor.TryEnter(locker))
         {

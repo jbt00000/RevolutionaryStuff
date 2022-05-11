@@ -13,7 +13,7 @@ namespace RevolutionaryStuff.TheLoader.Sinks
 
         protected BaseSink(Program program, IOptions<Program.LoaderConfig.TableConfig> tableConfigOptions)
         {
-            Requires.NonNull(program, nameof(program));
+            Requires.NonNull(program);
 
             Program = program;
             TableConfigOptions = tableConfigOptions;
@@ -25,7 +25,7 @@ namespace RevolutionaryStuff.TheLoader.Sinks
 
         Task ISink.UploadAsync(DataTable dt)
         {
-            Requires.NonNull(dt, nameof(dt));
+            Requires.NonNull(dt);
             return OnUploadAsync(dt);
         }
 
