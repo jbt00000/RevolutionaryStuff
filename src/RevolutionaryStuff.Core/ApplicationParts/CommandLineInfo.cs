@@ -78,11 +78,9 @@ Arguments:
         {
             return missing;
         }
-        else
-        {
-            var cla = ArgsByPos[pos];
-            return StringHelpers.Coalesce(cla.Val, missing);
-        }
+
+        var cla = ArgsByPos[pos];
+        return StringHelpers.Coalesce(cla.Val, missing);
     }
 
     public string GetVal(string key)
@@ -97,10 +95,8 @@ Arguments:
         {
             return missing;
         }
-        else
-        {
-            return StringHelpers.Coalesce(cla.Val, missing);
-        }
+
+        return StringHelpers.Coalesce(cla.Val, missing);
     }
 
     public class Arg

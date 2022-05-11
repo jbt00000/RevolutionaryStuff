@@ -42,8 +42,7 @@ public class Missingable<T>
 
     public override bool Equals(object other)
     {
-        var that = other as Missingable<T>;
-        if (that == null) return false;
+        if (other is not Missingable<T> that) return false;
         if (!HasValue && !that.HasValue) return true;
         if (!HasValue) return false;
         return Value.Equals(that.Value);

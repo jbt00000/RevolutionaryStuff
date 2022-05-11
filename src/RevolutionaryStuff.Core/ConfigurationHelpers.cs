@@ -48,7 +48,7 @@ public static class ConfigurationHelpers
         }
         if (objectName != null)
         {
-            json = string.Format("{{\"{0}\": {1} }}", objectName, json);
+            json = $"{{\"{objectName}\": {json} }}";
         }
         File.WriteAllText(filename, json);
         builder.AddJsonFile(filename);
@@ -117,8 +117,7 @@ public static class ConfigurationHelpers
                 var propByName = o.GetType().GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance).ToDictionary(pi => pi.Name, Comparers.CaseInsensitiveStringComparer);
                 foreach (var pi in propByName.Values)
                 {
-                    IConfigurationSection childSection;
-                    if (!childSectionsByName.TryGetValue(pi.Name, out childSection)) continue;
+                    if (!childSectionsByName.TryGetValue(pi.Name, out var childSection)) continue;
                     object val;
                     var s = section[pi.Name];
                     if (s == null)

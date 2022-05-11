@@ -99,10 +99,8 @@ namespace RevolutionaryStuff.Core.Tests
                         {
                             return Interlocked.Increment(ref calls1);
                         }
-                        else
-                        {
-                            return Interlocked.Increment(ref calls2);
-                        }
+
+                        return Interlocked.Increment(ref calls2);
                     }
                     )));
 

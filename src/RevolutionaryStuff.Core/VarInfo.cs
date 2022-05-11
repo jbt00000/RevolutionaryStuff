@@ -46,10 +46,8 @@ internal class VarInfo
             var buf = (byte[])o;
             return Raw.Buf2HexString(buf, 0, buf.Length, true, false);
         }
-        else
-        {
-            return o.ToString();
-        }
+
+        return o.ToString();
     }
 
     public string ValAsString()

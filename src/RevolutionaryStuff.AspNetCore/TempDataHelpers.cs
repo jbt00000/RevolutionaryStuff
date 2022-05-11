@@ -19,9 +19,7 @@ public static class TempDataExtensions
 
     public static T GetFromJsonValue<T>(this ITempDataDictionary tempData, string key, T missing = default) where T : class
     {
-        object o;
-        tempData.TryGetValue(key, out o);
-        var json = o as string;
-        return json == null ? missing : JsonConvert.DeserializeObject<T>(json, Settings);
+        tempData.TryGetValue(key, out var o);
+        return o is not string json ? missing : JsonConvert.DeserializeObject<T>(json, Settings);
     }
 }

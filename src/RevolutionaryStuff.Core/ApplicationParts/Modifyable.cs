@@ -32,6 +32,6 @@ public abstract class BaseModifyable : IModifyable
 
     protected void CheckCanModify()
     {
-        if (IsReadOnly) throw new ReadOnlyException(string.Format("cannot modify value, {0} is immutable", GetType().Name));
+        if (IsReadOnly) throw new ReadOnlyException($"cannot modify value, {GetType().Name} is immutable");
     }
 }

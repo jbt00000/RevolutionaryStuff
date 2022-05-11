@@ -40,14 +40,12 @@ public static class TypeHelpers
         {
             return ConstructList(t.GenericTypeArguments[0]);
         }
-        else if (t.Name == "IDictionary`2")
+
+        if (t.Name == "IDictionary`2")
         {
             return ConstructDictionary(t.GenericTypeArguments[0], t.GenericTypeArguments[1]);
         }
-        else
-        {
-            return Activator.CreateInstance(t);
-        }
+        return Activator.CreateInstance(t);
     }
 
     public static T Construct<T>() where T : new()
@@ -202,7 +200,7 @@ public static class TypeHelpers
     {
         Requires.NonNull(mi);
         if (mi is PropertyInfo or FieldInfo) return;
-        throw new Exception(string.Format("we weren't expectecting a {0}", mi.GetType()));
+        throw new Exception($"we weren't expectecting a {mi.GetType()}");
     }
 
     public static Type GetUnderlyingType(this MemberInfo mi)
@@ -213,7 +211,8 @@ public static class TypeHelpers
             var pi = (PropertyInfo)mi;
             return pi.PropertyType;
         }
-        else if (mi is FieldInfo)
+
+        if (mi is FieldInfo)
         {
             var fi = (FieldInfo)mi;
             return fi.FieldType;
@@ -229,7 +228,8 @@ public static class TypeHelpers
             var pi = (PropertyInfo)mi;
             return pi.GetValue(basevar, null);
         }
-        else if (mi is FieldInfo)
+
+        if (mi is FieldInfo)
         {
             var fi = (FieldInfo)mi;
             return fi.GetValue(basevar);
@@ -265,7 +265,8 @@ public static class TypeHelpers
             var pi = (PropertyInfo)mi;
             return ConvertValue(pi.PropertyType, val);
         }
-        else if (mi is FieldInfo)
+
+        if (mi is FieldInfo)
         {
             var fi = (FieldInfo)mi;
             return ConvertValue(fi.FieldType, val);
@@ -288,15 +289,16 @@ public static class TypeHelpers
             {
                 return TimeSpan.Parse(val);
             }
-            else if (t == typeof(bool))
+
+            if (t == typeof(bool))
             {
                 return Parse.ParseBool(val);
             }
-            else if (t == typeof(Uri))
+            if (t == typeof(Uri))
             {
                 return new Uri(val);
             }
-            else if (ti.IsEnum)
+            if (ti.IsEnum)
             {
                 return Enum.Parse(t, val, true);
             }
@@ -346,22 +348,19 @@ public static class TypeHelpers
         if (t == typeof(bool))
         {
             var sval = StringHelpers.ToString(val);
-            bool b;
-            if (Parse.TryParseBool(sval, out b)) return b;
-            throw new NotSupportedException(string.Format("ChangeType could change [{0}] into a bool.", val));
+            if (Parse.TryParseBool(sval, out var b)) return b;
+            throw new NotSupportedException($"ChangeType could change [{val}] into a bool.");
         }
-        else if (t.GetTypeInfo().IsEnum)
+
+        if (t.GetTypeInfo().IsEnum)
         {
             return Enum.Parse(t, val.ToString(), true);
         }
-        else if (t == typeof(Uri) && val is string)
+        if (t == typeof(Uri) && val is string)
         {
             return new Uri((string)val);
         }
-        else
-        {
-            return Convert.ChangeType(val, t, null);
-        }
+        return Convert.ChangeType(val, t, null);
     }
 
     public static bool CanWrite(this MemberInfo mi)
@@ -372,15 +371,13 @@ public static class TypeHelpers
             var pi = (PropertyInfo)mi;
             return pi.CanWrite;
         }
-        else if (mi is FieldInfo)
+
+        if (mi is FieldInfo)
         {
             var fi = (FieldInfo)mi;
             return !(fi.IsInitOnly || fi.IsLiteral);
         }
-        else
-        {
-            return false;
-        }
+        return false;
     }
 
     //        public static bool A
@@ -441,7 +438,7 @@ Again:
         Func<TNodeContext, Type, MemberInfo, TNodeContext> createContext,
         Action<TNodeContext, Type, MemberInfo> visit,
         Func<TNodeContext, Type, MemberInfo, bool> recurse = null,
-        TNodeContext parentNodeContext = default(TNodeContext),
+        TNodeContext parentNodeContext = default,
         int depth = 0,
         HashSet<Type> loopChecker = null,
         MemberInfo baseTypeMemberInfo = null)

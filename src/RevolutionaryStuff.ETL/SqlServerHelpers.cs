@@ -26,7 +26,7 @@ public static class SqlServerHelpers
 
             var copy = new SqlBulkCopy(conn);
             copy.BulkCopyTimeout = 60 * 60 * 4;
-            copy.DestinationTableName = string.Format("[{0}].[{1}]", settings.Schema, dt.TableName);
+            copy.DestinationTableName = $"[{settings.Schema}].[{dt.TableName}]";
 
             copy.NotifyAfter = settings.RowsTransferredNotifyIncrement;
             copy.SqlRowsCopied += (sender, e) => Trace.WriteLine(string.Format("Uploaded {0}/{1} rows",
@@ -50,6 +50,6 @@ public static class SqlServerHelpers
             copy.WriteToServer(dtr);
             copy.Close();
         }
-        Trace.WriteLine(string.Format("Uploaded {0} rows", dt.Rows.Count));
+        Trace.WriteLine($"Uploaded {dt.Rows.Count} rows");
     }
 }

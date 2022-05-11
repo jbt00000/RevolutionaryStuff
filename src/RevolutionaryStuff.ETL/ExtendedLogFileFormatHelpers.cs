@@ -88,7 +88,7 @@ public static class ExtendedLogFileFormatHelpers
                             }
                             else
                             {
-                                throw new FormatException(string.Format("In row {0}", lineNum));
+                                throw new FormatException($"In row {lineNum}");
                             }
                         }
                         else if (char.IsWhiteSpace(ch))
@@ -109,7 +109,7 @@ public static class ExtendedLogFileFormatHelpers
                     }
                     if (colNum != cols.Length)
                     {
-                        throw new FormatException(string.Format("In row {0} we are jagged", lineNum));
+                        throw new FormatException($"In row {lineNum} we are jagged");
                     }
                     dt.Rows.Add(row);
                     if (dt.Rows.Count % 50000 == 0)

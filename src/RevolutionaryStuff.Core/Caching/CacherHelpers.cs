@@ -27,10 +27,10 @@ public static class CacherHelpers
         return entry.GetValue<TVal>();
     }
 
-    public static TVal FindValue<TVal>(this ICacher cacher, string key, TVal missing = default(TVal))
+    public static TVal FindValue<TVal>(this ICacher cacher, string key, TVal missing = default)
         => cacher.FindValueAsync(key, missing).ExecuteSynchronously();
 
-    public static async Task<TVal> FindValueAsync<TVal>(this ICacher cacher, string key, TVal missing = default(TVal))
+    public static async Task<TVal> FindValueAsync<TVal>(this ICacher cacher, string key, TVal missing = default)
     {
         var entry = await cacher.FindEntryAsync(key);
         return entry == null ? missing : entry.GetValue<TVal>();

@@ -297,8 +297,7 @@ public static class SpreadsheetHelpers
 
     internal static int FindOrCreateSharedString(this IDictionary<string, int> indexBySharedString, string s)
     {
-        int pos;
-        if (!indexBySharedString.TryGetValue(s, out pos))
+        if (!indexBySharedString.TryGetValue(s, out var pos))
         {
             pos = indexBySharedString.Count;
             indexBySharedString[s] = pos;

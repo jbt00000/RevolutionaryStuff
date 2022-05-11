@@ -152,27 +152,25 @@ public static class DataTableHelpers
         return c;
     }
 
-    private static T ExtendedProperty<T>(this DataColumn dc, string propertyName, T? val = null, T missingValue = default(T)) where T : struct
+    private static T ExtendedProperty<T>(this DataColumn dc, string propertyName, T? val = null, T missingValue = default) where T : struct
     {
         if (val != null)
         {
             dc.ExtendedProperties[propertyName] = val.Value;
             return val.Value;
         }
-        else
+
+        try
         {
-            try
+            var p = dc.ExtendedProperties[propertyName];
+            if (p != null)
             {
-                var p = dc.ExtendedProperties[propertyName];
-                if (p != null)
-                {
-                    return (T)p;
-                }
+                return (T)p;
             }
-            catch (Exception)
-            { }
-            return missingValue;
         }
+        catch (Exception)
+        { }
+        return missingValue;
     }
 
     private static int IntegerExtendedProperty(this DataColumn dc, string propertyName, int? val = null, int missingValue = 0)

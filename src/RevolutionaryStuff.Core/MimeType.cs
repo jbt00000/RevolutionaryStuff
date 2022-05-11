@@ -195,13 +195,11 @@ public class MimeType
         if (string.IsNullOrEmpty(contentTypeA) || string.IsNullOrEmpty(contentTypeB)) return false;
         try
         {
-            string al, ar;
             contentTypeA = contentTypeA.LeftOf(";").Trim().ToLower();
-            contentTypeA.Split("/", true, out al, out ar);
+            contentTypeA.Split("/", true, out var al, out var ar);
 
-            string bl, br;
             contentTypeB = contentTypeB.LeftOf(";").Trim().ToLower();
-            contentTypeB.Split("/", true, out bl, out br);
+            contentTypeB.Split("/", true, out var bl, out var br);
 
             return (
                        (bl == "*" && br == "*") ||

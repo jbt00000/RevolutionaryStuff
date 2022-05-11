@@ -147,10 +147,7 @@ public static class Raw
     public static string Buf2String(byte[] buf, int offset, int length, Decoder d)
     {
         if (length == 0) return "";
-        if (null == d)
-        {
-            d = Encoding.UTF8.GetDecoder();
-        }
+        d ??= Encoding.UTF8.GetDecoder();
         var cbuf = new char[d.GetCharCount(buf, offset, length)];
 #if DEBUG
         if (cbuf.Length != length)
@@ -164,10 +161,7 @@ public static class Raw
 
     public static string Buf2String(byte[] buf, int offset, int length, Encoding d)
     {
-        if (null == d)
-        {
-            d = Encoding.UTF8;
-        }
+        d ??= Encoding.UTF8;
         var cbuf = new char[d.GetCharCount(buf, offset, length)];
 #if DEBUG
         if (cbuf.Length != length)
@@ -435,10 +429,8 @@ public static class Raw
         {
             return (SByte)(b & 0x7);
         }
-        else
-        {
-            return (SByte)(0xF0 | b);
-        }
+
+        return (SByte)(0xF0 | b);
     }
 
     public static int SwapEndianInt32(int i)
@@ -515,14 +507,16 @@ public static class Raw
             {
                 return (byte)(b - byte0);
             }
-            else if (b >= bytea && b <= bytef)
+
+            if (b >= bytea && b <= bytef)
             {
                 return (byte)((b - bytea) + 10);
             }
-            else if (b >= byteA && b <= byteF)
+            if (b >= byteA && b <= byteF)
             {
                 return (byte)((b - byteA) + 10);
             }
+
             return byte.MaxValue;
         }
     }

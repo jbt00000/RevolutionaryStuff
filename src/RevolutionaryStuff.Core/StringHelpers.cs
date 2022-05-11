@@ -195,27 +195,23 @@ public static class StringHelpers
             left = s;
             return false;
         }
-        else
-        {
-            left = s[..n];
-            right = s[(n + sep.Length)..];
-            return true;
-        }
+
+        left = s[..n];
+        right = s[(n + sep.Length)..];
+        return true;
     }
 
     public static string LeftOf(this string s, string pivot)
     {
         if (s == null) return null;
-        string left, right;
-        s.Split(pivot, true, out left, out right);
+        s.Split(pivot, true, out var left, out var right);
         return left;
     }
 
     public static string RightOf(this string s, string pivot, bool returnFullStringIfPivotIsMissing = false)
     {
         if (s == null) return null;
-        string left, right;
-        if (s.Split(pivot, true, out left, out right)) return right;
+        if (s.Split(pivot, true, out var left, out var right)) return right;
         return returnFullStringIfPivotIsMissing ? s : null;
     }
 
@@ -266,9 +262,8 @@ public static class StringHelpers
     {
         if (vals != null)
         {
-            for (var x = 0; x < vals.Length; ++x)
+            foreach (var s in vals)
             {
-                var s = vals[x];
                 if (string.IsNullOrWhiteSpace(s)) continue;
                 return s;
             }

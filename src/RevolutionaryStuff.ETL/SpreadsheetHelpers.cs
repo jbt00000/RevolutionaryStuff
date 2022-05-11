@@ -16,17 +16,15 @@ public static partial class SpreadsheetHelpers
             var sval = val as string;
             if (t == typeof(DateTime) && sval != null)
             {
-                double d;
-                if (double.TryParse(sval, out d))
+                if (double.TryParse(sval, out var d))
                 {
                     return DateTime.FromOADate(d);
                 }
             }
             else if (t == typeof(Decimal) && sval != null)
             {
-                Decimal d;
                 //https://stackoverflow.com/questions/22291165/parsing-decimal-in-scientific-notation
-                if (Decimal.TryParse(sval, System.Globalization.NumberStyles.Float, null, out d))
+                if (Decimal.TryParse(sval, System.Globalization.NumberStyles.Float, null, out var d))
                 {
                     return d;
                 }
@@ -176,8 +174,7 @@ public static partial class SpreadsheetHelpers
         else
         {
             var sVal = (string)val;
-            int pos;
-            if (!indexBySharedString.TryGetValue(sVal, out pos))
+            if (!indexBySharedString.TryGetValue(sVal, out var pos))
             {
                 pos = indexBySharedString.Count;
                 indexBySharedString[sVal] = pos;
@@ -323,9 +320,7 @@ CreateRow:
             }
             ++sheetNumber;
         }
-        throw new Exception(string.Format(
-            "Sheet [{0}] was not found",
-            settings.SheetNumber ?? (object)settings.SheetName));
+        throw new Exception($"Sheet [{settings.SheetNumber ?? (object)settings.SheetName}] was not found");
     }
 
     private static readonly Regex ColRowExpr = new(@"\s*([A-Z]+)(\d+)\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);

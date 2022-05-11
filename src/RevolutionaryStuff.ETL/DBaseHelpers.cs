@@ -379,8 +379,7 @@ public static class DBaseHelpers
             {
                 var blockNum = m.Item1.DbtBlockNumber;
                 rawRows[m.Item3][m.Item4] = DBNull.Value;
-                var sdata = GetMemoBlockData(memoStream, blockNum, blockSize) as string;
-                if (sdata != null)
+                if (GetMemoBlockData(memoStream, blockNum, blockSize) is string sdata)
                 {
                     var col = dt.Columns[m.Item4];
                     col.MaxLength = Math.Max(col.MaxLength, sdata.Length);

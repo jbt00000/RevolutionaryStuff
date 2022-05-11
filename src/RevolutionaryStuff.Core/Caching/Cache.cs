@@ -111,6 +111,6 @@ public static partial class Cache
         if (key == null) return "special:__NULL";
         if (key.Length < 123) return "lit:" + key;
         var buf = Encoding.UTF8.GetBytes(key);
-        return string.Format("urn:crc32:{0}{1}", CRC32Checksum.Do(buf), key.GetHashCode());
+        return $"urn:crc32:{CRC32Checksum.Do(buf)}{key.GetHashCode()}";
     }
 }

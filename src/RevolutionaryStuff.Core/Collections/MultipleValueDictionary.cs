@@ -74,8 +74,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
     public void Remove(K key, V val)
     {
         CheckCanModify();
-        ICollection<V> col;
-        if (ValuesByKey.TryGetValue(key, out col))
+        if (ValuesByKey.TryGetValue(key, out var col))
         {
             if (col.Count == 1)
             {
@@ -101,8 +100,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
     {
         get
         {
-            ICollection<V> c;
-            if (ValuesByKey.TryGetValue(k, out c))
+            if (ValuesByKey.TryGetValue(k, out var c))
             {
                 return c;
             }
@@ -154,8 +152,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
     {
         CheckCanModify();
 
-        ICollection<V> c;
-        if (ValuesByKey.TryGetValue(k, out c))
+        if (ValuesByKey.TryGetValue(k, out var c))
         {
             if (c is V[])
             {
@@ -200,8 +197,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
 
     public bool Contains(K key, V val)
     {
-        ICollection<V> col;
-        if (ValuesByKey.TryGetValue(key, out col))
+        if (ValuesByKey.TryGetValue(key, out var col))
         {
             return col.Contains(val);
         }

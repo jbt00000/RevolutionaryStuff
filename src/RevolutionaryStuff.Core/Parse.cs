@@ -78,8 +78,7 @@ public static class Parse
     {
         if (!string.IsNullOrEmpty(s))
         {
-            Int32 i;
-            if (int.TryParse(s, out i)) return i;
+            if (int.TryParse(s, out var i)) return i;
         }
         return fallback;
     }
@@ -88,8 +87,7 @@ public static class Parse
     {
         if (!string.IsNullOrEmpty(s))
         {
-            Int64 i;
-            if (long.TryParse(s, out i)) return i;
+            if (long.TryParse(s, out var i)) return i;
         }
         return fallback;
     }
@@ -98,8 +96,7 @@ public static class Parse
     {
         if (!string.IsNullOrEmpty(s))
         {
-            DateTime dt;
-            if (DateTime.TryParse(s, out dt)) return dt;
+            if (DateTime.TryParse(s, out var dt)) return dt;
         }
         return fallback;
     }
@@ -117,8 +114,7 @@ public static class Parse
     {
         if (!string.IsNullOrEmpty(s))
         {
-            double i;
-            if (double.TryParse(s, out i)) return i;
+            if (double.TryParse(s, out var i)) return i;
         }
         return fallback;
     }
@@ -147,7 +143,8 @@ public static class Parse
                     v = true;
                     return true;
                 }
-                else if (BoolFalseExpr.IsMatch(s))
+
+                if (BoolFalseExpr.IsMatch(s))
                 {
                     v = false;
                     return true;
@@ -167,8 +164,7 @@ public static class Parse
     /// <returns>Parsed Value OR Default </returns>
     public static Int64 ParseInt64(string s, Int64 fallback = 0)
     {
-        Int64 ret;
-        if (!Int64.TryParse(s, out ret))
+        if (!Int64.TryParse(s, out var ret))
         {
             ret = fallback;
         }
@@ -177,8 +173,7 @@ public static class Parse
 
     public static Uri ParseUri(string s, UriKind kind = UriKind.Absolute)
     {
-        Uri u;
-        return Uri.TryCreate(s, kind, out u) ? u : null;
+        return Uri.TryCreate(s, kind, out var u) ? u : null;
     }
 
     /// <summary>
@@ -189,8 +184,7 @@ public static class Parse
     /// <returns>Parsed Value OR Default </returns>
     public static double ParseDouble(string s, double fallback = 0)
     {
-        double ret;
-        if (!double.TryParse(s, out ret))
+        if (!double.TryParse(s, out var ret))
         {
             ret = fallback;
         }
@@ -205,8 +199,7 @@ public static class Parse
     /// <returns>Parsed Value OR Default </returns>
     public static Int32 ParseInt32(string s, Int32 fallback = 0)
     {
-        Int32 ret;
-        if (!Int32.TryParse(s, out ret))
+        if (!Int32.TryParse(s, out var ret))
         {
             ret = fallback;
         }
@@ -221,8 +214,7 @@ public static class Parse
     /// <returns>Parsed Value OR Default </returns>
     public static bool ParseBool(string s, bool fallback = false)
     {
-        bool v;
-        return TryParseBool(s, out v) ? v : fallback;
+        return TryParseBool(s, out var v) ? v : fallback;
     }
 
     /// <summary>
@@ -233,8 +225,7 @@ public static class Parse
     /// <returns>Parsed value or default</returns>
     public static TimeSpan ParseTimeSpan(string s, TimeSpan fallback)
     {
-        TimeSpan ts;
-        if (TimeSpan.TryParse(s, out ts)) return ts;
+        if (TimeSpan.TryParse(s, out var ts)) return ts;
         return fallback;
     }
 

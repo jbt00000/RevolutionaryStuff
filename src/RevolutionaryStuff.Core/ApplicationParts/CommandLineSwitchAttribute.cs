@@ -83,7 +83,7 @@ public class CommandLineSwitchAttribute : Attribute
 
     public override string ToString()
     {
-        return string.Format("CommandLineSwitch {0}", Names[0]);
+        return $"CommandLineSwitch {Names[0]}";
     }
 
     public static IEnumerable<KeyValuePair<CommandLineSwitchAttribute, MemberInfo>> Find(Type t)
@@ -120,15 +120,13 @@ public class CommandLineSwitchAttribute : Attribute
         {
             return "{" + Enum.GetNames(t).Format("|") + "}";
         }
-        else
+
+        var name = t.FullName;
+        if (name.StartsWith("System.") && name.IndexOf(".", 7) == -1)
         {
-            var name = t.FullName;
-            if (name.StartsWith("System.") && name.IndexOf(".", 7) == -1)
-            {
-                return t.Name;
-            }
-            return name;
+            return t.Name;
         }
+        return name;
     }
 
     public static string SimpleUsageSwitchFormatter(KeyValuePair<CommandLineSwitchAttribute, MemberInfo> s, int pos)
@@ -140,7 +138,7 @@ public class CommandLineSwitchAttribute : Attribute
             a.Names.Format("|"),
             a.Mandatory ? "required" : "optional",
             ToHelpString(mi.GetUnderlyingType()),
-            a.Translator == CommandLineSwitchAttributeTranslators.None ? "" : string.Format("({0})", a.Translator),
+            a.Translator == CommandLineSwitchAttributeTranslators.None ? "" : $"({a.Translator})",
             a.Description
             );
     }
@@ -154,7 +152,7 @@ public class CommandLineSwitchAttribute : Attribute
             a.Names.Format("|"),
             a.Mandatory ? "required" : "optional",
             ToHelpString(mi.GetUnderlyingType()),
-            a.Translator == CommandLineSwitchAttributeTranslators.None ? "" : string.Format("({0})", a.Translator),
+            a.Translator == CommandLineSwitchAttributeTranslators.None ? "" : $"({a.Translator})",
             a.Description
             );
     }
@@ -206,10 +204,8 @@ public class CommandLineSwitchAttribute : Attribute
             }
             return sb.ToString();
         }
-        else
-        {
-            return switches.Format(newLine, formatter);
-        }
+
+        return switches.Format(newLine, formatter);
     }
 
     public static void SetArgs(CommandLineInfo cli, object o, bool throwOnDuplicateArgs = true, bool throwOnExtraNonMappedArgs = false)
@@ -271,8 +267,7 @@ public class CommandLineSwitchAttribute : Attribute
                         var d = new Dictionary<string, string>();
                         foreach (var part in parts)
                         {
-                            string l, r;
-                            part.Split("=", true, out l, out r);
+                            part.Split("=", true, out var l, out var r);
                             d[l.Trim()] = r.Trim();
                         }
                         val = d;

@@ -421,8 +421,7 @@ public static class DataHelpers
                 for (var rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                 {
                     var dr = dt.Rows[rowNum];
-                    var s = dr[colNum] as string;
-                    if (s == null)
+                    if (dr[colNum] is not string s)
                     {
                         hasNulls = true;
                     }
@@ -439,11 +438,9 @@ public static class DataHelpers
                                     dr[colNum] = DBNull.Value;
                                     continue;
                                 }
-                                else
-                                {
-                                    s = ts;
-                                    dr[colNum] = s;
-                                }
+
+                                s = ts;
+                                dr[colNum] = s;
                             }
                         }
                         len = Stuff.Max(len, s.Length);
@@ -524,7 +521,7 @@ public static class DataHelpers
             }
             else
             {
-                throw new ArgumentException(string.Format("cannot translate type {0} to sql", dc.DataType.Name), dc.ColumnName);
+                throw new ArgumentException($"cannot translate type {dc.DataType.Name} to sql", dc.ColumnName);
             }
             var isPk = dt.PrimaryKey != null && dt.PrimaryKey.Length == 1 && dt.PrimaryKey[0] == dc;
             sb.AppendFormat("\t[{0}] {1} {2}{3}{4}\n",

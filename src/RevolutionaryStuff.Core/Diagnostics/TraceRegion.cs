@@ -15,7 +15,7 @@ public class TraceRegion : BaseDisposable
         Name = name;
         if (!string.IsNullOrEmpty(Name))
         {
-            var s = string.Format("{0} vvvvvvvvvvvvvvvvvvvvvvvv", Name);
+            var s = $"{Name} vvvvvvvvvvvvvvvvvvvvvvvv";
             Trace.WriteLine(s);
         }
         Trace.Indent();
@@ -30,12 +30,12 @@ public class TraceRegion : BaseDisposable
         if (Stopwatch != null)
         {
             Stopwatch.Stop();
-            timing = string.Format(" duration={0}", Stopwatch.Elapsed);
+            timing = $" duration={Stopwatch.Elapsed}";
         }
         Trace.Unindent();
         if (!string.IsNullOrEmpty(Name))
         {
-            var s = string.Format("{0} ^^^^^^^^^^^^^^^^^^^^^^^^{1}", Name, timing);
+            var s = $"{Name} ^^^^^^^^^^^^^^^^^^^^^^^^{timing}";
             Trace.WriteLine(s);
         }
         base.OnDispose(disposing);

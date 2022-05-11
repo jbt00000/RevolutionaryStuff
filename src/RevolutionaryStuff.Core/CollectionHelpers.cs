@@ -56,10 +56,8 @@ public static class CollectionHelpers
         {
             return source.OrderBy(keySelector);
         }
-        else
-        {
-            return source.OrderByDescending(keySelector);
-        }
+
+        return source.OrderByDescending(keySelector);
     }
 
     public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, bool isAscending)
@@ -68,10 +66,8 @@ public static class CollectionHelpers
         {
             return source.OrderBy(keySelector);
         }
-        else
-        {
-            return source.OrderByDescending(keySelector);
-        }
+
+        return source.OrderByDescending(keySelector);
     }
 
     public static void AddRange<T>(this HashSet<T> hs, IEnumerable<T> items)
@@ -106,7 +102,7 @@ public static class CollectionHelpers
             }
             else if (!omitMissing)
             {
-                ret.Add(default(O));
+                ret.Add(default);
             }
         }
         return ret;
@@ -153,7 +149,7 @@ public static class CollectionHelpers
                 if (v is R) return (R)v;
             }
         }
-        return default(R);
+        return default;
     }
 
     /// <summary>
@@ -277,7 +273,7 @@ public static class CollectionHelpers
         return z.MoveNext();
     }
 
-    public static V GetValue<K, V>(this IDictionary<K, V> d, K key, V fallback = default(V))
+    public static V GetValue<K, V>(this IDictionary<K, V> d, K key, V fallback = default)
         => d.TryGetValue(key, out var ret) ? ret : fallback;
 
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> items, Action<T> action)
@@ -387,7 +383,7 @@ public static class CollectionHelpers
         return false;
     }
 
-    public static List<V> ToOrderedValuesList<K, V>(this IDictionary<K, V> d, IEnumerable<K> orderedKeys, bool throwOnMiss = false, V missingVal = default(V))
+    public static List<V> ToOrderedValuesList<K, V>(this IDictionary<K, V> d, IEnumerable<K> orderedKeys, bool throwOnMiss = false, V missingVal = default)
     {
         var ret = new List<V>(d.Count);
         foreach (var k in orderedKeys)
@@ -491,7 +487,7 @@ public static class CollectionHelpers
     {
         if (!d.TryGetValue(key, out var ret))
         {
-            ret = default(V);
+            ret = default;
         }
         return ret;
     }
@@ -542,10 +538,8 @@ public static class CollectionHelpers
            {
                return match == null;
            }
-           else
-           {
-               return i.Equals(match);
-           }
+
+           return i.Equals(match);
        }, nthOccurrence, zeroThValue, missingValue);
 
     public static TColl FluentAdd<TColl, T>(this TColl col, T item) where TColl : ICollection<T>

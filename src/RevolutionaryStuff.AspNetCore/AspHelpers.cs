@@ -3,6 +3,7 @@ using System.IO;
 using System.Threading;
 using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace RevolutionaryStuff.AspNetCore;
@@ -164,8 +165,7 @@ public static class AspHelpers
         List<string> orderedKeys = null;
         foreach (var key in htmlHelper.ViewContext.HttpContext.Items.Keys)
         {
-            var sk = key as string;
-            if (sk != null && sk.StartsWith(LateContentPrefix))
+            if (key is string sk && sk.StartsWith(LateContentPrefix))
             {
                 orderedKeys ??= new List<string>();
                 orderedKeys.Add(sk);
@@ -177,8 +177,7 @@ public static class AspHelpers
             foreach (var sk in orderedKeys)
             {
                 var v = htmlHelper.ViewContext.HttpContext.Items[sk];
-                var template = v as Func<object, Microsoft.AspNetCore.Mvc.Razor.HelperResult>;
-                if (template != null)
+                if (v is Func<object, HelperResult> template)
                 {
                     htmlHelper.ViewContext.Writer.Write(template(null));
                 }

@@ -14,7 +14,7 @@ public static class MySqlHelpers
 
         public override string ToString()
         {
-            return string.Format("{0} quoted={1} text=[{2}]", GetType().Name, Quoted, Text);
+            return $"{GetType().Name} quoted={Quoted} text=[{Text}]";
         }
 
         public bool EqualsCaseInsensitive(string other)
@@ -69,12 +69,10 @@ public static class MySqlHelpers
                     {
                         goto default;
                     }
-                    else
+
+                    if (nextChar == '-')
                     {
-                        if (nextChar == '-')
-                        {
-                            inSingleLineComment = true;
-                        }
+                        inSingleLineComment = true;
                     }
                     break;
                 case '\r':
@@ -93,7 +91,8 @@ public static class MySqlHelpers
                     {
                         goto default;
                     }
-                    else if (inMultiLineComment && lastChar == '*')
+
+                    if (inMultiLineComment && lastChar == '*')
                     {
                         inMultiLineComment = false;
                     }
@@ -108,7 +107,8 @@ public static class MySqlHelpers
                     {
                         goto default;
                     }
-                    else if (!inMultiLineComment && !inSingleLineComment)
+
+                    if (!inMultiLineComment && !inSingleLineComment)
                     {
                         if (inNameQuote)
                         {
@@ -146,7 +146,8 @@ public static class MySqlHelpers
                     {
                         goto default;
                     }
-                    else if (!inMultiLineComment && !inSingleLineComment)
+
+                    if (!inMultiLineComment && !inSingleLineComment)
                     {
                         if (inSqlQuote)
                         {

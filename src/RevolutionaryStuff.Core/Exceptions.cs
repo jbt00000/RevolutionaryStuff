@@ -6,8 +6,7 @@ public abstract class BaseCodedException : Exception
 
     public static object GetCode(Exception ex, object missing = null)
     {
-        var bce = ex as BaseCodedException;
-        return bce == null ? missing : bce.GetCode();
+        return ex is not BaseCodedException bce ? missing : bce.GetCode();
     }
 
     #region Constructors
@@ -49,7 +48,7 @@ public class CodedException<T> : BaseCodedException where T : struct
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     public CodedException(T code, string message)
-        : base(string.Format("{0}: {1}", code, message))
+        : base($"{code}: {message}")
     {
         Code = code;
     }
@@ -69,18 +68,16 @@ public class CodedException<T> : BaseCodedException where T : struct
 
     public override string ToString()
     {
-        var s = string.Format("{0}({1})\n{2}", GetType().Name, Code, base.ToString());
+        var s = $"{GetType().Name}({Code})\n{base.ToString()}";
         if (InnerException != null)
         {
-            s = string.Format("{0}\n{1}:{2}", s, InnerException.GetType(), InnerException.Message);
+            s = $"{s}\n{InnerException.GetType()}:{InnerException.Message}";
         }
         return s;
     }
 
     public override object GetCode()
-    {
-        return Code;
-    }
+        => Code;
 }
 
 
@@ -162,7 +159,7 @@ public class MustOverrideException : Exception
 public class UnexpectedSwitchValueException : Exception
 {
     public UnexpectedSwitchValueException(object o)
-        : base(string.Format("Did not expect val [{0}] in the switch statement", o))
+        : base($"Did not expect val [{o}] in the switch statement")
     {
     }
 }
@@ -170,7 +167,7 @@ public class UnexpectedSwitchValueException : Exception
 public class InvalidMappingException : Exception
 {
     public InvalidMappingException(object from, object to)
-        : base(string.Format("Could not map {0} to {1}", from, to))
+        : base($"Could not map {from} to {to}")
     {
     }
 }

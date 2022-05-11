@@ -134,8 +134,7 @@ public static class Stuff
         if (os == null) return;
         foreach (var o in os)
         {
-            var d = o as IDisposable;
-            if (d == null) return;
+            if (o is not IDisposable d) return;
             try
             {
                 d.Dispose();

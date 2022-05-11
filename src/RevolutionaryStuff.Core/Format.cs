@@ -51,7 +51,7 @@ public static class Format
 
     public static string ToSqlString(this DateTime dt, bool quote = false)
     {
-        var s = string.Format("{0:yyyy-MM-ddTHH:mm:ss.fff}", dt);
+        var s = $"{dt:yyyy-MM-ddTHH:mm:ss.fff}";
         if (quote) s = "'" + s + "'";
         return s;
     }

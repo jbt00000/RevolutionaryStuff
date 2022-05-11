@@ -21,11 +21,9 @@ public static class AttributeStuff
         {
             return new TAttribute[0];
         }
-        else
-        {
-            var mi = ti.GetMember(e.ToString())[0];
-            return mi.GetCustomAttributes<TAttribute>();
-        }
+
+        var mi = ti.GetMember(e.ToString())[0];
+        return mi.GetCustomAttributes<TAttribute>();
     }
 
     public static TAttribute GetCustomAttribute<TAttribute>(this Enum e) where TAttribute : Attribute => e.GetCustomAttributes<TAttribute>().FirstOrDefault();

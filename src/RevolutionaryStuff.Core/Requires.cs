@@ -34,10 +34,10 @@ public static class Requires
     public static void ArrayArg(IList arg, int offset, int size, string argName, int minSize = 0, bool nullable = false)
     {
         if (!nullable) NonNull(arg, argName);
-        if (size < minSize) throw new ArgumentException(string.Format("size must be >= {0}", minSize));
+        if (size < minSize) throw new ArgumentException($"size must be >= {minSize}");
         if (offset < 0) throw new ArgumentException("offset must be >= 0");
         if (size + offset > arg.Count)
-            throw new ArgumentException(string.Format("size+offset must be <= {0}.Count", argName));
+            throw new ArgumentException($"size+offset must be <= {argName}.Count");
     }
 
     public static void ListArg<T>(IList<T> arg, [CallerArgumentExpression("arg")] string argName = null, int minSize = 0)
@@ -133,7 +133,7 @@ public static class Requires
         NonNull(testType, nameof(testType));
         NonNull(isType, nameof(isType));
         if (isType.GetTypeInfo().IsAssignableFrom(testType)) return;
-        throw new ArgumentException(string.Format("{0} is not a {1}", testType, isType));
+        throw new ArgumentException($"{testType} is not a {isType}");
     }
 
     public static void Zero(double arg, [CallerArgumentExpression("arg")] string argName = null)
@@ -197,11 +197,11 @@ public static class Requires
         arg ??= "";
         if (arg.Length < minLen)
         {
-            throw new ArgumentException(string.Format("{0} must be >= {1} chars", argName, minLen), argName);
+            throw new ArgumentException($"{argName} must be >= {minLen} chars", argName);
         }
         if (maxLen > -1 && arg.Length > maxLen)
         {
-            throw new ArgumentException(string.Format("{0} must be <= {1} chars", argName, maxLen), argName);
+            throw new ArgumentException($"{argName} must be <= {maxLen} chars", argName);
         }
     }
 

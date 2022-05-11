@@ -30,10 +30,8 @@ internal class TemporaryStreamFactory : ITemporaryStreamFactory
         {
             return new MemoryStream(capacity.Value);
         }
-        else
-        {
-            var fn = Path.GetTempFileName();
-            return File.Create(fn, config.FileBufferSize, FileOptions.DeleteOnClose);
-        }
+
+        var fn = Path.GetTempFileName();
+        return File.Create(fn, config.FileBufferSize, FileOptions.DeleteOnClose);
     }
 }

@@ -73,8 +73,7 @@ public class WorkQueue : BaseDisposable
             Interlocked.Increment(ref BusyThreads_p);
             try
             {
-                Action a;
-                if (Queue.TryDequeue(out a))
+                if (Queue.TryDequeue(out var a))
                 {
                     CreateThread(false);
                     IsBored.Set();
@@ -99,8 +98,7 @@ public class WorkQueue : BaseDisposable
 
     public void Flush()
     {
-        Action a;
-        while (Queue.TryDequeue(out a)) ;
+        while (Queue.TryDequeue(out var a)) ;
     }
 
     protected override void OnDispose(bool disposing)

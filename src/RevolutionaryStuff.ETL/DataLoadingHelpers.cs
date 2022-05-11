@@ -32,12 +32,12 @@ public static partial class DataLoadingHelpers
 
     public static void RowAddErrorIgnore(Exception ex, int rowNum)
     {
-        Trace.WriteLine(string.Format("Problem adding row {0} because [{1}]", rowNum, ex.Message));
+        Trace.WriteLine($"Problem adding row {rowNum} because [{ex.Message}]");
     }
 
     public static void RowAddErrorRethrow(Exception ex, int rowNum)
     {
-        throw new Exception(string.Format("Problem adding row {0}", rowNum), ex);
+        throw new Exception($"Problem adding row {rowNum}", ex);
     }
 
     public static bool DontAddEmptyRows(DataTable dt, object[] row)
@@ -51,7 +51,7 @@ public static partial class DataLoadingHelpers
 
     public static void RowAddErrorTraceAndIgnore(Exception ex, int rowNum)
     {
-        Trace.WriteLine(string.Format("Problem adding row {0}.  Will Skip.\n{1}", rowNum, ex));
+        Trace.WriteLine($"Problem adding row {rowNum}.  Will Skip.\n{ex}");
     }
 
     public static DataTable LoadRowsFromFixedWidthText(Stream st, LoadRowsFromFixedWidthTextSettings settings)
@@ -380,7 +380,7 @@ public static partial class DataLoadingHelpers
                 }
                 else if (c == null)
                 {
-                    Trace.WriteLine(string.Format("Will ignore source column #{0} with name=[{1}]", z, colName));
+                    Trace.WriteLine($"Will ignore source column #{z} with name=[{colName}]");
                 }
                 columnMap[z] = c;
             }
@@ -519,14 +519,15 @@ public static partial class DataLoadingHelpers
 
     public static string OnDuplicateColumnNameThrow(DataTable dt, string duplicateColumnName)
     {
-        throw new Exception(string.Format("Datatable cannot have duplicate column names.  [{0}] occurs at least twice", duplicateColumnName));
+        throw new Exception(
+            $"Datatable cannot have duplicate column names.  [{duplicateColumnName}] occurs at least twice");
     }
 
     public static string OnDuplicateAppendSeqeuntialNumber(DataTable dt, string inboundColumnName)
     {
         for (var z = 2; ; ++z)
         {
-            var newName = string.Format("{0}_{1}", inboundColumnName, z);
+            var newName = $"{inboundColumnName}_{z}";
             if (!dt.Columns.Contains(newName)) return newName;
         }
     }

@@ -25,7 +25,7 @@ public static class DelegateHelpers
                 if (z++ < retryCount.GetValueOrDefault(3))
                 {
                     var wait = Convert.ToInt32(backoffPeriod.Value.TotalMilliseconds * z);
-                    Trace.WriteLine(string.Format("CallAndRetryOnFailure retry={0} wait={1}", z, TimeSpan.FromMilliseconds(wait)));
+                    Trace.WriteLine($"CallAndRetryOnFailure retry={z} wait={TimeSpan.FromMilliseconds(wait)}");
                     await (Task.Delay(wait));
                 }
                 else
@@ -53,7 +53,7 @@ public static class DelegateHelpers
                 if (z++ < retryCount.GetValueOrDefault(3))
                 {
                     var wait = Convert.ToInt32(backoffPeriod.Value.TotalMilliseconds * z);
-                    Trace.WriteLine(string.Format("CallAndRetryOnFailure retry={0} wait={1}", z, TimeSpan.FromMilliseconds(wait)));
+                    Trace.WriteLine($"CallAndRetryOnFailure retry={z} wait={TimeSpan.FromMilliseconds(wait)}");
                     Thread.Sleep(wait);
                 }
                 else
@@ -111,12 +111,9 @@ public static class DelegateHelpers
             {
                 throw ex;
             }
-            else
-            {
 #if DEBUG
-                Debug.WriteLine(ex);
+            Debug.WriteLine(ex);
 #endif
-            }
         }
     }
 
@@ -132,12 +129,9 @@ public static class DelegateHelpers
             {
                 throw ex;
             }
-            else
-            {
 #if DEBUG
-                Debug.WriteLine(ex);
+            Debug.WriteLine(ex);
 #endif
-            }
         }
     }
 
@@ -154,12 +148,9 @@ public static class DelegateHelpers
             {
                 throw ex;
             }
-            else
-            {
 #if DEBUG
-                Debug.WriteLine(ex);
+            Debug.WriteLine(ex);
 #endif
-            }
         }
         return ea.Cancel;
     }

@@ -125,10 +125,8 @@ internal class Stats : IEnumerable
         {
             return missing;
         }
-        else
-        {
-            return s.Val;
-        }
+
+        return s.Val;
     }
 
     /// <summary>
@@ -143,10 +141,7 @@ internal class Stats : IEnumerable
         {
             return new Stat(key);
         }
-        else
-        {
-            return s;
-        }
+        return s;
     }
 
     /// <summary>
@@ -174,8 +169,7 @@ internal class Stats : IEnumerable
     /// <returns>The value of the stat after this call</returns>
     public long Max(object key, long val)
     {
-        Stat s;
-        if (StatsByKey.TryGetValue(key, out s))
+        if (StatsByKey.TryGetValue(key, out var s))
         {
             s.Set(Math.Max(s.Val, val));
         }
@@ -241,8 +235,7 @@ internal class Stats : IEnumerable
     {
         Requires.NonNull(key);
         if (IsBitbucket) return 0;
-        Stat s;
-        if (StatsByKey.TryGetValue(key, out s))
+        if (StatsByKey.TryGetValue(key, out var s))
         {
             s.Set(s.Val + val, tickCount);
         }
@@ -286,8 +279,7 @@ internal class Stats : IEnumerable
     {
         Requires.NonNull(key);
         if (IsBitbucket) return;
-        Stat s;
-        if (StatsByKey.TryGetValue(key, out s))
+        if (StatsByKey.TryGetValue(key, out var s))
         {
             s.Set(val);
         }

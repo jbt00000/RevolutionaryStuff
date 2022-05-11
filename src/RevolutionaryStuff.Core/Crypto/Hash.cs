@@ -117,25 +117,25 @@ public sealed class Hash
 
     public override string ToString()
     {
-        return string.Format("{0} {1}", GetType().Name, Urn);
+        return $"{GetType().Name} {Urn}";
     }
 
     public static string CreateUrn(string hashName, byte[] hashBytes)
     {
-        return string.Format("urn:{0}:{1}", hashName, Base32.Encode(hashBytes));
+        return $"urn:{hashName}:{Base32.Encode(hashBytes)}";
     }
 
     public string Urn
     {
         [DebuggerStepThrough]
-        get { return string.Format("urn:{0}:{1}", HashName, DataHuman); }
+        get { return $"urn:{HashName}:{DataHuman}"; }
     }
 
     /// <remarks>http://www.ietf.org/mail-archive/web/urn-nid/current/msg00043.html</remarks>
     public string ThiemannHashUrn
     {
         [DebuggerStepThrough]
-        get { return string.Format("urn:hash::{0}:{1}", HashName, DataHuman); }
+        get { return $"urn:hash::{HashName}:{DataHuman}"; }
     }
 
     public string DataHuman
@@ -178,7 +178,7 @@ public sealed class Hash
                 string bitprint;
                 var s = Parse(sha1);
                 var t = Parse(tiger);
-                bitprint = String.Format("urn:bitprint:{0}.{1}", s.DataHuman, t.DataHuman);
+                bitprint = $"urn:bitprint:{s.DataHuman}.{t.DataHuman}";
                 return bitprint;
             }
         }
@@ -227,7 +227,7 @@ public sealed class Hash
     {
         var h = new Hash();
         var parts = UrnExpr.GetGroupValues(urn);
-        if (2 != parts.Count) throw new FormatException(String.Format("Invalid urn format = {0}", urn));
+        if (2 != parts.Count) throw new FormatException($"Invalid urn format = {urn}");
         h.HashName = parts[0];
         h.Data = Base32.Decode(parts[1]);
         return h;

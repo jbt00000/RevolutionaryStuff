@@ -97,17 +97,15 @@ Again:
         }
 
         var wait = await Lock.ExecuteAsync(() =>
-        {
-            if (RunningKeys.Contains(key))
+            {
+                if (RunningKeys.Contains(key))
             {
                 return true;
             }
-            else
-            {
+
                 RunningKeys.Add(key);
                 return false;
             }
-        }
         );
         if (wait)
         {

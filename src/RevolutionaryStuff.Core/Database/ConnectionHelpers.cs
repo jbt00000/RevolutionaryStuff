@@ -79,7 +79,7 @@ public static class ConnectionHelpers
         {
             copy.BulkCopyTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
         }
-        copy.DestinationTableName = string.Format("{0}.{1}", schema, table);
+        copy.DestinationTableName = $"{schema}.{table}";
         copy.NotifyAfter = notifyIncrement;
         if (notificationCallback != null)
         {
@@ -383,7 +383,7 @@ public static class ConnectionHelpers
                     return (T)p.Value;
                 }
             }
-            throw new ArgumentException(string.Format("{0} was not in the parameter set for the sproc", name), "name");
+            throw new ArgumentException($"{name} was not in the parameter set for the sproc", "name");
         }
 
         public T GetOutputParameterVal<T>(int position)
@@ -393,7 +393,7 @@ public static class ConnectionHelpers
             {
                 return (T)p.Value;
             }
-            throw new ArgumentException(string.Format("{0} was not in the parameter set for the sproc", position), "position");
+            throw new ArgumentException($"{position} was not in the parameter set for the sproc", "position");
         }
 
         public object GetOutputParameterVal(int position)

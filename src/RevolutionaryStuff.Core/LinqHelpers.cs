@@ -219,10 +219,8 @@ public static class LinqHelpers
         {
             return q.OrderByField(sortColumn, d, isAscending, OrderByFieldUnmappedBehaviors.AtEnd);
         }
-        else
-        {
-            return q.OrderByField(sortColumn, isAscending);
-        }
+
+        return q.OrderByField(sortColumn, isAscending);
     }
 
     public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IDictionary<string, string> valueMapper, bool isAscending = true, OrderByFieldUnmappedBehaviors unmappedValueBehavior = OrderByFieldUnmappedBehaviors.InPlace)

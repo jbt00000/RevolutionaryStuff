@@ -196,7 +196,8 @@ public static class CSV
                             }
                             break;
                         }
-                        else if (quoteChar.HasValue && ch == quoteChar)
+
+                        if (quoteChar.HasValue && ch == quoteChar)
                         {
                             if (inquotes)
                             {
@@ -251,8 +252,7 @@ L_NextLine:
         {
             for (long start = 0; ;)
             {
-                long amt;
-                var line = ParseLine(sText, start, len, out amt, fieldDelim, quoteChar, sb);
+                var line = ParseLine(sText, start, len, out var amt, fieldDelim, quoteChar, sb);
                 if (line == null) break;
                 ++rowCount;
                 yield return line;
