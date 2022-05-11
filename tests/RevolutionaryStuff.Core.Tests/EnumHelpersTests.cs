@@ -9,7 +9,7 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public void EnumRandomTest()
         {
-            for (int z = 0; z < 100; ++z)
+            for (var z = 0; z < 100; ++z)
             {
                 var a = EnumHelpers.Random<EItemTypes>();
                 var b = EnumHelpers.Random<EItemTypes>();
@@ -21,7 +21,7 @@ namespace RevolutionaryStuff.Core.Tests
 
         private static void CheckValue<TE>(string expected, TE raw) where TE : System.Enum
         {
-            var ev = EnumHelpers.EnumWithEnumMemberValuesToString(raw);
+            var ev = raw.EnumWithEnumMemberValuesToString();
             Assert.AreEqual(expected, ev);
         }
 

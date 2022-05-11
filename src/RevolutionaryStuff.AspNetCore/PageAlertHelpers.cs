@@ -11,7 +11,7 @@ public static class PageAlertHelpers
     {
         if (pa == null || string.IsNullOrEmpty(pa.Message)) return;
         var pageAlerts = tdd.GetPageAlerts(false);
-        pageAlerts = pageAlerts ?? new List<PageAlert>();
+        pageAlerts ??= new List<PageAlert>();
         pageAlerts.Add(pa);
         tdd.SetPageAlerts(pageAlerts);
     }

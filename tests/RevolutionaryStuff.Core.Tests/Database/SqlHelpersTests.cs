@@ -9,19 +9,19 @@ namespace RevolutionaryStuff.Core.Tests.Database
         [TestMethod]
         public void EscapeForSqlTestEmpty()
         {
-            Assert.AreEqual("", SqlHelpers.EscapeForSql(""));
+            Assert.AreEqual("", "".EscapeForSql());
         }
 
         [TestMethod]
         public void EscapeForSqlTestHasOneSingleQuote()
         {
-            Assert.AreEqual("a''b", SqlHelpers.EscapeForSql("a'b"));
+            Assert.AreEqual("a''b", "a'b".EscapeForSql());
         }
 
         [TestMethod]
         public void EscapeForSqlTestHasOneDoubleQuote()
         {
-            Assert.AreEqual("a\"b", SqlHelpers.EscapeForSql("a\"b"));
+            Assert.AreEqual("a\"b", "a\"b".EscapeForSql());
         }
     }
 }

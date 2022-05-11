@@ -56,7 +56,7 @@ namespace RevolutionaryStuff.Core
         protected void RegisterDisposeAction(Action a)
         {
             if (a == null) return;
-            DisposeActions = DisposeActions ?? new List<Action>();
+            DisposeActions ??= new List<Action>();
             DisposeActions.Add(a);
         }
 

@@ -25,7 +25,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
 
     public override string ToString()
     {
-        return string.Format("MultipleValueDictionary keyCount={1} itemCount={2}", this.GetType(), this.ValuesByKey.Count, this.AtomEnumerable.Count());
+        return string.Format("MultipleValueDictionary keyCount={1} itemCount={2}", GetType(), ValuesByKey.Count, AtomEnumerable.Count());
     }
 
     public IDictionary<K, IList<V>> ToDictionaryOfCollection() => ToDictionary<IList<V>>(vals => new List<V>(vals));
@@ -34,8 +34,8 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
     {
         Requires.NonNull(elementsMapper, nameof(elementsMapper));
 
-        var d = new Dictionary<K, VPrime>(this.Count);
-        foreach (var key in this.Keys)
+        var d = new Dictionary<K, VPrime>(Count);
+        foreach (var key in Keys)
         {
             d[key] = elementsMapper(this[key]);
         }
@@ -183,7 +183,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
     public void AddRange(K k, IEnumerable<V> vs)
     {
         if (vs == null) return;
-        foreach (V v in vs)
+        foreach (var v in vs)
         {
             Add(k, v);
         }

@@ -8,8 +8,8 @@ public static class SqlServerHelpers
 {
     public const int MaxTableNameLength = 128;
     public const int MaxTableColumnNameLength = 128;
-    public static readonly DateTime SqlServerMinDateTime = new DateTime(1753, 1, 1);
-    public static readonly DateTime SqlServerMaxDateTime = new DateTime(9999, 12, 31);
+    public static readonly DateTime SqlServerMinDateTime = new(1753, 1, 1);
+    public static readonly DateTime SqlServerMaxDateTime = new(9999, 12, 31);
 
     public static void MakeDateColumnsFitSqlServerBounds(this DataTable dt, DateTime? minDate = null, DateTime? maxDate = null)
     {
@@ -18,12 +18,12 @@ public static class SqlServerHelpers
         var lower = minDate.GetValueOrDefault(SqlServerMinDateTime);
         var upper = maxDate.GetValueOrDefault(SqlServerMaxDateTime);
 
-        for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
+        for (var colNum = 0; colNum < dt.Columns.Count; ++colNum)
         {
             var dc = dt.Columns[colNum];
             if (dc.DataType != typeof(DateTime)) continue;
-            int changeCount = 0;
-            for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+            var changeCount = 0;
+            for (var rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
             {
                 var o = dt.Rows[rowNum][dc];
                 if (o == DBNull.Value) continue;
@@ -48,32 +48,32 @@ public static class SqlServerHelpers
         schemaName = SqlHelpers.SchemaOrDefault(schemaName);
         var ps = new SqlParameter[]
             {
-                    new SqlParameter("@propertyName", propertyName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@tableSchema", schemaName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@tableName", tableName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@cnt", SqlDbType.Int){Direction=ParameterDirection.Output},
+                    new("@propertyName", propertyName){Direction=ParameterDirection.Input},
+                    new("@tableSchema", schemaName){Direction=ParameterDirection.Input},
+                    new("@tableName", tableName){Direction=ParameterDirection.Input},
+                    new("@cnt", SqlDbType.Int){Direction=ParameterDirection.Output},
             };
         var cnt = (await conn.ExecuteNonQueryAsync(null, "select @cnt=count(*) from sys.fn_listextendedproperty(@propertyName, N'SCHEMA', @tableSchema, N'TABLE', @tableName, null, null)", null, ps, CommandType.Text)).GetOutputParameterVal<int>();
         if (cnt > 0)
         {
             ps = new SqlParameter[]
                 {
-                    new SqlParameter("@name", propertyName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@level0name", schemaName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@level1name", tableName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@level0type", "SCHEMA"){Direction=ParameterDirection.Input},
-                    new SqlParameter("@level1type", "TABLE"){Direction=ParameterDirection.Input},
+                    new("@name", propertyName){Direction=ParameterDirection.Input},
+                    new("@level0name", schemaName){Direction=ParameterDirection.Input},
+                    new("@level1name", tableName){Direction=ParameterDirection.Input},
+                    new("@level0type", "SCHEMA"){Direction=ParameterDirection.Input},
+                    new("@level1type", "TABLE"){Direction=ParameterDirection.Input},
                 };
             await conn.ExecuteNonQueryAsync(null, "sys.sp_dropextendedproperty", null, ps);
         }
         ps = new SqlParameter[]
             {
-                    new SqlParameter("@name", propertyName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@level0name", schemaName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@level1name", tableName){Direction=ParameterDirection.Input},
-                    new SqlParameter("@level0type", "SCHEMA"){Direction=ParameterDirection.Input},
-                    new SqlParameter("@level1type", "TABLE"){Direction=ParameterDirection.Input},
-                    new SqlParameter("@value", propertyValue){Direction=ParameterDirection.Input},
+                    new("@name", propertyName){Direction=ParameterDirection.Input},
+                    new("@level0name", schemaName){Direction=ParameterDirection.Input},
+                    new("@level1name", tableName){Direction=ParameterDirection.Input},
+                    new("@level0type", "SCHEMA"){Direction=ParameterDirection.Input},
+                    new("@level1type", "TABLE"){Direction=ParameterDirection.Input},
+                    new("@value", propertyValue){Direction=ParameterDirection.Input},
             };
         await conn.ExecuteNonQueryAsync(null, "sys.sp_addextendedproperty", null, ps);
     }

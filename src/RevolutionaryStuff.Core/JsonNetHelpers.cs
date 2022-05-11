@@ -64,7 +64,7 @@ public static class JsonNetHelpers
         {
             var segments = parts.ConvertAll(part => new PathSegment { Name = part, SegmentType = SegmentTypes.Object });
             PathSegment sn = null;
-            for (int z = segments.Count - 1; z >= 0; --z)
+            for (var z = segments.Count - 1; z >= 0; --z)
             {
                 var s = segments[z];
                 if (int.TryParse(s.Name, out var i))
@@ -103,7 +103,7 @@ public static class JsonNetHelpers
         var jval = val is JToken ? (JToken)val : new JValue(val);
 
         var c = (JContainer)baseObject;
-        for (int z = 0; z < segments.Count; ++z)
+        for (var z = 0; z < segments.Count; ++z)
         {
             var isLast = z == segments.Count - 1;
             var s = segments[z];
@@ -125,7 +125,7 @@ public static class JsonNetHelpers
                     break;
                 case PathSegment.SegmentTypes.ArrayIndex:
                     var ja = (JArray)c;
-                    for (int i = 0; i <= s.Index; ++i)
+                    for (var i = 0; i <= s.Index; ++i)
                     {
                         if (i >= ja.Count)
                         {

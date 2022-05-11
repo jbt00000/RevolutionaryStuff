@@ -14,7 +14,7 @@ public static class MySqlHelpers
 
         public override string ToString()
         {
-            return string.Format("{0} quoted={1} text=[{2}]", this.GetType().Name, Quoted, Text);
+            return string.Format("{0} quoted={1} text=[{2}]", GetType().Name, Quoted, Text);
         }
 
         public bool EqualsCaseInsensitive(string other)
@@ -32,22 +32,22 @@ public static class MySqlHelpers
 
         var terms = new List<Term>();
 
-        char lastChar = ' ';
-        char ch = ' ';
-        char nextChar = ' ';
-        bool inSingleLineComment = false;
-        bool inMultiLineComment = false;
-        bool inSqlQuote = false;
-        bool inNameQuote = false;
-        bool skipOne = false;
+        var lastChar = ' ';
+        var ch = ' ';
+        var nextChar = ' ';
+        var inSingleLineComment = false;
+        var inMultiLineComment = false;
+        var inSqlQuote = false;
+        var inNameQuote = false;
+        var skipOne = false;
         DataTable insertingTable = null;
-        int parenthesisNestCount = 0;
+        var parenthesisNestCount = 0;
         var sb = new StringBuilder();
         for (; ; )
         {
             lastChar = ch;
             ch = nextChar;
-            int ich = sr.Read();
+            var ich = sr.Read();
             if (ich == -1) break;
             nextChar = (char)ich;
             if (skipOne)
@@ -171,7 +171,7 @@ public static class MySqlHelpers
                 default:
                     if (!inMultiLineComment && !inSingleLineComment)
                     {
-                        var isWordChar = char.IsLetterOrDigit(ch) || ch == '_' || ch == '.';
+                        var isWordChar = char.IsLetterOrDigit(ch) || ch is '_' or '.';
                         if (isWordChar || inSqlQuote || inNameQuote)
                         {
                             sb.Append(ch);
@@ -197,14 +197,14 @@ public static class MySqlHelpers
                             {
                                 if (insertingTable != null)
                                 {
-                                    for (int x = terms.Count - 1; x >= 0; --x)
+                                    for (var x = terms.Count - 1; x >= 0; --x)
                                     {
                                         t = terms[x];
                                         if (t.Text == "(" && t.Quoted == false)
                                         {
                                             var vals = new object[insertingTable.Columns.Count];
                                             ++x;
-                                            for (int colNum = 0; colNum < vals.Length;)
+                                            for (var colNum = 0; colNum < vals.Length;)
                                             {
                                                 t = terms[x++];
                                                 if (t.Text == "," && !t.Quoted) continue;
@@ -254,7 +254,7 @@ public static class MySqlHelpers
                                 }
                                 else
                                 {
-                                    for (int x = terms.Count - 1; x >= 2; --x)
+                                    for (var x = terms.Count - 1; x >= 2; --x)
                                     {
                                         if (terms[x - 1].EqualsCaseInsensitive("create") && terms[x].EqualsCaseInsensitive("table"))
                                         {
@@ -269,7 +269,7 @@ public static class MySqlHelpers
                             {
                                 if (parenthesisNestCount == 1 && insertingTable == null && terms[terms.Count - 2].EqualsCaseInsensitive("values"))
                                 {
-                                    for (int x = terms.Count - 1; x >= 2; --x)
+                                    for (var x = terms.Count - 1; x >= 2; --x)
                                     {
                                         if (terms[x - 1].EqualsCaseInsensitive("insert") && terms[x].EqualsCaseInsensitive("into"))
                                         {
@@ -310,7 +310,7 @@ public static class MySqlHelpers
                 typeLength = int.Parse(terms[startAt + 1].Text);
                 while (terms[startAt++].Text != ")") ;
             }
-            bool nullable = string.Compare(terms[startAt].Text, "NULL", true) == 0;
+            var nullable = string.Compare(terms[startAt].Text, "NULL", true) == 0;
             var dc = new DataColumn(fieldName);
             if (nullable) dc.AllowDBNull = true;
             switch (typeName.ToLower())

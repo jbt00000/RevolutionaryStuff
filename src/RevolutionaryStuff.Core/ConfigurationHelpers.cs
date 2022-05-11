@@ -93,7 +93,7 @@ public static class ConfigurationHelpers
 
     public static O Get<O>(this IConfiguration configuration, string sectionName = null, bool throwOnExtraneousSettings = true) where O : new()
     {
-        sectionName = sectionName ?? typeof(O).Name;
+        sectionName ??= typeof(O).Name;
         var section = configuration.GetSection(sectionName);
         return section.Get<O>(throwOnExtraneousSettings);
     }
@@ -154,7 +154,7 @@ public static class ConfigurationHelpers
             ci = ti.GetConstructor(new[] { typeof(int) });
             var arr = (Array)ci.Invoke(new object[] { childSections.Count });
             var elType = ti.GetElementType();
-            for (int z = 0; z < childSections.Count; ++z)
+            for (var z = 0; z < childSections.Count; ++z)
             {
                 var childSection = childSections[z];
                 object val = null;

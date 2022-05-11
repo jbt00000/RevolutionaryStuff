@@ -6,8 +6,8 @@ namespace RevolutionaryStuff.Core;
 
 public class MimeType
 {
-    private static readonly Regex ContentTypeExpr = new Regex(@"[^\s/]+/[^\s/]+", RegexOptions.Compiled);
-    private static readonly Regex FileExtensionExpr = new Regex(@"\.\w+", RegexOptions.Compiled);
+    private static readonly Regex ContentTypeExpr = new(@"[^\s/]+/[^\s/]+", RegexOptions.Compiled);
+    private static readonly Regex FileExtensionExpr = new(@"\.\w+", RegexOptions.Compiled);
 
     public static string GetContentTypeType(string contentType)
         => contentType.LeftOf("/");
@@ -18,16 +18,16 @@ public class MimeType
     public static class Application
     {
         public static readonly MimeType Any = "application/*";
-        public static readonly MimeType Json = new MimeType("application/json", ".json");
-        public static readonly MimeType Xml = new MimeType("application/xml", ".xml");
+        public static readonly MimeType Json = new("application/json", ".json");
+        public static readonly MimeType Xml = new("application/xml", ".xml");
         public static readonly MimeType OctetStream = "application/octet-stream";
-        public static readonly MimeType SqlServerIntegrationServicesEtlPackage = new MimeType(OctetStream, ".dtsx");
-        public static readonly MimeType Pdf = new MimeType("application/pdf", ".pdf");
-        public static readonly MimeType Zip = new MimeType("application/zip", ".zip");
+        public static readonly MimeType SqlServerIntegrationServicesEtlPackage = new(OctetStream, ".dtsx");
+        public static readonly MimeType Pdf = new("application/pdf", ".pdf");
+        public static readonly MimeType Zip = new("application/zip", ".zip");
 
         public static class SpreadSheet
         {
-            public static readonly MimeType Xlsx = new MimeType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
+            public static readonly MimeType Xlsx = new("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
             internal static readonly IList<MimeType> All = new[] { Xlsx }.ToList().AsReadOnly();
         }
 
@@ -35,7 +35,7 @@ public class MimeType
         {
             public static class PGP
             {
-                public static readonly MimeType PgpEncrypted = new MimeType("application/pgp-encrypted", ".pgp");
+                public static readonly MimeType PgpEncrypted = new("application/pgp-encrypted", ".pgp");
                 internal static readonly IList<MimeType> All = new[] { PgpEncrypted }.ToList().AsReadOnly();
             }
 
@@ -47,34 +47,34 @@ public class MimeType
 
     public static class Image
     {
-        public static readonly MimeType Any = new MimeType("image/*");
-        public static readonly MimeType Bmp = new MimeType("image/bmp", ".bmp");
-        public static readonly MimeType Gif = new MimeType("image/gif", ".gif");
-        public static readonly MimeType Jpg = new MimeType("image/jpeg", ".jpg", ".jpeg", ".jpe");
-        public static readonly MimeType Png = new MimeType("image/png", ".png");
-        public static readonly MimeType Tiff = new MimeType("image/tiff", ".tif", ".tiff");
-        public static readonly MimeType WebP = new MimeType("image/webp", ".webp");
+        public static readonly MimeType Any = new("image/*");
+        public static readonly MimeType Bmp = new("image/bmp", ".bmp");
+        public static readonly MimeType Gif = new("image/gif", ".gif");
+        public static readonly MimeType Jpg = new("image/jpeg", ".jpg", ".jpeg", ".jpe");
+        public static readonly MimeType Png = new("image/png", ".png");
+        public static readonly MimeType Tiff = new("image/tiff", ".tif", ".tiff");
+        public static readonly MimeType WebP = new("image/webp", ".webp");
         internal static readonly IList<MimeType> All = new[] { Any, Bmp, Gif, Jpg, Png, Tiff, WebP }.ToList().AsReadOnly();
     }
 
     public static class Text
     {
-        public static readonly MimeType Any = new MimeType("text/*");
-        public static readonly MimeType Html = new MimeType("text/html", ".html", ".htm");
-        public static readonly MimeType Plain = new MimeType("text/plain", ".txt", ".text");
-        public static readonly MimeType Markdown = new MimeType("text/markdown", ".md");
+        public static readonly MimeType Any = new("text/*");
+        public static readonly MimeType Html = new("text/html", ".html", ".htm");
+        public static readonly MimeType Plain = new("text/plain", ".txt", ".text");
+        public static readonly MimeType Markdown = new("text/markdown", ".md");
         internal static readonly IList<MimeType> All = new[] { Any, Html, Plain, Markdown }.ToList().AsReadOnly();
     }
 
     public static class Video
     {
-        public static readonly MimeType Any = new MimeType("video/*");
-        public static readonly MimeType _3gp = new MimeType("video/3gp");
-        public static readonly MimeType Avi = new MimeType("video/avi", ".avi");
-        public static readonly MimeType Flv = new MimeType("video/x-flv", "video/flv", ".flv");
-        public static readonly MimeType H264 = new MimeType("video/h264");
-        public static readonly MimeType Quicktime = new MimeType("video/quicktime", ".mov", ".qt");
-        public static readonly MimeType Wmv = new MimeType("video/x-ms-wmv", "video/wmv", ".wmv");
+        public static readonly MimeType Any = new("video/*");
+        public static readonly MimeType _3gp = new("video/3gp");
+        public static readonly MimeType Avi = new("video/avi", ".avi");
+        public static readonly MimeType Flv = new("video/x-flv", "video/flv", ".flv");
+        public static readonly MimeType H264 = new("video/h264");
+        public static readonly MimeType Quicktime = new("video/quicktime", ".mov", ".qt");
+        public static readonly MimeType Wmv = new("video/x-ms-wmv", "video/wmv", ".wmv");
         internal static readonly IList<MimeType> All = new[] { Any, _3gp, Avi, Flv, H264, Quicktime, Wmv }.ToList().AsReadOnly();
     }
 
@@ -125,17 +125,17 @@ public class MimeType
         => ContentTypes.FirstOrDefault();
 
     public override string ToString()
-        => $"{this.GetType().Name} contentType={this.PrimaryContentType} fileExtension={this.PrimaryFileExtension}";
+        => $"{GetType().Name} contentType={PrimaryContentType} fileExtension={PrimaryFileExtension}";
 
 
     public static implicit operator MediaTypeHeaderValue(MimeType ct)
-        => new MediaTypeHeaderValue(ct.PrimaryContentType);
+        => new(ct.PrimaryContentType);
 
     public static implicit operator string(MimeType ct)
         => ct.PrimaryContentType;
 
     public static implicit operator MimeType(string contentType)
-        => new MimeType(contentType);
+        => new(contentType);
 
     public MimeType(string contentType, params string[] contentTypeOrFileExtensions)
     {
@@ -164,7 +164,7 @@ public class MimeType
     public bool DoesContentTypeMatch(string contentType, bool caseSensitive = false)
     {
         if (contentType == null) return false;
-        contentType = StringHelpers.TrimOrNull(contentType.LeftOf(";"));
+        contentType = contentType.LeftOf(";").TrimOrNull();
         foreach (var ct in ContentTypes)
         {
             if (0 == string.Compare(ct, contentType, !caseSensitive)) return true;
@@ -197,11 +197,11 @@ public class MimeType
         {
             string al, ar;
             contentTypeA = contentTypeA.LeftOf(";").Trim().ToLower();
-            StringHelpers.Split(contentTypeA, "/", true, out al, out ar);
+            contentTypeA.Split("/", true, out al, out ar);
 
             string bl, br;
             contentTypeB = contentTypeB.LeftOf(";").Trim().ToLower();
-            StringHelpers.Split(contentTypeB, "/", true, out bl, out br);
+            contentTypeB.Split("/", true, out bl, out br);
 
             return (
                        (bl == "*" && br == "*") ||

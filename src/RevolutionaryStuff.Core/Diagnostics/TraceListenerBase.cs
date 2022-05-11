@@ -46,7 +46,6 @@ public abstract class TraceListenerBase : TraceListener
     /// (The Name property is set after the TraceListener is created.)
     /// </summary>
     protected TraceListenerBase()
-        : base()
     {
     }
 
@@ -84,7 +83,7 @@ public abstract class TraceListenerBase : TraceListener
     /// </summary>
     public sealed override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, object data)
     {
-        if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, null, null, data, null))
+        if ((Filter == null) || Filter.ShouldTrace(eventCache, source, eventType, id, null, null, data, null))
         {
             WriteTrace(eventCache, source, eventType, id, null, null, new object[] { data });
         }
@@ -96,7 +95,7 @@ public abstract class TraceListenerBase : TraceListener
     /// </summary>
     public sealed override void TraceData(TraceEventCache eventCache, string source, TraceEventType eventType, int id, params object[] data)
     {
-        if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, null, null, null, data))
+        if ((Filter == null) || Filter.ShouldTrace(eventCache, source, eventType, id, null, null, null, data))
         {
             WriteTrace(eventCache, source, eventType, id, null, null, data);
         }
@@ -108,7 +107,7 @@ public abstract class TraceListenerBase : TraceListener
     /// </summary>
     public sealed override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message)
     {
-        if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, message, null, null, null))
+        if ((Filter == null) || Filter.ShouldTrace(eventCache, source, eventType, id, message, null, null, null))
         {
             WriteTrace(eventCache, source, eventType, id, message, null, null);
         }
@@ -128,7 +127,7 @@ public abstract class TraceListenerBase : TraceListener
     /// </remarks>
     public sealed override void TraceEvent(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string format, params object[] args)
     {
-        if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, eventType, id, format, args, null, null))
+        if ((Filter == null) || Filter.ShouldTrace(eventCache, source, eventType, id, format, args, null, null))
         {
             // Note: traceSource.TraceInformation(message) calls TraceEvent(..., format, null) 
             // not TraceEvent(..., message), so we don't call string.Format if args is null.
@@ -153,7 +152,7 @@ public abstract class TraceListenerBase : TraceListener
     /// </summary>
     public sealed override void TraceTransfer(TraceEventCache eventCache, string source, int id, string message, Guid relatedActivityId)
     {
-        if ((base.Filter == null) || base.Filter.ShouldTrace(eventCache, source, TraceEventType.Transfer, id, message, null, null, null))
+        if ((Filter == null) || Filter.ShouldTrace(eventCache, source, TraceEventType.Transfer, id, message, null, null, null))
         {
             var traceMessage = string.Format(CultureInfo.CurrentCulture, TraceListenerBase_TraceMessageFormat, message, relatedActivityId);
             WriteTrace(eventCache, source, TraceEventType.Transfer, id, traceMessage, relatedActivityId, null);
@@ -375,7 +374,7 @@ public abstract class TraceListenerBase : TraceListener
     [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Essential.Diagnostics.TraceListenerBase.WriteTrace(System.Diagnostics.TraceEventCache,System.String,System.Diagnostics.TraceEventType,System.Int32,System.String,System.Nullable<System.Guid>,System.Object[])")]
     private void TraceWriteAsEvent(string category, string message, object data)
     {
-        if ((base.Filter == null) || base.Filter.ShouldTrace(null, null, TraceEventType.Verbose, 0, message, new object[] { category }, data, null))
+        if ((Filter == null) || Filter.ShouldTrace(null, null, TraceEventType.Verbose, 0, message, new object[] { category }, data, null))
         {
             if (data == null)
             {

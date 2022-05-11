@@ -19,7 +19,7 @@ namespace RevolutionaryStuff.Core.Tests.FormFields
 
         private static void AssertSingle(string expectedKey, object expectedVal, IEnumerable<KeyValuePair<string, object>> kvps)
         {
-            int found = 0;
+            var found = 0;
             foreach (var kvp in kvps)
             {
                 if (kvp.Key == expectedKey)
@@ -185,7 +185,7 @@ namespace RevolutionaryStuff.Core.Tests.FormFields
         }
 
         private static SimpleClassWithList<Person> CreateTestPersonList()
-            => new SimpleClassWithList<Person>
+            => new()
             {
                 Prop1 = "p1",
                 Items = new[] {

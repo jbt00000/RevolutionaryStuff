@@ -21,7 +21,7 @@ public sealed class Hash
         public static string Default = Sha1;
     }
 
-    private static readonly Regex HashNameHashVersionExpr = new Regex(@"^([A-Z]+)(\d+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex HashNameHashVersionExpr = new(@"^([A-Z]+)(\d+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     public static void RegisterHashAlgorithmCreator(Func<HashAlgorithm> creator, params string[] alternateNames)
     {
         Requires.NonNull(creator, nameof(creator));
@@ -75,7 +75,7 @@ public sealed class Hash
         Requires.Text(hashName, nameof(hashName));
         if (hashName.IndexOf(':') > -1)
         {
-            string[] parts = hashName.Split(':');
+            var parts = hashName.Split(':');
             if (parts.Length == 2 && parts[0].ToLower() == "tree")
             {
                 throw new NotSupportedException("MerkleHashTree not yet supported...");
@@ -89,8 +89,8 @@ public sealed class Hash
     private static readonly IDictionary<string, string> NameByNameLowerMap = new Dictionary<string, string>(Comparers.CaseInsensitiveStringComparer);
     public static readonly Hash[] NoHashes = new Hash[0];
 
-    private static readonly Regex UrnTypeExpression = new Regex("[^:]+:([^:]+):.+", RegexOptions.Compiled);
-    private static Regex UrnExpr = new Regex(@"urn:(.*):(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex UrnTypeExpression = new("[^:]+:([^:]+):.+", RegexOptions.Compiled);
+    private static Regex UrnExpr = new(@"urn:(.*):(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public byte[] Data;
 
@@ -117,7 +117,7 @@ public sealed class Hash
 
     public override string ToString()
     {
-        return string.Format("{0} {1}", this.GetType().Name, this.Urn);
+        return string.Format("{0} {1}", GetType().Name, Urn);
     }
 
     public static string CreateUrn(string hashName, byte[] hashBytes)
@@ -157,10 +157,10 @@ public sealed class Hash
         {
             string tiger = null;
             string sha1 = null;
-            for (int x = urns.Length - 1; x >= 0; --x)
+            for (var x = urns.Length - 1; x >= 0; --x)
             {
-                string urn = urns[x];
-                string type = GetUrnType(urn);
+                var urn = urns[x];
+                var type = GetUrnType(urn);
                 switch (type)
                 {
                     case "bitprint":
@@ -176,8 +176,8 @@ public sealed class Hash
             if (tiger != null && sha1 != null)
             {
                 string bitprint;
-                Hash s = Parse(sha1);
-                Hash t = Parse(tiger);
+                var s = Parse(sha1);
+                var t = Parse(tiger);
                 bitprint = String.Format("urn:bitprint:{0}.{1}", s.DataHuman, t.DataHuman);
                 return bitprint;
             }
@@ -190,7 +190,7 @@ public sealed class Hash
 
     public override int GetHashCode()
     {
-        return this.Urn.GetHashCode();
+        return Urn.GetHashCode();
     }
 
     public override bool Equals(object o)
@@ -198,13 +198,13 @@ public sealed class Hash
         if (null == o || !(o is Hash)) return false;
         var that = (Hash)o;
         if (this == that) return true;
-        return this.Urn == that.Urn;
+        return Urn == that.Urn;
     }
 
     public static bool operator ==(Hash a, Hash b)
     {
         // If both are null, or both are same instance, return true.
-        if (System.Object.ReferenceEquals(a, b))
+        if (ReferenceEquals(a, b))
         {
             return true;
         }
@@ -236,7 +236,7 @@ public sealed class Hash
     public static Hash Compute(Stream st, string hashAlgorithmName = null)
     {
         Requires.ReadableStreamArg(st, nameof(st));
-        hashAlgorithmName = hashAlgorithmName ?? CommonHashAlgorithmNames.Default;
+        hashAlgorithmName ??= CommonHashAlgorithmNames.Default;
         var ha = CreateHashAlgorithm(hashAlgorithmName);
         return new Hash(hashAlgorithmName, ha.ComputeHash(st));
     }
@@ -252,7 +252,7 @@ public sealed class Hash
     public static Hash Compute(byte[] buf, string hashAlgorithmName = null)
     {
         Requires.NonNull(buf, nameof(buf));
-        hashAlgorithmName = hashAlgorithmName ?? CommonHashAlgorithmNames.Default;
+        hashAlgorithmName ??= CommonHashAlgorithmNames.Default;
         var ha = CreateHashAlgorithm(hashAlgorithmName);
         return new Hash(hashAlgorithmName, ha.ComputeHash(buf));
     }

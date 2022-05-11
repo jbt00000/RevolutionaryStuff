@@ -10,7 +10,7 @@ public static class FormFieldHelpers
     {
         public EnumerationSerializationOptions EnumerationSerializationOption { get; set; } = EnumerationSerializationOptions.AsEnum;
 
-        internal static readonly ConversionSettings Default = new ConversionSettings
+        internal static readonly ConversionSettings Default = new()
         {
 
         };
@@ -25,7 +25,7 @@ public static class FormFieldHelpers
 
     public static IEnumerable<KeyValuePair<string, object>> ConvertObjectToKeyValuePairs(object root, ConversionSettings settings = null)
     {
-        settings = settings ?? ConversionSettings.Default;
+        settings ??= ConversionSettings.Default;
         var items = new List<KeyValuePair<string, object>>();
         var seen = new HashSet<object>();
         if (root != null)
@@ -35,8 +35,7 @@ public static class FormFieldHelpers
         return items;
     }
 
-    private static KeyValuePair<string, object> CreateItem(string key, object val)
-        => new KeyValuePair<string, object>(key, val);
+    private static KeyValuePair<string, object> CreateItem(string key, object val) => new(key, val);
 
     private static void ConvertObjectToKeyValuePairs(object o, Type t, MemberInfo mi, ConversionSettings settings, IList<KeyValuePair<string, object>> items, HashSet<object> seen, bool forceTreatAsContainer)
     {
@@ -47,8 +46,8 @@ public static class FormFieldHelpers
             if (fra != null && t.IsA(typeof(IEnumerable)))
             {
                 seen.Add(o);
-                int i = 0;
-                foreach (object kid in (IEnumerable)o)
+                var i = 0;
+                foreach (var kid in (IEnumerable)o)
                 {
                     var subs = new List<KeyValuePair<string, object>>();
                     ConvertObjectToKeyValuePairs(kid, kid == null ? typeof(object) : kid.GetType(), null, settings, subs, seen, true);
@@ -75,7 +74,7 @@ public static class FormFieldHelpers
                 if (ffca != null || forceTreatAsContainer)
                 {
                     seen.Add(o);
-                    int serializableChildren = 0;
+                    var serializableChildren = 0;
                     var subs = new List<KeyValuePair<string, object>>();
                     foreach (var pi in t.GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance))
                     {
@@ -119,7 +118,7 @@ public static class FormFieldHelpers
         }
         else
         {
-            string fieldName = mi.Name;
+            var fieldName = mi.Name;
             var ffa = mi.GetCustomAttribute<FormFieldAttribute>();
             if (ffa != null)
             {

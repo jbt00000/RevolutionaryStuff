@@ -14,7 +14,7 @@ public abstract class QueryProvider : IQueryProvider
 
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
-        Type elementType = TypeSystem.GetElementType(expression.Type);
+        var elementType = TypeSystem.GetElementType(expression.Type);
 
         try
         {
@@ -40,7 +40,7 @@ public abstract class QueryProvider : IQueryProvider
         internal static Type GetElementType(Type seqType)
         {
 
-            Type ienum = FindIEnumerable(seqType);
+            var ienum = FindIEnumerable(seqType);
 
             if (ienum == null) return seqType;
 
@@ -62,10 +62,10 @@ public abstract class QueryProvider : IQueryProvider
             if (seqType.GetTypeInfo().IsGenericType)
             {
 
-                foreach (Type arg in seqType.GetGenericArguments())
+                foreach (var arg in seqType.GetGenericArguments())
                 {
 
-                    Type ienum = typeof(IEnumerable<>).MakeGenericType(arg);
+                    var ienum = typeof(IEnumerable<>).MakeGenericType(arg);
 
                     if (ienum.IsAssignableFrom(seqType))
                     {
@@ -78,15 +78,15 @@ public abstract class QueryProvider : IQueryProvider
 
             }
 
-            Type[] ifaces = seqType.GetInterfaces();
+            var ifaces = seqType.GetInterfaces();
 
             if (ifaces != null && ifaces.Length > 0)
             {
 
-                foreach (Type iface in ifaces)
+                foreach (var iface in ifaces)
                 {
 
-                    Type ienum = FindIEnumerable(iface);
+                    var ienum = FindIEnumerable(iface);
 
                     if (ienum != null) return ienum;
 

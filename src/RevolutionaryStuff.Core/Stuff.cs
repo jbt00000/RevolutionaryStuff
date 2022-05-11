@@ -24,7 +24,7 @@ public static class Stuff
 
     public const string BaseRsllcUrn = "urn:www.revolutionarystuff.com";
 
-    public static readonly CultureInfo CultureUS = new CultureInfo("en-US");
+    public static readonly CultureInfo CultureUS = new("en-US");
 
     public static readonly string ApplicationName;
 
@@ -37,12 +37,12 @@ public static class Stuff
     /// <summary>
     /// Random number generator with a fixed seed.  Useful for testing.
     /// </summary>
-    public static readonly Random RandomWithFixedSeed = new Random(19740409);
+    public static readonly Random RandomWithFixedSeed = new(19740409);
 
     /// <summary>
     /// Random number generator with a random seed value.
     /// </summary>
-    public static readonly Random RandomWithRandomSeed = new Random(Crypto.Salt.RandomInteger);
+    public static readonly Random RandomWithRandomSeed = new(Crypto.Salt.RandomInteger);
 
     /// <summary>
     /// Instance of a random number generator
@@ -61,7 +61,7 @@ public static class Stuff
     public static string ToString(object o)
         => o == null ? null : o.ToString();
 
-    private static readonly JsonSerializerSettings ToJsonJsonSerializerSettings = new JsonSerializerSettings
+    private static readonly JsonSerializerSettings ToJsonJsonSerializerSettings = new()
     {
         NullValueHandling = NullValueHandling.Ignore
     };
@@ -75,7 +75,7 @@ public static class Stuff
 
     public static void Swap<T>(ref T a, ref T b)
     {
-        T t = a;
+        var t = a;
         a = b;
         b = t;
     }
@@ -97,8 +97,8 @@ public static class Stuff
     /// <returns>The datetime when this happened</returns>
     public static DateTime TickCount2DateTime(int tickCount)
     {
-        DateTime n = DateTime.Now;
-        int tc = Environment.TickCount;
+        var n = DateTime.Now;
+        var tc = Environment.TickCount;
         return n.AddMilliseconds(tickCount - tc);
     }
 
@@ -132,7 +132,7 @@ public static class Stuff
     public static void Dispose(params object[] os)
     {
         if (os == null) return;
-        foreach (object o in os)
+        foreach (var o in os)
         {
             var d = o as IDisposable;
             if (d == null) return;
@@ -189,13 +189,13 @@ public static class Stuff
             () =>
             {
                 if (serializedPath == null) return null;
-                string left = serializedPath.LeftOf(".");
-                string right = StringHelpers.TrimOrNull(serializedPath.RightOf("."));
+                var left = serializedPath.LeftOf(".");
+                var right = serializedPath.RightOf(".").TrimOrNull();
 
                 foreach (var pi in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 {
-                    if (pi.GetCustomAttribute<Newtonsoft.Json.JsonIgnoreAttribute>() != null) continue;
-                    var jpn = pi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>();
+                    if (pi.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
+                    var jpn = pi.GetCustomAttribute<JsonPropertyAttribute>();
                     if ((jpn == null && pi.Name == left) || (jpn != null && jpn.PropertyName == left))
                     {
                         left = pi.Name;

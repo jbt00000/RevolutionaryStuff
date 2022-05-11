@@ -64,7 +64,7 @@ Arguments:
 
     public bool ContainsSwitch(string name)
     {
-        return this.ArgsByPos.FirstOrDefault(a => a.IsSwitch && 0 == string.Compare(a.Switch, name, SwitchesAreCaseInsensitive)) != null;
+        return ArgsByPos.FirstOrDefault(a => a.IsSwitch && 0 == string.Compare(a.Switch, name, SwitchesAreCaseInsensitive)) != null;
     }
 
     public string GetVal(int pos)
@@ -135,14 +135,14 @@ Arguments:
             {
                 m = new MultipleValueDictionary<string, Arg>();
             }
-            int pos = 0;
+            var pos = 0;
             foreach (var arg in args)
             {
                 if (string.IsNullOrEmpty(arg)) continue;
                 string s, v;
                 if (switchCharacters.Contains(arg[0]))
                 {
-                    s = arg.Substring(1);
+                    s = arg[1..];
                     if (s.Length == 0) goto NextArg;
                     s.Split(":", true, out s, out v);
                     if (switchesAreCaseInsensitive) s = s.ToLower();
@@ -158,7 +158,7 @@ Arguments:
 NextArg:
                 Stuff.Noop();
             }
-            for (int z = 0; z < orderedArgs.Count - 1; ++z)
+            for (var z = 0; z < orderedArgs.Count - 1; ++z)
             {
                 orderedArgs[z].Next = orderedArgs[z + 1];
             }

@@ -2,7 +2,7 @@
 
 public class Missingable<T>
 {
-    public static readonly Missingable<T> Missing = new Missingable<T>();
+    public static readonly Missingable<T> Missing = new();
 
     private Missingable()
     {
@@ -44,14 +44,14 @@ public class Missingable<T>
     {
         var that = other as Missingable<T>;
         if (that == null) return false;
-        if (!this.HasValue && !that.HasValue) return true;
-        if (!this.HasValue) return false;
+        if (!HasValue && !that.HasValue) return true;
+        if (!HasValue) return false;
         return Value.Equals(that.Value);
     }
 
     public override int GetHashCode()
     {
-        if (!this.HasValue) return 0;
+        if (!HasValue) return 0;
         return Value.GetHashCode();
     }
 
@@ -65,5 +65,5 @@ public class Missingable<T>
         return new Missingable<T>(value);
     }
 
-    public override string ToString() => HasValue ? $"{this.GetType().Name} value={Value}" : $"{this.GetType().Name} isMissing=true";
+    public override string ToString() => HasValue ? $"{GetType().Name} value={Value}" : $"{GetType().Name} isMissing=true";
 }

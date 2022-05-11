@@ -8,5 +8,5 @@ public class CancelEventArgs<T> : CancelEventArgs
     public readonly T Data;
 
     [DebuggerStepThrough]
-    public CancelEventArgs(T data) => this.Data = data;
+    public CancelEventArgs(T data) => Data = data;
 }

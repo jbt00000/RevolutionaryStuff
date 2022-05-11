@@ -5,7 +5,7 @@ public static class RandomHelpers
     public static string NextString(this Random r, int characterCount, string characterSet)
     {
         var s = "";
-        for (int z = 0; z < characterCount; ++z)
+        for (var z = 0; z < characterCount; ++z)
         {
             var i = r.Next(characterSet.Length);
             var ch = characterSet[i];

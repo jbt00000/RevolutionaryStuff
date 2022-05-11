@@ -61,7 +61,7 @@ public static class DataTableHelpers
             foreach (var kvp in d)
             {
                 var col = kvp.Value;
-                object val = kvp.Key.GetValue(item);
+                var val = kvp.Key.GetValue(item);
                 if (val == null)
                 {
                     row[col] = DBNull.Value;
@@ -94,10 +94,10 @@ public static class DataTableHelpers
 
     public static void Sample(this DataRowCollection rows, int size, Random r = null)
     {
-        r = r ?? Stuff.Random;
+        r ??= Stuff.Random;
         while (rows.Count > size)
         {
-            int n = r.Next(0, rows.Count - 1);
+            var n = r.Next(0, rows.Count - 1);
             rows.RemoveAt(n);
         }
     }

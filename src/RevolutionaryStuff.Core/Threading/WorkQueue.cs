@@ -6,10 +6,10 @@ namespace RevolutionaryStuff.Core.Threading;
 
 public class WorkQueue : BaseDisposable
 {
-    protected List<Thread> Threads { get; } = new List<Thread>();
-    protected ConcurrentQueue<Action> Queue = new ConcurrentQueue<Action>();
-    private ManualResetEvent PleaseStop = new ManualResetEvent(false);
-    private ManualResetEvent IsBored = new ManualResetEvent(true);
+    protected List<Thread> Threads { get; } = new();
+    protected ConcurrentQueue<Action> Queue = new();
+    private ManualResetEvent PleaseStop = new(false);
+    private ManualResetEvent IsBored = new(true);
     private WaitHandle[] StopSnoozingHandles;
 
 
@@ -19,7 +19,7 @@ public class WorkQueue : BaseDisposable
     public WorkQueue(int maxThreads, string poolName = null)
     {
         MaxThreads = maxThreads;
-        PoolName = StringHelpers.Coalesce(poolName, this.GetType().Name);
+        PoolName = StringHelpers.Coalesce(poolName, GetType().Name);
         StopSnoozingHandles = new WaitHandle[] { PleaseStop, IsBored };
         CreateThread(true);
     }
@@ -93,7 +93,7 @@ public class WorkQueue : BaseDisposable
             {
                 Interlocked.Decrement(ref BusyThreads_p);
             }
-            if (0 == WaitHandle.WaitAny(this.StopSnoozingHandles)) break;
+            if (0 == WaitHandle.WaitAny(StopSnoozingHandles)) break;
         }
     }
 

@@ -11,10 +11,8 @@ public static class StreamHelpers
         Requires.ReadableStreamArg(st, nameof(st));
         Requires.FileExists(path, nameof(path));
 
-        using (var src = File.OpenRead(path))
-        {
-            await src.CopyToAsync(st);
-        }
+        await using var src = File.OpenRead(path);
+        await src.CopyToAsync(st);
     }
 
     public static void CopyFrom(this Stream st, string path)
@@ -22,30 +20,24 @@ public static class StreamHelpers
         Requires.ReadableStreamArg(st, nameof(st));
         Requires.FileExists(path, nameof(path));
 
-        using (var src = File.OpenRead(path))
-        {
-            src.CopyTo(st);
-        }
+        using var src = File.OpenRead(path);
+        src.CopyTo(st);
     }
 
     public static void CopyTo(this Stream st, string path)
     {
         Requires.ReadableStreamArg(st, nameof(st));
 
-        using (var dst = File.Create(path))
-        {
-            st.CopyTo(dst);
-        }
+        using var dst = File.Create(path);
+        st.CopyTo(dst);
     }
 
     public static async Task CopyToAsync(this Stream st, string path)
     {
         Requires.ReadableStreamArg(st, nameof(st));
 
-        using (var dst = File.Create(path))
-        {
-            await st.CopyToAsync(dst);
-        }
+        await using var dst = File.Create(path);
+        await st.CopyToAsync(dst);
     }
 
     public static async Task CopyToAsync(this Stream st, Stream dst, Action<int, long, long?> progress, int? bufferSize = null)
@@ -65,7 +57,7 @@ public static class StreamHelpers
         }
         for (; ; )
         {
-            int read = await st.ReadAsync(buf, 0, buf.Length);
+            var read = await st.ReadAsync(buf, 0, buf.Length);
             if (read <= 0) break;
             await dst.WriteAsync(buf, 0, read);
             tot += read;
@@ -74,9 +66,9 @@ public static class StreamHelpers
         progress(0, tot, len);
     }
 
-    public static readonly UTF8Encoding UTF8EncodingWithoutPreamble = new UTF8Encoding(false);
+    public static readonly UTF8Encoding UTF8EncodingWithoutPreamble = new(false);
 
-    public static readonly UTF8Encoding UTF8EncodingWithPreamble = new UTF8Encoding(true);
+    public static readonly UTF8Encoding UTF8EncodingWithPreamble = new(true);
 
     public static Stream CreateUtf8WithoutPreamble(string s)
         => Create(s, UTF8EncodingWithoutPreamble);
@@ -99,18 +91,14 @@ public static class StreamHelpers
 
     public static async Task<string> ReadToEndAsync(this Stream st, Encoding enc = null)
     {
-        using (var sr = new StreamReader(new IndestructibleStream(st), enc ?? Encoding.UTF8))
-        {
-            return await sr.ReadToEndAsync();
-        }
+        using var sr = new StreamReader(new IndestructibleStream(st), enc ?? Encoding.UTF8);
+        return await sr.ReadToEndAsync();
     }
 
     public static string ReadToEnd(this Stream st, Encoding enc = null)
     {
-        using (var sr = new StreamReader(new IndestructibleStream(st), enc ?? Encoding.UTF8))
-        {
-            return sr.ReadToEnd();
-        }
+        using var sr = new StreamReader(new IndestructibleStream(st), enc ?? Encoding.UTF8);
+        return sr.ReadToEnd();
     }
 
     /// <summary>
@@ -149,7 +137,7 @@ public static class StreamHelpers
         var remaining = size.GetValueOrDefault(buf.Length);
         while (remaining > 0)
         {
-            int amtRead = st.Read(buf, offset, remaining);
+            var amtRead = st.Read(buf, offset, remaining);
             if (amtRead <= 0) break;
             remaining -= amtRead;
             offset += amtRead;

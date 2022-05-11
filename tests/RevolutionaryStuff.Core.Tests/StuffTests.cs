@@ -9,12 +9,12 @@ namespace RevolutionaryStuff.Core.Tests
     {
         private void RandomBool(bool response, int attempts=1000, double rMin = .45, double rMax = .55)
         {
-            int hits = 0;
-            for (int z = 0; z < attempts; ++z)
+            var hits = 0;
+            for (var z = 0; z < attempts; ++z)
             {
                 hits += Stuff.Random.NextBoolean() == response ? 1 : 0;
             }
-            double r = hits / (0.0 + attempts);
+            var r = hits / (0.0 + attempts);
             Assert.IsTrue(r >= rMin);
             Assert.IsTrue(r <= rMax);
         }
@@ -65,12 +65,12 @@ namespace RevolutionaryStuff.Core.Tests
         public void FileDeleteWhileClosedTest()
         {
             var fileNames = new List<string>();
-            for (int z = 0; z < 10; ++z)
+            for (var z = 0; z < 10; ++z)
             {
                 var fn = Path.GetTempFileName();
                 fileNames.Add(fn);
             }
-            for (int z = 0; z < 10; ++z)
+            for (var z = 0; z < 10; ++z)
             {
                 var fn = FileSystemHelpers.GetTempFileName(".dat");
                 fileNames.Add(fn);

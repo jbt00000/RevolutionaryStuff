@@ -39,13 +39,13 @@ public static class HtmlTableFileFormatHelpers
             foreach (var cell in headerRow.ChildNodes)
             {
                 if (cell.NodeType != HtmlNodeType.Element) continue;
-                if (cell.Name == "td" || cell.Name == "th")
+                if (cell.Name is "td" or "th")
                 {
                     dt.Columns.Add(cell.InnerText.Trim());
                 }
             }
-            int skipRows = 0;
-            bool skipThRows = false;
+            var skipRows = 0;
+            var skipThRows = false;
             var tableBodyRows = table.SelectNodes("descendant::tbody/tr");
             if (tableBodyRows == null || tableBodyRows.Count == 0)
             {
@@ -53,7 +53,7 @@ public static class HtmlTableFileFormatHelpers
                 skipRows = 1;
                 skipThRows = true;
             }
-            int rowNum = 0;
+            var rowNum = 0;
             var items = new List<object>(dt.Columns.Count);
             foreach (var tr in tableBodyRows)
             {

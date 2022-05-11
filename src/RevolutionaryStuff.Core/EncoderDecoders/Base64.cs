@@ -30,7 +30,7 @@ public static class Base64
     /// <returns>The decoded byte array</returns>
     public static byte[] Decode(string s)
     {
-        s = StringHelpers.TrimOrNull(s);
+        s = s.TrimOrNull();
         if (s == null) return Empty.ByteArray;
         return Convert.FromBase64String(s);
     }

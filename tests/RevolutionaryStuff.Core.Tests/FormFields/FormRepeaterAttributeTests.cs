@@ -9,7 +9,7 @@ namespace RevolutionaryStuff.Core.Tests.FormFields
         [TestMethod]
         public void TransformWithBasisTest()
         {
-            var fra = new FormFieldRepeaterAttribute($"PRE.{FormFieldRepeaterAttribute.FieldNameToken}.POST.{FormFieldRepeaterAttribute.IndexToken}", 33);
+            var fra = new FormFieldRepeaterAttribute($"PRE.{FormFieldContainerAttribute.FieldNameToken}.POST.{FormFieldRepeaterAttribute.IndexToken}", 33);
             Assert.AreEqual("PRE.fff.POST.50", fra.TransformName("fff", 17));
         }
     }

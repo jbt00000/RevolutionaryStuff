@@ -12,8 +12,8 @@ public static class CompareHelpers
     {
         if (b1 == b2) return true;
         if (b1 == null || b2 == null || b1.Length != b2.Length) return false;
-        int len = b1.Length;
-        for (int x = 0; x < len; ++x)
+        var len = b1.Length;
+        for (var x = 0; x < len; ++x)
         {
             if (b1[x] != b2[x])
             {

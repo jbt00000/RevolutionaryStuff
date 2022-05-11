@@ -5,7 +5,7 @@ namespace RevolutionaryStuff.AspNetCore;
 
 public static class TempDataExtensions
 {
-    public static JsonSerializerSettings Settings = new JsonSerializerSettings
+    public static JsonSerializerSettings Settings = new()
     {
         NullValueHandling = NullValueHandling.Ignore
     };

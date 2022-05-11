@@ -19,11 +19,11 @@ public class LoadRowsFromSpreadsheetSettings : LoadRowsSettings
         : base(other)
     {
         if (other == null) return;
-        this.UseSheetNameForTableName = other.UseSheetNameForTableName;
-        this.SheetNumber = other.SheetNumber;
-        this.SheetName = other.SheetName;
-        this.SkipRawRows = other.SkipRawRows;
-        this.SkipWhileTester = other.SkipWhileTester;
-        this.TreatAllValuesAsText = other.TreatAllValuesAsText;
+        UseSheetNameForTableName = other.UseSheetNameForTableName;
+        SheetNumber = other.SheetNumber;
+        SheetName = other.SheetName;
+        SkipRawRows = other.SkipRawRows;
+        SkipWhileTester = other.SkipWhileTester;
+        TreatAllValuesAsText = other.TreatAllValuesAsText;
     }
 }

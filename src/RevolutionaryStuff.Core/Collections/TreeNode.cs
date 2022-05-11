@@ -36,7 +36,7 @@ public class TreeNode<TData>
         return added;
     }
 
-    public override string ToString() => $"TreeNode: Children={this.Children.Count} Data={Data?.ToString()}";
+    public override string ToString() => $"TreeNode: Children={Children.Count} Data={Data?.ToString()}";
 
     public TreeNode(TData data, TreeNode<TData> parent = null, IEnumerable<TData> children = null)
     {
@@ -145,7 +145,7 @@ public class TreeNode<TData>
     {
         if (pre == null || pre(parent, this, depth))
         {
-            var kids = this.Children.ToList();
+            var kids = Children.ToList();
             if (walkOrder != null)
             {
                 kids.Sort((a, b) => walkOrder(a.Data, b.Data));

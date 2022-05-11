@@ -162,12 +162,12 @@ public static class AspHelpers
     public static HtmlString RenderLaterContent(this IHtmlHelper htmlHelper)
     {
         List<string> orderedKeys = null;
-        foreach (object key in htmlHelper.ViewContext.HttpContext.Items.Keys)
+        foreach (var key in htmlHelper.ViewContext.HttpContext.Items.Keys)
         {
             var sk = key as string;
             if (sk != null && sk.StartsWith(LateContentPrefix))
             {
-                orderedKeys = orderedKeys ?? new List<string>();
+                orderedKeys ??= new List<string>();
                 orderedKeys.Add(sk);
             }
         }

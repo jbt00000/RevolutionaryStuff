@@ -10,8 +10,8 @@ public static class TypeHelpers
     {
         if (t.IsValueType)
         {
-            Type u = Nullable.GetUnderlyingType(t);
-            return (u != null) && u.IsEnum;
+            var u = Nullable.GetUnderlyingType(t);
+            return u is { IsEnum: true };
         }
         return false;
     }
@@ -38,7 +38,7 @@ public static class TypeHelpers
     {
         if (t.Name == "IList`1")
         {
-            return TypeHelpers.ConstructList(t.GenericTypeArguments[0]);
+            return ConstructList(t.GenericTypeArguments[0]);
         }
         else if (t.Name == "IDictionary`2")
         {
@@ -53,10 +53,10 @@ public static class TypeHelpers
     public static T Construct<T>() where T : new()
         => (T)Construct(typeof(T));
 
-    public static System.Collections.IDictionary ConstructDictionary(Type keyType, Type valType)
+    public static IDictionary ConstructDictionary(Type keyType, Type valType)
     {
-        var gt = typeof(System.Collections.Generic.Dictionary<,>).MakeGenericType(new[] { keyType, valType });
-        return (System.Collections.IDictionary)Construct(gt);
+        var gt = typeof(Dictionary<,>).MakeGenericType(new[] { keyType, valType });
+        return (IDictionary)Construct(gt);
     }
 
     public static IList ConstructList(Type itemType)
@@ -79,10 +79,7 @@ public static class TypeHelpers
             IDictionary<string, object> d = null;
             foreach (var prop in o.GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public))
             {
-                if (d == null)
-                {
-                    d = new Dictionary<string, object>();
-                }
+                d ??= new Dictionary<string, object>();
                 d[prop.Name] = prop.GetValue(o, null);
             }
             if (d != null) return d.AsReadOnly();
@@ -204,7 +201,7 @@ public static class TypeHelpers
     private static void RequiresIsPropertyInfoOrFieldInfo(MemberInfo mi)
     {
         Requires.NonNull(mi, nameof(mi));
-        if (mi is PropertyInfo || mi is FieldInfo) return;
+        if (mi is PropertyInfo or FieldInfo) return;
         throw new Exception(string.Format("we weren't expectecting a {0}", mi.GetType()));
     }
 
@@ -348,7 +345,7 @@ public static class TypeHelpers
         if (t.FullName == "System.Object") return val;
         if (t == typeof(bool))
         {
-            string sval = StringHelpers.ToString(val);
+            var sval = StringHelpers.ToString(val);
             bool b;
             if (Parse.TryParseBool(sval, out b)) return b;
             throw new NotSupportedException(string.Format("ChangeType could change [{0}] into a bool.", val));
@@ -452,10 +449,10 @@ Again:
         Requires.NonNull(baseType, nameof(baseType));
         Requires.NonNull(visit, nameof(visit));
 
-        recurse = recurse ?? delegate (TNodeContext a, Type b, MemberInfo c) { return true; };
+        recurse ??= delegate (TNodeContext a, Type b, MemberInfo c) { return true; };
         var nodeContext = createContext(parentNodeContext, baseType, baseTypeMemberInfo);
 
-        loopChecker = loopChecker ?? new HashSet<Type>();
+        loopChecker ??= new HashSet<Type>();
         if (loopChecker.Contains(baseType)) return;
         loopChecker.Add(baseType);
         foreach (var mi in baseType.GetMembers(bindingFlags))

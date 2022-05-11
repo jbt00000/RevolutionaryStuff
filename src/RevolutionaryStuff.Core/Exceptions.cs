@@ -69,7 +69,7 @@ public class CodedException<T> : BaseCodedException where T : struct
 
     public override string ToString()
     {
-        var s = string.Format("{0}({1})\n{2}", this.GetType().Name, Code, base.ToString());
+        var s = string.Format("{0}({1})\n{2}", GetType().Name, Code, base.ToString());
         if (InnerException != null)
         {
             s = string.Format("{0}\n{1}:{2}", s, InnerException.GetType(), InnerException.Message);
@@ -196,7 +196,7 @@ public static class ExceptionExtensions
 {
     public static IEnumerable<Exception> InnerExceptions(this Exception exception)
     {
-        Exception ex = exception;
+        var ex = exception;
 
         while (ex != null)
         {

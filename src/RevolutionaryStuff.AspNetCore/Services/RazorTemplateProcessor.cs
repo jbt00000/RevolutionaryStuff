@@ -14,7 +14,7 @@ namespace RevolutionaryStuff.AspNetCore.Services;
 public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITemplateProcessor
 {
     private readonly IServiceProvider ServiceProvider;
-    private readonly MyController Controller = new MyController();
+    private readonly MyController Controller = new();
     public const string NoLayoutPrefix = "@{Layout=null;}";
 
     public bool PrependNoLayout { get; set; } = true;
@@ -35,8 +35,7 @@ public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITempla
 
     private class MyRouter : IRouter
     {
-        VirtualPathData IRouter.GetVirtualPath(VirtualPathContext context)
-            => new VirtualPathData(this, "/");
+        VirtualPathData IRouter.GetVirtualPath(VirtualPathContext context) => new(this, "/");
 
         Task IRouter.RouteAsync(RouteContext context)
             => Task.CompletedTask;
@@ -52,30 +51,26 @@ public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITempla
         var path = PathByTemplate.FindOrCreate(template, () => $"/Views/D{PathByTemplate.Count}.cshtml");
         TemplateItemByPath.FindOrCreate(path, () => new TemplateItem(path, template));
         var res = Controller.Go(path, model);
-        using (var scope = ServiceProvider.CreateScope())
+        using var scope = ServiceProvider.CreateScope();
+        var ac = new ActionContext
         {
-            var ac = new ActionContext
-            {
-                HttpContext = new DefaultHttpContext { RequestServices = scope.ServiceProvider },
-                ActionDescriptor = new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor(),
-                RouteData = new RouteData()
-            };
-            ac.RouteData.Routers.Add(new MyRouter());
-            using (var st = new MemoryStream())
-            {
-                ac.HttpContext.Response.Body = st;
-                await res.ExecuteResultAsync(ac);
-                st.Position = 0;
-                var sr = new StreamReader(st);
-                var s = sr.ReadToEnd();
-                return s;
-            }
-        }
+            HttpContext = new DefaultHttpContext { RequestServices = scope.ServiceProvider },
+            ActionDescriptor = new Microsoft.AspNetCore.Mvc.Abstractions.ActionDescriptor(),
+            RouteData = new RouteData()
+        };
+        ac.RouteData.Routers.Add(new MyRouter());
+        using var st = new MemoryStream();
+        ac.HttpContext.Response.Body = st;
+        await res.ExecuteResultAsync(ac);
+        st.Position = 0;
+        var sr = new StreamReader(st);
+        var s = sr.ReadToEnd();
+        return s;
     }
 
     IDirectoryContents IFileProvider.GetDirectoryContents(string subpath)
     {
-        if (subpath == "/Pages" || subpath == "/Views") return this;
+        if (subpath is "/Pages" or "/Views") return this;
         return null;
     }
 
@@ -113,13 +108,11 @@ public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITempla
 
         public TemplateItem(string fullPath, string template)
         {
-            Name = System.IO.Path.GetFileNameWithoutExtension(fullPath);
+            Name = Path.GetFileNameWithoutExtension(fullPath);
             PhysicalPath = fullPath;
             Template = template;
-            using (var st = CreateReadStream())
-            {
-                Length = st.Length;
-            }
+            using var st = CreateReadStream();
+            Length = st.Length;
         }
 
         bool IFileInfo.Exists => true;

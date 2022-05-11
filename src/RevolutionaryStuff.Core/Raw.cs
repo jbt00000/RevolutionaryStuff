@@ -70,7 +70,7 @@ public static class Raw
         {
             sb.Append("a'");
         }
-        string format = capitalizeHexidecimalCharacters ? "{0:X}{1:X}" : "{0:x}{1:x}";
+        var format = capitalizeHexidecimalCharacters ? "{0:X}{1:X}" : "{0:x}{1:x}";
         if (null != buf)
         {
             long x;
@@ -110,7 +110,7 @@ public static class Raw
 
     public static string Buf2HexString(byte[] buf, int offset, int size, bool fCaps, bool fQuoted)
     {
-        string s = Base16.Encode(buf, offset, size, fCaps);
+        var s = Base16.Encode(buf, offset, size, fCaps);
         return fQuoted ? String.Format("x'{0}'", s) : s;
     }
 
@@ -200,7 +200,7 @@ public static class Raw
     public static string Buf2AsciiSZ(byte[] buf, int offset, int max)
     {
         max = Math.Min(max, buf.Length - offset);
-        int x = Array.IndexOf(buf, (byte)0, offset, max);
+        var x = Array.IndexOf(buf, (byte)0, offset, max);
         if (x < 0) return null;
         if (0 == x) return "";
         return Buf2String(buf, offset, x - offset);
@@ -260,7 +260,7 @@ public static class Raw
 
     public static long ReadInt64FromBuf(byte[] buf, int offset)
     {
-        ulong ul =
+        var ul =
             (((ulong)buf[offset + 7]) << (8 * 7)) |
             (((ulong)buf[offset + 6]) << (8 * 6)) |
             (((ulong)buf[offset + 5]) << (8 * 5)) |
@@ -461,7 +461,7 @@ public static class Raw
 
     public static byte[] NetmonText2Buf(string sText)
     {
-        string[] sLines = RegexHelpers.Common.N.Split(sText.ToLower());
+        var sLines = RegexHelpers.Common.N.Split(sText.ToLower());
         string sLine;
         int x, y;
         byte ba, bb;

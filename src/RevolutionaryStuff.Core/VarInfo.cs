@@ -20,9 +20,9 @@ internal class VarInfo
         if (null == mi) throw new ArgumentNullException("mi");
         if (null == basevar) throw new ArgumentNullException("basevar");
         this.FullName = FullName;
-        this.Basevar = basevar;
-        this.Mi = mi;
-        this.CanWrite = mi.CanWrite();
+        Basevar = basevar;
+        Mi = mi;
+        CanWrite = mi.CanWrite();
         if (null == basevar) return;
         try
         {
@@ -40,7 +40,7 @@ internal class VarInfo
     internal static string ValAsString(object o)
     {
         if (null == o) return null;
-        Type t = o.GetType();
+        var t = o.GetType();
         if (t.FullName == "System.Byte[]")
         {
             var buf = (byte[])o;

@@ -13,7 +13,7 @@ public static class Requires
 {
     public static void Url(string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
-        Requires.Text(arg, argName);
+        Text(arg, argName);
         try
         {
             new Uri(arg);
@@ -27,13 +27,13 @@ public static class Requires
     public static void SetMembership<T>(ICollection<T> set, string setName, T arg, string argName, bool nullInputOk = false)
     {
         if (nullInputOk && arg == null) return;
-        Requires.NonNull(set, setName);
+        NonNull(set, setName);
         if (!set.Contains(arg)) throw new ArgumentOutOfRangeException(argName, $"[{arg}] not a member of {setName}.");
     }
 
     public static void ArrayArg(IList arg, int offset, int size, string argName, int minSize = 0, bool nullable = false)
     {
-        if (!nullable) Requires.NonNull(arg, argName);
+        if (!nullable) NonNull(arg, argName);
         if (size < minSize) throw new ArgumentException(string.Format("size must be >= {0}", minSize));
         if (offset < 0) throw new ArgumentException("offset must be >= 0");
         if (size + offset > arg.Count)
@@ -42,7 +42,7 @@ public static class Requires
 
     public static void ListArg<T>(IList<T> arg, [CallerArgumentExpression("arg")] string argName = null, int minSize = 0)
     {
-        Requires.NonNull(arg, argName);
+        NonNull(arg, argName);
         if (arg.Count < minSize) throw new ArgumentOutOfRangeException(argName, $"Length must be >0 {minSize}");
     }
 
@@ -67,7 +67,7 @@ public static class Requires
 
     public static void FileExtension(string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
-        Requires.Text(arg, argName);
+        Text(arg, argName);
         if (Path.GetExtension(arg) != arg)
         {
             throw new ArgumentException("Not a valid extension", argName);
@@ -120,7 +120,7 @@ public static class Requires
 
     public static void ExactlyOneNonNull(params object[] items)
     {
-        int cntNotNull = 0;
+        var cntNotNull = 0;
         foreach (var i in items)
         {
             cntNotNull += i == null ? 0 : 1;
@@ -194,7 +194,7 @@ public static class Requires
     {
         if (minLen > maxLen) throw new ArgumentException("minLen cannot be > than maxLen");
         if (!allowNull && null == arg) throw new ArgumentNullException(argName);
-        arg = arg ?? "";
+        arg ??= "";
         if (arg.Length < minLen)
         {
             throw new ArgumentException(string.Format("{0} must be >= {1} chars", argName, minLen), argName);
@@ -213,7 +213,7 @@ public static class Requires
     public static void StreamArg(Stream stream, string argName, bool mustBeReadable, bool mustBeWriteable,
                                  bool mustBeSeekable)
     {
-        Requires.NonNull(stream, argName);
+        NonNull(stream, argName);
         if (mustBeReadable && !stream.CanRead) throw new ArgumentException("Cannot read from this stream", argName);
         if (mustBeWriteable && !stream.CanWrite)
             throw new ArgumentException("Cannot write to this stream", argName);
@@ -248,28 +248,28 @@ public static class Requires
 
     public static void Buffer(byte[] buf, [CallerArgumentExpression("buf")] string argName = null, long? minLength = null, long? maxLength = null)
     {
-        Requires.NonNull(buf, argName);
-        Requires.Between(buf.Length, $"{argName}.Length", minLength.GetValueOrDefault(0), maxLength.GetValueOrDefault(int.MaxValue));
+        NonNull(buf, argName);
+        Between(buf.Length, $"{argName}.Length", minLength.GetValueOrDefault(0), maxLength.GetValueOrDefault(int.MaxValue));
     }
 
     public static void PortNumber(int portNumber, [CallerArgumentExpression("portNumber")]  string argName=null, bool allowZero = false)
-        => Requires.Between(portNumber, argName, allowZero ? 0 : 1, 65536);
+        => Between(portNumber, argName, allowZero ? 0 : 1, 65536);
 
     public static void ZeroRows(DataTable dt, [CallerArgumentExpression("dt")] string argName = null)
     {
-        Requires.NonNull(dt, argName ?? nameof(dt));
+        NonNull(dt, argName ?? nameof(dt));
         if (dt.Rows.Count > 0) throw new ArgumentException("dt must not already have any rows", nameof(dt));
     }
 
     public static void ZeroColumns(DataTable dt, [CallerArgumentExpression("dt")] string argName = null)
     {
-        Requires.NonNull(dt, argName ?? nameof(dt));
+        NonNull(dt, argName ?? nameof(dt));
         if (dt.Columns.Count > 0) throw new ArgumentException("dt must not already have any columns", nameof(dt));
     }
 
     public static void Xml(string xml, [CallerArgumentExpression("xml")] string argName = null)
     {
-        Requires.Text(xml, argName);
+        Text(xml, argName);
         XDocument.Parse(xml);
     }
 }

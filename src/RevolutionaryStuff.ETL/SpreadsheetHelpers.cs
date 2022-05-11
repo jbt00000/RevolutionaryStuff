@@ -45,10 +45,8 @@ public static partial class SpreadsheetHelpers
 
     public static void ToSpreadSheet(this DataSet ds, string path)
     {
-        using (var st = File.Create(path))
-        {
-            ds.ToSpreadSheet(st);
-        }
+        using var st = File.Create(path);
+        Core.SpreadsheetHelpers.ToSpreadSheet(ds, st);
     }
 
     private static void AddDefaultStylesPart(WorkbookPart workbookpart)
@@ -56,87 +54,84 @@ public static partial class SpreadsheetHelpers
         //https://stackoverflow.com/questions/11116176/cell-styles-in-openxml-spreadsheet-spreadsheetml
         var stylesPart = workbookpart.AddNewPart<WorkbookStylesPart>();
         var dst = stylesPart.GetStream();
-        var st = ResourceHelpers.GetEmbeddedResourceAsStream(typeof(SpreadsheetHelpers).Assembly, "styles.xml");
+        var st = typeof(SpreadsheetHelpers).Assembly.GetEmbeddedResourceAsStream("styles.xml");
         st.CopyTo(dst);
     }
 
     public static void ToSpreadSheet(this DataSet ds, Stream st)
     {
-        using (var sd = SpreadsheetDocument.Create(st, DocumentFormat.OpenXml.SpreadsheetDocumentType.Workbook))
+        using var sd = SpreadsheetDocument.Create(st, DocumentFormat.OpenXml.SpreadsheetDocumentType.Workbook);
+        // Add a WorkbookPart to the document.
+        var workbookpart = sd.AddWorkbookPart();
+        var workbook = workbookpart.Workbook = new Workbook();
+
+        AddDefaultStylesPart(workbookpart);
+
+        // Add Sheets to the Workbook.
+        var sheets = workbook.AppendChild<Sheets>(new Sheets());
+
+        var indexBySharedString = new Dictionary<string, int>();
+
+        uint sheetNum = 0;
+        foreach (DataTable dt in ds.Tables)
         {
+            // Add a WorksheetPart to the WorkbookPart.
+            var worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
+            var sheetData = new SheetData();
+            var worksheet = worksheetPart.Worksheet = new Worksheet(sheetData);
 
-            // Add a WorkbookPart to the document.
-            var workbookpart = sd.AddWorkbookPart();
-            var workbook = workbookpart.Workbook = new Workbook();
-
-            AddDefaultStylesPart(workbookpart);
-
-            // Add Sheets to the Workbook.
-            var sheets = workbook.AppendChild<Sheets>(new Sheets());
-
-            var indexBySharedString = new Dictionary<string, int>();
-
-            uint sheetNum = 0;
-            foreach (DataTable dt in ds.Tables)
+            // Append a new worksheet and associate it with the workbook.
+            var sheet = new Sheet()
             {
-                // Add a WorksheetPart to the WorkbookPart.
-                var worksheetPart = workbookpart.AddNewPart<WorksheetPart>();
-                var sheetData = new SheetData();
-                var worksheet = worksheetPart.Worksheet = new Worksheet(sheetData);
+                Id = sd.WorkbookPart.GetIdOfPart(worksheetPart),
+                SheetId = ++sheetNum,
+                Name = dt.TableName
+            };
+            sheets.Append(sheet);
 
-                // Append a new worksheet and associate it with the workbook.
-                var sheet = new Sheet()
+            var ssRow = new Row { RowIndex = 1 };
+            foreach (DataColumn dc in dt.Columns)
+            {
+                var ssCell = new Cell() { CellReference = CreateCellReference(dc.Ordinal, 0), StyleIndex = 14 };
+                //                        var ssCell = new Cell() { CellReference = CreateCellReference(dc.Ordinal, 0) };
+                SetValue(ssCell, dc.ColumnName, indexBySharedString);
+                ssRow.Append(ssCell);
+            }
+            sheetData.Append(ssRow);
+            uint rowNum = 0;
+            foreach (DataRow dr in dt.Rows)
+            {
+                ssRow = new Row { RowIndex = (++rowNum) + 1 };
+                for (var colNum = 0; colNum < dt.Columns.Count; ++colNum)
                 {
-                    Id = sd.WorkbookPart.GetIdOfPart(worksheetPart),
-                    SheetId = ++sheetNum,
-                    Name = dt.TableName
-                };
-                sheets.Append(sheet);
-
-                var ssRow = new Row { RowIndex = 1 };
-                foreach (DataColumn dc in dt.Columns)
-                {
-                    var ssCell = new Cell() { CellReference = CreateCellReference(dc.Ordinal, 0), StyleIndex = 14 };
-                    //                        var ssCell = new Cell() { CellReference = CreateCellReference(dc.Ordinal, 0) };
-                    SetValue(ssCell, dc.ColumnName, indexBySharedString);
+                    var ssCell = new Cell() { CellReference = CreateCellReference(colNum, (int)rowNum) };
+                    SetValue(ssCell, dr[colNum], indexBySharedString);
                     ssRow.Append(ssCell);
                 }
                 sheetData.Append(ssRow);
-                uint rowNum = 0;
-                foreach (DataRow dr in dt.Rows)
-                {
-                    ssRow = new Row { RowIndex = (++rowNum) + 1 };
-                    for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
-                    {
-                        var ssCell = new Cell() { CellReference = CreateCellReference(colNum, (int)rowNum) };
-                        SetValue(ssCell, dr[colNum], indexBySharedString);
-                        ssRow.Append(ssCell);
-                    }
-                    sheetData.Append(ssRow);
-                }
-
-                //Freeze Pane
-                //https://stackoverflow.com/questions/6428590/freeze-panes-in-openxml-sdk-2-0-for-excel-document
-                var sheetviews = new SheetViews();
-                worksheet.InsertAt(sheetviews, 0);
-                var sv = new SheetView()
-                {
-                    WorkbookViewId = 0
-                };
-                sv.Pane = new Pane() { VerticalSplit = 1D, TopLeftCell = "A2", ActivePane = PaneValues.BottomLeft, State = PaneStateValues.Frozen };
-                sv.Append(new Selection() { Pane = PaneValues.BottomLeft });
-                sheetviews.Append(sv);
-                worksheet.AppendChild(new AutoFilter() { Reference = CreateCellReference(0, 0, dt.Columns.Count - 1, 0) });
             }
 
-            workbookpart.Workbook.Save();
-
-            SharedStringTableCreate(sd, indexBySharedString);
-
-            sd.Save();
-
-            sd.Close();
+            //Freeze Pane
+            //https://stackoverflow.com/questions/6428590/freeze-panes-in-openxml-sdk-2-0-for-excel-document
+            var sheetviews = new SheetViews();
+            worksheet.InsertAt(sheetviews, 0);
+            var sv = new SheetView()
+            {
+                WorkbookViewId = 0
+            };
+            sv.Pane = new Pane() { VerticalSplit = 1D, TopLeftCell = "A2", ActivePane = PaneValues.BottomLeft, State = PaneStateValues.Frozen };
+            sv.Append(new Selection() { Pane = PaneValues.BottomLeft });
+            sheetviews.Append(sv);
+            worksheet.AppendChild(new AutoFilter() { Reference = CreateCellReference(0, 0, dt.Columns.Count - 1, 0) });
         }
+
+        workbookpart.Workbook.Save();
+
+        SharedStringTableCreate(sd, indexBySharedString);
+
+        sd.Save();
+
+        sd.Close();
     }
 
     private static string CreateCellReference(int colStart, int rowStart, int colEnd, int rowEnd)
@@ -153,7 +148,7 @@ public static partial class SpreadsheetHelpers
             if (col < 26) break;
             col = col / 26 - 1;
         }
-        cr = cr + (row + 1).ToString();
+        cr += (row + 1).ToString();
         return cr;
     }
 
@@ -217,7 +212,7 @@ public static partial class SpreadsheetHelpers
 
         var items = indexBySharedString.OrderBy(kvp => kvp.Value).ToList();
 
-        int iLast = -1;
+        var iLast = -1;
         foreach (var kvp in items)
         {
             if (kvp.Value != ++iLast)
@@ -228,7 +223,7 @@ public static partial class SpreadsheetHelpers
 
         foreach (var kvp in items)
         {
-            shareStringPart.SharedStringTable.AppendChild(new SharedStringItem(new DocumentFormat.OpenXml.Spreadsheet.Text(kvp.Key)));
+            shareStringPart.SharedStringTable.AppendChild(new SharedStringItem(new Text(kvp.Key)));
         }
         shareStringPart.SharedStringTable.Save();
     }
@@ -238,24 +233,22 @@ public static partial class SpreadsheetHelpers
         Requires.NonNull(ds, nameof(ds));
         Requires.ReadableStreamArg(st, nameof(st));
 
-        settings = settings ?? new LoadTablesFromSpreadsheetSettings();
-        using (var sd = SpreadsheetDocument.Open(st, false))
+        settings ??= new LoadTablesFromSpreadsheetSettings();
+        using var sd = SpreadsheetDocument.Open(st, false);
+        var sheetSettings = settings.SheetSettings;
+        if (sheetSettings == null || sheetSettings.Count == 0)
         {
-            var sheetSettings = settings.SheetSettings;
-            if (sheetSettings == null || sheetSettings.Count == 0)
+            sheetSettings = new List<LoadRowsFromSpreadsheetSettings>();
+            for (var n = 0; n < sd.WorkbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>().Count(); ++n)
             {
-                sheetSettings = new List<LoadRowsFromSpreadsheetSettings>();
-                for (int n = 0; n < sd.WorkbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>().Count(); ++n)
-                {
-                    sheetSettings.Add(new LoadRowsFromSpreadsheetSettings(settings.LoadAllSheetsDefaultSettings) { SheetNumber = n, UseSheetNameForTableName = true, TypeConverter = ExcelTypeConverter });
-                }
+                sheetSettings.Add(new LoadRowsFromSpreadsheetSettings(settings.LoadAllSheetsDefaultSettings) { SheetNumber = n, UseSheetNameForTableName = true, TypeConverter = ExcelTypeConverter });
             }
-            foreach (var ss in sheetSettings)
-            {
-                var dt = settings.CreateDataTable == null ? new DataTable() : settings.CreateDataTable();
-                dt.LoadRowsFromExcel(sd, ss);
-                ds.Tables.Add(dt);
-            }
+        }
+        foreach (var ss in sheetSettings)
+        {
+            var dt = settings.CreateDataTable == null ? new DataTable() : settings.CreateDataTable();
+            dt.LoadRowsFromExcel(sd, ss);
+            ds.Tables.Add(dt);
         }
     }
 
@@ -280,7 +273,7 @@ public static partial class SpreadsheetHelpers
 
         var sharedStringDictionary = ConvertSharedStringTableToDictionary(sd);
         var sheets = sd.WorkbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>();
-        int sheetNumber = 0;
+        var sheetNumber = 0;
         foreach (var sheet in sheets)
         {
             if (sheetNumber == settings.SheetNumber || 0 == string.Compare(settings.SheetName, sheet.Name, true))
@@ -289,11 +282,11 @@ public static partial class SpreadsheetHelpers
                 {
                     dt.TableName = sheet.Name;
                 }
-                string relationshipId = sheet.Id.Value;
+                var relationshipId = sheet.Id.Value;
                 var worksheetPart = (WorksheetPart)sd.WorkbookPart.GetPartById(relationshipId);
-                SheetData sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
-                IEnumerable<Row> eRows = sheetData.Descendants<Row>();
-                foreach (Row erow in eRows)
+                var sheetData = worksheetPart.Worksheet.GetFirstChild<SheetData>();
+                var eRows = sheetData.Descendants<Row>();
+                foreach (var erow in eRows)
                 {
 CreateRow:
                     var row = new List<object>();
@@ -335,14 +328,14 @@ CreateRow:
             settings.SheetNumber ?? (object)settings.SheetName));
     }
 
-    private static readonly Regex ColRowExpr = new Regex(@"\s*([A-Z]+)(\d+)\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private static readonly Regex ColRowExpr = new(@"\s*([A-Z]+)(\d+)\s*", RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
     private static Tuple<int, int> GetColRowFromCellReference(string cellReference)
     {
         var m = ColRowExpr.Match(cellReference);
-        int colNum = 0;
-        string colRef = m.Groups[1].Value.ToLower();
-        for (int z = 0; z < colRef.Length; ++z)
+        var colNum = 0;
+        var colRef = m.Groups[1].Value.ToLower();
+        for (var z = 0; z < colRef.Length; ++z)
         {
             colNum = colNum * 26 + (colRef[z] - 'a' + 1);
         }
@@ -354,7 +347,7 @@ CreateRow:
         var d = new Dictionary<int, string>();
         var stringTablePart = document.WorkbookPart.SharedStringTablePart;
         var pos = 0;
-        foreach (DocumentFormat.OpenXml.OpenXmlElement el in stringTablePart.SharedStringTable.ChildElements)
+        foreach (var el in stringTablePart.SharedStringTable.ChildElements)
         {
             d[pos++] = el.InnerText;
         }
@@ -364,7 +357,7 @@ CreateRow:
     private static object GetCellValue(SpreadsheetDocument document, Cell cell, bool treatAllValuesAsText, IDictionary<int, string> sharedStringDictionary)
     {
         if (cell == null || cell.CellValue == null) return null;
-        string value = cell.CellValue.InnerText;
+        var value = cell.CellValue.InnerText;
         if (cell.DataType == null) return value;
         var t = cell.DataType.Value;
         if (treatAllValuesAsText && t != CellValues.SharedString)

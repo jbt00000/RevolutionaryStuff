@@ -14,7 +14,7 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
         ClientCredentials = 2,
     }
 
-    private static readonly Uri MicrosoftOAuthLoginEndpointUrl = new Uri("https://login.windows.net/common/oauth2/token");
+    private static readonly Uri MicrosoftOAuthLoginEndpointUrl = new("https://login.windows.net/common/oauth2/token");
     private static readonly Uri DefaultLoginUrl = MicrosoftOAuthLoginEndpointUrl;
 
     public class Config : IValidate

@@ -21,7 +21,7 @@ public class PageAlert
     public bool AutoDismiss { get; set; }
     public string Message { get; set; }
 
-    public PageAlert(string message, bool autoDismiss = true, AlertTypes alertType = PageAlert.AlertTypes.Info)
+    public PageAlert(string message, bool autoDismiss = true, AlertTypes alertType = AlertTypes.Info)
     {
         Message = message;
         AutoDismiss = autoDismiss;

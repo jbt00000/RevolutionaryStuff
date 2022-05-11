@@ -15,7 +15,7 @@ public class PeriodicAction : BaseDisposable
             delegate (object state)
             {
                 T.Change(-1, -1);
-                if (this.IsDisposed) return;
+                if (IsDisposed) return;
                 try
                 {
                     action();
@@ -30,8 +30,8 @@ public class PeriodicAction : BaseDisposable
                 }
             },
             null,
-            System.Threading.Timeout.InfiniteTimeSpan,
-            System.Threading.Timeout.InfiniteTimeSpan);
+            Timeout.InfiniteTimeSpan,
+            Timeout.InfiniteTimeSpan);
         /*
          We First create and set the variable for the timer, then invoke it.
          This is because in practice, we've seen times where the delegate was invoked and tried to access T before T was actually set

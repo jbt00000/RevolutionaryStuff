@@ -23,7 +23,7 @@ public static class ConnectionHelpers
 
     public static bool TableExists(this IDbConnection conn, string tableName, string schemaName = null)
     {
-        tableName = StringHelpers.TrimOrNull(tableName);
+        tableName = tableName.TrimOrNull();
         if (tableName == null) return false;
         schemaName = SqlHelpers.SchemaOrDefault(schemaName);
         var exists = conn.ExecuteScalar<object>($"select 1 from information_schema.tables where table_name='{tableName.EscapeForSql()}' and table_schema='{schemaName.EscapeForSql()}'");
@@ -46,28 +46,24 @@ public static class ConnectionHelpers
             Requires.Null(trans, "t");
         }
         conn.OpenIfNeeded();
-        using (var cmd = conn.CreateCommand())
+        using var cmd = conn.CreateCommand();
+        cmd.CommandType = CommandType.Text;
+        cmd.CommandText = sql;
+        if (timeout != null)
         {
-            cmd.CommandType = CommandType.Text;
-            cmd.CommandText = sql;
-            if (timeout != null)
-            {
-                cmd.CommandTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
-            }
-            if (useNewTransaction)
-            {
-                using (var newTrans = conn.BeginTransaction())
-                {
-                    cmd.Transaction = newTrans;
-                    cmd.ExecuteNonQuery();
-                    newTrans.Commit();
-                }
-            }
-            else
-            {
-                cmd.Transaction = trans;
-                cmd.ExecuteNonQuery();
-            }
+            cmd.CommandTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
+        }
+        if (useNewTransaction)
+        {
+            using var newTrans = conn.BeginTransaction();
+            cmd.Transaction = newTrans;
+            cmd.ExecuteNonQuery();
+            newTrans.Commit();
+        }
+        else
+        {
+            cmd.Transaction = trans;
+            cmd.ExecuteNonQuery();
         }
     }
 
@@ -123,17 +119,15 @@ public static class ConnectionHelpers
         Requires.NonNull(conn, nameof(conn));
         Requires.Text(sql, nameof(sql));
         conn.OpenIfNeeded();
-        using (var cmd = new SqlCommand(sql, (SqlConnection)conn)
+        using var cmd = new SqlCommand(sql, (SqlConnection)conn)
         {
             Transaction = (SqlTransaction)trans,
             CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
-        })
-        {
-            cmd.Parameters.AddRange(parameters);
-            cmd.CommandType = cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure;
-            cmd.ExecuteNonQuery();
-            return new Result(cmd.Parameters);
-        }
+        };
+        cmd.Parameters.AddRange(parameters);
+        cmd.CommandType = cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure;
+        cmd.ExecuteNonQuery();
+        return new Result(cmd.Parameters);
     }
 
     public static T ExecuteScalar<T>(
@@ -152,18 +146,16 @@ public static class ConnectionHelpers
     {
         Requires.NonNull(conn, nameof(conn));
         Requires.Text(sql, nameof(sql));
-        using (var cmd = new SqlCommand(sql, (SqlConnection)conn)
+        using var cmd = new SqlCommand(sql, (SqlConnection)conn)
         {
             Transaction = (SqlTransaction)trans,
             CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
-        })
-        {
-            cmd.Parameters.AddRange(parameters);
-            cmd.CommandText = sql;
-            cmd.CommandType = CommandType.Text;
-            OpenIfNeeded(conn);
-            return cmd.ExecuteScalar();
-        }
+        };
+        cmd.Parameters.AddRange(parameters);
+        cmd.CommandText = sql;
+        cmd.CommandType = CommandType.Text;
+        OpenIfNeeded(conn);
+        return cmd.ExecuteScalar();
     }
 
     public static async Task<Result> ExecuteNonQueryAsync(
@@ -178,17 +170,15 @@ public static class ConnectionHelpers
         Requires.NonNull(conn, nameof(conn));
         Requires.Text(sql, nameof(sql));
         conn.OpenIfNeeded();
-        using (var cmd = new SqlCommand(sql, (SqlConnection)conn)
+        await using var cmd = new SqlCommand(sql, (SqlConnection)conn)
         {
             Transaction = (SqlTransaction)trans,
             CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
-        })
-        {
-            cmd.Parameters.AddRange(parameters);
-            cmd.CommandType = forcedCommandType.GetValueOrDefault(cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure);
-            await cmd.ExecuteNonQueryAsync();
-            return new Result(cmd.Parameters);
-        }
+        };
+        cmd.Parameters.AddRange(parameters);
+        cmd.CommandType = forcedCommandType.GetValueOrDefault(cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure);
+        await cmd.ExecuteNonQueryAsync();
+        return new Result(cmd.Parameters);
     }
 
     public static Result ExecuteReaderForEach(
@@ -215,27 +205,25 @@ public static class ConnectionHelpers
         conn.OpenIfNeeded();
         try
         {
-            using (var cmd = new SqlCommand(sql, (SqlConnection)conn)
+            await using var cmd = new SqlCommand(sql, (SqlConnection)conn)
             {
                 Transaction = (SqlTransaction)trans,
                 CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
-            })
+            };
+            cmd.Parameters.AddRange(parameters);
+            cmd.CommandType = cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure;
+            await using (var reader = await cmd.ExecuteReaderAsync())
             {
-                cmd.Parameters.AddRange(parameters);
-                cmd.CommandType = cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure;
-                using (var reader = await cmd.ExecuteReaderAsync())
+                foreach (var action in actions)
                 {
-                    foreach (var action in actions)
+                    while (await reader.ReadAsync())
                     {
-                        while (await reader.ReadAsync())
-                        {
-                            action(reader);
-                        }
-                        await reader.NextResultAsync();
+                        action(reader);
                     }
+                    await reader.NextResultAsync();
                 }
-                return new Result(cmd.Parameters);
             }
+            return new Result(cmd.Parameters);
         }
         catch (Exception ex)
         {
@@ -273,7 +261,7 @@ public static class ConnectionHelpers
                 {
                     var pi = mi as PropertyInfo;
                     if (pi == null) continue;
-                    if (pi.Attributes.HasFlag(System.Reflection.PropertyAttributes.SpecialName | System.Reflection.PropertyAttributes.RTSpecialName)) continue;
+                    if (pi.Attributes.HasFlag(PropertyAttributes.SpecialName | PropertyAttributes.RTSpecialName)) continue;
                     var colAttr = mi.GetCustomAttribute<ColumnAttribute>();
                     d[colAttr?.Name ?? mi.Name] = mi;
                 }
@@ -283,7 +271,7 @@ public static class ConnectionHelpers
 
     public static TItem Get<TItem>(this IDataReader reader, IDictionary<string, MemberInfo> map = null) where TItem : new()
     {
-        map = map ?? GetSettersByNameMap<TItem>();
+        map ??= GetSettersByNameMap<TItem>();
         if (map.Count == 0)
         {
             var val = reader[0];
@@ -358,7 +346,7 @@ public static class ConnectionHelpers
 
         #endregion
 
-        public override string ToString() => $"{this.GetType().Name} ret={ReturnValue}";
+        public override string ToString() => $"{GetType().Name} ret={ReturnValue}";
 
         public T GetOutputParameterVal<T>()
         {
@@ -377,14 +365,14 @@ public static class ConnectionHelpers
         {
             if (name.StartsWith("@"))
             {
-                name = name.Substring(1);
+                name = name[1..];
             }
             foreach (SqlParameter p in Parameters)
             {
                 var pn = p.ParameterName;
                 if (pn.StartsWith("@"))
                 {
-                    pn = pn.Substring(1);
+                    pn = pn[1..];
                 }
                 if (0 == string.Compare(pn, name, true) && p.Direction.HasFlag(ParameterDirection.Output))
                 {

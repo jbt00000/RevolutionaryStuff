@@ -7,7 +7,6 @@ namespace RevolutionaryStuff.Core;
 public abstract class BaseLoggingDisposable : BaseDisposable
 {
     protected BaseLoggingDisposable(ILogger logger)
-        : base()
     {
         Requires.NonNull(logger, nameof(logger));
 

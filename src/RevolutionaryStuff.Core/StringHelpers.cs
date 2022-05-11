@@ -9,7 +9,7 @@ public static class StringHelpers
 {
     public static string DecodeBase64String(this string base64)
     {
-        base64 = StringHelpers.TrimOrNull(base64);
+        base64 = TrimOrNull(base64);
         if (base64 == null) return null;
         var buf = Convert.FromBase64String(base64);
         return Encoding.UTF8.GetString(buf);
@@ -24,7 +24,7 @@ public static class StringHelpers
 
     public static string AppendWithConditionalAppendPrefix(this string baseString, string conditionalAppendPrefix, string baseAppend)
     {
-        baseString = baseString ?? "";
+        baseString ??= "";
         if (baseString.Length > 0 && baseAppend != null && baseAppend.Length > 0)
         {
             baseString += conditionalAppendPrefix ?? "";
@@ -36,9 +36,8 @@ public static class StringHelpers
     private static bool ContainsLessThanEq(this string s, char chMax)
     {
         if (s == null) return true;
-        for (int z = 0; z < s.Length; ++z)
+        foreach (var ch in s)
         {
-            var ch = s[z];
             if (ch > chMax) return false;
         }
         return true;
@@ -64,7 +63,7 @@ public static class StringHelpers
     {
         if (m.Success)
         {
-            s = s.Substring(0, m.Index) + (replacement ?? "") + s.Substring(m.Index + m.Length);
+            s = s[..m.Index] + (replacement ?? "") + s[(m.Index + m.Length)..];
         }
         return s;
     }
@@ -72,9 +71,9 @@ public static class StringHelpers
     public static string ToTitleFriendlyString(this string s)
     {
         var sb = new StringBuilder();
-        bool lastWasUpper = false;
-        bool lastWasUnderscore = false;
-        for (int x = 0; x < s.Length; ++x)
+        var lastWasUpper = false;
+        var lastWasUnderscore = false;
+        for (var x = 0; x < s.Length; ++x)
         {
             var ch = s[x];
             if (char.IsUpper(ch))
@@ -118,7 +117,7 @@ public static class StringHelpers
         s = s.ToUpperCamelCase();
         if (s.Length > 0 && char.IsUpper(s[0]))
         {
-            s = s[0].ToString().ToLower() + s.Substring(1);
+            s = s[0].ToString().ToLower() + s[1..];
         }
         return s;
     }
@@ -126,9 +125,9 @@ public static class StringHelpers
     public static string ToTitleCase(this string s)
     {
         if (string.IsNullOrEmpty(s)) return "";
-        bool lastWasLetter = false;
+        var lastWasLetter = false;
         var sb = new StringBuilder(s.Length);
-        for (int z = 0; z < s.Length; ++z)
+        for (var z = 0; z < s.Length; ++z)
         {
             var ch = s[z];
             if (char.IsLetter(ch))
@@ -148,7 +147,7 @@ public static class StringHelpers
     public static string Right(this string s, int lastNChars)
     {
         if (s == null || s.Length <= lastNChars) return s;
-        return s.Substring(s.Length - lastNChars);
+        return s[^lastNChars..];
     }
 
     public static string Left(this string s, int firstNChars)
@@ -156,7 +155,7 @@ public static class StringHelpers
         if (s == null) return null;
         if (s.Length > firstNChars)
         {
-            s = s.Substring(0, firstNChars);
+            s = s[..firstNChars];
         }
         return s;
     }
@@ -189,7 +188,7 @@ public static class StringHelpers
     /// </example>
     public static bool Split(this string s, string sep, bool first, out string left, out string right)
     {
-        int n = first ? s.IndexOf(sep) : s.LastIndexOf(sep);
+        var n = first ? s.IndexOf(sep) : s.LastIndexOf(sep);
         left = right = "";
         if (n < 0)
         {
@@ -198,8 +197,8 @@ public static class StringHelpers
         }
         else
         {
-            left = s.Substring(0, n);
-            right = s.Substring(n + sep.Length);
+            left = s[..n];
+            right = s[(n + sep.Length)..];
             return true;
         }
     }
@@ -224,7 +223,7 @@ public static class StringHelpers
     {
         if (s == null) return false;
         if (!ignoreCase) return s.Contains(value);
-        return s.IndexOf(value, System.StringComparison.CurrentCultureIgnoreCase) > -1;
+        return s.IndexOf(value, StringComparison.CurrentCultureIgnoreCase) > -1;
     }
 
     public static string TruncateWithEllipsis(this string s, int len, string ellipsis = "...")
@@ -232,7 +231,7 @@ public static class StringHelpers
         if (s == null) return null;
         if (s.Length > len)
         {
-            s = s.Substring(0, len - ellipsis.Length) + ellipsis;
+            s = s[..(len - ellipsis.Length)] + ellipsis;
             Debug.Assert(s.Length == len);
         }
         return s;
@@ -243,9 +242,9 @@ public static class StringHelpers
         if (s == null) return null;
         if (s.Length > len)
         {
-            int pivot = len * 2 / 3;
-            var left = s.Substring(0, pivot - ellipsis.Length);
-            var right = s.Substring(s.Length - (len - pivot));
+            var pivot = len * 2 / 3;
+            var left = s[..(pivot - ellipsis.Length)];
+            var right = s[^(len - pivot)..];
             s = left + ellipsis + right;
             Debug.Assert(s.Length == len);
         }
@@ -267,7 +266,7 @@ public static class StringHelpers
     {
         if (vals != null)
         {
-            for (int x = 0; x < vals.Length; ++x)
+            for (var x = 0; x < vals.Length; ++x)
             {
                 var s = vals[x];
                 if (string.IsNullOrWhiteSpace(s)) continue;
@@ -289,7 +288,7 @@ public static class StringHelpers
     public static string RemoveSpecialCharacters(this string str)
     {
         var sb = new StringBuilder();
-        foreach (char c in str)
+        foreach (var c in str)
         {
             if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
             {
@@ -308,10 +307,10 @@ public static class StringHelpers
     /// <remarks>https://stackoverflow.com/questions/249087/how-do-i-remove-diacritics-accents-from-a-string-in-net</remarks>
     public static string RemoveDiacritics(this string s)
     {
-        string stFormD = s.Normalize(NormalizationForm.FormD);
+        var stFormD = s.Normalize(NormalizationForm.FormD);
         var sb = new StringBuilder();
 
-        for (int ich = 0; ich < stFormD.Length; ich++)
+        for (var ich = 0; ich < stFormD.Length; ich++)
         {
             var uc = CharUnicodeInfo.GetUnicodeCategory(stFormD[ich]);
             if (uc != UnicodeCategory.NonSpacingMark)
@@ -323,7 +322,7 @@ public static class StringHelpers
         return (sb.ToString());
     }
 
-    private static readonly Regex NameArgExpr = new Regex("(?<!{){\\s*(?'term'\\w+)(?'modifiers'|[:,][^}]+)}", RegexOptions.Compiled);
+    private static readonly Regex NameArgExpr = new("(?<!{){\\s*(?'term'\\w+)(?'modifiers'|[:,][^}]+)}", RegexOptions.Compiled);
 
     public static string FormatWithNamedArgs(string format, string k0, object v0, object missingVal = null)
         => FormatWithNamedArgs(format, new[] { new KeyValuePair<string, object>(k0, v0) }, missingVal);

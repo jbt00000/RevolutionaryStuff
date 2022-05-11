@@ -109,7 +109,7 @@ public static class AttributeStuff
 
         if (dllPaths != null)
         {
-            foreach (string dllPath in dllPaths)
+            foreach (var dllPath in dllPaths)
             {
                 if (!File.Exists(dllPath)) continue;
                 try

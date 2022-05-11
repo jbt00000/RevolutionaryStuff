@@ -16,8 +16,8 @@ public class NewtonsoftJsonResult : ContentResult
     {
         if (serializer == null)
         {
-            settings = settings ?? DefaultSerializerSettings;
-            base.Content = JsonConvert.SerializeObject(o, Formatting.Indented, settings);
+            settings ??= DefaultSerializerSettings;
+            Content = JsonConvert.SerializeObject(o, Formatting.Indented, settings);
         }
         else
         {
@@ -26,12 +26,12 @@ public class NewtonsoftJsonResult : ContentResult
             {
                 serializer.Serialize(sw, o);
             }
-            base.Content = sb.ToString();
+            Content = sb.ToString();
         }
-        base.ContentType = MimeType.Application.Json.PrimaryContentType;
+        ContentType = MimeType.Application.Json.PrimaryContentType;
         if (statusCode != null)
         {
-            base.StatusCode = (int)(statusCode.Value);
+            StatusCode = (int)(statusCode.Value);
         }
     }
 }

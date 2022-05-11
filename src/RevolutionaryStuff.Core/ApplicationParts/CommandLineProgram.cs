@@ -33,7 +33,7 @@ public abstract partial class CommandLineProgram : BaseDisposable
 
     protected abstract Task OnGoAsync();
 
-    private readonly ManualResetEvent ShutdownRequestedEvent = new ManualResetEvent(false);
+    private readonly ManualResetEvent ShutdownRequestedEvent = new(false);
     protected WaitHandle ShutdownRequested => ShutdownRequestedEvent;
 
     protected virtual void OnBuildConfiguration(IConfigurationBuilder builder, string environmentName, bool isDevelopment)
@@ -118,7 +118,7 @@ public abstract partial class CommandLineProgram : BaseDisposable
     {
         Trace.Listeners.Add(new Diagnostics.ConsoleTraceListener());
         CommandLineProgram p = null;
-        bool programInOperation = false;
+        var programInOperation = false;
         try
         {
             var ci = typeof(TCommandLineProgram).GetTypeInfo().GetConstructor(Empty.TypeArray);

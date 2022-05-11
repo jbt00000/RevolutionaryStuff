@@ -8,14 +8,14 @@ public abstract class BaseCacher : BaseCacher<CacheEntry>
     protected virtual ICacheEntryRetentionPolicy DefaultCacheEntryRetentionPolicy
         => CacheEntryRetentionPolicy.Default;
 
-    protected override CacheEntry CreateEntry(CacheCreationResult res)
-        => new CacheEntry(res.Val, res.RetentionPolicy ?? DefaultCacheEntryRetentionPolicy);
+    protected override CacheEntry CreateEntry(CacheCreationResult res) =>
+        new(res.Val, res.RetentionPolicy ?? DefaultCacheEntryRetentionPolicy);
 }
 
 public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : ICacheEntry
 {
     //https://stackoverflow.com/questions/7612602/why-cant-i-use-the-await-operator-within-the-body-of-a-lock-statement
-    private readonly SemaphoreSlim Lock = new SemaphoreSlim(1, 1);
+    private readonly SemaphoreSlim Lock = new(1, 1);
 
     protected BaseCacher()
     { }
@@ -83,7 +83,7 @@ public abstract class BaseCacher<T_CACHE_ENTRY> : ICacher where T_CACHE_ENTRY : 
     protected virtual async Task<ICacheEntry> OnFindEntryOrCreateValueAsync(string key, Func<string, Task<CacheCreationResult>> asyncCreator, IFindOrCreateEntrySettings findOrCreateSettings)
     {
 Again:
-        T_CACHE_ENTRY entry = default(T_CACHE_ENTRY);
+        var entry = default(T_CACHE_ENTRY);
         if (!findOrCreateSettings.ForceCreate)
         {
             entry = (T_CACHE_ENTRY)await FindEntryAsync(key);
@@ -96,7 +96,7 @@ Again:
             await RemoveAsync(key);
         }
 
-        bool wait = await Lock.ExecuteAsync(() =>
+        var wait = await Lock.ExecuteAsync(() =>
         {
             if (RunningKeys.Contains(key))
             {

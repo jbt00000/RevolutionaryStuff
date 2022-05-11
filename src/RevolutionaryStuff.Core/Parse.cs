@@ -25,10 +25,10 @@ public static class Parse
         return missing;
     }
 
-    public static TEnum ParseEnumWithEnumMemberValues<TEnum>(string val, bool caseSensitive = false, TEnum missing = default) where TEnum : System.Enum
+    public static TEnum ParseEnumWithEnumMemberValues<TEnum>(string val, bool caseSensitive = false, TEnum missing = default) where TEnum : Enum
         => (TEnum)ParseEnumWithEnumMemberValues(typeof(TEnum), val, caseSensitive, missing);
 
-    public static System.Enum ParseEnumWithEnumMemberValues(Type t, string val, bool caseSensitive = false, System.Enum missing = default)
+    public static Enum ParseEnumWithEnumMemberValues(Type t, string val, bool caseSensitive = false, Enum missing = default)
     {
         var d = Cache.DataCacher.FindOrCreateValue<IDictionary<string, object>>(
             Cache.CreateKey(t, caseSensitive),
@@ -37,7 +37,7 @@ public static class Parse
                 var z = caseSensitive ?
                     new Dictionary<string, object>() :
                     new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
-                foreach (object v in Enum.GetValues(t))
+                foreach (var v in Enum.GetValues(t))
                 {
                     var mi = t.GetMember(v.ToString()).First();
                     var em = mi.GetCustomAttribute<EnumMemberAttribute>();
@@ -55,7 +55,7 @@ public static class Parse
             );
         if (!string.IsNullOrEmpty(val))
         {
-            if (d.ContainsKey(val)) return (System.Enum)d[val];
+            if (d.ContainsKey(val)) return (Enum)d[val];
         }
         return missing;
     }
@@ -108,7 +108,7 @@ public static class Parse
     {
         date = date.Trim();
         return new DateTime(
-            int.Parse(date.Substring(0, 4)),
+            int.Parse(date[..4]),
             int.Parse(date.Substring(4, 2)),
             int.Parse(date.Substring(6, 2)));
     }
@@ -123,12 +123,12 @@ public static class Parse
         return fallback;
     }
 
-    private static readonly Regex BoolTrueExpr = new Regex("^\\s*(true|1)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
-    private static readonly Regex BoolFalseExpr = new Regex("^\\s*(false|0)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+    private static readonly Regex BoolTrueExpr = new("^\\s*(true|1)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+    private static readonly Regex BoolFalseExpr = new("^\\s*(false|0)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
     public static bool? ParseNullableBool(string sv, bool? fallback = null)
     {
-        if (Parse.TryParseBool(sv, out var v))
+        if (TryParseBool(sv, out var v))
         {
             return v;
         }
@@ -222,7 +222,7 @@ public static class Parse
     public static bool ParseBool(string s, bool fallback = false)
     {
         bool v;
-        return Parse.TryParseBool(s, out v) ? v : fallback;
+        return TryParseBool(s, out v) ? v : fallback;
     }
 
     /// <summary>

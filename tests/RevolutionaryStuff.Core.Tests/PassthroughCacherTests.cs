@@ -12,9 +12,9 @@ namespace RevolutionaryStuff.Core.Tests
         public async Task WorksAsync()
         {
             var cacher = Cache.Passthrough;
-            for (int z = 0; z < 10; ++z)
+            for (var z = 0; z < 10; ++z)
             {
-                string cacheKey = Cache.CreateKey(z);
+                var cacheKey = Cache.CreateKey(z);
                 var res = await cacher.FindEntryOrCreateValueAsync(
                     cacheKey,
                     k => {

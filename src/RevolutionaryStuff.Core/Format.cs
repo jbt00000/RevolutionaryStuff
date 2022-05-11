@@ -10,7 +10,7 @@ public static class Format
     {
         if (datas == null) return "";
         var sb = new StringBuilder();
-        int x = 0;
+        var x = 0;
         foreach (var kvp in datas)
         {
             if (x++ > 0)
@@ -37,7 +37,7 @@ public static class Format
         Requires.NonNull(formatter, nameof(formatter));
         if (null == e) return "";
         var sb = new StringBuilder();
-        int x = 0;
+        var x = 0;
         foreach (var item in e)
         {
             if (x > 0 && null != separator)

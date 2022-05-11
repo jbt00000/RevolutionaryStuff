@@ -100,7 +100,7 @@ public static class CollectionHelpers
         foreach (var item in items)
         {
             var key = keyGetter(item);
-            if (map.TryGetValue(key, out V val))
+            if (map.TryGetValue(key, out var val))
             {
                 ret.Add(outputTransformer(val));
             }
@@ -148,7 +148,7 @@ public static class CollectionHelpers
     {
         if (d != null)
         {
-            foreach (object v in d.Values)
+            foreach (var v in d.Values)
             {
                 if (v is R) return (R)v;
             }
@@ -165,7 +165,7 @@ public static class CollectionHelpers
     /// <returns>A random item from the list</returns>
     public static T Random<T>(this IList<T> list, Random r = null)
     {
-        r = r ?? Stuff.Random;
+        r ??= Stuff.Random;
         var n = r.Next(list.Count);
         return list[n];
     }
@@ -179,12 +179,9 @@ public static class CollectionHelpers
     public static void ShuffleList(this IList list, Random random = null)
     {
         Requires.NonNull(list, nameof(list));
-        int len = list.Count;
+        var len = list.Count;
         if (len < 2) return;
-        if (null == random)
-        {
-            random = Stuff.Random;
-        }
+        random ??= Stuff.Random;
         int x, y;
         object o;
         for (x = 0; x < len; ++x)
@@ -199,12 +196,9 @@ public static class CollectionHelpers
     public static void Shuffle<T>(this IList<T> list, Random random = null)
     {
         Requires.NonNull(list, nameof(list));
-        int len = list.Count;
+        var len = list.Count;
         if (len < 2) return;
-        if (null == random)
-        {
-            random = Stuff.Random;
-        }
+        random ??= Stuff.Random;
         int x, y;
         T o;
         for (x = 0; x < len; ++x)
@@ -248,8 +242,8 @@ public static class CollectionHelpers
     {
         if (null == e) return "";
         var sb = new StringBuilder();
-        int x = 0;
-        foreach (object o in e)
+        var x = 0;
+        foreach (var o in e)
         {
             if (x > 0 && null != sep)
             {
@@ -264,8 +258,8 @@ public static class CollectionHelpers
     {
         if (null == e) return "";
         var sb = new StringBuilder();
-        int x = 0;
-        foreach (T o in e)
+        var x = 0;
+        foreach (var o in e)
         {
             if (x > 0 && null != sep)
             {
@@ -284,7 +278,7 @@ public static class CollectionHelpers
     }
 
     public static V GetValue<K, V>(this IDictionary<K, V> d, K key, V fallback = default(V))
-        => d.TryGetValue(key, out V ret) ? ret : fallback;
+        => d.TryGetValue(key, out var ret) ? ret : fallback;
 
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> items, Action<T> action)
     {
@@ -366,7 +360,7 @@ public static class CollectionHelpers
     public static int Remove<T>(this ICollection<T> col, IEnumerable<T> items)
     {
         if (col == null || items == null) return 0;
-        int cnt = 0;
+        var cnt = 0;
         foreach (var item in items)
         {
             cnt += col.Remove(item) ? 1 : 0;
@@ -398,7 +392,7 @@ public static class CollectionHelpers
         var ret = new List<V>(d.Count);
         foreach (var k in orderedKeys)
         {
-            if (k != null && d.TryGetValue(k, out V v))
+            if (k != null && d.TryGetValue(k, out var v))
             {
                 Stuff.Noop();
             }
@@ -427,8 +421,8 @@ public static class CollectionHelpers
     {
         if (e != null)
         {
-            int z = 0;
-            foreach (object o in e)
+            var z = 0;
+            foreach (var o in e)
             {
                 if (z++ == itemNum)
                 {
@@ -471,7 +465,7 @@ public static class CollectionHelpers
 
     public static int Increment<K>(this IDictionary<K, int> d, K key, int incrementAmount, int initialAmount)
     {
-        if (d.TryGetValue(key, out int val))
+        if (d.TryGetValue(key, out var val))
         {
             val += incrementAmount;
         }
@@ -485,7 +479,7 @@ public static class CollectionHelpers
 
     public static V FindOrMissing<K, V>(this IDictionary<K, V> d, K key, V missing)
     {
-        if (!d.TryGetValue(key, out V ret))
+        if (!d.TryGetValue(key, out var ret))
         {
             ret = missing;
         }
@@ -495,7 +489,7 @@ public static class CollectionHelpers
 
     public static V FindOrDefault<K, V>(this IDictionary<K, V> d, K key)
     {
-        if (!d.TryGetValue(key, out V ret))
+        if (!d.TryGetValue(key, out var ret))
         {
             ret = default(V);
         }
@@ -504,7 +498,7 @@ public static class CollectionHelpers
 
     public static V FindOrCreate<K, V>(this IDictionary<K, V> d, K key, Func<V> creator)
     {
-        if (!d.TryGetValue(key, out V ret))
+        if (!d.TryGetValue(key, out var ret))
         {
             ret = creator();
             d[key] = ret;
@@ -514,7 +508,7 @@ public static class CollectionHelpers
 
     public static V FindOrCreate<K, V>(this IDictionary<K, V> d, K key, Func<K, V> creator)
     {
-        if (!d.TryGetValue(key, out V ret))
+        if (!d.TryGetValue(key, out var ret))
         {
             ret = creator(key);
             d[key] = ret;
@@ -528,11 +522,11 @@ public static class CollectionHelpers
 
         if (nthOccurrence == 0) return zeroThValue;
 
-        int cnt = 0;
-        for (int z = 0; z < items.Count; ++z)
+        var cnt = 0;
+        for (var z = 0; z < items.Count; ++z)
         {
             var i = items[z];
-            bool hit = test(i);
+            var hit = test(i);
             if (hit && ++cnt == nthOccurrence)
             {
                 return z;
@@ -589,7 +583,7 @@ public static class CollectionHelpers
         Requires.NonNull(col);
         Requires.NonNull(a);
 
-        int z = 0;
+        var z = 0;
         foreach (var item in col)
         {
             a(item, z++);

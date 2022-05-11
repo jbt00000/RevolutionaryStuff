@@ -57,7 +57,7 @@ public abstract class BasePageController : Controller
     public override JsonResult Json(object data, object serializerSettings)
         => base.Json(data, serializerSettings ?? JSO);
 
-    private static JsonSerializerOptions JSO = new JsonSerializerOptions()
+    private static JsonSerializerOptions JSO = new()
     {
         WriteIndented = true,
         PropertyNamingPolicy = null,
@@ -101,8 +101,8 @@ public abstract class BasePageController : Controller
                 m[kvp.Key] = kvp.Value;
             }
         }
-        sortCol = StringHelpers.TrimOrNull(sortCol);
-        bool isAscending = AspHelpers.IsSortDirAscending(sortDir);
+        sortCol = sortCol.TrimOrNull();
+        var isAscending = AspHelpers.IsSortDirAscending(sortDir);
         ViewBag.SortCol = sortCol;
         ViewBag.SortDir = sortDir;
         if (sortCol != null)

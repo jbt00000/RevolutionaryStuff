@@ -22,7 +22,7 @@ public static partial class DataLoadingHelpers
         Requires.NonNull(valueGenerator, nameof(valueGenerator));
 
         var pos = dt.Columns[columnName].Ordinal;
-        for (int z = 0; z < dt.Rows.Count; ++z)
+        for (var z = 0; z < dt.Rows.Count; ++z)
         {
             var dr = dt.Rows[z];
             var val = valueGenerator(dr, z);
@@ -59,7 +59,7 @@ public static partial class DataLoadingHelpers
 
     public static DataTable LoadRowsFromFixedWidthText(this DataTable dt, Stream st, LoadRowsFromFixedWidthTextSettings settings)
     {
-        dt = dt ?? new DataTable();
+        dt ??= new DataTable();
         Requires.ZeroColumns(dt, nameof(dt));
         Requires.ZeroRows(dt, nameof(dt));
         Requires.ReadableStreamArg(st, nameof(st));
@@ -77,7 +77,7 @@ public static partial class DataLoadingHelpers
                 var line = sr.ReadLine();
                 if (line == null) break;
                 var row = new string[settings.ColumnInfos.Count];
-                int x = 0;
+                var x = 0;
                 foreach (var f in settings.ColumnInfos)
                 {
                     string s;
@@ -91,7 +91,7 @@ public static partial class DataLoadingHelpers
                     }
                     else
                     {
-                        s = line.Substring(f.StartAt);
+                        s = line[f.StartAt..];
                     }
                     row[x++] = s;
                 }
@@ -150,7 +150,7 @@ public static partial class DataLoadingHelpers
 
     public static DataTable LoadRowsFromJObjects(this DataTable dt, IEnumerable<JObject> items)
     {
-        dt = dt ?? new DataTable();
+        dt ??= new DataTable();
         Requires.ZeroColumns(dt, nameof(dt));
         Requires.ZeroRows(dt, nameof(dt));
         Requires.HasData(items, nameof(items));
@@ -181,7 +181,7 @@ public static partial class DataLoadingHelpers
 
     public static DataTable LoadRowsFromObjects(this DataTable dt, System.Collections.IEnumerable items, LoadRowsFromObjectsSettings settings)
     {
-        dt = dt ?? new DataTable();
+        dt ??= new DataTable();
         Requires.ZeroColumns(dt, nameof(dt));
         Requires.ZeroRows(dt, nameof(dt));
         Requires.Valid(settings, nameof(settings));
@@ -192,7 +192,7 @@ public static partial class DataLoadingHelpers
             BindingFlags.Instance |
             (settings.GetFieldsFromRelection ? BindingFlags.GetField : 0) |
             (settings.GetPropertiesFromRelection ? BindingFlags.GetProperty : 0);
-        int n = 0;
+        var n = 0;
         var colByName = new Dictionary<string, DataColumn>(Comparers.CaseInsensitiveStringComparer);
         foreach (var item in items)
         {
@@ -227,7 +227,7 @@ public static partial class DataLoadingHelpers
 
     public static DataTable LoadRowsFromDelineatedText(this DataTable dt, Stream st, LoadRowsFromDelineatedTextSettings settings)
     {
-        dt = dt ?? new DataTable();
+        dt ??= new DataTable();
         Requires.ZeroColumns(dt, nameof(dt));
         Requires.ZeroRows(dt, nameof(dt));
         Requires.ReadableStreamArg(st, nameof(st));
@@ -237,7 +237,7 @@ public static partial class DataLoadingHelpers
         if (settings.Format == LoadRowsFromDelineatedTextFormats.PipeSeparatedValues)
         {
             var sections = new List<string[]>();
-            int lineNum = 0;
+            var lineNum = 0;
             using (var sr = new StreamReader(st))
             {
                 var maxCapacity = 1024 * 1024 * 127;
@@ -266,17 +266,13 @@ public static partial class DataLoadingHelpers
         }
         else if (settings.Format == LoadRowsFromDelineatedTextFormats.CommaSeparatedValues)
         {
-            using (var sr = new StreamReader(st))
-            {
-                rows = CSV.ParseText(sr);
-            }
+            using var sr = new StreamReader(st);
+            rows = CSV.ParseText(sr);
         }
         else if (settings.Format == LoadRowsFromDelineatedTextFormats.Custom)
         {
-            using (var sr = new StreamReader(st))
-            {
-                rows = CSV.ParseText(sr, settings.CustomFieldDelim, settings.CustomQuoteChar);
-            }
+            using var sr = new StreamReader(st);
+            rows = CSV.ParseText(sr, settings.CustomFieldDelim, settings.CustomQuoteChar);
         }
         else
         {
@@ -291,7 +287,7 @@ public static partial class DataLoadingHelpers
         else if (!string.IsNullOrEmpty(settings.ColumnNameTemplate))
         {
             var names = new List<string>();
-            for (int z = 0; z < rows[0].Length; ++z)
+            for (var z = 0; z < rows[0].Length; ++z)
             {
                 var name = string.Format(settings.ColumnNameTemplate, z);
                 names.Add(name);
@@ -320,16 +316,16 @@ public static partial class DataLoadingHelpers
     {
         Requires.ZeroRows(dt, nameof(dt));
         Requires.NonNull(rows, nameof(rows));
-        settings = settings ?? new LoadRowsSettings();
+        settings ??= new LoadRowsSettings();
         if (!((headerRowEmbedded && dt.Columns.Count == 0) || (!headerRowEmbedded && dt.Columns.Count > 0)))
         {
             throw new InvalidOperationException("Header row must be embedded or table must already have columns");
         }
 
-        var e = rows.GetEnumerator();
+        using var e = rows.GetEnumerator();
         if (!e.MoveNext()) return dt;
 
-        bool createColumns = dt.Columns.Count == 0;
+        var createColumns = dt.Columns.Count == 0;
         DataColumn rowNumberColumn = null;
         if (settings.RowNumberColumnName != null)
         {
@@ -352,12 +348,12 @@ public static partial class DataLoadingHelpers
         if (headerRowEmbedded)
         {
             var headerRow = e.Current;
-            var columnMapper = settings.ColumnMapper ?? DataLoadingHelpers.OneToOneColumnNameMapper;
-            var duplicateColumnRenamer = settings.DuplicateColumnRenamer ?? DataLoadingHelpers.OnDuplicateColumnNameThrow;
+            var columnMapper = settings.ColumnMapper ?? OneToOneColumnNameMapper;
+            var duplicateColumnRenamer = settings.DuplicateColumnRenamer ?? OnDuplicateColumnNameThrow;
             columnMap = new DataColumn[headerRow.Count];
-            for (int z = 0; z < headerRow.Count(); ++z)
+            for (var z = 0; z < headerRow.Count(); ++z)
             {
-                var colName = StringHelpers.TrimOrNull(Stuff.ObjectToString(headerRow[z]));
+                var colName = Stuff.ObjectToString(headerRow[z]).TrimOrNull();
                 if (colName == null)
                 {
                     continue;
@@ -395,7 +391,7 @@ public static partial class DataLoadingHelpers
             columnMap = dt.Columns.OfType<DataColumn>().ToArray();
         }
 
-        int rowNum = -1;
+        var rowNum = -1;
         var onRowAddError = settings.RowAddErrorHandler ?? RowAddErrorRethrow;
         do
         {
@@ -405,11 +401,11 @@ public static partial class DataLoadingHelpers
             var fields = new object[dt.Columns.Count];
             try
             {
-                for (int z = 0; z < columnMap.Length; ++z)
+                for (var z = 0; z < columnMap.Length; ++z)
                 {
                     var c = columnMap[z];
                     if (c == null) continue;
-                    object val = z >= row.Count ? null : row[z];
+                    var val = z >= row.Count ? null : row[z];
                     if (val == null)
                     {
                         val = DBNull.Value;
@@ -440,7 +436,7 @@ public static partial class DataLoadingHelpers
     }
 
     public static DataColumn CloneToUnbound(this DataColumn c)
-        => new DataColumn(c.ColumnName, c.DataType)
+        => new(c.ColumnName, c.DataType)
         {
             AllowDBNull = c.AllowDBNull,
             Caption = c.Caption,
@@ -461,7 +457,7 @@ public static partial class DataLoadingHelpers
     {
         Requires.NonNull(other, nameof(other));
 
-        bool sameStructure = dt.Columns.Count == other.Columns.Count;
+        var sameStructure = dt.Columns.Count == other.Columns.Count;
         var dtWasBlank = dt.Columns.Count == 0;
         var columnNamesToAppend = new List<string>();
         foreach (DataColumn bCol in other.Columns)
@@ -501,7 +497,7 @@ public static partial class DataLoadingHelpers
         return inboundColumnName;
     }
 
-    private static readonly Regex MakeFriendlyExpr = new Regex("[^0-9a-z]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static readonly Regex MakeFriendlyExpr = new("[^0-9a-z]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public static string UpperCamelNoSpecialCharactersColumnNameMapper(string inboundColumnName)
     {
@@ -513,7 +509,7 @@ public static partial class DataLoadingHelpers
     public static Func<string, string> CreateDictionaryMapper(IDictionary<string, string> m, bool onMissingPassthrough = false)
     {
         Requires.NonNull(m, nameof(m));
-        Func<string, string> f = delegate (string s)
+        var f = delegate (string s)
         {
             if (m.ContainsKey(s)) return m[s];
             return onMissingPassthrough ? s : null;
@@ -528,7 +524,7 @@ public static partial class DataLoadingHelpers
 
     public static string OnDuplicateAppendSeqeuntialNumber(DataTable dt, string inboundColumnName)
     {
-        for (int z = 2; ; ++z)
+        for (var z = 2; ; ++z)
         {
             var newName = string.Format("{0}_{1}", inboundColumnName, z);
             if (!dt.Columns.Contains(newName)) return newName;

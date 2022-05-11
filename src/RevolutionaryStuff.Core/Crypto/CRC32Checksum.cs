@@ -78,7 +78,7 @@ public class CRC32Checksum : IChecksum
             throw new ArgumentOutOfRangeException();
         }
         Checksum_p ^= -1;
-        for (int z = 0; z < length; ++z)
+        for (var z = 0; z < length; ++z)
         {
             Checksum_p = CrcTable[((int)Checksum_p ^ buf[offset + z]) & 255] ^ Checksum_p >> 8;
         }

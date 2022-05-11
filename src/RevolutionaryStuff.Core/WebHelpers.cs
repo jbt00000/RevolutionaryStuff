@@ -59,7 +59,7 @@ public static class WebHelpers
         public const string Ftps = "ftps";
 
         public static bool IsSecure(string scheme)
-            => scheme == Https || scheme == SFtp || scheme == Ftps;
+            => scheme is Https or SFtp or Ftps;
 
         public static bool IsInsecure(string scheme)
             => !IsSecure(scheme);
@@ -74,7 +74,7 @@ public static class WebHelpers
         public const string Put = "PUT";
         public const string Options = "OPTIONS";
 
-        private static readonly Regex VerbExpr = new Regex(string.Format(
+        private static readonly Regex VerbExpr = new(string.Format(
             "{0}|{1}|{2}|{3}|{4}",
             Get, Head, Post, Put, Options
             ), RegexOptions.Compiled);
@@ -92,7 +92,7 @@ public static class WebHelpers
 
         public static bool IsGetOrHead(string s)
         {
-            return s == Get || s == Head;
+            return s is Get or Head;
         }
     }
 
@@ -107,7 +107,7 @@ public static class WebHelpers
         public const string Lock = "LOCK";
         public const string Unlock = "UNLOCK";
 
-        private static readonly Regex VerbExpr = new Regex(string.Format(
+        private static readonly Regex VerbExpr = new(string.Format(
             "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
             PropFind, PropPatch, MkCol, Delete, Copy, Move, Lock, Unlock
             ), RegexOptions.Compiled);
@@ -123,7 +123,7 @@ public static class WebHelpers
         => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
 
     public static AuthenticationHeaderValue CreateBasicAuthorizationHeaderValue(string username, string password)
-        => new AuthenticationHeaderValue("Basic", CreateBasicAuthorizationHeaderValueParameter(username, password));
+        => new("Basic", CreateBasicAuthorizationHeaderValueParameter(username, password));
 
     public static HttpRequestHeaders AddBasicAuthorization(this HttpRequestHeaders h, string username, string password)
     {
@@ -157,18 +157,18 @@ public static class WebHelpers
         var m = new MultipleValueDictionary<string, string>(Comparers.CaseInsensitiveStringComparer);
         if (queryString.StartsWith("?"))
         {
-            queryString = queryString.Substring(1);
+            queryString = queryString[1..];
         }
-        string[] args = queryString.Split('&');
-        foreach (string s in args)
+        var args = queryString.Split('&');
+        foreach (var s in args)
         {
-            int i = s.IndexOf('=');
-            string n = s;
+            var i = s.IndexOf('=');
+            var n = s;
             string v = null;
             if (i > -1)
             {
-                n = s.Substring(0, i);
-                v = Uri.UnescapeDataString(s.Substring(i + 1));
+                n = s[..i];
+                v = Uri.UnescapeDataString(s[(i + 1)..]);
             }
             n = Uri.UnescapeDataString(n);
             m.Add(n, v);
@@ -176,8 +176,8 @@ public static class WebHelpers
         return m;
     }
 
-    public static Uri AppendParameters(this Uri uri, IEnumerable<KeyValuePair<string, string>> nameVals)
-        => new Uri(AppendParameters(uri.ToString(), nameVals));
+    public static Uri AppendParameters(this Uri uri, IEnumerable<KeyValuePair<string, string>> nameVals) =>
+        new(AppendParameters(uri.ToString(), nameVals));
 
     public static string AppendParameters(string url, IEnumerable<KeyValuePair<string, string>> nameVals)
     {
@@ -197,13 +197,13 @@ public static class WebHelpers
         {
             url += "?";
         }
-        char lastChar = url[url.Length - 1];
+        var lastChar = url[url.Length - 1];
         if (lastChar != '?' && lastChar != '&')
         {
             url += "&";
         }
         url += Uri.EscapeDataString(paramName);
-        string ov = StringHelpers.ToString(val);
+        var ov = StringHelpers.ToString(val);
         var full = !string.IsNullOrEmpty(ov);
         if (includeEmptyVals || full)
         {

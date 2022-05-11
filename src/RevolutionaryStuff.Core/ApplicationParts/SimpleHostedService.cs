@@ -5,8 +5,8 @@ namespace RevolutionaryStuff.Core.ApplicationParts;
 
 public abstract class SimpleHostedService : BaseDisposable, IHostedService
 {
-    private readonly ManualResetEvent ShutdownRequestedEvent = new ManualResetEvent(false);
-    private readonly ManualResetEvent ShutdownCompletedEvent = new ManualResetEvent(false);
+    private readonly ManualResetEvent ShutdownRequestedEvent = new(false);
+    private readonly ManualResetEvent ShutdownCompletedEvent = new(false);
     protected WaitHandle ShutdownRequested => ShutdownRequestedEvent;
 
     protected abstract Task OnStartAsync();

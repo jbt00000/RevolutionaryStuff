@@ -21,7 +21,7 @@ namespace RevolutionaryStuff.Core.Tests
         public void SafeEnumerateNullList()
         {
             IList<int> l = null;
-            int cnt = 0;
+            var cnt = 0;
             foreach (var e in l.NullSafeEnumerable())
             {
                 ++cnt;
@@ -68,14 +68,14 @@ namespace RevolutionaryStuff.Core.Tests
         public void ToStringStringKeyValuePairsTest()
         {
             var ins = new List<KeyValuePair<string, object>> {
-                new KeyValuePair<string, object>("a", 1),
-                new KeyValuePair<string, object>("b", 2),
-                new KeyValuePair<string, object>("b", "jason"),
-                new KeyValuePair<string, object>("c", null)
+                new("a", 1),
+                new("b", 2),
+                new("b", "jason"),
+                new("c", null)
             };
             var outs = ins.ToStringStringKeyValuePairs();
             Assert.AreEqual(ins.Count, outs.Count);
-            for (int z = 0; z < ins.Count; ++z)
+            for (var z = 0; z < ins.Count; ++z)
             {
                 var i = ins[z];
                 var o = outs[z];
@@ -100,7 +100,7 @@ namespace RevolutionaryStuff.Core.Tests
             ValidateAllElementsExactlyOnce(b);
             b.Shuffle();
             ValidateAllElementsExactlyOnce(b);
-            for (int z = 0; z < a.Count; ++z)
+            for (var z = 0; z < a.Count; ++z)
             {
                 if (a[z] != b[z]) return;
             }
@@ -112,7 +112,7 @@ namespace RevolutionaryStuff.Core.Tests
         public void RandomTest()
         {
             var a = CreateInOrderList(10000);
-            for (int z = 0; z < 10; ++z)
+            for (var z = 0; z < 10; ++z)
             {
                 var r1 = a.Random();
                 var r2 = a.Random();

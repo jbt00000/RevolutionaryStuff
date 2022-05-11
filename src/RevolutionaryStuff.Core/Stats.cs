@@ -156,7 +156,7 @@ internal class Stats : IEnumerable
     public Stat FindMax()
     {
         Stat ret = null;
-        foreach (Stat s in Values)
+        foreach (var s in Values)
         {
             if (null == ret || s.Val > ret.Val)
             {
@@ -267,10 +267,10 @@ internal class Stats : IEnumerable
     {
         Requires.NonNull(stats, nameof(stats));
         if (IsBitbucket) return;
-        foreach (Stat s in stats.StatsByKey.Values)
+        foreach (var s in stats.StatsByKey.Values)
         {
             var n = new Stat(s);
-            string name = String.Format(formatName, s.Key);
+            var name = String.Format(formatName, s.Key);
             n.Key = name;
             StatsByKey[name] = n;
         }
@@ -439,7 +439,7 @@ internal class Stats : IEnumerable
         /// <summary>
         /// A instance of the stats class.  This is typically used for debugging
         /// </summary>
-        public static readonly Stats statsDebug = new Stats();
+        public static readonly Stats statsDebug = new();
     }
 
     #endregion

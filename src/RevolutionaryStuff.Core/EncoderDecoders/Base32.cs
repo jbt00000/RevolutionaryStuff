@@ -46,7 +46,7 @@ public static class Base32
     /// <returns>An encoded string that holds the contents of the inputs</returns>
     public static string Encode(byte[] bytes)
     {
-        int len = bytes.Length;
+        var len = bytes.Length;
         var base32 = new StringBuilder((len * 8 + 4) / 5);
 
         int currByte, digit, i = 0;
@@ -103,10 +103,10 @@ public static class Base32
             base32.Append(Characterset[currByte & 31]);
             //// This point is reached for len multiple of 5
         }
-        string s = base32.ToString();
+        var s = base32.ToString();
 
 #if DEBUG
-        byte[] bd = Decode(s);
+        var bd = Decode(s);
         Debug.Assert(CompareHelpers.Compare(bytes, bd));
         //			Debug.Assert(s==Base32Orig.Encode(bytes));
 #endif
@@ -123,10 +123,10 @@ public static class Base32
     /// <returns>The decoded byte array</returns>
     public static byte[] Decode(string base32)
     {
-        base32 = StringHelpers.TrimOrNull(base32);
+        base32 = base32.TrimOrNull();
         if (base32 == null) return Empty.ByteArray;
 
-        int len = base32.Length;
+        var len = base32.Length;
         // Note that the code below detects could detect non canonical
         // Base32 length within the loop. However canonical Base32 length
         // can be tested before entering the loop.

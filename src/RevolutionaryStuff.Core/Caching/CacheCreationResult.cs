@@ -8,7 +8,7 @@ public class CacheCreationResult
 
     public CacheCreationResult(object val, ICacheEntryRetentionPolicy retentionPolicy = null)
     {
-        this.Val = val;
-        this.RetentionPolicy = retentionPolicy;
+        Val = val;
+        RetentionPolicy = retentionPolicy;
     }
 }

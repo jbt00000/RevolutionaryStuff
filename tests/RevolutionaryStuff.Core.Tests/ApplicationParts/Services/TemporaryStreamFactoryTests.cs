@@ -27,38 +27,35 @@ namespace RevolutionaryStuff.Core.Tests.ApplicationParts.Services
 
         private void CreatedStreamFlexible(int capacity, Type expectedStreamType)
         {
-            using (var st = Factory.Create(capacity))
+            using var st = Factory.Create(capacity);
+            Assert.AreEqual(expectedStreamType, st.GetType());
+
+            Requires.WriteableStreamArg(st, nameof(st));
+
+            Assert.AreEqual(0, st.Length);
+            var buf = new byte[capacity / 2];
+            Stuff.RandomWithFixedSeed.NextBytes(buf);
+            st.Write(buf);
+            Assert.AreEqual(buf.Length, st.Length);
+            Assert.AreEqual(buf.Length, st.Position);
+            st.Position = 0;
+
+            for (var z = 0; z < 10; ++z)
             {
-                Assert.AreEqual(expectedStreamType, st.GetType());
-
-                Requires.WriteableStreamArg(st, nameof(st));
-
-                Assert.AreEqual(0, st.Length);
-                var buf = new byte[capacity / 2];
                 Stuff.RandomWithFixedSeed.NextBytes(buf);
                 st.Write(buf);
-                Assert.AreEqual(buf.Length, st.Length);
-                Assert.AreEqual(buf.Length, st.Position);
-                st.Position = 0;
-
-                for (int z = 0; z < 10; ++z)
-                {
-                    Stuff.RandomWithFixedSeed.NextBytes(buf);
-                    st.Write(buf);
-                }
-                Assert.AreEqual(10 * buf.Length, st.Length);
-                Assert.AreEqual(10 * buf.Length, st.Position);
-
-                const int fixedLen = 10;
-                st.SetLength(fixedLen);
-
-                Assert.AreEqual(fixedLen, st.Length);
-                Assert.AreEqual(fixedLen, st.Position);
-                st.Write(buf);
-                Assert.AreEqual(fixedLen + buf.Length, st.Length);
-                Assert.AreEqual(fixedLen + buf.Length, st.Position);
-
             }
+            Assert.AreEqual(10 * buf.Length, st.Length);
+            Assert.AreEqual(10 * buf.Length, st.Position);
+
+            const int fixedLen = 10;
+            st.SetLength(fixedLen);
+
+            Assert.AreEqual(fixedLen, st.Length);
+            Assert.AreEqual(fixedLen, st.Position);
+            st.Write(buf);
+            Assert.AreEqual(fixedLen + buf.Length, st.Length);
+            Assert.AreEqual(fixedLen + buf.Length, st.Position);
         }
     }
 }

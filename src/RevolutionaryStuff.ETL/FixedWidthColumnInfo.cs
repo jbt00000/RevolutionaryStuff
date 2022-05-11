@@ -43,7 +43,7 @@ public class FixedWidthColumnInfo : IFixedWidthColumnInfo
             {
                 info.Length = Parse.ParseNullableInt32(row[3]);
             }
-            if (row.Length > 4 && null != StringHelpers.TrimOrNull(row[4]))
+            if (row.Length > 4 && null != row[4].TrimOrNull())
             {
                 info.DataType = Type.GetType(row[4].Trim());
             }

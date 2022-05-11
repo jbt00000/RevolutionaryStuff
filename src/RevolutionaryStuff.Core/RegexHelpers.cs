@@ -15,27 +15,27 @@ public static class RegexHelpers
 
     public static class Common
     {
-        public static readonly Regex CSharpIdentifier = new Regex(@"^[_a-z][a-z0-9_]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        public static readonly Regex CSharpIdentifier = new(@"^[_a-z][a-z0-9_]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
         /// <remarks>
         /// Conforms to RCF 2822 
         /// http://dubinko.info/writing/xforms/book.html#id2848057
         /// </remarks>
-        public static readonly Regex EmailAddress = new Regex(@"[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+(\.[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+)*@[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+(\.[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+)*", RegexOptions.Compiled);
+        public static readonly Regex EmailAddress = new(@"[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+(\.[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+)*@[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+(\.[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+)*", RegexOptions.Compiled);
 
-        public static readonly Regex Space = new Regex(" ", RegexOptions.Compiled);
+        public static readonly Regex Space = new(" ", RegexOptions.Compiled);
 
-        public static readonly Regex NonDigits = new Regex(@"\D", RegexOptions.Compiled);
-        public static readonly Regex Digits = new Regex(@"\d", RegexOptions.Compiled);
-        public static readonly Regex WordChars = new Regex(@"\w", RegexOptions.Compiled);
-        public static readonly Regex NonWordChars = new Regex(@"\W", RegexOptions.Compiled);
-        public static readonly Regex Whitespace = new Regex(@"\s", RegexOptions.Compiled);
-        public static readonly Regex N = new Regex("\n", RegexOptions.Compiled);
-        public static readonly Regex NN = new Regex("\n\n", RegexOptions.Compiled);
-        public static readonly Regex NullJsonMember = new Regex(@"(""\w+""\s*:\s*null\s*,?)|(,?\s*""\w+""\s*:\s*null\s*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        public static readonly Regex NonDigits = new(@"\D", RegexOptions.Compiled);
+        public static readonly Regex Digits = new(@"\d", RegexOptions.Compiled);
+        public static readonly Regex WordChars = new(@"\w", RegexOptions.Compiled);
+        public static readonly Regex NonWordChars = new(@"\W", RegexOptions.Compiled);
+        public static readonly Regex Whitespace = new(@"\s", RegexOptions.Compiled);
+        public static readonly Regex N = new("\n", RegexOptions.Compiled);
+        public static readonly Regex NN = new("\n\n", RegexOptions.Compiled);
+        public static readonly Regex NullJsonMember = new(@"(""\w+""\s*:\s*null\s*,?)|(,?\s*""\w+""\s*:\s*null\s*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
 
         public static readonly Regex InvalidPathChars =
-            new Regex(
+            new(
                 String.Format(
                     @"([\*\?{0}])",
                     Regex.Escape(new string(Path.GetInvalidPathChars()))
@@ -79,7 +79,7 @@ public static class RegexHelpers
             if (m.Success)
             {
                 var ret = new List<string>(m.Groups.Count - 1);
-                for (int z = 1; z < m.Groups.Count; ++z)
+                for (var z = 1; z < m.Groups.Count; ++z)
                 {
                     ret[z - 1] = m.Groups[z].Value;
                 }
@@ -94,13 +94,13 @@ public static class RegexHelpers
     {
         if (string.IsNullOrEmpty(s)) return s;
         var input = s;
-        int cnt = 0;
-        for (int startAt = 0; ;)
+        var cnt = 0;
+        for (var startAt = 0; ;)
         {
             var m = r.Match(s, startAt);
             if (!m.Success) break;
-            string replacement = replacer == null ? "" : replacer((m, cnt++, input, s));
-            s = s.Substring(0, m.Index) + replacement + s.Substring(m.Index + m.Value.Length);
+            var replacement = replacer == null ? "" : replacer((m, cnt++, input, s));
+            s = s[..m.Index] + replacement + s[(m.Index + m.Value.Length)..];
             startAt = m.Index + replacement.Length;
         }
         return s;

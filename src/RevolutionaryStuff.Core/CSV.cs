@@ -36,7 +36,7 @@ public static class CSV
     {
         if (string.IsNullOrEmpty(s)) return s;
 
-        escapeTriggers = escapeTriggers ?? CsvEscapeTrigger;
+        escapeTriggers ??= CsvEscapeTrigger;
 
         if (s.IndexOfAny(escapeTriggers) >= 0)
         {
@@ -70,13 +70,13 @@ public static class CSV
 
     public static void FormatLine(StringBuilder sb, IEnumerable l, bool eol = true, char fieldDelim = FieldDelimComma)
     {
-        int n = 0;
+        var n = 0;
 
         var escapeTrigger = FindOrCreateEscapeTrigger(fieldDelim);
 
         if (l != null)
         {
-            foreach (object o in l)
+            foreach (var o in l)
             {
                 if (n++ > 0)
                 {
@@ -100,9 +100,9 @@ public static class CSV
 
         if (parsedText == null || parsedText.Length == 0) return Empty.IntArray;
 
-        string[] row = parsedText[0];
+        var row = parsedText[0];
         var ret = new int[row.Length];
-        for (int z = 0; z < ret.Length; ++z)
+        for (var z = 0; z < ret.Length; ++z)
         {
             ret[z] = int.Parse(row[z]);
         }
@@ -116,7 +116,7 @@ public static class CSV
 
         var row = parsedText[0];
         var ret = new T[row.Length];
-        for (int z = 0; z < ret.Length; ++z)
+        for (var z = 0; z < ret.Length; ++z)
         {
             ret[z] = converter(row[z]);
         }
@@ -126,7 +126,7 @@ public static class CSV
     public static string[] ParseLine(string sText, char fieldDelim = FieldDelimComma)
     {
         if (string.IsNullOrEmpty(sText)) return Empty.StringArray;
-        return ParseLine(sText, 0, sText.Length, out long amtParsed, fieldDelim);
+        return ParseLine(sText, 0, sText.Length, out var amtParsed, fieldDelim);
     }
 
     private static string[] ParseLine(string sText, long start, long len, out long amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
@@ -135,10 +135,10 @@ public static class CSV
     private static string[] ParseLine(ICharacterReader sText, long start, long len, out long amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar, StringBuilder sb = null)
     {
         amtParsed = 0;
-        long x = start;
+        var x = start;
         if (len == 0) return null;
         var b = new List<string>();
-        sb = sb ?? new StringBuilder(1024 * 8);
+        sb ??= new StringBuilder(1024 * 8);
         for (; x <= len + start;)
         {
             if (x > start)
@@ -147,9 +147,9 @@ public static class CSV
                 return b.ToArray();
             }
             sb.Clear();
-            bool inquotes = false;
+            var inquotes = false;
             char ch;
-            long sTextLen = sText.Length;
+            var sTextLen = sText.Length;
             for (; x < sTextLen; ++x)
             {
                 ch = sText[x];
@@ -245,14 +245,14 @@ L_NextLine:
     private static IEnumerable<string[]> ParseTextEnumerable(ICharacterReader sText, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
     {
         var sb = new StringBuilder(1024 * 8);
-        long len = sText == null ? 0 : sText.Length;
-        int rowCount = 0;
+        var len = sText == null ? 0 : sText.Length;
+        var rowCount = 0;
         if (len > 0)
         {
             for (long start = 0; ;)
             {
                 long amt;
-                string[] line = ParseLine(sText, start, len, out amt, fieldDelim, quoteChar, sb);
+                var line = ParseLine(sText, start, len, out amt, fieldDelim, quoteChar, sb);
                 if (line == null) break;
                 ++rowCount;
                 yield return line;
@@ -290,7 +290,7 @@ L_NextLine:
 
         public StreamReaderCharacterReader(StreamReader sr)
         {
-            sr = sr ?? StreamReader.Null;
+            sr ??= StreamReader.Null;
             Requires.True(sr.BaseStream.CanSeek, nameof(sr.BaseStream.CanSeek));
             Requires.True(sr.BaseStream.Position == 0, nameof(sr.BaseStream.Position));
             R = sr;

@@ -43,7 +43,7 @@ public static class Base16
     {
         Debug.Assert(offset + length <= buf.Length);
         var sb = new StringBuilder();
-        string format = caps ? "{0:X}{1:X}" : "{0:x}{1:x}";
+        var format = caps ? "{0:X}{1:X}" : "{0:x}{1:x}";
         if (null != buf)
         {
             int x;
@@ -67,10 +67,10 @@ public static class Base16
     /// <returns>The decoded byte array</returns>
     public static byte[] Decode(string s)
     {
-        s = StringHelpers.TrimOrNull(s);
+        s = s.TrimOrNull();
         if (s == null) return Empty.ByteArray;
 
-        byte[] bLine = Encoding.ASCII.GetBytes(s);
+        var bLine = Encoding.ASCII.GetBytes(s);
         var buf = new byte[bLine.Length / 2];
         byte ba, bb;
         int x;

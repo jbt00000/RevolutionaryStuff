@@ -44,12 +44,12 @@ public static partial class Cache
     public static string CreateKey(IEnumerable<object> args)
     {
         var sb = new StringBuilder();
-        args = args ?? Empty.ObjectArray;
-        int pos = 0;
+        args ??= Empty.ObjectArray;
+        var pos = 0;
         foreach (var a in args)
         {
             var o = a;
-            if (o == null || o is string)
+            if (o is null or string)
             {
                 Stuff.Noop();
             }
@@ -110,7 +110,7 @@ public static partial class Cache
     {
         if (key == null) return "special:__NULL";
         if (key.Length < 123) return "lit:" + key;
-        byte[] buf = Encoding.UTF8.GetBytes(key);
+        var buf = Encoding.UTF8.GetBytes(key);
         return string.Format("urn:crc32:{0}{1}", CRC32Checksum.Do(buf), key.GetHashCode());
     }
 }

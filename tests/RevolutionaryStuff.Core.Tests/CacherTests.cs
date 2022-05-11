@@ -19,7 +19,7 @@ namespace RevolutionaryStuff.Core.Tests
             var r2 = Cache.CreateKey<int>(1, 2);
             var r3 = Cache.CreateKey<int>(1, 2, "a");
             var r4 = Cache.CreateKey("hello", nameof(CreateKeyTests));
-            for (int z = 0; z < 5; ++z)
+            for (var z = 0; z < 5; ++z)
             {
                 Assert.AreEqual(r0, Cache.CreateKey<int>());
                 Assert.AreEqual(r1, Cache.CreateKey<int>(5));
@@ -42,7 +42,7 @@ namespace RevolutionaryStuff.Core.Tests
                 nameof(FindOrCreateTwiceShouldOnlyCreateOnceAsync),
                 () => Task.FromResult(expectedVal));
             Assert.AreEqual(expectedVal, res);
-            bool fresh = false;
+            var fresh = false;
             res = await cacher.FindOrCreateValueAsync(
                 nameof(FindOrCreateTwiceShouldOnlyCreateOnceAsync),
                 () =>
@@ -80,9 +80,9 @@ namespace RevolutionaryStuff.Core.Tests
         {
             var cacher = new BasicCacher(16);
             var key1 = "one";
-            int calls1 = 0;
+            var calls1 = 0;
             var key2 = "two";
-            int calls2 = 0;
+            var calls2 = 0;
 
             var callWait = TimeSpan.FromSeconds(2);
 

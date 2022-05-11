@@ -46,7 +46,7 @@ namespace RevolutionaryStuff.Core.Tests
         {
             var items = new List<Zaff>
             {
-                new Zaff("this is a", Letters.A),
+                new("this is a", Letters.A),
             }.AsQueryable();
 
             var sorted = items.OrderByField(nameof(Zaff.EnumVal), typeof(Letters), true).ToList();
@@ -59,11 +59,11 @@ namespace RevolutionaryStuff.Core.Tests
         {
             var items = new List<Zaff>
             {
-                new Zaff("this is a", Letters.A),
-                new Zaff("this is c", Letters.C),
-                new Zaff("this is b", Letters.B),
-                new Zaff("this is d", Letters.D),
-                new Zaff("this is B", Letters.B),
+                new("this is a", Letters.A),
+                new("this is c", Letters.C),
+                new("this is b", Letters.B),
+                new("this is d", Letters.D),
+                new("this is B", Letters.B),
             }.AsQueryable();
 
             var sorted = items.OrderByField(nameof(Zaff.EnumVal), typeof(Letters), true).ToList();
@@ -80,11 +80,11 @@ namespace RevolutionaryStuff.Core.Tests
         {
             var items = new List<Zaff>
             {
-                new Zaff("this is a", Letters.A),
-                new Zaff("this is c", Letters.C),
-                new Zaff("this is b", Letters.B),
-                new Zaff("this is d", Letters.D),
-                new Zaff("this is B", Letters.B),
+                new("this is a", Letters.A),
+                new("this is c", Letters.C),
+                new("this is b", Letters.B),
+                new("this is d", Letters.D),
+                new("this is B", Letters.B),
             }.AsQueryable();
 
             var map = new Dictionary<int, string> { { 1, "a" }, { 2, "b" }, { 3, "canary" }, { 4, "d" } };

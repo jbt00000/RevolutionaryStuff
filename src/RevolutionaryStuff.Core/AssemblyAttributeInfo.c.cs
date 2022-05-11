@@ -9,7 +9,7 @@ namespace RevolutionaryStuff.Core;
 /// </summary>
 public class AssemblyAttributeInfo
 {
-    private static readonly Regex ParseVersionExpr = new Regex(@"Version=(\d+\.\d+\.\d+\.\d+)", RegexHelpers.IgnoreCaseSingleLineCompiled);
+    private static readonly Regex ParseVersionExpr = new(@"Version=(\d+\.\d+\.\d+\.\d+)", RegexHelpers.IgnoreCaseSingleLineCompiled);
 
     public readonly Assembly Assembly;
     public readonly string FullName;
@@ -23,7 +23,7 @@ public class AssemblyAttributeInfo
     public readonly string Culture;
     public readonly string Version;
     public readonly string FileVersion;
-    public readonly MultipleValueDictionary<Type, Attribute> AttributesByType = new MultipleValueDictionary<Type, Attribute>();
+    public readonly MultipleValueDictionary<Type, Attribute> AttributesByType = new();
 
     public AssemblyAttributeInfo(Assembly a)
     {
@@ -32,7 +32,7 @@ public class AssemblyAttributeInfo
         Assembly = a;
         FullName = a.FullName;
 
-        foreach (Attribute attr in a.GetCustomAttributes())
+        foreach (var attr in a.GetCustomAttributes())
         {
             var t = attr.GetType();
             AttributesByType.Add(t, attr);

@@ -22,13 +22,13 @@ public static class LinqHelpers
 
     public static Expression GenerateStringConcat(Expression left, Expression right)
     {
-        return BinaryExpression.Add(left, right, typeof(string).GetMethod(StandardMethodNames.Concat, new[] { typeof(object), typeof(object) }));
+        return Expression.Add(left, right, typeof(string).GetMethod(StandardMethodNames.Concat, new[] { typeof(object), typeof(object) }));
     }
 
     private static Expression NestedProperty(Expression arg, string fieldName)
     {
         var left = fieldName.LeftOf(".");
-        var right = StringHelpers.TrimOrNull(fieldName.RightOf("."));
+        var right = fieldName.RightOf(".").TrimOrNull();
         var leftExp = Expression.Property(arg, left);
         if (right == null) return leftExp;
         return NestedProperty(leftExp, right);
@@ -37,7 +37,7 @@ public static class LinqHelpers
     private static Expression NullCheckNestedProperty(Expression arg, string fieldName)
     {
         var left = fieldName.LeftOf(".");
-        var right = StringHelpers.TrimOrNull(fieldName.RightOf("."));
+        var right = fieldName.RightOf(".").TrimOrNull();
         if (right == null) return null;
         var leftNameExp = Expression.Property(arg, left);
         var leftExp = Expression.NotEqual(leftNameExp, Expression.Constant(null));
@@ -52,7 +52,7 @@ public static class LinqHelpers
 
         var mfilters = filters.ToMultipleValueDictionary(f => f.Key, f => f.Value);
 
-        ParameterExpression argParam = Expression.Parameter(typeof(TSource), "s");
+        var argParam = Expression.Parameter(typeof(TSource), "s");
 
         var ands = new List<Expression>();
         foreach (var fieldName in mfilters.Keys)
@@ -60,8 +60,8 @@ public static class LinqHelpers
             var expressions = new List<Expression>();
             foreach (var val in mfilters[fieldName])
             {
-                Expression nullCheckProperty = NullCheckNestedProperty(argParam, fieldName);
-                Expression nameProperty = NestedProperty(argParam, fieldName);
+                var nullCheckProperty = NullCheckNestedProperty(argParam, fieldName);
+                var nameProperty = NestedProperty(argParam, fieldName);
                 var val1 = Expression.Constant(val);
                 Expression e1 = Expression.Equal(nameProperty, val1);
                 if (nullCheckProperty != null)
@@ -115,7 +115,7 @@ public static class LinqHelpers
         }
         items.Sort((a, b) =>
         {
-            int ret = a.Item3.GetValueOrDefault(int.MaxValue).CompareTo(b.Item3.GetValueOrDefault(int.MaxValue));
+            var ret = a.Item3.GetValueOrDefault(int.MaxValue).CompareTo(b.Item3.GetValueOrDefault(int.MaxValue));
             if (ret == 0)
             {
                 ret = a.Item4.CompareTo(b.Item4);
@@ -123,7 +123,7 @@ public static class LinqHelpers
             return ret;
         });
         var d = new Dictionary<int, int>();
-        int pos = 0;
+        var pos = 0;
         foreach (var item in items)
         {
             d[item.Item2] = pos++;
@@ -152,7 +152,7 @@ public static class LinqHelpers
 
         var kvps = sortPosByfieldVal.ToList();
         var expr = (Expression)Expression.Constant(kvps.Last().Value);
-        for (int z = kvps.Count - 2; z >= 0; --z)
+        for (var z = kvps.Count - 2; z >= 0; --z)
         {
             var kvp = kvps[z];
             expr = Expression.Condition(
@@ -189,7 +189,7 @@ public static class LinqHelpers
         var param = Expression.Parameter(typeof(T), "p");
         var prop = NestedProperty(param, sortColumn);
         var exp = Expression.Lambda(prop, param);
-        Type[] types = new[] { q.ElementType, exp.Body.Type };
+        var types = new[] { q.ElementType, exp.Body.Type };
         var mce = Expression.Call(typeof(Queryable), StandardMethodNames.GetSortOrder(isAscending), types, q.Expression, exp);
         return (IOrderedQueryable<T>)q.Provider.CreateQuery<T>(mce);
     }
@@ -204,14 +204,14 @@ public static class LinqHelpers
     public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IEnumerable<string> orderedValues, bool isAscending = true)
     {
         var d = new Dictionary<string, string>();
-        string mapped = "o";
-        int cnt = 0;
+        var mapped = "o";
+        var cnt = 0;
         if (orderedValues != null)
         {
             foreach (var v in orderedValues)
             {
                 d[v] = mapped;
-                mapped = mapped + "o";
+                mapped += "o";
                 ++cnt;
             }
         }
@@ -228,7 +228,7 @@ public static class LinqHelpers
     public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IDictionary<string, string> valueMapper, bool isAscending = true, OrderByFieldUnmappedBehaviors unmappedValueBehavior = OrderByFieldUnmappedBehaviors.InPlace)
     {
         Requires.Text(sortColumn, nameof(sortColumn));
-        valueMapper = valueMapper ?? new Dictionary<string, string>();
+        valueMapper ??= new Dictionary<string, string>();
 
         var param = Expression.Parameter(typeof(T), "p");
         var prop = NestedProperty(param, sortColumn);
@@ -288,11 +288,11 @@ public static class LinqHelpers
     {
         var memberInfos = new List<MemberInfo>();
 
-        MemberExpression body = e.Body as MemberExpression;
+        var body = e.Body as MemberExpression;
 Again:
         if (body == null)
         {
-            UnaryExpression ubody = (UnaryExpression)e.Body;
+            var ubody = (UnaryExpression)e.Body;
             body = ubody.Operand as MemberExpression;
         }
 
@@ -315,7 +315,7 @@ Again:
     {
         var memberInfos = new List<MemberInfo>();
 
-        MemberExpression body = exp;
+        var body = exp;
 Again:
         if (body == null)
         {

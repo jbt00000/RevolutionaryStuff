@@ -9,7 +9,7 @@ public class RequiresTests
     [TestMethod]
     public void SingleCallOnce()
     {
-        bool called = false;
+        var called = false;
         Requires.SingleCall(ref called);
     }
 
@@ -17,7 +17,7 @@ public class RequiresTests
     [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     public void SingleCallMultiple()
     {
-        bool called = false;
+        var called = false;
         Requires.SingleCall(ref called);
         Requires.SingleCall(ref called);
     }

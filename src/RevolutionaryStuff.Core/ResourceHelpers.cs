@@ -15,15 +15,15 @@ public static class ResourceHelpers
     {
         Requires.NonNull(a, nameof(a));
         if (null == name) return null;
-        string[] streamNames = a.GetManifestResourceNames();
+        var streamNames = a.GetManifestResourceNames();
         name = name.ToLower();
         if (Array.IndexOf(streamNames, name) == -1)
         {
-            foreach (string streamName in streamNames)
+            foreach (var streamName in streamNames)
             {
                 if (streamName.EndsWith(name, StringComparison.CurrentCultureIgnoreCase))
                 {
-                    int i = name.Length + 1;
+                    var i = name.Length + 1;
                     if (streamName.Length < i || streamName[streamName.Length - i] == '.')
                     {
                         name = streamName;

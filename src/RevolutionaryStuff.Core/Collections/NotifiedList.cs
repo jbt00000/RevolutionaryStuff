@@ -68,7 +68,7 @@ public class NotifiedList<T> : IList<T>, INotifyCollection<T>
     public void RemoveAt(int index)
     {
         if (IsReadOnly) throw new ReadOnlyException();
-        T item = this[index];
+        var item = this[index];
         Inner.RemoveAt(index);
         OnRemoved(item);
     }
@@ -80,7 +80,7 @@ public class NotifiedList<T> : IList<T>, INotifyCollection<T>
         set
         {
             if (IsReadOnly) throw new ReadOnlyException();
-            T old = this[index];
+            var old = this[index];
             Inner[index] = value;
             OnRemoved(old);
             OnAdded(value);
@@ -204,7 +204,7 @@ public class NotifiedList<T> : IList<T>, INotifyCollection<T>
     }
 
     protected virtual void OnChanged()
-        => DelegateHelpers.SafeInvoke(Changed, this);
+        => Changed.SafeInvoke(this);
 
     #endregion
 }

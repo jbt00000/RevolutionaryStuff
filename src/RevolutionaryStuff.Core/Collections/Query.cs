@@ -7,21 +7,21 @@ public class Query<TSource> : IOrderedQueryable<TSource>
 {
     public Query(IQueryProvider provider, IQueryable<TSource> innerSource)
     {
-        this.Provider = provider;
-        this.Expression = Expression.Constant(innerSource);
+        Provider = provider;
+        Expression = Expression.Constant(innerSource);
     }
 
     public Query(IQueryProvider provider, Expression expression)
     {
-        this.Provider = provider;
-        this.Expression = expression;
+        Provider = provider;
+        Expression = expression;
     }
 
     #region IEnumerable<TSource> Members
 
     public IEnumerator<TSource> GetEnumerator()
     {
-        return this.Provider.Execute<IEnumerable<TSource>>(this.Expression).GetEnumerator();
+        return Provider.Execute<IEnumerable<TSource>>(Expression).GetEnumerator();
     }
 
     #endregion
@@ -30,7 +30,7 @@ public class Query<TSource> : IOrderedQueryable<TSource>
 
     IEnumerator IEnumerable.GetEnumerator()
     {
-        return this.GetEnumerator();
+        return GetEnumerator();
     }
 
     #endregion

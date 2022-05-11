@@ -10,9 +10,9 @@ public static class DelegateHelpers
 
     public static async Task<T> CallAndRetryOnFailureAsync<T>(this Func<Task<T>> func, int? retryCount = 5, TimeSpan? backoffPeriod = null, Predicate<Exception> exceptionChecker = null)
     {
-        exceptionChecker = exceptionChecker ?? AllowAllExceptions;
-        backoffPeriod = backoffPeriod ?? TimeSpan.FromMilliseconds(250);
-        int z = 0;
+        exceptionChecker ??= AllowAllExceptions;
+        backoffPeriod ??= TimeSpan.FromMilliseconds(250);
+        var z = 0;
         for (; ; )
         {
             try
@@ -38,9 +38,9 @@ public static class DelegateHelpers
 
     public static T CallAndRetryOnFailure<T>(this Func<T> func, int? retryCount = 3, TimeSpan? backoffPeriod = null, Predicate<Exception> exceptionChecker = null)
     {
-        exceptionChecker = exceptionChecker ?? AllowAllExceptions;
-        backoffPeriod = backoffPeriod ?? TimeSpan.FromSeconds(2);
-        int z = 0;
+        exceptionChecker ??= AllowAllExceptions;
+        backoffPeriod ??= TimeSpan.FromSeconds(2);
+        var z = 0;
         for (; ; )
         {
             try
@@ -54,7 +54,7 @@ public static class DelegateHelpers
                 {
                     var wait = Convert.ToInt32(backoffPeriod.Value.TotalMilliseconds * z);
                     Trace.WriteLine(string.Format("CallAndRetryOnFailure retry={0} wait={1}", z, TimeSpan.FromMilliseconds(wait)));
-                    System.Threading.Thread.Sleep(wait);
+                    Thread.Sleep(wait);
                 }
                 else
                 {
@@ -81,7 +81,7 @@ public static class DelegateHelpers
     public static void SingleActor(this Action actor, object locker = null)
     {
         Requires.NonNull(actor, nameof(actor));
-        locker = locker ?? actor;
+        locker ??= actor;
         if (Monitor.TryEnter(locker))
         {
             try
@@ -143,7 +143,7 @@ public static class DelegateHelpers
 
     public static bool SafeInvoke(this CancelEventHandler h, object sender, CancelEventArgs ea = null, bool throwException = false)
     {
-        ea = ea ?? new CancelEventArgs();
+        ea ??= new CancelEventArgs();
         try
         {
             h?.Invoke(sender, ea);

@@ -271,7 +271,7 @@ public class StreamMuxer : BaseDisposable
             lock (Inner)
             {
                 Inner.Position = Offset + Position;
-                int read = Inner.Read(buffer, offset, count);
+                var read = Inner.Read(buffer, offset, count);
                 Position += read;
                 return read;
             }

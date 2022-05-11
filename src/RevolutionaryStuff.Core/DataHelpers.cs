@@ -27,15 +27,15 @@ public static class DataHelpers
 
     public static DataTable ToDataTableWithColumnHeaders(this IEnumerable<IList<object>> rows, string name = null, Func<DataTable, string, string> duplicateColumnRenamer = null, Action<Exception, int> onRowAddError = null)
     {
-        onRowAddError = onRowAddError ?? RowAddErrorRethrow;
+        onRowAddError ??= RowAddErrorRethrow;
         var dt = new DataTable();
         if (!string.IsNullOrEmpty(name)) dt.TableName = name;
         var headerRow = rows.First();
         var positions = new int?[headerRow.Count];
         var gaps = false;
-        for (int z = 0; z < positions.Length; ++z)
+        for (var z = 0; z < positions.Length; ++z)
         {
-            var colName = StringHelpers.TrimOrNull(StringHelpers.ToString(headerRow[z]));
+            var colName = StringHelpers.ToString(headerRow[z]).TrimOrNull();
             if (colName == null)
             {
                 gaps = true;
@@ -49,7 +49,7 @@ public static class DataHelpers
             }
             dt.Columns.Add(new DataColumn(colName));
         }
-        int rowNum = 1;
+        var rowNum = 1;
         foreach (var row in rows.Skip(1))
         {
             ++rowNum;
@@ -57,7 +57,7 @@ public static class DataHelpers
             if (gaps)
             {
                 fields = new object[dt.Columns.Count];
-                for (int z = 0; z < positions.Length; ++z)
+                for (var z = 0; z < positions.Length; ++z)
                 {
                     var pos = positions[z];
                     if (!pos.HasValue) continue;
@@ -96,22 +96,22 @@ public static class DataHelpers
         }
 
         public override string ToString()
-            => $"{this.GetType().Name} colName=[{SourceColumn.ColumnName}] type={DataType.Name} maxLength={this.MaxLength} nullable={AllowNull} unicode={Unicode} ";
+            => $"{GetType().Name} colName=[{SourceColumn.ColumnName}] type={DataType.Name} maxLength={MaxLength} nullable={AllowNull} unicode={Unicode} ";
 
         public DataColumn CreateDataColumn()
         {
             var c = SourceColumn.Xerox();
             if (!AsIs)
             {
-                c.DataType = this.DataType;
-                if (this.MaxLength.HasValue)
+                c.DataType = DataType;
+                if (MaxLength.HasValue)
                 {
-                    c.MaxLength = this.MaxLength.Value;
+                    c.MaxLength = MaxLength.Value;
                 }
-                c.AllowDBNull = this.AllowNull;
+                c.AllowDBNull = AllowNull;
                 if (c.DataType == typeof(string))
                 {
-                    c.Unicode(this.Unicode);
+                    c.Unicode(Unicode);
                 }
             }
             return c;
@@ -134,13 +134,13 @@ public static class DataHelpers
         {
             var rtis = new List<RightTypeInfo>();
             var columnNames = new List<string>();
-            for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
+            for (var colNum = 0; colNum < dt.Columns.Count; ++colNum)
             {
                 var dc = dt.Columns[colNum];
                 columnNames.Add(dc.ColumnName);
                 dc.SetOrdinal(colNum);
             }
-            for (int colNum = 0; colNum < columnNames.Count; ++colNum)
+            for (var colNum = 0; colNum < columnNames.Count; ++colNum)
             {
                 var dc = dt.Columns[columnNames[colNum]];
                 //var dc = dt.Columns[colNum];
@@ -152,24 +152,24 @@ public static class DataHelpers
                 dc.AllowDBNull = true;
                 Trace.WriteLine($"{nameof(RightType)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
                 var len = 0;
-                bool hasNulls = false;
-                bool hasLeadingZeros = false;
-                bool canBeVarchar = true;
-                bool canBeDate = true;
-                bool canBeDatetime = true;
-                bool canBeBit = true;
-                bool canBeYN = true;
-                bool canBeYesNo = true;
-                bool canBeTrueFalse = true;
-                bool canBeInt64 = true;
-                bool canBeInt32 = true;
-                bool canBeInt16 = true;
-                bool canBeInt8 = true;
-                bool canBeFloat = true;
-                bool canBeIntFromFloat = true;
-                bool canBeDecimal = true;
-                bool canBeDateTimeOffset = true;
-                for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+                var hasNulls = false;
+                var hasLeadingZeros = false;
+                var canBeVarchar = true;
+                var canBeDate = true;
+                var canBeDatetime = true;
+                var canBeBit = true;
+                var canBeYN = true;
+                var canBeYesNo = true;
+                var canBeTrueFalse = true;
+                var canBeInt64 = true;
+                var canBeInt32 = true;
+                var canBeInt16 = true;
+                var canBeInt8 = true;
+                var canBeFloat = true;
+                var canBeIntFromFloat = true;
+                var canBeDecimal = true;
+                var canBeDateTimeOffset = true;
+                for (var rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                 {
                     var dr = dt.Rows[rowNum];
                     var s = dr[colNum] as string;
@@ -178,7 +178,7 @@ public static class DataHelpers
                         hasNulls = true;
                         continue;
                     }
-                    string zs = s.Trim();
+                    var zs = s.Trim();
                     if (nullifyBlankStrings && zs == "")
                     {
                         hasNulls = true;
@@ -197,7 +197,7 @@ public static class DataHelpers
                             canBeDate = canBeDatetime = false;
                         }
                     }
-                    canBeBit = canBeBit && (zs == "1" || zs == "0");
+                    canBeBit = canBeBit && zs is "1" or "0";
                     canBeYN = canBeYN && (0 == string.Compare(zs, "y", true) || 0 == string.Compare(zs, "n", true));
                     canBeYesNo = canBeYesNo && (0 == string.Compare(zs, "yes", true) || 0 == string.Compare(zs, "no", true));
                     canBeTrueFalse = canBeTrueFalse && (0 == string.Compare(zs, "true", true) || 0 == string.Compare(zs, "false", true));
@@ -331,7 +331,7 @@ public static class DataHelpers
                         var convertedColNum = dt.Columns.IndexOf(colName);
                         string lastStr = null;
                         object lastConv = null;
-                        for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+                        for (var rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                         {
                             var dr = dt.Rows[rowNum];
                             var s = dr[colNum] as string;
@@ -367,7 +367,7 @@ public static class DataHelpers
                     {
                         var srow = sdt.Rows[0];
                         var drow = dt.NewRow();
-                        for (int z = 0; z < rtis.Count; ++z)
+                        for (var z = 0; z < rtis.Count; ++z)
                         {
                             var rti = rtis[z];
                             var v = srow[z];
@@ -410,15 +410,15 @@ public static class DataHelpers
         Requires.NonNull(dt, nameof(dt));
         using (new TraceRegion($"{nameof(IdealizeStringColumns)} table({dt.TableName}) with {dt.Columns.Count} columns and {dt.Rows.Count} rows"))
         {
-            for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
+            for (var colNum = 0; colNum < dt.Columns.Count; ++colNum)
             {
                 var dc = dt.Columns[colNum];
                 if (dc.DataType != typeof(string)) continue;
                 dc.AllowDBNull = true;
                 Trace.WriteLine($"{nameof(IdealizeStringColumns)} table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count}");
                 var len = 0;
-                bool hasNulls = false;
-                for (int rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+                var hasNulls = false;
+                for (var rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                 {
                     var dr = dt.Rows[rowNum];
                     var s = dr[colNum] as string;
@@ -430,7 +430,7 @@ public static class DataHelpers
                     {
                         if (trimAndNullifyStringData)
                         {
-                            var ts = StringHelpers.TrimOrNull(s);
+                            var ts = s.TrimOrNull();
                             if (ts != s)
                             {
                                 if (ts == null)
@@ -457,14 +457,14 @@ public static class DataHelpers
 
     public static string GenerateCreateTableSQL(this DataTable dt, string schema = null, IDictionary<Type, string> typeMap = null, string extraColumnSql = null, string autoNumberColumnName = null)
     {
-        schema = schema ?? "dbo";
+        schema ??= "dbo";
         var sb = new StringBuilder();
         sb.AppendFormat("create table [{0}].[{1}]\n(\n", schema, dt.TableName);
         if (autoNumberColumnName != null)
         {
             sb.AppendLine($"\t{autoNumberColumnName} int not null identity primary key,\n");
         }
-        for (int colNum = 0; colNum < dt.Columns.Count; ++colNum)
+        for (var colNum = 0; colNum < dt.Columns.Count; ++colNum)
         {
             var dc = dt.Columns[colNum];
             string sqlType;
@@ -500,8 +500,8 @@ public static class DataHelpers
             else if (dc.DataType == typeof(Decimal))
             {
                 sqlType = "decimal";
-                int precision = dc.NumericPrecision();
-                int scale = dc.NumericScale();
+                var precision = dc.NumericPrecision();
+                var scale = dc.NumericScale();
                 if (scale > 0 && precision > 0)
                 {
                     sqlType += $"({precision},{scale})";
@@ -520,7 +520,7 @@ public static class DataHelpers
                 sqlType = string.Format(
                     "{0}({1})",
                     dc.Unicode() ? "nvarchar" : "varchar",
-                    (dc.MaxLength <= 0 || dc.MaxLength > 4000) ? "max" : dc.MaxLength.ToString());
+                    dc.MaxLength is <= 0 or > 4000 ? "max" : dc.MaxLength.ToString());
             }
             else
             {

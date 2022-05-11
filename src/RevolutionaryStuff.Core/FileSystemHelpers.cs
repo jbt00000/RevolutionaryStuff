@@ -9,20 +9,20 @@ public static class FileSystemHelpers
 
     public static string GetParentDirectory(string dir)
     {
-        dir = StringHelpers.TrimOrNull(dir);
+        dir = dir.TrimOrNull();
         var i = dir.LastIndexOf(Path.DirectorySeparatorChar);
         if (i == dir.Length - 1)
         {
-            dir = dir.Substring(0, dir.Length - 1);
+            dir = dir[..^1];
             i = dir.LastIndexOf(Path.DirectorySeparatorChar);
         }
         var ch = dir[dir.Length - 1];
         if (ch != ':' && ch != Path.DirectorySeparatorChar)
         {
-            dir = dir.Substring(0, i);
+            dir = dir[..i];
             if (dir[dir.Length - 1] == ':')
             {
-                dir = dir + Path.DirectorySeparatorChar;
+                dir += Path.DirectorySeparatorChar;
             }
             return dir;
         }
@@ -38,7 +38,7 @@ public static class FileSystemHelpers
     public static string GetTempFileName(string extension, string tempPath = null, bool deleteAfterReservation = false)
     {
         Requires.FileExtension(extension, nameof(extension));
-        string fn = $"{Stuff.ApplicationInstanceId}.{Math.Abs(Environment.TickCount)}{extension}";
+        var fn = $"{Stuff.ApplicationInstanceId}.{Math.Abs(Environment.TickCount)}{extension}";
         if (string.IsNullOrEmpty(tempPath))
         {
             tempPath = Path.GetTempPath();
@@ -52,7 +52,7 @@ public static class FileSystemHelpers
         return fn;
     }
 
-    private static readonly Regex NumberInParenExpr = new Regex(@" (\d*)$", RegexOptions.Compiled);
+    private static readonly Regex NumberInParenExpr = new(@" (\d*)$", RegexOptions.Compiled);
 
     /// <summary>
     /// Returns a filename similar to the given one if the given one already exists.
@@ -64,7 +64,7 @@ public static class FileSystemHelpers
     public static string FindOrigFileName(string path)
     {
         string extension = null, name = null;
-        int x = 1;
+        var x = 1;
 #if DEBUG
         if (RegexHelpers.Common.InvalidPathChars.IsMatch(path))
         {
@@ -72,15 +72,15 @@ public static class FileSystemHelpers
         }
 #endif
         path = RegexHelpers.Common.InvalidPathChars.Replace(path, " ");
-        string dirName = Path.GetDirectoryName(path);
+        var dirName = Path.GetDirectoryName(path);
         if (path.Length > MAX_PATH - 5)
         {
-            string fn = Path.GetFileNameWithoutExtension(path);
-            string ext = Path.GetExtension(path);
-            int delta = path.Length - (MAX_PATH - 7 - ext.Length);
+            var fn = Path.GetFileNameWithoutExtension(path);
+            var ext = Path.GetExtension(path);
+            var delta = path.Length - (MAX_PATH - 7 - ext.Length);
             if (fn.Length > delta)
             {
-                fn = fn.Substring(0, fn.Length - delta);
+                fn = fn[..^delta];
                 fn = fn + "[+]" + ext;
             }
             path = Path.Combine(dirName, fn);
@@ -92,10 +92,8 @@ public static class FileSystemHelpers
             {
                 try
                 {
-                    using (var st = File.Open(path, FileMode.CreateNew, FileAccess.Write, FileShare.None))
-                    {
-                        return path;
-                    }
+                    using var st = File.Open(path, FileMode.CreateNew, FileAccess.Write, FileShare.None);
+                    return path;
                 }
                 catch (IOException)
                 {
@@ -108,10 +106,10 @@ public static class FileSystemHelpers
                 var m = NumberInParenExpr.Match(name);
                 if (m.Success)
                 {
-                    int y = name.LastIndexOf(" (");
+                    var y = name.LastIndexOf(" (");
                     if (y >= 0)
                     {
-                        name = name.Substring(0, x);
+                        name = name[..x];
                         x = Convert.ToInt32(m.Groups[1].Value) + 1;
                     }
                 }

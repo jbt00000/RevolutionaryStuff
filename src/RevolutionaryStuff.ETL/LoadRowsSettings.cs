@@ -22,11 +22,11 @@ public class LoadRowsSettings : IValidate
         : this()
     {
         if (other == null) return;
-        this.RowAddErrorHandler = other.RowAddErrorHandler;
-        this.RowNumberColumnName = other.RowNumberColumnName;
-        this.DuplicateColumnRenamer = other.DuplicateColumnRenamer;
-        this.ColumnMapper = other.ColumnMapper;
-        this.TypeConverter = other.TypeConverter;
+        RowAddErrorHandler = other.RowAddErrorHandler;
+        RowNumberColumnName = other.RowNumberColumnName;
+        DuplicateColumnRenamer = other.DuplicateColumnRenamer;
+        ColumnMapper = other.ColumnMapper;
+        TypeConverter = other.TypeConverter;
     }
 
     public static bool DontAddEmptyRows(DataTable dt, object[] row)

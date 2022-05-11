@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.Core.Tests
     {
         private static void TryParseBoolCheck(string s, bool expectedValue, bool expectedParseSuccess)
         {
-            bool success = Parse.TryParseBool(s, out bool parsedVal);
+            var success = Parse.TryParseBool(s, out var parsedVal);
             Assert.AreEqual(expectedParseSuccess, success);
             if (success)
             {

@@ -5,7 +5,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts;
 [AttributeUsage(AttributeTargets.Property | AttributeTargets.Class)]
 public abstract class AppliesToPropertyAttribute : Attribute
 {
-    protected readonly HashSet<string> PropertyNames = new HashSet<string>();
+    protected readonly HashSet<string> PropertyNames = new();
 
     public AppliesToPropertyAttribute(params string[] propertyNames)
     {

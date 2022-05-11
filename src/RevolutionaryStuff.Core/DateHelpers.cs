@@ -2,7 +2,7 @@
 
 public static class DateHelpers
 {
-    public static DateTimeOffset UnixEarliestFileDate = new DateTimeOffset(1601, 1, 1, 0, 0, 0, TimeSpan.Zero);
+    public static DateTimeOffset UnixEarliestFileDate = new(1601, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
     public static DateTime DateTimeFromUnixEpoch(int secondsSince1970)
         => new DateTime(1970, 1, 1, 0, 0, 0, (DateTimeKind)DateTimeKind.Utc).AddSeconds((double)secondsSince1970);
@@ -87,8 +87,8 @@ public static class DateHelpers
 
     public static int Age(this DateTime dt, DateTime? asOf = null)
     {
-        DateTime dateTime = !asOf.HasValue ? DateTime.Today : asOf.Value;
-        int age = dateTime.Year - dt.Year;
+        var dateTime = !asOf.HasValue ? DateTime.Today : asOf.Value;
+        var age = dateTime.Year - dt.Year;
         if (dt.Month > dateTime.Month || dt.Month == dateTime.Month && dt.Day > dateTime.Day)
         {
             --age;

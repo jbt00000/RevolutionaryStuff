@@ -44,7 +44,7 @@ public class CommandLineSwitchAttribute : Attribute
             return 0 == StringHelpers.CompareIgnoreCase(Mode, mode);
         }
         if (Modes == null || Modes.Length == 0) return true;
-        foreach (var m in this.Modes)
+        foreach (var m in Modes)
         {
             if (0 == StringHelpers.CompareIgnoreCase(mode, m)) return true;
         }
@@ -53,7 +53,7 @@ public class CommandLineSwitchAttribute : Attribute
 
     public bool IsMandatoryForMode(string mode)
     {
-        return this.Mandatory && IsValidForMode(mode);
+        return Mandatory && IsValidForMode(mode);
     }
 
     #region Constructors
@@ -83,7 +83,7 @@ public class CommandLineSwitchAttribute : Attribute
 
     public override string ToString()
     {
-        return string.Format("CommandLineSwitch {0}", this.Names[0]);
+        return string.Format("CommandLineSwitch {0}", Names[0]);
     }
 
     public static IEnumerable<KeyValuePair<CommandLineSwitchAttribute, MemberInfo>> Find(Type t)
@@ -122,7 +122,7 @@ public class CommandLineSwitchAttribute : Attribute
         }
         else
         {
-            string name = t.FullName;
+            var name = t.FullName;
             if (name.StartsWith("System.") && name.IndexOf(".", 7) == -1)
             {
                 return t.Name;
@@ -163,7 +163,7 @@ public class CommandLineSwitchAttribute : Attribute
     {
         Requires.NonNull(t, nameof(t));
         var ti = t.GetTypeInfo();
-        var switches = CommandLineSwitchAttribute.Find(t).OrderBy(z => z.Key.Mandatory ? 0 : 1).ThenBy(z => z.Key.Names.OrderBy().First()).ThenBy(z => z.Key.Names[0]);
+        var switches = Find(t).OrderBy(z => z.Key.Mandatory ? 0 : 1).ThenBy(z => z.Key.Names.OrderBy().First()).ThenBy(z => z.Key.Names[0]);
         var mandates = ti.GetCustomAttributes(typeof(CommandLineMandateAttribute), true).OfType<CommandLineMandateAttribute>();
         if (formatter == null)
         {
@@ -178,12 +178,12 @@ public class CommandLineSwitchAttribute : Attribute
         }
         if (mandates.HasData())
         {
-            string indent = "\t";
+            var indent = "\t";
             var modeSwitch = switches.First(s => s.Key is CommandLineSwitchModeSwitchAttribute);
             var sb = new StringBuilder();
             foreach (var m in mandates)
             {
-                foreach (int enumVal in m.EnumVals)
+                foreach (var enumVal in m.EnumVals)
                 {
                     var mandatoryKeys = m.MandatoryKeys.ToCaseInsensitiveSet();
                     var optionalKeys = m.OptionalKeys.ToCaseInsensitiveSet();
@@ -219,10 +219,10 @@ public class CommandLineSwitchAttribute : Attribute
 
         var argsSeen = new HashSet<CommandLineInfo.Arg>();
         var switchesSeen = new HashSet<CommandLineSwitchAttribute>();
-        var zs = CommandLineSwitchAttribute.Find(o.GetType());
+        var zs = Find(o.GetType());
         var attributesFound = new HashSet<CommandLineSwitchAttribute>();
         string mode = null;
-        int modeVal = 0;
+        var modeVal = 0;
         var mandatoryButMissing = new List<CommandLineSwitchAttribute>();
         foreach (var z in zs)
         {
@@ -238,7 +238,7 @@ public class CommandLineSwitchAttribute : Attribute
             }
             foreach (var name in a.Names)
             {
-                string appSettingsVal = string.IsNullOrEmpty(a.AppSettingsName) ? null : cli.Configuration[a.AppSettingsName];
+                var appSettingsVal = string.IsNullOrEmpty(a.AppSettingsName) ? null : cli.Configuration[a.AppSettingsName];
                 if (cli.ContainsSwitch(name) || !string.IsNullOrEmpty(appSettingsVal))
                 {
                     string s;
@@ -272,7 +272,7 @@ public class CommandLineSwitchAttribute : Attribute
                         foreach (var part in parts)
                         {
                             string l, r;
-                            StringHelpers.Split(part, "=", true, out l, out r);
+                            part.Split("=", true, out l, out r);
                             d[l.Trim()] = r.Trim();
                         }
                         val = d;
@@ -288,7 +288,7 @@ public class CommandLineSwitchAttribute : Attribute
                     }
                     else if (a.Translator.HasFlag(CommandLineSwitchAttributeTranslators.FilePathOrUrl))
                     {
-                        if (Uri.TryCreate(s, UriKind.Absolute, out Uri u) && u.Scheme != WebHelpers.CommonSchemes.File)
+                        if (Uri.TryCreate(s, UriKind.Absolute, out var u) && u.Scheme != WebHelpers.CommonSchemes.File)
                         {
                             val = (new Uri(s)).ToString();
                         }

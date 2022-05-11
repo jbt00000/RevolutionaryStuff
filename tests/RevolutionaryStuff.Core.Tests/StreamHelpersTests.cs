@@ -16,7 +16,7 @@ namespace RevolutionaryStuff.Core.Tests
             Stuff.Random.NextBytes(sourceBuffer);
             var sourceStream = new MemoryStream(sourceBuffer);
             var destStream = new MemoryStream();
-            int callbackCount = 0;
+            var callbackCount = 0;
             long lastTotRead = 0;
             await sourceStream.CopyToAsync(destStream, (read, totRead, tot) => 
             {
@@ -33,7 +33,7 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public async Task ReadToEndAsyncTest()
         {
-            string test = $"{nameof(ReadToEndAsyncTest)} message.";
+            var test = $"{nameof(ReadToEndAsyncTest)} message.";
             var st = new MemoryStream();
             var sw = new StreamWriter(st, Encoding.UTF8);
             sw.Write(test);
@@ -48,7 +48,7 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public void ReadToEndTest()
         {
-            string test = $"{nameof(ReadToEndTest)} message.";
+            var test = $"{nameof(ReadToEndTest)} message.";
             var st = new MemoryStream();
             var sw = new StreamWriter(st, Encoding.UTF8);
             sw.Write(test);

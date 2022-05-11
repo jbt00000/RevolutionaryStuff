@@ -63,7 +63,7 @@ public static class SpreadsheetHelpers
     {
         Requires.NonNull(ds, nameof(ds));
         Requires.Text(outputPath, nameof(outputPath));
-        templateSpreadsheetStream = templateSpreadsheetStream ?? ResourceHelpers.GetEmbeddedResourceAsStream(Stuff.ThisAssembly, "Template.xlsx");
+        templateSpreadsheetStream ??= Stuff.ThisAssembly.GetEmbeddedResourceAsStream("Template.xlsx");
         Requires.ReadableStreamArg(templateSpreadsheetStream, nameof(templateSpreadsheetStream));
 
         var dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
@@ -180,45 +180,43 @@ public static class SpreadsheetHelpers
     private static void SaveSheet(string path, IDictionary<string, int> indexBySharedString, DataTable dt)
     {
         Directory.CreateDirectory(Path.GetDirectoryName(path));
-        using (var writer = XmlWriter.Create(path))
+        using var writer = XmlWriter.Create(path);
+        writer.WriteStartDocument(true);
+        writer.WriteStartElement(NodeNames.WorksheetNodes.WorkSheet, CommonNamespaces.SpreadsheetMain);
         {
-            writer.WriteStartDocument(true);
-            writer.WriteStartElement(NodeNames.WorksheetNodes.WorkSheet, CommonNamespaces.SpreadsheetMain);
+            writer.WriteStartElement(NodeNames.WorksheetNodes.SheetViews, CommonNamespaces.SpreadsheetMain);
             {
-                writer.WriteStartElement(NodeNames.WorksheetNodes.SheetViews, CommonNamespaces.SpreadsheetMain);
+                writer.WriteStartElement(NodeNames.WorksheetNodes.SheetView, CommonNamespaces.SpreadsheetMain);
+                writer.WriteAttributeString("tabSelected", "1");
+                writer.WriteAttributeString("workbookViewId", "0");
                 {
-                    writer.WriteStartElement(NodeNames.WorksheetNodes.SheetView, CommonNamespaces.SpreadsheetMain);
-                    writer.WriteAttributeString("tabSelected", "1");
-                    writer.WriteAttributeString("workbookViewId", "0");
-                    {
-                        writer.WriteElement(NodeNames.WorksheetNodes.Pane, CommonNamespaces.SpreadsheetMain, null, new { ySplit = 1, topLeftCell = "A2", activePane = "bottomLeft", state = "frozen" });
-                        writer.WriteElement(NodeNames.WorksheetNodes.Selection, CommonNamespaces.SpreadsheetMain, null, new { pane = "bottomLeft" });
-                    }
-                    writer.WriteEndElement(); //SheetView
+                    writer.WriteElement(NodeNames.WorksheetNodes.Pane, CommonNamespaces.SpreadsheetMain, null, new { ySplit = 1, topLeftCell = "A2", activePane = "bottomLeft", state = "frozen" });
+                    writer.WriteElement(NodeNames.WorksheetNodes.Selection, CommonNamespaces.SpreadsheetMain, null, new { pane = "bottomLeft" });
                 }
-                writer.WriteEndElement(); //SheetViews
-                writer.WriteStartElement(NodeNames.WorksheetNodes.SheetData, CommonNamespaces.SpreadsheetMain);
-                {
-                    WriteTableHeaders(writer, dt.Columns, indexBySharedString);
-                    int rowNum = 1;
-                    foreach (DataRow row in dt.Rows)
-                    {
-                        WriteRow(writer, row, indexBySharedString, rowNum++);
-                    }
-                }
-                writer.WriteEndElement(); //sheetdata
-                writer.WriteElement(NodeNames.WorksheetNodes.AutoFilter, CommonNamespaces.SpreadsheetMain, null, new { @ref = CreateCellReference(0, 0, dt.Columns.Count - 1, dt.Rows.Count) });
+                writer.WriteEndElement(); //SheetView
             }
-            writer.WriteEndElement(); //worksheet
-            writer.WriteEndDocument();
+            writer.WriteEndElement(); //SheetViews
+            writer.WriteStartElement(NodeNames.WorksheetNodes.SheetData, CommonNamespaces.SpreadsheetMain);
+            {
+                WriteTableHeaders(writer, dt.Columns, indexBySharedString);
+                var rowNum = 1;
+                foreach (DataRow row in dt.Rows)
+                {
+                    WriteRow(writer, row, indexBySharedString, rowNum++);
+                }
+            }
+            writer.WriteEndElement(); //sheetdata
+            writer.WriteElement(NodeNames.WorksheetNodes.AutoFilter, CommonNamespaces.SpreadsheetMain, null, new { @ref = CreateCellReference(0, 0, dt.Columns.Count - 1, dt.Rows.Count) });
         }
+        writer.WriteEndElement(); //worksheet
+        writer.WriteEndDocument();
     }
 
     private static void WriteRow(XmlWriter writer, DataRow row, IDictionary<string, int> indexBySharedString, int absRowNum)
     {
         writer.WriteStartElement(NodeNames.WorksheetNodes.Row, CommonNamespaces.SpreadsheetMain);
         writer.WriteAttributeString("r", (1 + absRowNum).ToString());
-        int colNum = 0;
+        var colNum = 0;
         foreach (var val in row.ItemArray)
         {
             WriteCell(writer, colNum++, absRowNum, val, indexBySharedString);
@@ -293,7 +291,7 @@ public static class SpreadsheetHelpers
             if (colNum < 26) break;
             colNum = colNum / 26 - 1;
         }
-        cr = cr + (rowNum + 1).ToString();
+        cr += (rowNum + 1).ToString();
         return cr;
     }
 
@@ -312,10 +310,8 @@ public static class SpreadsheetHelpers
     {
         Requires.Text(sharedStringsPath, nameof(sharedStringsPath));
 
-        using (var st = File.Exists(sharedStringsPath) ? (Stream)File.OpenRead(sharedStringsPath) : new MemoryStream())
-        {
-            return LoadSharedStrings(st);
-        }
+        using var st = File.Exists(sharedStringsPath) ? (Stream)File.OpenRead(sharedStringsPath) : new MemoryStream();
+        return LoadSharedStrings(st);
     }
 
     internal static IDictionary<string, int> LoadSharedStrings(Stream st)
@@ -347,36 +343,32 @@ public static class SpreadsheetHelpers
     private static void SaveSharedStrings(string sharedStringsPath, IDictionary<string, int> sharedStrings)
     {
         Requires.Text(sharedStringsPath, nameof(sharedStringsPath));
-        using (var st = File.Create(sharedStringsPath))
-        {
-            SaveSharedStrings(st, sharedStrings);
-        }
+        using var st = File.Create(sharedStringsPath);
+        SaveSharedStrings(st, sharedStrings);
     }
 
     internal static void SaveSharedStrings(Stream st, IDictionary<string, int> sharedStrings = null)
     {
         Requires.WriteableStreamArg(st, nameof(st));
-        sharedStrings = sharedStrings ?? new Dictionary<string, int>();
+        sharedStrings ??= new Dictionary<string, int>();
 
-        using (var writer = XmlWriter.Create(st))
+        using var writer = XmlWriter.Create(st);
+        writer.WriteStartDocument(true);
+        writer.WriteStartElement("sst", CommonNamespaces.SpreadsheetMain);
+        writer.WriteAttributeString("count", sharedStrings.Count.ToString());
+        writer.WriteAttributeString("uniqueCount", sharedStrings.Count.ToString());
+        var lastNum = -1;
+        foreach (var kvp in sharedStrings.ToList().OrderBy(z => z.Value))
         {
-            writer.WriteStartDocument(true);
-            writer.WriteStartElement("sst", CommonNamespaces.SpreadsheetMain);
-            writer.WriteAttributeString("count", sharedStrings.Count.ToString());
-            writer.WriteAttributeString("uniqueCount", sharedStrings.Count.ToString());
-            var lastNum = -1;
-            foreach (var kvp in sharedStrings.ToList().OrderBy(z => z.Value))
-            {
-                if (++lastNum != kvp.Value) throw new Exception("Shared strings not in order or zero based");
-                writer.WriteStartElement("si", CommonNamespaces.SpreadsheetMain);
-                writer.WriteStartElement("t", CommonNamespaces.SpreadsheetMain);
-                writer.WriteString(kvp.Key);
-                writer.WriteEndElement();//t                    
-                writer.WriteEndElement();//si                    
-            }
-            writer.WriteEndElement();//sst
-            writer.WriteEndDocument();
-            writer.Flush();
+            if (++lastNum != kvp.Value) throw new Exception("Shared strings not in order or zero based");
+            writer.WriteStartElement("si", CommonNamespaces.SpreadsheetMain);
+            writer.WriteStartElement("t", CommonNamespaces.SpreadsheetMain);
+            writer.WriteString(kvp.Key);
+            writer.WriteEndElement();//t                    
+            writer.WriteEndElement();//si                    
         }
+        writer.WriteEndElement();//sst
+        writer.WriteEndDocument();
+        writer.Flush();
     }
 }

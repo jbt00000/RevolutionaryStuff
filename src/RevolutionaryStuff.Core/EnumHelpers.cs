@@ -11,7 +11,7 @@ public static class EnumHelpers
         return (T)a.GetValue(n);
     }
 
-    public static string EnumWithEnumMemberValuesToString<TEnum>(this TEnum e) where TEnum : System.Enum
+    public static string EnumWithEnumMemberValuesToString<TEnum>(this TEnum e) where TEnum : Enum
     {
         var em = e.GetCustomAttribute<EnumMemberAttribute>();
         var sval = em?.Value ?? e.ToString();

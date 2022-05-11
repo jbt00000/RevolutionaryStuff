@@ -52,7 +52,7 @@ public class ConsoleTraceListener : TraceListenerBase
 
     protected override void WriteTrace(TraceEventCache eventCache, string source, TraceEventType eventType, int id, string message, Guid? relatedActivityId, object[] data)
     {
-        var indent = new string(' ', this.IndentLevel * this.IndentSize);
+        var indent = new string(' ', IndentLevel * IndentSize);
         var eventTypeString = eventType.ToString();
         eventTypeString += new string(' ', MaxEventTypeStringLen - eventTypeString.Length);
         var msg = $"{eventTypeString} - {indent}{message}";

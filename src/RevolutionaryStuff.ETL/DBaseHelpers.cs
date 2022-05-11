@@ -72,7 +72,7 @@ public static class DBaseHelpers
         public readonly int AutoIncrementStep;
 
         public override string ToString()
-            => $"{this.GetType().Name} name=\"{Fieldname}\" type={FieldType} len={FieldLength}";
+            => $"{GetType().Name} name=\"{Fieldname}\" type={FieldType} len={FieldLength}";
 
         public object Parse(byte[] buf, int offset)
         {
@@ -82,8 +82,8 @@ public static class DBaseHelpers
             switch (FieldType)
             {
                 case FieldTypes.Character:
-                    s = Raw.Buf2String(buf, offset, this.FieldLength);
-                    s = StringHelpers.TrimOrNull(s);
+                    s = Raw.Buf2String(buf, offset, FieldLength);
+                    s = s.TrimOrNull();
                     return s;
                 case FieldTypes.Integer:
                 case FieldTypes.Autoincrement:
@@ -94,18 +94,17 @@ public static class DBaseHelpers
                     if (ch == 'F') return false;
                     return DBNull.Value;
                 case FieldTypes.Numeric:
-                    s = Raw.Buf2String(buf, offset, this.FieldLength).Trim();
+                    s = Raw.Buf2String(buf, offset, FieldLength).Trim();
                     if (s == "") return DBNull.Value;
                     return double.Parse(s);
                 case FieldTypes.Date:
-                    s = Raw.Buf2String(buf, offset, this.FieldLength).Trim();
+                    s = Raw.Buf2String(buf, offset, FieldLength).Trim();
                     if (s == "") return DBNull.Value;
                     var dt = new DateTime(
-                        int.Parse(s.Substring(0, 4)),
+                        int.Parse(s[..4]),
                         int.Parse(s.Substring(4, 2)),
                         int.Parse(s.Substring(6, 2)));
-                    if (dt.Year < 1900) return DBNull.Value;
-                    if (dt.Year > 9999) return DBNull.Value;
+                    if (dt.Year is < 1900 or > 9999) return DBNull.Value;
                     return dt;
                 case FieldTypes.Memo:
                 case FieldTypes.MemoBinary:
@@ -190,7 +189,7 @@ public static class DBaseHelpers
         {
             Requires.ArrayArg(buf, 0, 32, nameof(buf));
             Fieldname = "";
-            for (int z = 0; z < 10; ++z)
+            for (var z = 0; z < 10; ++z)
             {
                 var ch = (char)buf[z];
                 if (ch == 0) break;
@@ -271,7 +270,7 @@ public static class DBaseHelpers
                 try
                 {
                     var s = Raw.Buf2String(dataBuf);
-                    s = StringHelpers.TrimOrNull(s);
+                    s = s.TrimOrNull();
                     return s;
                 }
                 catch (Exception ex)
@@ -326,7 +325,7 @@ public static class DBaseHelpers
         var rawRows = new List<object[]>(numRecords);
         var memos = new List<Tuple<DbtBlockRef, FieldStructure, int, int>>();
         if (memoStream == null) memos = null;
-        for (int absRowNum = 0; absRowNum < numRecords; ++absRowNum)
+        for (var absRowNum = 0; absRowNum < numRecords; ++absRowNum)
         {
             st.ReadExactSize(rowBuf);
             if ((char)rowBuf[0] == '*') continue;
@@ -335,13 +334,13 @@ public static class DBaseHelpers
                 throw new FormatException("First character in row of .dbf file must be a space or a *");
             }
             var rowVals = new object[fields.Count];
-            int offset = 1;
-            for (int col = 0; col < fields.Count; ++col)
+            var offset = 1;
+            for (var col = 0; col < fields.Count; ++col)
             {
-                DataColumn dc = dt.Columns[col];
+                var dc = dt.Columns[col];
                 var field = fields[col];
                 var v = field.Parse(rowBuf, offset);
-                bool allowNulls = false;
+                var allowNulls = false;
                 if (v is DbtBlockRef)
                 {
                     rowVals[col] = DBNull.Value;

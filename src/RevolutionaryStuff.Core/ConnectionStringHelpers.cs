@@ -8,8 +8,8 @@ public static class ConnectionStringHelpers
         var pairs = (connectionString ?? "").Split(';');
         foreach (var pair in pairs)
         {
-            StringHelpers.Split(pair, keyValueSeparator, true, out string left, out string right);
-            d[(left ?? "").Trim()] = StringHelpers.TrimOrNull(right);
+            pair.Split(keyValueSeparator, true, out var left, out var right);
+            d[(left ?? "").Trim()] = right.TrimOrNull();
         }
         return d;
     }

@@ -13,12 +13,12 @@ namespace RevolutionaryStuff.Core.Tests
         [TestMethod]
         public async Task WorksAsync()
         {
-            int maxCachedItemCount = 5;
+            var maxCachedItemCount = 5;
             var basicCacher = new BasicCacher(maxCachedItemCount);
             var cacher = (ICacher)basicCacher;
-            for (int z = 0; z < 10; ++z)
+            for (var z = 0; z < 10; ++z)
             {
-                string cacheKey = Cache.CreateKey(z);
+                var cacheKey = Cache.CreateKey(z);
                 var res = await cacher.FindEntryOrCreateValueAsync(
                     cacheKey,
                     k =>

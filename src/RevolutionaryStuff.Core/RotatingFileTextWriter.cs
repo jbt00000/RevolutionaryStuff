@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.Core;
 
 /// <summary>
 /// A Text Writer that sits on top of a pool of rotating files.
-/// One specified the maximum number of files to keep around, and the max size of each individidual file
+/// One specified the maximum number of files to keep around, and the max size of each individual file
 /// </summary>
 public class RotatingFileTextWriter : TextWriter
 {
@@ -41,7 +41,7 @@ public class RotatingFileTextWriter : TextWriter
         sExtractNum = Regex.Replace(sExtractNum, "===;;;===", "(.*)");
         FileNumberExpr = new Regex(sExtractNum, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         FileNameSearch = Regex.Replace(FileNameSearch, "{.*}", "*");
-        int[] filenums = GetSortedFileNumbers();
+        var filenums = GetSortedFileNumbers();
         CurrentFileNumber = 0 == filenums.Length ? 0 : Math.Max(0, filenums[filenums.Length - 1]);
 
         Clean();
@@ -70,14 +70,14 @@ public class RotatingFileTextWriter : TextWriter
 
     public override void Write(string v)
     {
-        v = v ?? "";
+        v ??= "";
         PrepForWrite(v.Length);
         Writer.Write(v);
     }
 
     public override void WriteLine(string v)
     {
-        v = v ?? "";
+        v ??= "";
         PrepForWrite(v.Length);
         Writer.WriteLine(v);
     }
@@ -115,7 +115,7 @@ public class RotatingFileTextWriter : TextWriter
 
         for (; ; )
         {
-            string fileName = CreateFileName();
+            var fileName = CreateFileName();
             try
             {
                 Stream st = File.Open(fileName, FileMode.Append, FileAccess.Write, FileShare.Read);
@@ -134,14 +134,14 @@ public class RotatingFileTextWriter : TextWriter
     protected string CreateFileName()
     {
         string fileName = null;
-        bool exists = false;
+        var exists = false;
         try
         {
             if (!string.IsNullOrEmpty(FilePath))
             {
                 Directory.CreateDirectory(FilePath);
             }
-            int x = CurrentFileNumber;
+            var x = CurrentFileNumber;
             FileInfo f;
             for (; ; ++x)
             {
@@ -180,7 +180,7 @@ public class RotatingFileTextWriter : TextWriter
         {
             return Directory.GetFiles(FilePath, FileNameSearch);
         }
-        catch (System.IO.DirectoryNotFoundException)
+        catch (DirectoryNotFoundException)
         {
             return Empty.StringArray;
         }
@@ -189,12 +189,12 @@ public class RotatingFileTextWriter : TextWriter
     protected int[] GetSortedFileNumbers()
     {
         var a = new List<int>();
-        string[] files = GetFileNames();
-        foreach (string filename in files)
+        var files = GetFileNames();
+        foreach (var filename in files)
         {
             try
             {
-                int i = Convert.ToInt32(FileNumberExpr.GetGroupValue(filename));
+                var i = Convert.ToInt32(FileNumberExpr.GetGroupValue(filename));
                 a.Add(i);
             }
             catch (Exception)
@@ -207,12 +207,12 @@ public class RotatingFileTextWriter : TextWriter
 
     protected void Clean()
     {
-        int[] filenums = GetSortedFileNumbers();
+        var filenums = GetSortedFileNumbers();
         if (filenums.Length > MaxFiles)
         {
-            for (int x = 0; x < filenums.Length - MaxFiles; ++x)
+            for (var x = 0; x < filenums.Length - MaxFiles; ++x)
             {
-                string Filename = String.Format(FileNameFormat, filenums[x]);
+                var Filename = String.Format(FileNameFormat, filenums[x]);
                 try
                 {
                     //Since this class is the base for RotatingLogTraceListener, we cannot call code that could potentially log, else we can get a stack overflow

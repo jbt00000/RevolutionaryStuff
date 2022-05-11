@@ -13,7 +13,7 @@ public static class ExceptionHelpers
             }
             catch (Exception ex)
             {
-                (exceptions ??= new()).Add(ex);
+                (exceptions ??= new List<Exception>()).Add(ex);
             }
         }
         if (exceptions != null)

@@ -14,13 +14,13 @@ public class TaskHelpersTests
     public async Task TaskWhenAllForEachWorkingConcurrentlyTestAsync()
     {
         var items = new List<int>();
-        for (int z = 0; z < 200; ++z)
+        for (var z = 0; z < 200; ++z)
         {
             items.Add(z);
         }
         var threadIds = new HashSet<int>();
-        int concurrent = 0;
-        int maxConcurrent = 0;
+        var concurrent = 0;
+        var maxConcurrent = 0;
         await TaskHelpers.TaskWhenAllForEachAsync(items, async item =>
         {
             using (new TraceRegion($"{nameof(TaskWhenAllForEachWorkingConcurrentlyTestAsync)} Item={item}"))

@@ -5,7 +5,7 @@ namespace RevolutionaryStuff.Core.Threading;
 /// <remarks>https://blog.cdemi.io/async-waiting-inside-c-sharp-locks/</remarks>
 public sealed class AsyncLocker : BaseDisposable
 {
-    private readonly SemaphoreSlim Semaphore = new SemaphoreSlim(1, 1);
+    private readonly SemaphoreSlim Semaphore = new(1, 1);
 
     public AsyncLocker()
     { }

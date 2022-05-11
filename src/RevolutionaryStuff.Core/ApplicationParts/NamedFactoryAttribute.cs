@@ -16,7 +16,7 @@ public class NamedFactoryAttribute : Attribute
 
     public static ICollection<Type> Find(Predicate<string> factoryNameFilter, Type interfaceType = null)
     {
-        factoryNameFilter = factoryNameFilter ?? delegate (string z) { return true; };
+        factoryNameFilter ??= delegate (string z) { return true; };
         return Cache.DataCacher.FindOrCreateValue(
             Cache.CreateKey(typeof(NamedFactoryAttribute), nameof(Find), factoryNameFilter, interfaceType == null ? "" : interfaceType.AssemblyQualifiedName),
             delegate ()
@@ -53,12 +53,12 @@ public class NamedFactoryAttribute : Attribute
 
     public static ICollection<Type> Find<I>(string factoryName) where I : class
     {
-        return NamedFactoryAttribute.Find(z => z == factoryName, typeof(I));
+        return Find(z => z == factoryName, typeof(I));
     }
 
     public static I InstantiateFactory<I>(string factoryName) where I : class
     {
-        var types = NamedFactoryAttribute.Find<I>(factoryName);
+        var types = Find<I>(factoryName);
         var t = types.Single();
         var factoryConstructorInfo = t.GetTypeInfo().GetConstructor(Empty.TypeArray);
         var factory = (I)factoryConstructorInfo.Invoke(Empty.ObjectArray);

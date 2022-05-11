@@ -9,7 +9,7 @@ namespace RevolutionaryStuff.Core.Tests
         private const string MyMimeTypeSecondaryType = "SECOND";
         private const string MyMimeTypePrimaryExtension = ".hello";
         private const string MyMimeTypeSecondaryExtension = ".world";
-        private static readonly MimeType MyMimeType = new MimeType($"{MyMimeTypePrimaryType}/{MyMimeTypeSecondaryType}", MyMimeTypePrimaryExtension, MyMimeTypeSecondaryExtension);
+        private static readonly MimeType MyMimeType = new($"{MyMimeTypePrimaryType}/{MyMimeTypeSecondaryType}", MyMimeTypePrimaryExtension, MyMimeTypeSecondaryExtension);
 
         [TestMethod]
         public void  DoesExtensionMatch_True()
