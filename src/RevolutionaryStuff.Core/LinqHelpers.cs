@@ -346,4 +346,7 @@ Again:
     {
         return exp.GetMembers().ConvertAll(z => z.Name).Format(".");
     }
+
+    public static T When<T>(this T item, Func<T, bool> condition, T whenNot = default) where T : class
+        => item != null && condition(item) ? item : whenNot;
 }
