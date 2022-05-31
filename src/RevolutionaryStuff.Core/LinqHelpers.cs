@@ -347,6 +347,7 @@ Again:
         return exp.GetMembers().ConvertAll(z => z.Name).Format(".");
     }
 
-    public static T When<T>(this T item, Func<T, bool> condition, T whenNot = default) where T : class
+    /// <remarks>As an extension method, this "infects" way too many items</remarks>
+    public static T When<T>(T item, Func<T, bool> condition, T whenNot = default) where T : class
         => item != null && condition(item) ? item : whenNot;
 }

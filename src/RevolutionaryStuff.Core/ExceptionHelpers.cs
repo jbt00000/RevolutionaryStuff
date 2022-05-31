@@ -2,7 +2,7 @@
 
 public static class ExceptionHelpers
 {
-    public static void AggregationExceptionsAndReThrow(params Action[] actions)
+    public static void AggregateExceptionsAndReThrow(params Action[] actions)
     {
         List<Exception> exceptions = null;
         foreach (var action in actions)
