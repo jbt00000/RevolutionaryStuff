@@ -12,7 +12,7 @@
         <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-        <PackageReleaseNotes>Uses .NET 3.1 libraries that still run under .NETStandard2.1</PackageReleaseNotes>
+        <PackageReleaseNotes>This is now a .NET 6 library</PackageReleaseNotes>
         <Authors>jason@jasonthomas.com</Authors>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -22,9 +22,10 @@
         <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-        <FileVersion>3.70.60.0</FileVersion>
-        <AssemblyVersion>3.70.60.0</AssemblyVersion>
-        <Version>3.70.60</Version>
+        <Copyright>Copyright ©  2022</Copyright>
+        <FileVersion>3.71.60.0</FileVersion>
+        <AssemblyVersion>3.71.60.0</AssemblyVersion>
+        <Version>3.71.60</Version>
     </PropertyGroup>
 
     <ItemGroup>

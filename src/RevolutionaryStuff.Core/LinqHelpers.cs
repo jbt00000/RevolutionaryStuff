@@ -350,4 +350,48 @@ Again:
     /// <remarks>As an extension method, this "infects" way too many items</remarks>
     public static T When<T>(T item, Func<T, bool> condition, T whenNot = default) where T : class
         => item != null && condition(item) ? item : whenNot;
+
+    /// <remarks>https://www.c-sharpcorner.com/UploadFile/04fe4a/predicate-combinators-in-linq/#listing13</remarks>
+    public class ReplaceParameterVisitor<TResult> : ExpressionVisitor
+    {
+
+        private readonly ParameterExpression Parameter;
+
+        private readonly Expression Replacement;
+
+        public ReplaceParameterVisitor(ParameterExpression parameter, Expression replacement)
+        {
+            this.Parameter = parameter;
+            this.Replacement = replacement;
+        }
+
+        public Expression<TResult> Visit<T>(Expression<T> node)
+        {
+            var parameters = node.Parameters.Where(p => p != Parameter);
+            return Expression.Lambda<TResult>(Visit(node.Body), parameters);
+        }
+
+        protected override Expression VisitParameter(ParameterExpression node)
+        {
+            return node == Parameter ? Replacement : base.VisitParameter(node);
+        }
+    }
+
+    /// <remarks>https://www.c-sharpcorner.com/UploadFile/04fe4a/predicate-combinators-in-linq/#listing13</remarks>
+    public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
+    {
+        return Expression.Lambda<Func<T, bool>>(Expression.AndAlso(left.Body, right.WithParametersOf(left).Body), left.Parameters);
+    }
+
+    /// <remarks>https://www.c-sharpcorner.com/UploadFile/04fe4a/predicate-combinators-in-linq/#listing13</remarks>
+    public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> left, Expression<Func<T, bool>> right)
+    {
+        return Expression.Lambda<Func<T, bool>>(Expression.OrElse(left.Body, right.WithParametersOf(left).Body), left.Parameters);
+    }
+
+    /// <remarks>https://www.c-sharpcorner.com/UploadFile/04fe4a/predicate-combinators-in-linq/#listing13</remarks>
+    private static Expression<Func<TResult>> WithParametersOf<T, TResult>(this Expression<Func<T, TResult>> left, Expression<Func<T, TResult>> right)
+    {
+        return new ReplaceParameterVisitor<Func<TResult>>(left.Parameters[0], right.Parameters[0]).Visit(left);
+    }
 }

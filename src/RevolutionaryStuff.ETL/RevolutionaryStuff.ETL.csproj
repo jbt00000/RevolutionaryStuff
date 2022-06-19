@@ -7,19 +7,19 @@
         <Authors>jason@jasonthomas.com</Authors>
         <Company>Revolutionary Stuff, LLC</Company>
         <Description>Utility library to help with ETL.</Description>
-        <Copyright>Copyright ©  2020</Copyright>
+        <Copyright>Copyright ©  2022</Copyright>
         <PackageLicenseUrl></PackageLicenseUrl>
         <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
         <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
         <RepositoryType>GIT</RepositoryType>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageReleaseNotes>Keeping this in-sync with RevolutionaryStuff.JBT</PackageReleaseNotes>
+        <PackageReleaseNotes>This is now a .NET 6 library</PackageReleaseNotes>
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-        <FileVersion>3.70.60.0</FileVersion>
-        <AssemblyVersion>3.70.60.0</AssemblyVersion>
-        <Version>3.70.60</Version>
+        <FileVersion>3.71.60.0</FileVersion>
+        <AssemblyVersion>3.71.60.0</AssemblyVersion>
+        <Version>3.71.60</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -39,7 +39,7 @@
 
     <ItemGroup>
         <PackageReference Include="DocumentFormat.OpenXml" Version="2.16.0" />
-        <PackageReference Include="HtmlAgilityPack" Version="1.11.42" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
     </ItemGroup>
 
     <ItemGroup>
