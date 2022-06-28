@@ -40,7 +40,7 @@ public static class DependencyInjectionHelpers
     public static T GetRequiredScopedService<T>(this IServiceProvider provider)
         => provider.CreateScope().ServiceProvider.GetRequiredService<T>();
 
-    public static SERVICE_TYPE InstantiateServiceWithOverriddenDependencies<SERVICE_TYPE>(this IServiceProvider provider, ServiceCollection services, params object[] overriddenLoadedDependencies)
+    public static SERVICE_TYPE InstantiateServiceWithOverriddenDependencies<SERVICE_TYPE>(this IServiceProvider provider, IServiceCollection services, params object[] overriddenLoadedDependencies)
     {
         var serviceType = typeof(SERVICE_TYPE);
         Type implementationType = null;

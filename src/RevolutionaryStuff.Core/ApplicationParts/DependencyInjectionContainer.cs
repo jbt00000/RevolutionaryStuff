@@ -3,7 +3,6 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using Microsoft.Extensions.PlatformAbstractions;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
 
@@ -31,9 +30,7 @@ public abstract class DependencyInjectionContainer : BaseDisposable
 
     private void BuildConfiguration()
     {
-        var env = PlatformServices.Default.Application;
-
-        var builder = new ConfigurationBuilder().SetBasePath(env.ApplicationBasePath);
+        var builder = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory);
 
         OnPreBuildConfiguration(builder);
         Configuration = builder.Build();

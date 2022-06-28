@@ -6,7 +6,6 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Console;
-using Microsoft.Extensions.PlatformAbstractions;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
 
@@ -56,10 +55,7 @@ public abstract partial class CommandLineProgram : BaseDisposable
 
     private void BuildConfiguration()
     {
-        var env = PlatformServices.Default.Application;
-
-        var builder = new ConfigurationBuilder()
-            .SetBasePath(env.ApplicationBasePath);
+        var builder = new ConfigurationBuilder().SetBasePath(AppContext.BaseDirectory);
 
         OnBuildConfiguration(builder, EnvironmentHelpers.GetEnvironmentName(), EnvironmentHelpers.CommonEnvironmentNames.Development == EnvironmentHelpers.GetEnvironmentName());
 
