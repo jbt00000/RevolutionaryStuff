@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿#if false //had to kill this to remove the mstest dependency
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
@@ -52,3 +53,4 @@ public abstract class TestSuite<TSubject> : BaseDisposable
     protected void OnPostTest()
     { }
 }
+#endif

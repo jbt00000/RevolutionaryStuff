@@ -16,9 +16,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright ©  2022</Copyright>
-        <FileVersion>3.72.60.0</FileVersion>
-        <AssemblyVersion>3.72.60.0</AssemblyVersion>
-        <Version>3.72.60</Version>
+        <FileVersion>3.73.60.0</FileVersion>
+        <AssemblyVersion>3.73.60.0</AssemblyVersion>
+        <Version>3.73.60</Version>
     </PropertyGroup>
 
     <ItemGroup>

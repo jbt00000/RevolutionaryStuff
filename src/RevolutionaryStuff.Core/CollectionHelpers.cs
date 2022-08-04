@@ -29,6 +29,16 @@ public static class CollectionHelpers
         return e;
     }
 
+    public static int NullSafeCount<T>(this IEnumerable<T> e)
+    {
+        if (e == null) return 0;
+        if (e is IList l) return l.Count;
+        return e.Count();
+    }
+
+    public static bool NullSafeAny<T>(this IEnumerable<T> e, Func<T, bool> predicate = null)
+        => e == null ? false : predicate == null ? e.Any() : e.Any(predicate);
+
     public static IList<KeyValuePair<string, string>> ToStringStringKeyValuePairs(this IEnumerable<KeyValuePair<string, object>> kvps)
     {
         var ret = new List<KeyValuePair<string, string>>();

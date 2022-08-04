@@ -30,6 +30,18 @@ namespace RevolutionaryStuff.Core.Tests
         }
 
         [TestMethod]
+        public void SafeEnumerateNullDictionary()
+        {
+            IDictionary<int, object> l = null;
+            var cnt = 0;
+            foreach (var e in l.NullSafeEnumerable())
+            {
+                ++cnt;
+            }
+            Assert.AreEqual(0, cnt);
+        }
+
+        [TestMethod]
         public void RemoveWhereNone()
         {
             var items = Enumerable.Range(0, 100).ToList();
