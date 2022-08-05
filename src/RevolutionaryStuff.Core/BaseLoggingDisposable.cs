@@ -32,6 +32,15 @@ public abstract class BaseLoggingDisposable : BaseDisposable
     protected void LogException(Exception ex, [CallerMemberName] string caller = null)
         => Logger.LogError(ex, "Invoked from {caller}", caller);
 
+    protected void LogCritical(string message, params object[] args)
+        => Logger.LogCritical(message, args);
+
+    protected void LogCritical(Exception ex, string message, params object[] args)
+        => Logger.LogCritical(ex, message, args);
+
+    protected void LogCritical(EventId eventId, Exception ex, string message, params object[] args)
+        => Logger.LogCritical(eventId, ex, message, args);
+
     protected void LogDebug(string message, params object[] args)
         => Logger.LogDebug(message, args);
 

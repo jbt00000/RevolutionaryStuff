@@ -9,6 +9,12 @@ namespace RevolutionaryStuff.Core
     /// </summary>
     public abstract class BaseDisposable : IDisposable
     {
+#if DEBUG //hmm... As this is a deubg method, may not be visible after being imported via nuget...
+#pragma warning disable IDE0052 // Remove unread private members
+        private static long ObjectId_s;
+        private readonly long ObjectId_p = Interlocked.Increment(ref ObjectId_s);
+#pragma warning restore IDE0052 // Remove unread private members
+#endif
         #region Constructors
 
         ~BaseDisposable()
