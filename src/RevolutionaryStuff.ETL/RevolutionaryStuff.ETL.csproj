@@ -17,9 +17,9 @@
         <PackageReleaseNotes>This is now a .NET 6 library</PackageReleaseNotes>
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-        <FileVersion>3.74.60.0</FileVersion>
-        <AssemblyVersion>3.74.60.0</AssemblyVersion>
-        <Version>3.74.60</Version>
+        <FileVersion>3.75.60.0</FileVersion>
+        <AssemblyVersion>3.75.60.0</AssemblyVersion>
+        <Version>3.75.60</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -38,8 +38,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DocumentFormat.OpenXml" Version="2.17.1" />
-        <PackageReference Include="HtmlAgilityPack" Version="1.11.43" />
+        <PackageReference Include="DocumentFormat.OpenXml" Version="2.18.0" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     </ItemGroup>
 
     <ItemGroup>
