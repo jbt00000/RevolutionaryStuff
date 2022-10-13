@@ -23,9 +23,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright ©  2022</Copyright>
-        <FileVersion>3.75.60.0</FileVersion>
-        <AssemblyVersion>3.75.60.0</AssemblyVersion>
-        <Version>3.75.60</Version>
+        <FileVersion>3.76.60.0</FileVersion>
+        <AssemblyVersion>3.76.60.0</AssemblyVersion>
+        <Version>3.76.60</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -50,11 +50,11 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.0.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="6.0.1" />
         <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="6.0.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.0" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="6.0.1" />
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
