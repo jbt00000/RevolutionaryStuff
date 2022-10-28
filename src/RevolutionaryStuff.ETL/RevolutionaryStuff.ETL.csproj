@@ -17,9 +17,9 @@
         <PackageReleaseNotes>This is now a .NET 6 library</PackageReleaseNotes>
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-        <FileVersion>3.76.60.0</FileVersion>
-        <AssemblyVersion>3.76.60.0</AssemblyVersion>
-        <Version>3.76.60</Version>
+        <FileVersion>3.77.60.0</FileVersion>
+        <AssemblyVersion>3.77.60.0</AssemblyVersion>
+        <Version>3.77.60</Version>
     </PropertyGroup>
 
     <ItemGroup>

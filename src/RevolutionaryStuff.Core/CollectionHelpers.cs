@@ -39,6 +39,12 @@ public static class CollectionHelpers
     public static bool NullSafeAny<T>(this IEnumerable<T> e, Func<T, bool> predicate = null)
         => e == null ? false : predicate == null ? e.Any() : e.Any(predicate);
 
+    public static T NullSafeFirstOrDefault<T>(this IEnumerable<T> e)
+        => e.NullSafeEnumerable().FirstOrDefault();
+
+    public static T NullSafeFirstOrDefault<T>(this IEnumerable<T> e, Func<T,bool> predicate)
+        => e.NullSafeEnumerable().FirstOrDefault(predicate);
+
     public static IList<KeyValuePair<string, string>> ToStringStringKeyValuePairs(this IEnumerable<KeyValuePair<string, object>> kvps)
     {
         var ret = new List<KeyValuePair<string, string>>();
@@ -551,6 +557,18 @@ public static class CollectionHelpers
 
            return i.Equals(match);
        }, nthOccurrence, zeroThValue, missingValue);
+
+    public static IList<KeyValuePair<string, string>> FluentAdd(this IList<KeyValuePair<string, string>> items, string key, string val, bool addIfNullOrWhiteSpace = true, bool addThis = true)
+    {
+        if (addThis)
+        {
+            if (addIfNullOrWhiteSpace || !string.IsNullOrWhiteSpace(val))
+            {
+                items.Add(new(key, val));
+            }
+        }
+        return items;
+    }
 
     public static TColl FluentAdd<TColl, T>(this TColl col, T item) where TColl : ICollection<T>
     {
