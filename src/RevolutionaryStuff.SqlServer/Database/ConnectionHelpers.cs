@@ -12,6 +12,13 @@ public static class ConnectionHelpers
 {
     public static TimeSpan DefaultTimeout = TimeSpan.FromMinutes(1);
 
+    public static string ConnectionStringAlter(string connectionString, ApplicationIntent intent)
+    {
+        var csb = new SqlConnectionStringBuilder(connectionString);
+        csb.ApplicationIntent = intent;
+        return csb.ConnectionString;
+    }
+
     public static void OpenIfNeeded(this IDbConnection conn)
     {
         Requires.NonNull(conn);

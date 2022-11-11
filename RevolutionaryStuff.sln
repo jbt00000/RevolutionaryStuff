@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28729.10
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33103.184
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Core", "src\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj", "{1D5979C8-2F75-4F8F-9288-3938F6D92BE2}"
 EndProject
@@ -63,6 +63,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.AspNetCore", "src\RevolutionaryStuff.AspNetCore\RevolutionaryStuff.AspNetCore.csproj", "{7AF46B05-81C4-4633-878D-F9D33DE497F5}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "src\ConsoleApp1\ConsoleApp1.csproj", "{13D521F4-7A7D-4AE9-AE98-E749F081A21D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.SqlServer", "src\RevolutionaryStuff.SqlServer\RevolutionaryStuff.SqlServer.csproj", "{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -230,6 +232,18 @@ Global
 		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
 		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
 		{13D521F4-7A7D-4AE9-AE98-E749F081A21D}.VSTS-CI|x64.Build.0 = Debug|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.Debug|x64.Build.0 = Debug|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.Release|x64.ActiveCfg = Release|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.Release|x64.Build.0 = Release|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
+		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.VSTS-CI|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,20 +1,12 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using System.Text;
-using Microsoft.Data.SqlClient;
 using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Core;
 
 public static class DataHelpers
 {
-    public static string ConnectionStringAlter(string connectionString, ApplicationIntent intent)
-    {
-        var csb = new SqlConnectionStringBuilder(connectionString);
-        csb.ApplicationIntent = intent;
-        return csb.ConnectionString;
-    }
-
     public static void RowAddErrorRethrow(Exception ex, int rowNum)
     {
         throw new Exception($"Problem adding row {rowNum}", ex);
