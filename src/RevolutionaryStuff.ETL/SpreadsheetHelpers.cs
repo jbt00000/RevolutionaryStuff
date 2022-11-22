@@ -187,7 +187,7 @@ public static partial class SpreadsheetHelpers
     private static void SharedStringTableCreate(SpreadsheetDocument sd, IDictionary<string, int> indexBySharedString)
     {
         SharedStringTablePart shareStringPart;
-        if (sd.WorkbookPart.GetPartsOfType<SharedStringTablePart>().Count() > 0)
+        if (sd.WorkbookPart.GetPartsOfType<SharedStringTablePart>().Any())
         {
             shareStringPart = sd.WorkbookPart.GetPartsOfType<SharedStringTablePart>().First();
         }
@@ -202,7 +202,7 @@ public static partial class SpreadsheetHelpers
             shareStringPart.SharedStringTable = new SharedStringTable();
         }
 
-        if (shareStringPart.SharedStringTable.Elements<SharedStringItem>().Count() > 0)
+        if (shareStringPart.SharedStringTable.Elements<SharedStringItem>().Any())
         {
             throw new InvalidOperationException("The workbook's shared string table already has values");
         }
