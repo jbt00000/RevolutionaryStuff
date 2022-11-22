@@ -12,9 +12,11 @@ public abstract class EmbeddedFileAttribute : Attribute
         ResourceName = resourceName;
     }
 
+    [Obsolete]
     public string GetAsString(Type t)
         => GetAsString(t.Assembly);
 
+    [Obsolete]
     public string GetAsString(Assembly a)
         => Cache.DataCacher.FindOrCreateValue(
             Cache.CreateKey(a.FullName, nameof(GetAsString), ResourceName), () => ResourceHelpers.GetEmbeddedResourceAsString(a, ResourceName));

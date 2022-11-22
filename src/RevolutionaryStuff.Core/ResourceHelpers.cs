@@ -24,7 +24,7 @@ public static class ResourceHelpers
                 if (streamName.EndsWith(name, StringComparison.CurrentCultureIgnoreCase))
                 {
                     var i = name.Length + 1;
-                    if (streamName.Length < i || streamName[streamName.Length - i] == '.')
+                    if (streamName.Length < i || streamName[^i] == '.')
                     {
                         name = streamName;
                         break;
@@ -54,7 +54,6 @@ public static class ResourceHelpers
     public static Task<string> GetEmbeddedResourceAsStringAsync(this Assembly a, string name)
     {
         var st = a.GetEmbeddedResourceAsStream(name);
-        if (st == null) return null;
-        return st.ReadToEndAsync();
+        return st?.ReadToEndAsync();
     }
 }

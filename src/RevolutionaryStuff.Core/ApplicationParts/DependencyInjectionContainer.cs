@@ -73,8 +73,10 @@ public abstract class DependencyInjectionContainer : BaseDisposable
 
     private void ConfigureServices()
     {
-        var services = new ServiceCollection();
-        services.Add(new ServiceDescriptor(typeof(IConfiguration), Configuration));
+        var services = new ServiceCollection
+        {
+            new ServiceDescriptor(typeof(IConfiguration), Configuration)
+        };
         services.AddOptions();
         //ConfigureLogging(services);
         OnConfigureServices(services);

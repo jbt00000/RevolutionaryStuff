@@ -113,21 +113,13 @@ public static class StreamHelpers
     /// <returns>The new position</returns>
     public static long SeekViaPos(this Stream st, long offset, SeekOrigin origin)
     {
-        long p;
-        switch (origin)
+        var p = origin switch
         {
-            case SeekOrigin.Begin:
-                p = offset;
-                break;
-            case SeekOrigin.Current:
-                p = st.Position + offset;
-                break;
-            case SeekOrigin.End:
-                p = st.Length + offset;
-                break;
-            default:
-                throw new UnexpectedSwitchValueException(origin);
-        }
+            SeekOrigin.Begin => offset,
+            SeekOrigin.Current => st.Position + offset,
+            SeekOrigin.End => st.Length + offset,
+            _ => throw new UnexpectedSwitchValueException(origin),
+        };
         st.Position = p;
         return p;
     }

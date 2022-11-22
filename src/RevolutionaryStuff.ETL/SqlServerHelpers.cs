@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
-using RevolutionaryStuff.Core.Database;
+using RevolutionaryStuff.SqlServer.Database;
 
 namespace RevolutionaryStuff.ETL;
 

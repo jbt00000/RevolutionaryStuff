@@ -23,6 +23,7 @@ public static class FormFieldHelpers
         AsNumber,
     }
 
+    [Obsolete]
     public static IEnumerable<KeyValuePair<string, object>> ConvertObjectToKeyValuePairs(object root, ConversionSettings settings = null)
     {
         settings ??= ConversionSettings.Default;
@@ -37,6 +38,7 @@ public static class FormFieldHelpers
 
     private static KeyValuePair<string, object> CreateItem(string key, object val) => new(key, val);
 
+    [Obsolete]
     private static void ConvertObjectToKeyValuePairs(object o, Type t, MemberInfo mi, ConversionSettings settings, IList<KeyValuePair<string, object>> items, HashSet<object> seen, bool forceTreatAsContainer)
     {
         if (o != null)

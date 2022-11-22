@@ -86,10 +86,7 @@ public class MimeType
             {
                 lock (typeof(MimeType))
                 {
-                    if (AllMimeTypes_p == null)
-                    {
-                        AllMimeTypes_p = Video.All.Union(Text.All).Union(Image.All).Union(Application.All).ToList();
-                    }
+                    AllMimeTypes_p ??= Video.All.Union(Text.All).Union(Image.All).Union(Application.All).ToList();
                 }
             }
             return AllMimeTypes_p;
@@ -201,11 +198,11 @@ public class MimeType
             contentTypeB = contentTypeB.LeftOf(";").Trim().ToLower();
             contentTypeB.Split("/", true, out var bl, out var br);
 
-            return (
+            return
                        (bl == "*" && br == "*") ||
                        (bl == al && br == "*") ||
                        (bl == al && ar == br) ||
-                       (bl == al && ar.Length > br.Length + 1 && ar[br.Length] == '+' && ar.StartsWith(br)));
+                       (bl == al && ar.Length > br.Length + 1 && ar[br.Length] == '+' && ar.StartsWith(br));
         }
         catch (Exception)
         {

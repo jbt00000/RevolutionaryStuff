@@ -76,11 +76,11 @@ public static class Base16
         int x;
         for (x = 0; x < buf.Length; ++x)
         {
-            ba = Raw.ASCII.HexCharAsByte2Val(bLine[2 * x + 0]);
-            bb = Raw.ASCII.HexCharAsByte2Val(bLine[2 * x + 1]);
+            ba = Raw.ASCII.HexCharAsByte2Val(bLine[(2 * x) + 0]);
+            bb = Raw.ASCII.HexCharAsByte2Val(bLine[(2 * x) + 1]);
             if (ba != byte.MaxValue && bb != byte.MaxValue)
             {
-                buf[x] = (byte)(ba * 16 + bb);
+                buf[x] = (byte)((ba * 16) + bb);
             }
         }
         return buf;

@@ -80,7 +80,7 @@ public static class Raw
             {
                 b = buf[x];
                 var ch = (char)b;
-                if (b >= 32 && b <= 'z')
+                if (b is >= 32 and <= (byte)'z')
                 {
                     sb.Append(" " + ch);
                 }
@@ -111,7 +111,7 @@ public static class Raw
     public static string Buf2HexString(byte[] buf, int offset, int size, bool fCaps, bool fQuoted)
     {
         var s = Base16.Encode(buf, offset, size, fCaps);
-        return fQuoted ? String.Format("x'{0}'", s) : s;
+        return fQuoted ? string.Format("x'{0}'", s) : s;
     }
 
     /// <summary>
@@ -156,7 +156,7 @@ public static class Raw
         }
 #endif
         d.GetChars(buf, offset, length, cbuf, 0);
-        return new String(cbuf, 0, cbuf.Length);
+        return new string(cbuf, 0, cbuf.Length);
     }
 
     public static string Buf2String(byte[] buf, int offset, int length, Encoding d)
@@ -170,7 +170,7 @@ public static class Raw
         }
 #endif
         d.GetChars(buf, offset, length, cbuf, 0);
-        return new String(cbuf, 0, cbuf.Length);
+        return new string(cbuf, 0, cbuf.Length);
     }
 
     /// <summary>
@@ -195,9 +195,7 @@ public static class Raw
     {
         max = Math.Min(max, buf.Length - offset);
         var x = Array.IndexOf(buf, (byte)0, offset, max);
-        if (x < 0) return null;
-        if (0 == x) return "";
-        return Buf2String(buf, offset, x - offset);
+        return x < 0 ? null : 0 == x ? "" : Buf2String(buf, offset, x - offset);
     }
 
     /// <summary>
@@ -311,29 +309,29 @@ public static class Raw
         return (uint)ReadInt32FromBuf(buf, offset);
     }
 
-    public static UInt16 ReadUInt16FromBuf(byte[] buf, int offset)
+    public static ushort ReadUInt16FromBuf(byte[] buf, int offset)
     {
         return (ushort)((buf[offset + 1] << 8) | buf[offset]);
     }
 
-    public static Int16 ReadInt16BeFromBuf(byte[] buf, int offset)
+    public static short ReadInt16BeFromBuf(byte[] buf, int offset)
     {
         return (short)((buf[offset] << 8) | buf[offset + 1]);
     }
 
-    public static Int16 ReadInt16FromBuf(byte[] buf, int offset)
+    public static short ReadInt16FromBuf(byte[] buf, int offset)
     {
         return (short)((buf[offset + 1] << 8) | buf[offset]);
     }
 
-    public static void WriteUInt16ToBuf(byte[] buf, int offset, UInt16 val)
+    public static void WriteUInt16ToBuf(byte[] buf, int offset, ushort val)
     {
         buf[offset + 0] = (byte)((val >> 0) & 0xff);
         buf[offset + 1] = (byte)((val >> 8) & 0xff);
         Debug.Assert(val == ReadUInt16FromBuf(buf, offset));
     }
 
-    public static void WriteInt16ToBuf(byte[] buf, int offset, Int16 val)
+    public static void WriteInt16ToBuf(byte[] buf, int offset, short val)
     {
         buf[offset + 0] = (byte)((val >> 0) & 0xff);
         buf[offset + 1] = (byte)((val >> 8) & 0xff);
@@ -391,24 +389,24 @@ public static class Raw
         return (uint)((hi << 16) | lo);
     }
 
-    public static UInt16 GetHiWord(uint val)
+    public static ushort GetHiWord(uint val)
     {
-        return (UInt16)(val >> 16);
+        return (ushort)(val >> 16);
     }
 
-    public static UInt16 GetLoWord(uint val)
+    public static ushort GetLoWord(uint val)
     {
-        return (UInt16)(val & 0xffff);
+        return (ushort)(val & 0xffff);
     }
 
-    public static UInt32 GetHiInt(ulong val)
+    public static uint GetHiInt(ulong val)
     {
-        return (UInt32)(val >> 32);
+        return (uint)(val >> 32);
     }
 
-    public static UInt32 GetLoInt(ulong val)
+    public static uint GetLoInt(ulong val)
     {
-        return (UInt32)(val & 0xffffffff);
+        return (uint)(val & 0xffffffff);
     }
 
     public static byte MakeByte(byte hi, byte lo)
@@ -418,19 +416,14 @@ public static class Raw
         return (byte)((hi << 4) | lo);
     }
 
-    public static SByte GetHiSNibble(byte b)
+    public static sbyte GetHiSNibble(byte b)
     {
         return GetLoSNibble((byte)(b >> 4));
     }
 
-    public static SByte GetLoSNibble(byte b)
+    public static sbyte GetLoSNibble(byte b)
     {
-        if (0 == (0x8 & b))
-        {
-            return (SByte)(b & 0x7);
-        }
-
-        return (SByte)(0xF0 | b);
+        return 0 == (0x8 & b) ? (sbyte)(b & 0x7) : (sbyte)(0xF0 | b);
     }
 
     public static int SwapEndianInt32(int i)
@@ -443,12 +436,12 @@ public static class Raw
         return (a << 24) | (b << 16) | (c << 8) | (d);
     }
 
-    public static Int16 SwapEndianInt16(Int16 i)
+    public static short SwapEndianInt16(short i)
     {
         int a, b;
         a = i & 0xff;
         b = (i >> 8) & 0xff;
-        return (Int16)((a << 8) | (b));
+        return (short)((a << 8) | (b));
     }
 
     public static byte[] NetmonText2Buf(string sText)
@@ -463,18 +456,18 @@ public static class Raw
         {
             try
             {
-                sLine = sLines[y].Substring(10, 16 * 3 - 1);
+                sLine = sLines[y].Substring(10, (16 * 3) - 1);
                 bLine = Encoding.ASCII.GetBytes(sLine);
 
                 for (x = 0; x < 16; ++x)
                 {
                     try
                     {
-                        ba = ASCII.HexCharAsByte2Val(bLine[3 * x + 0]);
-                        bb = ASCII.HexCharAsByte2Val(bLine[3 * x + 1]);
+                        ba = ASCII.HexCharAsByte2Val(bLine[(3 * x) + 0]);
+                        bb = ASCII.HexCharAsByte2Val(bLine[(3 * x) + 1]);
                         if (ba != byte.MaxValue && bb != byte.MaxValue)
                         {
-                            a.Add((byte)(ba * 16 + bb));
+                            a.Add((byte)((ba * 16) + bb));
                         }
                     }
                     catch (Exception)
@@ -508,16 +501,7 @@ public static class Raw
                 return (byte)(b - byte0);
             }
 
-            if (b >= bytea && b <= bytef)
-            {
-                return (byte)((b - bytea) + 10);
-            }
-            if (b >= byteA && b <= byteF)
-            {
-                return (byte)((b - byteA) + 10);
-            }
-
-            return byte.MaxValue;
+            return b >= bytea && b <= bytef ? (byte)(b - bytea + 10) : b >= byteA && b <= byteF ? (byte)(b - byteA + 10) : byte.MaxValue;
         }
     }
 

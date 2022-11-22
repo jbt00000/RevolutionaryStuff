@@ -25,19 +25,16 @@ public static class CollectionHelpers
 
     public static IEnumerable<T> NullSafeEnumerable<T>(this IEnumerable<T> e)
     {
-        if (e == null) return new T[0];
-        return e;
+        return e ?? (new T[0]);
     }
 
     public static int NullSafeCount<T>(this IEnumerable<T> e)
     {
-        if (e == null) return 0;
-        if (e is IList l) return l.Count;
-        return e.Count();
+        return e == null ? 0 : e is IList l ? l.Count : e.Count();
     }
 
     public static bool NullSafeAny<T>(this IEnumerable<T> e, Func<T, bool> predicate = null)
-        => e == null ? false : predicate == null ? e.Any() : e.Any(predicate);
+        => e != null && (predicate == null ? e.Any() : e.Any(predicate));
 
     public static IList<KeyValuePair<string, string>> ToStringStringKeyValuePairs(this IEnumerable<KeyValuePair<string, object>> kvps)
     {
@@ -62,22 +59,12 @@ public static class CollectionHelpers
 
     public static IOrderedQueryable<TSource> OrderBy<TSource, TKey>(this IQueryable<TSource> source, Expression<Func<TSource, TKey>> keySelector, bool isAscending)
     {
-        if (isAscending)
-        {
-            return source.OrderBy(keySelector);
-        }
-
-        return source.OrderByDescending(keySelector);
+        return isAscending ? source.OrderBy(keySelector) : source.OrderByDescending(keySelector);
     }
 
     public static IOrderedEnumerable<TSource> OrderBy<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, bool isAscending)
     {
-        if (isAscending)
-        {
-            return source.OrderBy(keySelector);
-        }
-
-        return source.OrderByDescending(keySelector);
+        return isAscending ? source.OrderBy(keySelector) : source.OrderByDescending(keySelector);
     }
 
     public static void AddRange<T>(this HashSet<T> hs, IEnumerable<T> items)
@@ -218,8 +205,7 @@ public static class CollectionHelpers
 
     public static IList<T> AsReadOnly<T>(this IEnumerable<T> items)
     {
-        if (items == null) return new T[0];
-        return new List<T>(items).AsReadOnly();
+        return items == null ? (new T[0]) : new List<T>(items).AsReadOnly();
     }
 
     public static IDictionary<K, V> AsReadOnly<K, V>(this IDictionary<K, V> dict)
@@ -402,13 +388,9 @@ public static class CollectionHelpers
             {
                 Stuff.Noop();
             }
-            else if (throwOnMiss)
-            {
-                throw new InvalidMappingException(k, "something in results dictionary");
-            }
             else
             {
-                v = missingVal;
+                v = throwOnMiss ? throw new InvalidMappingException(k, "something in results dictionary") : missingVal;
             }
             ret.Add(v);
         }
@@ -544,12 +526,7 @@ public static class CollectionHelpers
     public static int? IndexOfOccurrence<T>(this IList<T> items, T match, int nthOccurrence, int? zeroThValue = null, int? missingValue = null)
        => items.IndexOfOccurrence(i =>
        {
-           if (i == null)
-           {
-               return match == null;
-           }
-
-           return i.Equals(match);
+           return i == null ? match == null : i.Equals(match);
        }, nthOccurrence, zeroThValue, missingValue);
 
     public static IList<KeyValuePair<string, string>> FluentAdd(this IList<KeyValuePair<string, string>> items, string key, string val, bool addIfNullOrWhiteSpace = true, bool addThis = true)

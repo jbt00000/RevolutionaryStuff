@@ -16,10 +16,6 @@ public class BooleanTransformedFormFieldAttribute : TransformedFormFieldAttribut
 
     public override object Transform(object val)
     {
-        if (val is bool)
-        {
-            return val.Equals(true) ? TrueVal : FalseVal;
-        }
-        return OtherVal;
+        return val is bool ? val.Equals(true) ? TrueVal : FalseVal : (object)OtherVal;
     }
 }

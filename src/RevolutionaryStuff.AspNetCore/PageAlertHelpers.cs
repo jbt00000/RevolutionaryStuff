@@ -18,9 +18,8 @@ public static class PageAlertHelpers
 
     public static IList<PageAlert> GetPageAlerts(this ITempDataDictionary tdd, bool clear)
     {
-        var json = tdd.Peek(PageAlertsKey) as string;
         var alerts = new List<PageAlert>();
-        if (json != null && json != "")
+        if (tdd.Peek(PageAlertsKey) is string json && json != "")
         {
             var z = JsonConvert.DeserializeObject<IList<PageAlert>>(json);
             alerts.AddRange(z);

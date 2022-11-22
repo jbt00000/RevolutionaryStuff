@@ -47,7 +47,7 @@ public static class Base32
     public static string Encode(byte[] bytes)
     {
         var len = bytes.Length;
-        var base32 = new StringBuilder((len * 8 + 4) / 5);
+        var base32 = new StringBuilder(((len * 8) + 4) / 5);
 
         int currByte, digit, i = 0;
         while (i < len)

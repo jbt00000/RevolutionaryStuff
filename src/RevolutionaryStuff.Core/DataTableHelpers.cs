@@ -41,8 +41,10 @@ public static class DataTableHelpers
             {
                 dbType = dbType.GetGenericArguments()[0];
             }
-            var col = new DataColumn(columnAttribute?.Name ?? pi.Name, dbType);
-            col.AllowDBNull = csType.IsNullable();
+            var col = new DataColumn(columnAttribute?.Name ?? pi.Name, dbType)
+            {
+                AllowDBNull = csType.IsNullable()
+            };
             if (columnAttribute?.TypeName?.StartsWith("nvarchar", StringComparison.InvariantCultureIgnoreCase) == true)
             {
                 col.Unicode(true);
@@ -62,14 +64,7 @@ public static class DataTableHelpers
             {
                 var col = kvp.Value;
                 var val = kvp.Key.GetValue(item);
-                if (val == null)
-                {
-                    row[col] = DBNull.Value;
-                }
-                else
-                {
-                    row[col] = val;
-                }
+                row[col] = val ?? DBNull.Value;
             }
             dt.Rows.Add(row);
         }

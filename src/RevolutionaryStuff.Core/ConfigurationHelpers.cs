@@ -25,18 +25,13 @@ public static class ConfigurationHelpers
     {
         if (o == null) return;
         var filename = Path.GetTempFileName();
-        string json = null;
+        string json;
         try
         {
             var ot = o.GetType();
-            if (ot.GetCustomAttribute<DataContractAttribute>() != null)
-            {
-                json = o.GetType().GetJsonSerializer().WriteObjectToString(o);
-            }
-            else
-            {
-                json = Newtonsoft.Json.JsonConvert.SerializeObject(o);
-            }
+            json = ot.GetCustomAttribute<DataContractAttribute>() != null
+                ? o.GetType().GetJsonSerializer().WriteObjectToString(o)
+                : Newtonsoft.Json.JsonConvert.SerializeObject(o);
         }
         catch (InvalidDataContractException)
         {
@@ -120,21 +115,9 @@ public static class ConfigurationHelpers
                     if (!childSectionsByName.TryGetValue(pi.Name, out var childSection)) continue;
                     object val;
                     var s = section[pi.Name];
-                    if (s == null)
-                    {
-                        if (childSection.GetChildren().HasData())
-                        {
-                            val = childSection.Get(pi.PropertyType, throwOnExtraneousSettings);
-                        }
-                        else
-                        {
-                            val = null;
-                        }
-                    }
-                    else
-                    {
-                        val = TypeHelpers.ConvertValue(pi.PropertyType, s);
-                    }
+                    val = s == null
+                        ? childSection.GetChildren().HasData() ? childSection.Get(pi.PropertyType, throwOnExtraneousSettings) : null
+                        : TypeHelpers.ConvertValue(pi.PropertyType, s);
                     pi.SetValue(o, val);
                 }
                 if (throwOnExtraneousSettings)
@@ -156,20 +139,16 @@ public static class ConfigurationHelpers
             for (var z = 0; z < childSections.Count; ++z)
             {
                 var childSection = childSections[z];
-                object val = null;
-                if (childSection.GetChildren().HasData())
-                {
-                    val = childSection.Get(elType, false);
-                }
-                else
-                {
-                    val = TypeHelpers.ConvertValue(elType, childSection.Value);
-                }
+                var val = childSection.GetChildren().HasData() ? childSection.Get(elType, false) : TypeHelpers.ConvertValue(elType, childSection.Value);
                 arr.SetValue(val, z);
             }
             o = arr;
         }
-        else throw new NotSupportedException();
+        else
+        {
+            throw new NotSupportedException();
+        }
+
         return o;
     }
 }
