@@ -31,7 +31,14 @@ public class NotifiedList<T> : IList<T>, INotifyCollection<T>
     /// <param name="initialData">The initialization data</param>
     private NotifiedList(IEnumerable<T> initialData)
     {
-        Inner = initialData == null ? new List<T>() : new List<T>(initialData);
+        if (initialData == null)
+        {
+            Inner = new List<T>();
+        }
+        else
+        {
+            Inner = new List<T>(initialData);
+        }
     }
 
     #endregion
@@ -150,10 +157,8 @@ public class NotifiedList<T> : IList<T>, INotifyCollection<T>
     public IList<T> AsReadOnly()
     {
         if (IsReadOnly) throw new ReadOnlyException();
-        var el = new NotifiedList<T>(Inner)
-        {
-            IsReadOnly = true
-        };
+        var el = new NotifiedList<T>(Inner);
+        el.IsReadOnly = true;
         return el;
     }
 

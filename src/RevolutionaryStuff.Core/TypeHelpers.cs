@@ -18,21 +18,34 @@ public static class TypeHelpers
 
     public static bool IsNullable(this Type t)
     {
-        return !t.IsValueType || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>));
+        if (t.IsValueType)
+        {
+            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+        return true;
     }
 
     public static object GetDefaultValue(this Type t)
     {
-        return t.GetTypeInfo().IsValueType ? Activator.CreateInstance(t) : null;
+        if (t.GetTypeInfo().IsValueType)
+        {
+            return Activator.CreateInstance(t);
+        }
+        return null;
     }
 
     public static object Construct(this Type t)
     {
-        return t.Name == "IList`1"
-            ? ConstructList(t.GenericTypeArguments[0])
-            : t.Name == "IDictionary`2"
-            ? ConstructDictionary(t.GenericTypeArguments[0], t.GenericTypeArguments[1])
-            : Activator.CreateInstance(t);
+        if (t.Name == "IList`1")
+        {
+            return ConstructList(t.GenericTypeArguments[0]);
+        }
+
+        if (t.Name == "IDictionary`2")
+        {
+            return ConstructDictionary(t.GenericTypeArguments[0], t.GenericTypeArguments[1]);
+        }
+        return Activator.CreateInstance(t);
     }
 
     public static T Construct<T>() where T : new()
@@ -79,15 +92,15 @@ public static class TypeHelpers
     /// <returns>True if it is a whole number, else false</returns>
     public static bool IsWholeNumber(this Type t)
     {
-        return
-                   t == typeof(short) ||
-                   t == typeof(int) ||
-                   t == typeof(long) ||
-                   t == typeof(ushort) ||
-                   t == typeof(uint) ||
-                   t == typeof(ulong) ||
-                   t == typeof(sbyte) ||
-                   t == typeof(byte);
+        return (
+                   t == typeof(Int16) ||
+                   t == typeof(Int32) ||
+                   t == typeof(Int64) ||
+                   t == typeof(UInt16) ||
+                   t == typeof(UInt32) ||
+                   t == typeof(UInt64) ||
+                   t == typeof(SByte) ||
+                   t == typeof(Byte));
     }
 
     /// <summary>
@@ -97,10 +110,10 @@ public static class TypeHelpers
     /// <returns>True if it is a real number, else false</returns>
     public static bool IsRealNumber(this Type t)
     {
-        return
-                   t == typeof(float) ||
-                   t == typeof(double) ||
-                   t == typeof(decimal);
+        return (
+                   t == typeof(Single) ||
+                   t == typeof(Double) ||
+                   t == typeof(Decimal));
     }
 
     /// <summary>
@@ -122,60 +135,60 @@ public static class TypeHelpers
     public static void NumericMaxMin(Type t, out double max, out double min)
     {
         max = min = 0;
-        if (t == typeof(short))
+        if (t == typeof(Int16))
         {
-            max = short.MaxValue;
-            min = short.MinValue;
+            max = Int16.MaxValue;
+            min = Int16.MinValue;
         }
-        else if (t == typeof(int))
+        else if (t == typeof(Int32))
         {
-            max = int.MaxValue;
-            min = int.MinValue;
+            max = Int32.MaxValue;
+            min = Int32.MinValue;
         }
-        else if (t == typeof(long))
+        else if (t == typeof(Int64))
         {
-            max = long.MaxValue;
-            min = long.MinValue;
+            max = Int64.MaxValue;
+            min = Int64.MinValue;
         }
-        else if (t == typeof(ushort))
+        else if (t == typeof(UInt16))
         {
-            max = ushort.MaxValue;
-            min = ushort.MinValue;
+            max = UInt16.MaxValue;
+            min = UInt16.MinValue;
         }
-        else if (t == typeof(uint))
+        else if (t == typeof(UInt32))
         {
-            max = uint.MaxValue;
-            min = uint.MinValue;
+            max = UInt32.MaxValue;
+            min = UInt32.MinValue;
         }
-        else if (t == typeof(ulong))
+        else if (t == typeof(UInt64))
         {
-            max = ulong.MaxValue;
-            min = ulong.MinValue;
+            max = UInt64.MaxValue;
+            min = UInt64.MinValue;
         }
-        else if (t == typeof(sbyte))
+        else if (t == typeof(SByte))
         {
-            max = sbyte.MaxValue;
-            min = sbyte.MinValue;
+            max = SByte.MaxValue;
+            min = SByte.MinValue;
         }
-        else if (t == typeof(byte))
+        else if (t == typeof(Byte))
         {
-            max = byte.MaxValue;
-            min = byte.MinValue;
+            max = Byte.MaxValue;
+            min = Byte.MinValue;
         }
-        else if (t == typeof(float))
+        else if (t == typeof(Single))
         {
-            max = float.MaxValue;
-            min = float.MinValue;
+            max = Single.MaxValue;
+            min = Single.MinValue;
         }
-        else if (t == typeof(double))
+        else if (t == typeof(Double))
         {
-            max = double.MaxValue; //who knew!?!?!  decimals are smale
-            min = double.MinValue;
+            max = Double.MaxValue; //who knew!?!?!  decimals are smale
+            min = Double.MinValue;
         }
-        else if (t == typeof(decimal))
+        else if (t == typeof(Decimal))
         {
-            max = Convert.ToDouble(decimal.MaxValue);
-            min = Convert.ToDouble(decimal.MinValue);
+            max = Convert.ToDouble(Decimal.MaxValue);
+            min = Convert.ToDouble(Decimal.MinValue);
         }
         else
         {
@@ -193,35 +206,49 @@ public static class TypeHelpers
     public static Type GetUnderlyingType(this MemberInfo mi)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        if (mi is PropertyInfo pi)
+        if (mi is PropertyInfo)
         {
+            var pi = (PropertyInfo)mi;
             return pi.PropertyType;
         }
 
-        return mi is FieldInfo fi ? fi.FieldType : null;
+        if (mi is FieldInfo)
+        {
+            var fi = (FieldInfo)mi;
+            return fi.FieldType;
+        }
+        return null;
     }
 
     public static object GetValue(this MemberInfo mi, object basevar)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        if (mi is PropertyInfo pi)
+        if (mi is PropertyInfo)
         {
+            var pi = (PropertyInfo)mi;
             return pi.GetValue(basevar, null);
         }
 
-        return mi is FieldInfo fi ? fi.GetValue(basevar) : throw new UnexpectedSwitchValueException(mi.GetType().Name);
+        if (mi is FieldInfo)
+        {
+            var fi = (FieldInfo)mi;
+            return fi.GetValue(basevar);
+        }
+        throw new UnexpectedSwitchValueException(mi.GetType().Name);
     }
 
     public static void SetValue(this MemberInfo mi, object basevar, object val)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        var v = mi.ConvertValue(val);
-        if (mi is PropertyInfo pi)
+        object v = mi.ConvertValue(val);
+        if (mi is PropertyInfo)
         {
+            var pi = (PropertyInfo)mi;
             pi.SetValue(basevar, v, null);
         }
-        else if (mi is FieldInfo fi)
+        else if (mi is FieldInfo)
         {
+            var fi = (FieldInfo)mi;
             fi.SetValue(basevar, v);
         }
         else
@@ -233,12 +260,18 @@ public static class TypeHelpers
     public static object ConvertValue(this MemberInfo mi, object val)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        if (mi is PropertyInfo pi)
+        if (mi is PropertyInfo)
         {
+            var pi = (PropertyInfo)mi;
             return ConvertValue(pi.PropertyType, val);
         }
 
-        return mi is FieldInfo fi ? ConvertValue(fi.FieldType, val) : throw new UnexpectedSwitchValueException(mi.GetType().Name);
+        if (mi is FieldInfo)
+        {
+            var fi = (FieldInfo)mi;
+            return ConvertValue(fi.FieldType, val);
+        }
+        throw new UnexpectedSwitchValueException(mi.GetType().Name);
     }
 
     public static object ConvertValue(Type t, string val)
@@ -289,16 +322,21 @@ public static class TypeHelpers
             {
                 v = val;
             }
+            else if (ti.IsEnum)
+            {
+                v = Enum.Parse(t, val.ToString(), true);
+            }
+            else if (
+                ti.IsGenericType &&
+                t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
+                t.GenericTypeArguments.Length == 1 &&
+                t.GenericTypeArguments[0].GetTypeInfo().IsEnum)
+            {
+                v = Enum.Parse(t.GenericTypeArguments[0], val.ToString(), true);
+            }
             else
             {
-                v = ti.IsEnum
-                    ? Enum.Parse(t, val.ToString(), true)
-                    : ti.IsGenericType &&
-                                                t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
-                                                t.GenericTypeArguments.Length == 1 &&
-                                                t.GenericTypeArguments[0].GetTypeInfo().IsEnum
-                                    ? Enum.Parse(t.GenericTypeArguments[0], val.ToString(), true)
-                                    : ChangeType(val, t);
+                v = ChangeType(val, t);
             }
         }
         return v;
@@ -310,23 +348,36 @@ public static class TypeHelpers
         if (t == typeof(bool))
         {
             var sval = StringHelpers.ToString(val);
-            return Parse.TryParseBool(sval, out var b) ? (object)b : throw new NotSupportedException($"ChangeType could change [{val}] into a bool.");
+            if (Parse.TryParseBool(sval, out var b)) return b;
+            throw new NotSupportedException($"ChangeType could change [{val}] into a bool.");
         }
 
-        return t.GetTypeInfo().IsEnum
-            ? Enum.Parse(t, val.ToString(), true)
-            : t == typeof(Uri) && val is string ? new Uri((string)val) : Convert.ChangeType(val, t, null);
+        if (t.GetTypeInfo().IsEnum)
+        {
+            return Enum.Parse(t, val.ToString(), true);
+        }
+        if (t == typeof(Uri) && val is string)
+        {
+            return new Uri((string)val);
+        }
+        return Convert.ChangeType(val, t, null);
     }
 
     public static bool CanWrite(this MemberInfo mi)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        if (mi is PropertyInfo pi)
+        if (mi is PropertyInfo)
         {
+            var pi = (PropertyInfo)mi;
             return pi.CanWrite;
         }
 
-        return mi is FieldInfo fi && !(fi.IsInitOnly || fi.IsLiteral);
+        if (mi is FieldInfo)
+        {
+            var fi = (FieldInfo)mi;
+            return !(fi.IsInitOnly || fi.IsLiteral);
+        }
+        return false;
     }
 
     //        public static bool A

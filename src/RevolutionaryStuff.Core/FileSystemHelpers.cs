@@ -16,11 +16,11 @@ public static class FileSystemHelpers
             dir = dir[..^1];
             i = dir.LastIndexOf(Path.DirectorySeparatorChar);
         }
-        var ch = dir[^1];
+        var ch = dir[dir.Length - 1];
         if (ch != ':' && ch != Path.DirectorySeparatorChar)
         {
             dir = dir[..i];
-            if (dir[^1] == ':')
+            if (dir[dir.Length - 1] == ':')
             {
                 dir += Path.DirectorySeparatorChar;
             }
@@ -114,7 +114,7 @@ public static class FileSystemHelpers
                     }
                 }
             }
-            path = string.Format("{0} ({1}){2}", name, x++, extension);
+            path = String.Format("{0} ({1}){2}", name, x++, extension);
         }
     }
 

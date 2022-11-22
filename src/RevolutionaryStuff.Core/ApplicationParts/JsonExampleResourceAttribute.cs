@@ -10,11 +10,9 @@ public sealed class JsonExampleResourceAttribute : EmbeddedFileAttribute
         : base(resourceName)
     { }
 
-    [Obsolete]
     public JObject GetAsJObject(Type t)
         => GetAsJObject(t.Assembly);
 
-    [Obsolete]
     public JObject GetAsJObject(Assembly a)
         => JObject.Parse(GetAsString(a));
 }

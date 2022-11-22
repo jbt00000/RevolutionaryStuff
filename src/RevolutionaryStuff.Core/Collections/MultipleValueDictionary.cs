@@ -13,7 +13,14 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
     public MultipleValueDictionary(IEqualityComparer<K> comparer = null, Func<ICollection<V>> collectionCreator = null)
     {
         CollectionCreator = collectionCreator;
-        ValuesByKey = comparer == null ? new Dictionary<K, ICollection<V>>() : new Dictionary<K, ICollection<V>>(comparer);
+        if (comparer == null)
+        {
+            ValuesByKey = new Dictionary<K, ICollection<V>>();
+        }
+        else
+        {
+            ValuesByKey = new Dictionary<K, ICollection<V>>(comparer);
+        }
     }
 
     public override string ToString()
@@ -93,7 +100,11 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
     {
         get
         {
-            return ValuesByKey.TryGetValue(k, out var c) ? c : NoValues;
+            if (ValuesByKey.TryGetValue(k, out var c))
+            {
+                return c;
+            }
+            return NoValues;
         }
         set
         {
@@ -145,7 +156,14 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
         {
             if (c is V[])
             {
-                c = CollectionCreator == null ? new List<V>(c) : CollectionCreator();
+                if (CollectionCreator == null)
+                {
+                    c = new List<V>(c);
+                }
+                else
+                {
+                    c = CollectionCreator();
+                }
                 ValuesByKey[k] = c;
             }
             if (!unique || !c.Contains(v))
@@ -179,7 +197,11 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
 
     public bool Contains(K key, V val)
     {
-        return ValuesByKey.TryGetValue(key, out var col) && col.Contains(val);
+        if (ValuesByKey.TryGetValue(key, out var col))
+        {
+            return col.Contains(val);
+        }
+        return false;
     }
 
     public bool ContainsKey(K key)

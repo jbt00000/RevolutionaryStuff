@@ -4,11 +4,9 @@ using System.Data;
 using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Data.SqlClient;
-using RevolutionaryStuff.Core;
 using RevolutionaryStuff.Core.Caching;
-using RevolutionaryStuff.Core.Database;
 
-namespace RevolutionaryStuff.SqlServer.Database;
+namespace RevolutionaryStuff.Core.Database;
 
 public static class ConnectionHelpers
 {
@@ -16,10 +14,8 @@ public static class ConnectionHelpers
 
     public static string ConnectionStringAlter(string connectionString, ApplicationIntent intent)
     {
-        var csb = new SqlConnectionStringBuilder(connectionString)
-        {
-            ApplicationIntent = intent
-        };
+        var csb = new SqlConnectionStringBuilder(connectionString);
+        csb.ApplicationIntent = intent;
         return csb.ConnectionString;
     }
 
@@ -27,7 +23,9 @@ public static class ConnectionHelpers
     {
         Requires.NonNull(conn);
         if (conn.State == ConnectionState.Closed)
+        {
             conn.Open();
+        }
     }
 
     public static bool TableExists(this IDbConnection conn, string tableName, string schemaName = null)
@@ -51,13 +49,17 @@ public static class ConnectionHelpers
 
         Debug.WriteLine(sql);
         if (useNewTransaction)
+        {
             Requires.Null(trans, "t");
+        }
         conn.OpenIfNeeded();
         using var cmd = conn.CreateCommand();
         cmd.CommandType = CommandType.Text;
         cmd.CommandText = sql;
         if (timeout != null)
+        {
             cmd.CommandTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
+        }
         if (useNewTransaction)
         {
             using var newTrans = conn.BeginTransaction();
@@ -81,11 +83,15 @@ public static class ConnectionHelpers
 
         var copy = new SqlBulkCopy(conn);
         if (timeout != null)
+        {
             copy.BulkCopyTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
+        }
         copy.DestinationTableName = $"{schema}.{table}";
         copy.NotifyAfter = notifyIncrement;
         if (notificationCallback != null)
+        {
             copy.SqlRowsCopied += (sender, e) => notificationCallback(e.RowsCopied, dt.Rows.Count);
+        }
         foreach (DataColumn dc in dt.Columns)
         {
             copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
@@ -155,7 +161,7 @@ public static class ConnectionHelpers
         cmd.Parameters.AddRange(parameters);
         cmd.CommandText = sql;
         cmd.CommandType = CommandType.Text;
-        conn.OpenIfNeeded();
+        OpenIfNeeded(conn);
         return cmd.ExecuteScalar();
     }
 
@@ -277,7 +283,9 @@ public static class ConnectionHelpers
         {
             var val = reader[0];
             if (val.GetType() == typeof(TItem))
+            {
                 return (TItem)val;
+            }
         }
         var item = new TItem();
         var fieldsToSkip = new HashSet<string>();
@@ -296,7 +304,9 @@ public static class ConnectionHelpers
                 continue;
             }
             if (val == DBNull.Value)
+            {
                 val = null;
+            }
             kvp.Value.SetValue(item, val);
         }
         return item;
@@ -351,7 +361,9 @@ public static class ConnectionHelpers
             foreach (SqlParameter p in Parameters)
             {
                 if (p.Direction.HasFlag(ParameterDirection.Output))
+                {
                     return (T)p.Value;
+                }
             }
             throw new ArgumentException("There were no output parameters");
         }
@@ -359,15 +371,23 @@ public static class ConnectionHelpers
         public T GetOutputParameterVal<T>(string name)
         {
             if (name.StartsWith("@"))
+            {
                 name = name[1..];
+            }
             foreach (SqlParameter p in Parameters)
             {
                 var pn = p.ParameterName;
                 if (pn.StartsWith("@"))
+                {
                     pn = pn[1..];
+                }
                 if (0 == string.Compare(pn, name, true) && p.Direction.HasFlag(ParameterDirection.Output))
                 {
-                    return p.Value == DBNull.Value ? default : (T)p.Value;
+                    if (p.Value == DBNull.Value)
+                    {
+                        return default;
+                    }
+                    return (T)p.Value;
                 }
             }
             throw new ArgumentException($"{name} was not in the parameter set for the sproc", "name");
@@ -376,9 +396,11 @@ public static class ConnectionHelpers
         public T GetOutputParameterVal<T>(int position)
         {
             var p = Parameters[position];
-            return p.Direction.HasFlag(ParameterDirection.Output)
-                ? (T)p.Value
-                : throw new ArgumentException($"{position} was not in the parameter set for the sproc", "position");
+            if (p.Direction.HasFlag(ParameterDirection.Output))
+            {
+                return (T)p.Value;
+            }
+            throw new ArgumentException($"{position} was not in the parameter set for the sproc", "position");
         }
 
         public object GetOutputParameterVal(int position)

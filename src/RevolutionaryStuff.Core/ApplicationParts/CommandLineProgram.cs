@@ -78,10 +78,8 @@ public abstract partial class CommandLineProgram : BaseDisposable
 
     private void ConfigureServices()
     {
-        var services = new ServiceCollection
-        {
-            new ServiceDescriptor(typeof(IConfiguration), Configuration)
-        };
+        var services = new ServiceCollection();
+        services.Add(new ServiceDescriptor(typeof(IConfiguration), Configuration));
         services.AddOptions();
         ConfigureLogging(services);
         OnConfigureServices(services);
@@ -130,7 +128,7 @@ public abstract partial class CommandLineProgram : BaseDisposable
         }
         catch (Exception ex)
         {
-            if (ex.InnerException is not null and CommmandLineInfoException)
+            if (ex.InnerException != null && ex.InnerException is CommmandLineInfoException)
             {
                 Trace.TraceError(ex.InnerException.Message);
             }

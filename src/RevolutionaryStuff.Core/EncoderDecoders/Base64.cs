@@ -31,7 +31,8 @@ public static class Base64
     public static byte[] Decode(string s)
     {
         s = s.TrimOrNull();
-        return s == null ? Empty.ByteArray : Convert.FromBase64String(s);
+        if (s == null) return Empty.ByteArray;
+        return Convert.FromBase64String(s);
     }
 
     public static string ToBase64String(this byte[] buf)

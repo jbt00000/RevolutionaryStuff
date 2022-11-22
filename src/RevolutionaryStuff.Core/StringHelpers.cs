@@ -146,7 +146,8 @@ public static class StringHelpers
 
     public static string Right(this string s, int lastNChars)
     {
-        return s == null || s.Length <= lastNChars ? s : s[^lastNChars..];
+        if (s == null || s.Length <= lastNChars) return s;
+        return s[^lastNChars..];
     }
 
     public static string Left(this string s, int firstNChars)
@@ -188,7 +189,7 @@ public static class StringHelpers
     public static bool Split(this string s, string sep, bool first, out string left, out string right)
     {
         var n = first ? s.IndexOf(sep) : s.LastIndexOf(sep);
-        _ = right = "";
+        left = right = "";
         if (n < 0)
         {
             left = s;
@@ -203,18 +204,22 @@ public static class StringHelpers
     public static string LeftOf(this string s, string pivot)
     {
         if (s == null) return null;
-        s.Split(pivot, true, out var left, out _);
+        s.Split(pivot, true, out var left, out var right);
         return left;
     }
 
     public static string RightOf(this string s, string pivot, bool returnFullStringIfPivotIsMissing = false)
     {
-        return s == null ? null : s.Split(pivot, true, out _, out var right) ? right : returnFullStringIfPivotIsMissing ? s : null;
+        if (s == null) return null;
+        if (s.Split(pivot, true, out var left, out var right)) return right;
+        return returnFullStringIfPivotIsMissing ? s : null;
     }
 
     public static bool Contains(this string s, string value, bool ignoreCase = false)
     {
-        return s != null && (!ignoreCase ? s.Contains(value) : s.IndexOf(value, StringComparison.CurrentCultureIgnoreCase) > -1);
+        if (s == null) return false;
+        if (!ignoreCase) return s.Contains(value);
+        return s.IndexOf(value, StringComparison.CurrentCultureIgnoreCase) > -1;
     }
 
     public static string TruncateWithEllipsis(this string s, int len, string ellipsis = "...")
@@ -280,7 +285,7 @@ public static class StringHelpers
         var sb = new StringBuilder();
         foreach (var c in str)
         {
-            if (c is (>= '0' and <= '9') or (>= 'A' and <= 'Z') or (>= 'a' and <= 'z'))
+            if ((c >= '0' && c <= '9') || (c >= 'A' && c <= 'Z') || (c >= 'a' && c <= 'z'))
             {
                 sb.Append(c);
             }
@@ -309,7 +314,7 @@ public static class StringHelpers
             }
         }
 
-        return sb.ToString();
+        return (sb.ToString());
     }
 
     private static readonly Regex NameArgExpr = new("(?<!{){\\s*(?'term'\\w+)(?'modifiers'|[:,][^}]+)}", RegexOptions.Compiled);

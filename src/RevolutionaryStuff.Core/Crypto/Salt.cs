@@ -18,7 +18,7 @@ public static class Salt
     {
         get
         {
-            var data = new byte[4];
+            var data = new Byte[4];
             GetBytes(data);
             return BitConverter.ToInt32(data, 0);
         }

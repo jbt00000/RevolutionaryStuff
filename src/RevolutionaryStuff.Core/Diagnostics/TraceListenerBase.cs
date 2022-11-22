@@ -36,7 +36,7 @@ namespace RevolutionaryStuff.Core.Diagnostics;
 public abstract class TraceListenerBase : TraceListener
 {
     public static string TraceListenerBase_TraceMessageFormat = "{0}";
-    private const string CategorySeparator = ": ";
+    const string CategorySeparator = ": ";
 
     // //////////////////////////////////////////////////////////
     // Constructors
@@ -371,6 +371,7 @@ public abstract class TraceListenerBase : TraceListener
     // //////////////////////////////////////////////////////////
     // Private
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Globalization", "CA1303:Do not pass literals as localized parameters", MessageId = "Essential.Diagnostics.TraceListenerBase.WriteTrace(System.Diagnostics.TraceEventCache,System.String,System.Diagnostics.TraceEventType,System.Int32,System.String,System.Nullable<System.Guid>,System.Object[])")]
     private void TraceWriteAsEvent(string category, string message, object data)
     {
         if ((Filter == null) || Filter.ShouldTrace(null, null, TraceEventType.Verbose, 0, message, new object[] { category }, data, null))

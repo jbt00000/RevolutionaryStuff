@@ -1,5 +1,5 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 
@@ -8,7 +8,7 @@ namespace RevolutionaryStuff.Core;
 public class TraceExpressionVisitor : ExpressionVisitor
 {
     private int VisitNumber;
-    private readonly Stack<int> S = new();
+    private readonly Stack<int> S = new Stack<int>();
 
     private Expression DoVisit<TE>(Func<TE, Expression> f, TE node, [CallerMemberName] string caller = null) where TE : Expression
     {

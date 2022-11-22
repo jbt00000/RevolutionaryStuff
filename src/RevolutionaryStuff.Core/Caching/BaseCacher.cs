@@ -99,9 +99,9 @@ Again:
         var wait = await Lock.ExecuteAsync(() =>
             {
                 if (RunningKeys.Contains(key))
-                {
-                    return true;
-                }
+            {
+                return true;
+            }
 
                 RunningKeys.Add(key);
                 return false;

@@ -28,7 +28,8 @@ public class Missingable<T>
     {
         get
         {
-            return !HasValue ? throw new InvalidOperationException() : Value_p;
+            if (!HasValue) throw new InvalidOperationException();
+            return Value_p;
         }
         set
         {
@@ -42,12 +43,15 @@ public class Missingable<T>
     public override bool Equals(object other)
     {
         if (other is not Missingable<T> that) return false;
-        return !HasValue && !that.HasValue || HasValue && Value.Equals(that.Value);
+        if (!HasValue && !that.HasValue) return true;
+        if (!HasValue) return false;
+        return Value.Equals(that.Value);
     }
 
     public override int GetHashCode()
     {
-        return !HasValue ? 0 : Value.GetHashCode();
+        if (!HasValue) return 0;
+        return Value.GetHashCode();
     }
 
     public static explicit operator T(Missingable<T> value)

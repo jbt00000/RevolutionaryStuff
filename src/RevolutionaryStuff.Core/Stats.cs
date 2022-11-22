@@ -38,10 +38,8 @@ internal class Stats : IEnumerable
 
     static Stats()
     {
-        BitBucket = new Stats
-        {
-            IsBitbucket = true
-        };
+        BitBucket = new Stats();
+        BitBucket.IsBitbucket = true;
     }
 
     /// <summary>
@@ -54,7 +52,7 @@ internal class Stats : IEnumerable
     {
         Parent = parent;
         Name = name;
-        this.StatsByKey = StatsByKey ?? new Dictionary<object, Stat>();
+        this.StatsByKey = null == StatsByKey ? new Dictionary<object, Stat>() : StatsByKey;
     }
 
     #endregion
@@ -123,7 +121,12 @@ internal class Stats : IEnumerable
     public long GetVal(object key, long missing)
     {
         var s = StatsByKey[key];
-        return null == s ? missing : s.Val;
+        if (null == s)
+        {
+            return missing;
+        }
+
+        return s.Val;
     }
 
     /// <summary>
@@ -134,7 +137,11 @@ internal class Stats : IEnumerable
     public Stat Get(object key)
     {
         var s = StatsByKey[key];
-        return s ?? new Stat(key);
+        if (null == s)
+        {
+            return new Stat(key);
+        }
+        return s;
     }
 
     /// <summary>
@@ -171,7 +178,10 @@ internal class Stats : IEnumerable
             s = new Stat(key, val);
             StatsByKey[key] = s;
         }
-        Parent?.Max(key, val);
+        if (null != Parent)
+        {
+            Parent.Max(key, val);
+        }
         return s.Val;
     }
 
@@ -234,7 +244,10 @@ internal class Stats : IEnumerable
             s = new Stat(key, val);
             StatsByKey[key] = s;
         }
-        Parent?.Increment(key, val, tickCount);
+        if (null != Parent)
+        {
+            Parent.Increment(key, val, tickCount);
+        }
         return s.Val;
     }
 
@@ -250,7 +263,7 @@ internal class Stats : IEnumerable
         foreach (var s in stats.StatsByKey.Values)
         {
             var n = new Stat(s);
-            var name = string.Format(formatName, s.Key);
+            var name = String.Format(formatName, s.Key);
             n.Key = name;
             StatsByKey[name] = n;
         }
@@ -400,7 +413,7 @@ internal class Stats : IEnumerable
         /// <returns>A string with identifying information about this class</returns>
         public override string ToString()
         {
-            return string.Format(
+            return String.Format(
                 "<stat Key=\"{0}\" Value=\"{1}\" LastModified=\"{2:u}\" LastModified=\"{3}\"/>",
                 Key, Val, LastModified, tcLastModified);
         }

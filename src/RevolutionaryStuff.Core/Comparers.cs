@@ -19,7 +19,8 @@ public static class Comparers
 
         public int GetHashCode(string obj)
         {
-            return obj == null ? 0 : obj.ToLowerInvariant().GetHashCode();
+            if (obj == null) return 0;
+            return obj.ToLowerInvariant().GetHashCode();
         }
 
         #endregion

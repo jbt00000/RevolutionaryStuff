@@ -21,12 +21,15 @@ public static class CSV
 
     private static char[] FindOrCreateEscapeTrigger(char fieldDelim)
     {
-        return fieldDelim switch
+        switch (fieldDelim)
         {
-            FieldDelimComma => CsvEscapeTrigger,
-            FieldDelimPipe => PipeEscapeTrigger,
-            _ => CreateEscapeTriggers(fieldDelim),
-        };
+            case FieldDelimComma:
+                return CsvEscapeTrigger;
+            case FieldDelimPipe:
+                return PipeEscapeTrigger;
+            default:
+                return CreateEscapeTriggers(fieldDelim);
+        }
     }
 
     public static string Format(string s, char[] escapeTriggers = null)
@@ -35,7 +38,12 @@ public static class CSV
 
         escapeTriggers ??= CsvEscapeTrigger;
 
-        return s.IndexOfAny(escapeTriggers) >= 0 ? '"' + s.Replace("\"", "\"\"") + '"' : s;
+        if (s.IndexOfAny(escapeTriggers) >= 0)
+        {
+            return '"' + s.Replace("\"", "\"\"") + '"';
+        }
+
+        return s;
     }
 
     public static string ToCsv(this IEnumerable<string> l, bool eol = true)
@@ -117,7 +125,8 @@ public static class CSV
 
     public static string[] ParseLine(string sText, char fieldDelim = FieldDelimComma)
     {
-        return string.IsNullOrEmpty(sText) ? Empty.StringArray : ParseLine(sText, 0, sText.Length, out _, fieldDelim);
+        if (string.IsNullOrEmpty(sText)) return Empty.StringArray;
+        return ParseLine(sText, 0, sText.Length, out var amtParsed, fieldDelim);
     }
 
     private static string[] ParseLine(string sText, long start, long len, out long amtParsed, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)

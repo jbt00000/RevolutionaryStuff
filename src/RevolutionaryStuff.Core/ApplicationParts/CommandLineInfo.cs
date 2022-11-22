@@ -23,7 +23,7 @@ public class CommandLineInfo
 
         Configuration = configuration;
         SwitchesAreCaseInsensitive = switchesAreCaseInsensitive;
-        SwitchCharacters = switchCharacters ?? DefaultSwitchCharacters;
+        SwitchCharacters = (switchCharacters ?? DefaultSwitchCharacters);
         RawArgs = args.AsReadOnly();
         ArgsByKey = Arg.Parse(args, switchesAreCaseInsensitive, SwitchCharacters);
         ArgsByPos = ArgsByKey.AtomEnumerable.ConvertAll(kvp => kvp.Value).OrderBy(z => z.Position).ToList();
@@ -91,7 +91,12 @@ Arguments:
     public string GetVal(string key, string missing)
     {
         var cla = ArgsByKey[key].FirstOrDefault();
-        return cla == null ? missing : StringHelpers.Coalesce(cla.Val, missing);
+        if (cla == null)
+        {
+            return missing;
+        }
+
+        return StringHelpers.Coalesce(cla.Val, missing);
     }
 
     public class Arg
@@ -117,9 +122,15 @@ Arguments:
         public static MultipleValueDictionary<string, Arg> Parse(string[] args, bool switchesAreCaseInsensitive, string switchCharacters)
         {
             var orderedArgs = new List<Arg>();
-            var m = switchesAreCaseInsensitive
-                ? new MultipleValueDictionary<string, Arg>(Comparers.CaseInsensitiveStringComparer)
-                : new MultipleValueDictionary<string, Arg>();
+            MultipleValueDictionary<string, Arg> m;
+            if (switchesAreCaseInsensitive)
+            {
+                m = new MultipleValueDictionary<string, Arg>(Comparers.CaseInsensitiveStringComparer);
+            }
+            else
+            {
+                m = new MultipleValueDictionary<string, Arg>();
+            }
             var pos = 0;
             foreach (var arg in args)
             {

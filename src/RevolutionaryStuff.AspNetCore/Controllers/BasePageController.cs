@@ -57,7 +57,7 @@ public abstract class BasePageController : Controller
     public override JsonResult Json(object data, object serializerSettings)
         => base.Json(data, serializerSettings ?? JSO);
 
-    private static readonly JsonSerializerOptions JSO = new()
+    private static JsonSerializerOptions JSO = new()
     {
         WriteIndented = true,
         PropertyNamingPolicy = null,
@@ -108,9 +108,14 @@ public abstract class BasePageController : Controller
         if (sortCol != null)
         {
             sortCol = m.FindOrMissing(sortCol, sortCol);
-            q = sortColEnumType == null
-                ? q.OrderByField(sortCol, orderedValues, isAscending)
-                : (IQueryable<T>)q.OrderByField(sortCol, sortColEnumType, isAscending);
+            if (sortColEnumType == null)
+            {
+                q = q.OrderByField(sortCol, orderedValues, isAscending);
+            }
+            else
+            {
+                q = q.OrderByField(sortCol, sortColEnumType, isAscending);
+            }
         }
         return q;
     }

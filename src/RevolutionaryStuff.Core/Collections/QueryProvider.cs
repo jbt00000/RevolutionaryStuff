@@ -42,7 +42,10 @@ public abstract class QueryProvider : IQueryProvider
 
             var ienum = FindIEnumerable(seqType);
 
-            return ienum == null ? seqType : ienum.GetGenericArguments()[0];
+            if (ienum == null) return seqType;
+
+            return ienum.GetGenericArguments()[0];
+
         }
 
         private static Type FindIEnumerable(Type seqType)
@@ -91,9 +94,15 @@ public abstract class QueryProvider : IQueryProvider
 
             }
 
-            return seqType.GetTypeInfo().BaseType != null && seqType.GetTypeInfo().BaseType != typeof(object)
-                ? FindIEnumerable(seqType.GetTypeInfo().BaseType)
-                : null;
+            if (seqType.GetTypeInfo().BaseType != null && seqType.GetTypeInfo().BaseType != typeof(object))
+            {
+
+                return FindIEnumerable(seqType.GetTypeInfo().BaseType);
+
+            }
+
+            return null;
+
         }
 
     }

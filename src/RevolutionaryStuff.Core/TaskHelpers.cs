@@ -108,13 +108,15 @@ Again:
     {
         if (tasks == null) return Task.CompletedTask;
         var ts = tasks.ToList();
-        return ts.Count == 0 ? Task.CompletedTask : Task.WhenAll(ts);
+        if (ts.Count == 0) return Task.CompletedTask;
+        return Task.WhenAll(ts);
     }
 
     internal static Task<TRet[]> WhenAll<TRet>(IEnumerable<Task<TRet>> tasks)
     {
         if (tasks == null) return Task.FromResult(new TRet[0]);
         var ts = tasks.ToList();
-        return ts.Count == 0 ? Task.FromResult(new TRet[0]) : Task.WhenAll(ts);
+        if (ts.Count == 0) return Task.FromResult(new TRet[0]);
+        return Task.WhenAll(ts);
     }
 }

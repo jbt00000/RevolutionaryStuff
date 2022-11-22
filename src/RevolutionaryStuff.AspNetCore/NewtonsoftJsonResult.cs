@@ -1,9 +1,8 @@
 ﻿using System.IO;
 using System.Text;
-using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
-namespace RevolutionaryStuff.AspNetCore;
+namespace Microsoft.AspNetCore.Mvc;
 
 public class NewtonsoftJsonResult : ContentResult
 {
@@ -31,6 +30,8 @@ public class NewtonsoftJsonResult : ContentResult
         }
         ContentType = MimeType.Application.Json.PrimaryContentType;
         if (statusCode != null)
-            StatusCode = (int)statusCode.Value;
+        {
+            StatusCode = (int)(statusCode.Value);
+        }
     }
 }

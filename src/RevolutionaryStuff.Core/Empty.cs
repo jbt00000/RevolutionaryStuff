@@ -10,7 +10,7 @@ public static class Empty
     public static readonly byte[] ByteArray = new byte[0];
     public static readonly Guid[] GuidArray = new Guid[0];
     public static readonly int[] IntArray = new int[0];
-    public static readonly long[] Int64Array = new long[0];
+    public static readonly Int64[] Int64Array = new Int64[0];
     public static readonly IPEndPoint IPEndPoint = new(IPAddress.None, 0);
     public static readonly object[] ObjectArray = new object[0];
     public static readonly Regex[] RegexArray = new Regex[0];

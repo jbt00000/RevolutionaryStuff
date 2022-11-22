@@ -11,11 +11,9 @@ public static class JsonNetHelpers
 
     static JsonNetHelpers()
     {
-        DefaultSerializerSettings = new JsonSerializerSettings
-        {
-            Formatting = Formatting.Indented,
-            NullValueHandling = NullValueHandling.Ignore
-        };
+        DefaultSerializerSettings = new JsonSerializerSettings();
+        DefaultSerializerSettings.Formatting = Formatting.Indented;
+        DefaultSerializerSettings.NullValueHandling = NullValueHandling.Ignore;
         DefaultSerializerSettings.Converters.Add(new StringEnumConverter());
         FallbackSerializerSettings = DefaultSerializerSettings;
     }
@@ -33,13 +31,17 @@ public static class JsonNetHelpers
 
     public static string[] DecomposePath(string path, PathFormats pathFormat = PathFormats.DotNotation)
     {
-        return pathFormat switch
+        switch (pathFormat)
         {
-            PathFormats.DotNotation => path.Split('.'),
-            PathFormats.SlashNotation => path.Split('/'),
-            PathFormats.DotOrSlashNotation => path.Split('.', '/'),
-            _ => throw new UnexpectedSwitchValueException(pathFormat),
-        };
+            case PathFormats.DotNotation:
+                return path.Split('.');
+            case PathFormats.SlashNotation:
+                return path.Split('/');
+            case PathFormats.DotOrSlashNotation:
+                return path.Split('.', '/');
+            default:
+                throw new UnexpectedSwitchValueException(pathFormat);
+        }
     }
 
     public class PathSegment
@@ -71,9 +73,17 @@ public static class JsonNetHelpers
                     s.Index = i;
                     s.Name = null;
                 }
+                else if (sn == null)
+                {
+                    s.SegmentType = SegmentTypes.Property;
+                }
+                else if (sn.SegmentType == SegmentTypes.ArrayIndex)
+                {
+                    s.SegmentType = SegmentTypes.Array;
+                }
                 else
                 {
-                    s.SegmentType = sn == null ? SegmentTypes.Property : sn.SegmentType == SegmentTypes.ArrayIndex ? SegmentTypes.Array : SegmentTypes.Object;
+                    s.SegmentType = SegmentTypes.Object;
                 }
                 sn = s;
             }
@@ -133,11 +143,15 @@ public static class JsonNetHelpers
                     }
                     else
                     {
-                        ja[s.Index] = segments[z + 1].SegmentType switch
+                        switch (segments[z + 1].SegmentType)
                         {
-                            PathSegment.SegmentTypes.ArrayIndex => c = new JArray(),
-                            _ => c = new JObject(),
-                        };
+                            case PathSegment.SegmentTypes.ArrayIndex:
+                                ja[s.Index] = c = new JArray();
+                                break;
+                            default:
+                                ja[s.Index] = c = new JObject();
+                                break;
+                        }
                     }
                     break;
                 case PathSegment.SegmentTypes.Property:

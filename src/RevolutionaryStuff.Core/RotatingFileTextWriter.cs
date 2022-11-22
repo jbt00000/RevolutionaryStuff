@@ -42,7 +42,7 @@ public class RotatingFileTextWriter : TextWriter
         FileNumberExpr = new Regex(sExtractNum, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         FileNameSearch = Regex.Replace(FileNameSearch, "{.*}", "*");
         var filenums = GetSortedFileNumbers();
-        CurrentFileNumber = 0 == filenums.Length ? 0 : Math.Max(0, filenums[^1]);
+        CurrentFileNumber = 0 == filenums.Length ? 0 : Math.Max(0, filenums[filenums.Length - 1]);
 
         Clean();
     }
@@ -133,8 +133,8 @@ public class RotatingFileTextWriter : TextWriter
 
     protected string CreateFileName()
     {
+        string fileName = null;
         var exists = false;
-        string fileName;
         try
         {
             if (!string.IsNullOrEmpty(FilePath))
@@ -145,7 +145,7 @@ public class RotatingFileTextWriter : TextWriter
             FileInfo f;
             for (; ; ++x)
             {
-                fileName = string.Format(FileNameFormat, x);
+                fileName = String.Format(FileNameFormat, x);
                 f = new FileInfo(fileName);
                 if (File.Exists(fileName))
                 {
@@ -212,7 +212,7 @@ public class RotatingFileTextWriter : TextWriter
         {
             for (var x = 0; x < filenums.Length - MaxFiles; ++x)
             {
-                var Filename = string.Format(FileNameFormat, filenums[x]);
+                var Filename = String.Format(FileNameFormat, filenums[x]);
                 try
                 {
                     //Since this class is the base for RotatingLogTraceListener, we cannot call code that could potentially log, else we can get a stack overflow

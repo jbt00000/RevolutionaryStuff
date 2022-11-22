@@ -351,7 +351,7 @@ public static partial class DataLoadingHelpers
             var columnMapper = settings.ColumnMapper ?? OneToOneColumnNameMapper;
             var duplicateColumnRenamer = settings.DuplicateColumnRenamer ?? OnDuplicateColumnNameThrow;
             columnMap = new DataColumn[headerRow.Count];
-            for (var z = 0; z < headerRow.Count; ++z)
+            for (var z = 0; z < headerRow.Count(); ++z)
             {
                 var colName = Stuff.ObjectToString(headerRow[z]).TrimOrNull();
                 if (colName == null)

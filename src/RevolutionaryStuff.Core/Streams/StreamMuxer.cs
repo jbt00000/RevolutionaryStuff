@@ -115,7 +115,8 @@ public class StreamMuxer : BaseDisposable
     {
         get
         {
-            return IsDisposed ? throw new ObjectDisposedException(nameof(StreamMuxer)) : Inner_p;
+            if (IsDisposed) throw new ObjectDisposedException(nameof(StreamMuxer));
+            return Inner_p;
         }
     }
 
@@ -209,7 +210,12 @@ public class StreamMuxer : BaseDisposable
         {
             get
             {
-                return IsClosed ? throw new NotNowException() : Size == -1 ? Inner.Length - Offset : Size;
+                if (IsClosed) throw new NotNowException();
+                if (Size == -1)
+                {
+                    return Inner.Length - Offset;
+                }
+                return Size;
             }
         }
 
@@ -217,7 +223,8 @@ public class StreamMuxer : BaseDisposable
         {
             get
             {
-                return IsClosed ? throw new NotNowException() : Position_p;
+                if (IsClosed) throw new NotNowException();
+                return Position_p;
             }
             set
             {

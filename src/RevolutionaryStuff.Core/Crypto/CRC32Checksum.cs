@@ -61,9 +61,14 @@ public class CRC32Checksum : IChecksum
                                                            0x2d02ef8d
                                                    };
 
+    private long Checksum_p;
+
     #region IChecksum Members
 
-    public long Checksum { get; private set; }
+    public long Checksum
+    {
+        get { return Checksum_p; }
+    }
 
     public void Update(byte[] buf, int offset, int length)
     {
@@ -72,12 +77,12 @@ public class CRC32Checksum : IChecksum
         {
             throw new ArgumentOutOfRangeException();
         }
-        Checksum ^= -1;
+        Checksum_p ^= -1;
         for (var z = 0; z < length; ++z)
         {
-            Checksum = CrcTable[((int)Checksum ^ buf[offset + z]) & 255] ^ (Checksum >> 8);
+            Checksum_p = CrcTable[((int)Checksum_p ^ buf[offset + z]) & 255] ^ Checksum_p >> 8;
         }
-        Checksum ^= -1;
+        Checksum_p ^= -1;
     }
 
     #endregion

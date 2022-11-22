@@ -1,10 +1,8 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
-using RevolutionaryStuff.Core;
-using RevolutionaryStuff.Core.Database;
 
-namespace RevolutionaryStuff.SqlServer.Database;
+namespace RevolutionaryStuff.Core.Database;
 
 public static class SqlServerHelpers
 {
@@ -87,7 +85,9 @@ public static class SqlServerHelpers
         foreach (DataColumn dc in dt.Columns)
         {
             if (dc.ColumnName.Length > MaxTableColumnNameLength)
+            {
                 dc.ColumnName = dc.ColumnName.TruncateWithMidlineEllipsis(MaxTableColumnNameLength);
+            }
         }
     }
 }

@@ -50,9 +50,9 @@ public static class DependencyInjectionHelpers
             if (!serviceType.IsA(sd.ServiceType)) continue;
             implementationType = sd.ImplementationType;
         }
-        return implementationType == null
-            ? throw new TypeLoadException($"Could not find a seervice description for {typeof(SERVICE_TYPE)}")
-            : (SERVICE_TYPE)provider.Construct(implementationType, overriddenLoadedDependencies);
+        if (implementationType == null) throw new TypeLoadException($"Could not find a seervice description for {typeof(SERVICE_TYPE)}");
+
+        return (SERVICE_TYPE)provider.Construct(implementationType, overriddenLoadedDependencies);
     }
 
     public static T Construct<T>(this IServiceProvider provider, params object[] overriddenLoadedDependencies)

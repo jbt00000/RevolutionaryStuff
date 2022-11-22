@@ -164,7 +164,8 @@ public static class DataHelpers
                 for (var rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                 {
                     var dr = dt.Rows[rowNum];
-                    if (dr[colNum] is not string s)
+                    var s = dr[colNum] as string;
+                    if (s == null)
                     {
                         hasNulls = true;
                         continue;
@@ -179,20 +180,27 @@ public static class DataHelpers
                     canBeVarchar = canBeVarchar && zs.ContainsOnlyExtendedAsciiCharacters();
                     if (canBeDate || canBeDatetime)
                     {
-                        canBeDate = DateTime.TryParse(zs, out var d) ? canBeDate && d.Hour == 0 && d.Minute == 0 && d.Second == 0 : (canBeDatetime = false);
+                        if (DateTime.TryParse(zs, out var d))
+                        {
+                            canBeDate = canBeDate && d.Hour == 0 && d.Minute == 0 && d.Second == 0;
+                        }
+                        else
+                        {
+                            canBeDate = canBeDatetime = false;
+                        }
                     }
                     canBeBit = canBeBit && zs is "1" or "0";
                     canBeYN = canBeYN && (0 == string.Compare(zs, "y", true) || 0 == string.Compare(zs, "n", true));
                     canBeYesNo = canBeYesNo && (0 == string.Compare(zs, "yes", true) || 0 == string.Compare(zs, "no", true));
                     canBeTrueFalse = canBeTrueFalse && (0 == string.Compare(zs, "true", true) || 0 == string.Compare(zs, "false", true));
-                    canBeInt64 = canBeInt64 && long.TryParse(zs, out var int64Test);
-                    canBeInt32 = canBeInt32 && int.TryParse(zs, out var int32Test);
-                    canBeInt16 = canBeInt16 && short.TryParse(zs, out var int16Test);
-                    canBeInt8 = canBeInt8 && byte.TryParse(zs, out var int8Test);
+                    canBeInt64 = canBeInt64 && Int64.TryParse(zs, out var int64Test);
+                    canBeInt32 = canBeInt32 && Int32.TryParse(zs, out var int32Test);
+                    canBeInt16 = canBeInt16 && Int16.TryParse(zs, out var int16Test);
+                    canBeInt8 = canBeInt8 && Byte.TryParse(zs, out var int8Test);
                     var doubleTest = 0.1;
                     canBeFloat = canBeFloat && double.TryParse(zs, out doubleTest);
                     canBeIntFromFloat = canBeIntFromFloat && canBeFloat && doubleTest == Math.Truncate(doubleTest) && doubleTest <= int.MaxValue && doubleTest >= int.MinValue;
-                    canBeDecimal = canBeDecimal && decimal.TryParse(zs, out var decimalTest);
+                    canBeDecimal = canBeDecimal && Decimal.TryParse(zs, out var decimalTest);
                     canBeDateTimeOffset = canBeDateTimeOffset && DateTimeOffset.TryParse(zs, out var dateTimeOffsetTest);
                     hasLeadingZeros = hasLeadingZeros || (zs.Length > 1 && zs[0] == '0' && zs[1] != '.');
                     if (zs != s)
@@ -230,37 +238,37 @@ public static class DataHelpers
                 else if (canBeInt8 && !hasLeadingZeros)
                 {
                     rti.Converter = q => (byte)Convert.ToDouble(q);
-                    rti.DataType = typeof(byte);
+                    rti.DataType = typeof(Byte);
                 }
                 else if (canBeInt16 && !hasLeadingZeros)
                 {
-                    rti.Converter = q => (short)Convert.ToDouble(q);
-                    rti.DataType = typeof(short);
+                    rti.Converter = q => (Int16)Convert.ToDouble(q);
+                    rti.DataType = typeof(Int16);
                 }
                 else if (canBeInt32 && !hasLeadingZeros)
                 {
-                    rti.Converter = q => (int)Convert.ToDouble(q);
-                    rti.DataType = typeof(int);
+                    rti.Converter = q => (Int32)Convert.ToDouble(q);
+                    rti.DataType = typeof(Int32);
                 }
                 else if (canBeInt64 && !hasLeadingZeros)
                 {
-                    rti.Converter = q => (long)Convert.ToDouble(q);
-                    rti.DataType = typeof(long);
+                    rti.Converter = q => (Int64)Convert.ToDouble(q);
+                    rti.DataType = typeof(Int64);
                 }
                 else if (canBeIntFromFloat && !hasLeadingZeros)
                 {
-                    rti.Converter = q => (int)Math.Truncate(double.Parse(q));
-                    rti.DataType = typeof(int);
+                    rti.Converter = q => (int)Math.Truncate(Double.Parse(q));
+                    rti.DataType = typeof(Int32);
                 }
                 else if (canBeFloat && !hasLeadingZeros)
                 {
-                    rti.Converter = q => double.Parse(q);
-                    rti.DataType = typeof(double);
+                    rti.Converter = q => Double.Parse(q);
+                    rti.DataType = typeof(Double);
                 }
                 else if (canBeDecimal && !hasLeadingZeros)
                 {
-                    rti.Converter = q => decimal.Parse(q);
-                    rti.DataType = typeof(decimal);
+                    rti.Converter = q => Decimal.Parse(q);
+                    rti.DataType = typeof(Decimal);
                 }
                 else if (canBeDateTimeOffset)
                 {
@@ -318,7 +326,8 @@ public static class DataHelpers
                         for (var rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
                         {
                             var dr = dt.Rows[rowNum];
-                            if (dr[colNum] is not string s) continue;
+                            var s = dr[colNum] as string;
+                            if (s == null) continue;
                             if (s == lastStr)
                             {
                                 dr[convertedColNum] = lastConv;
@@ -358,14 +367,21 @@ public static class DataHelpers
                             {
                                 drow[z] = DBNull.Value;
                             }
-                            else if (rti.Converter == null || v is not string)
+                            else if (rti.Converter == null || !(v is string))
                             {
                                 drow[z] = v;
                             }
                             else
                             {
                                 v = rti.Converter(v as string);
-                                drow[z] = v ?? DBNull.Value;
+                                if (v == null)
+                                {
+                                    drow[z] = DBNull.Value;
+                                }
+                                else
+                                {
+                                    drow[z] = v;
+                                }
                             }
                         }
                         dt.Rows.Add(drow);
@@ -445,19 +461,19 @@ public static class DataHelpers
             {
                 sqlType = typeMap[dc.DataType];
             }
-            else if (dc.DataType == typeof(long))
+            else if (dc.DataType == typeof(Int64))
             {
                 sqlType = "bigint";
             }
-            else if (dc.DataType == typeof(int))
+            else if (dc.DataType == typeof(Int32))
             {
                 sqlType = "int";
             }
-            else if (dc.DataType == typeof(short))
+            else if (dc.DataType == typeof(Int16))
             {
                 sqlType = "smallint";
             }
-            else if (dc.DataType == typeof(byte))
+            else if (dc.DataType == typeof(Byte))
             {
                 sqlType = "tinyint";
             }
@@ -470,7 +486,7 @@ public static class DataHelpers
             {
                 sqlType = "float";
             }
-            else if (dc.DataType == typeof(decimal))
+            else if (dc.DataType == typeof(Decimal))
             {
                 sqlType = "decimal";
                 var precision = dc.NumericPrecision();
@@ -484,16 +500,20 @@ public static class DataHelpers
             {
                 sqlType = "datetime";
             }
+            else if (dc.DataType == typeof(DateTimeOffset))
+            {
+                sqlType = "datetimeoffset";
+            }
+            else if (dc.DataType == typeof(string))
+            {
+                sqlType = string.Format(
+                    "{0}({1})",
+                    dc.Unicode() ? "nvarchar" : "varchar",
+                    dc.MaxLength is <= 0 or > 4000 ? "max" : dc.MaxLength.ToString());
+            }
             else
             {
-                sqlType = dc.DataType == typeof(DateTimeOffset)
-                    ? "datetimeoffset"
-                    : dc.DataType == typeof(string)
-                                    ? string.Format(
-                                                    "{0}({1})",
-                                                    dc.Unicode() ? "nvarchar" : "varchar",
-                                                    dc.MaxLength is <= 0 or > 4000 ? "max" : dc.MaxLength.ToString())
-                                    : throw new ArgumentException($"cannot translate type {dc.DataType.Name} to sql", dc.ColumnName);
+                throw new ArgumentException($"cannot translate type {dc.DataType.Name} to sql", dc.ColumnName);
             }
             var isPk = dt.PrimaryKey != null && dt.PrimaryKey.Length == 1 && dt.PrimaryKey[0] == dc;
             sb.AppendFormat("\t[{0}] {1} {2}{3}{4}\n",
@@ -518,26 +538,31 @@ public static class DataHelpers
 
     public static string GetNullableString(this IDataReader r, int col)
     {
-        return r.IsDBNull(col) ? null : r.GetString(col);
+        if (r.IsDBNull(col)) return null;
+        return r.GetString(col);
     }
 
     public static DateTime? GetNullableDateTime(this IDataReader r, int col)
     {
-        return r.IsDBNull(col) ? null : r.GetDateTime(col);
+        if (r.IsDBNull(col)) return null;
+        return r.GetDateTime(col);
     }
 
-    public static int? GetNullableInt32(this IDataReader r, int col)
+    public static Int32? GetNullableInt32(this IDataReader r, int col)
     {
-        return r.IsDBNull(col) ? null : r.GetInt32(col);
+        if (r.IsDBNull(col)) return null;
+        return r.GetInt32(col);
     }
 
     public static bool GetBool(this IDataReader r, int col, bool fallback)
     {
-        return r.IsDBNull(col) ? fallback : r.GetBoolean(col);
+        if (r.IsDBNull(col)) return fallback;
+        return r.GetBoolean(col);
     }
 
     public static bool? GetNullableBool(this IDataReader r, int col)
     {
-        return r.IsDBNull(col) ? null : r.GetBoolean(col);
+        if (r.IsDBNull(col)) return null;
+        return r.GetBoolean(col);
     }
 }

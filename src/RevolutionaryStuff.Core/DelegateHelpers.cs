@@ -26,7 +26,7 @@ public static class DelegateHelpers
                 {
                     var wait = Convert.ToInt32(backoffPeriod.Value.TotalMilliseconds * z);
                     Trace.WriteLine($"CallAndRetryOnFailure retry={z} wait={TimeSpan.FromMilliseconds(wait)}");
-                    await Task.Delay(wait);
+                    await (Task.Delay(wait));
                 }
                 else
                 {
@@ -66,7 +66,10 @@ public static class DelegateHelpers
 
     public static T CallAndRetryOnFailure<T, E>(this Func<T> func, int? retryCount = 3, TimeSpan? backoffPeriod = null) where E : Exception
     {
-        static bool exceptionChecker(Exception ex) => ex is E;
+        Predicate<Exception> exceptionChecker = delegate (Exception ex)
+        {
+            return ex is E;
+        };
         return CallAndRetryOnFailure(func, retryCount, backoffPeriod, exceptionChecker);
     }
 
@@ -106,7 +109,7 @@ public static class DelegateHelpers
         {
             if (throwException)
             {
-                throw;
+                throw ex;
             }
 #if DEBUG
             Debug.WriteLine(ex);
@@ -124,7 +127,7 @@ public static class DelegateHelpers
         {
             if (throwException)
             {
-                throw;
+                throw ex;
             }
 #if DEBUG
             Debug.WriteLine(ex);
@@ -143,7 +146,7 @@ public static class DelegateHelpers
         {
             if (throwException)
             {
-                throw;
+                throw ex;
             }
 #if DEBUG
             Debug.WriteLine(ex);

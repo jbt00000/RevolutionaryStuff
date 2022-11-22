@@ -13,57 +13,66 @@ public static class OtherExtensions
     public static bool IsBetween(this long n, long lowerInclusive, long upperInclusive)
         => n >= lowerInclusive && n <= upperInclusive;
 
-    public static bool IsOdd(this int i)
+    public static bool IsOdd(this Int32 i)
     {
-        return (i & 0x1) == 1;
+        return ((i & 0x1) == 1);
     }
-    public static bool IsEven(this int i)
+    public static bool IsEven(this Int32 i)
     {
-        return (i & 0x1) == 0;
-    }
-
-    public static short NonZeroOr(this short i, short fallback)
-    {
-        return i == 0 ? fallback : i;
+        return ((i & 0x1) == 0);
     }
 
-    public static int NonZeroOr(this int i, int fallback)
+    public static Int16 NonZeroOr(this Int16 i, Int16 fallback)
     {
-        return i == 0 ? fallback : i;
+        if (i == 0) return fallback;
+        return i;
     }
 
-    public static long NonZeroOr(this long i, long fallback)
+    public static Int32 NonZeroOr(this Int32 i, Int32 fallback)
     {
-        return i == 0 ? fallback : i;
+        if (i == 0) return fallback;
+        return i;
     }
 
-    public static short PositiveOr(this short i, short fallback)
+    public static Int64 NonZeroOr(this Int64 i, Int64 fallback)
     {
-        return i < 1 ? fallback : i;
+        if (i == 0) return fallback;
+        return i;
     }
 
-    public static int PositiveOr(this int i, int fallback)
+    public static Int16 PositiveOr(this Int16 i, Int16 fallback)
     {
-        return i < 1 ? fallback : i;
+        if (i < 1) return fallback;
+        return i;
     }
 
-    public static long PositiveOr(this long i, long fallback)
+    public static Int32 PositiveOr(this Int32 i, Int32 fallback)
     {
-        return i < 1 ? fallback : i;
+        if (i < 1) return fallback;
+        return i;
     }
 
-    public static short PositiveOr(this short? i, short fallback)
+    public static Int64 PositiveOr(this Int64 i, Int64 fallback)
     {
-        return i.GetValueOrDefault() < 1 ? fallback : i.Value;
+        if (i < 1) return fallback;
+        return i;
     }
 
-    public static int PositiveOr(this int? i, int fallback)
+    public static Int16 PositiveOr(this Int16? i, Int16 fallback)
     {
-        return i.GetValueOrDefault() < 1 ? fallback : i.Value;
+        if (i.GetValueOrDefault() < 1) return fallback;
+        return i.Value;
     }
 
-    public static long PositiveOr(this long? i, long fallback)
+    public static Int32 PositiveOr(this Int32? i, Int32 fallback)
     {
-        return i.GetValueOrDefault() < 1 ? fallback : i.Value;
+        if (i.GetValueOrDefault() < 1) return fallback;
+        return i.Value;
+    }
+
+    public static Int64 PositiveOr(this Int64? i, Int64 fallback)
+    {
+        if (i.GetValueOrDefault() < 1) return fallback;
+        return i.Value;
     }
 }

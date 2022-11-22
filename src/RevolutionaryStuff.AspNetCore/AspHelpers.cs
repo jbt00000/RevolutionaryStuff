@@ -43,10 +43,10 @@ public static class AspHelpers
     private static DisplayAttribute GetDisplayAttribute(this Enum value)
     {
         var type = value.GetType();
-        if (!type.IsEnum) throw new ArgumentException(string.Format("Type '{0}' is not Enum", type));
+        if (!type.IsEnum) throw new ArgumentException(String.Format("Type '{0}' is not Enum", type));
 
         var members = type.GetMember(value.ToString());
-        if (members.Length == 0) throw new ArgumentException(string.Format("Member '{0}' not found in type '{1}'", value, type.Name));
+        if (members.Length == 0) throw new ArgumentException(String.Format("Member '{0}' not found in type '{1}'", value, type.Name));
 
         var member = members[0];
         var attributes = member.GetCustomAttributes(typeof(DisplayAttribute), false);
@@ -90,7 +90,15 @@ public static class AspHelpers
         {
             var displayName = e.GetDisplayName();
             var desc = e.GetDescription();
-            var value = valAsName ? e.ToString() : ((int)Enum.Parse(typeof(TEnum), e.ToString())).ToString();
+            string value;
+            if (valAsName)
+            {
+                value = e.ToString();
+            }
+            else
+            {
+                value = ((int)Enum.Parse(typeof(TEnum), e.ToString())).ToString();
+            }
             items.Add(new ExtendedSelectListItem { Text = displayName, Value = value, Description = desc });
         }
         if (sortByText)

@@ -86,7 +86,8 @@ public static class WebHelpers
 
         public static bool IsStandardVerb(string s)
         {
-            return s != null && VerbExpr.IsMatch(s);
+            if (s == null) return false;
+            return VerbExpr.IsMatch(s);
         }
 
         public static bool IsGetOrHead(string s)
@@ -113,7 +114,8 @@ public static class WebHelpers
 
         public static bool IsStandardVerb(string s)
         {
-            return s != null && VerbExpr.IsMatch(s);
+            if (s == null) return false;
+            return VerbExpr.IsMatch(s);
         }
     }
 
@@ -195,8 +197,8 @@ public static class WebHelpers
         {
             url += "?";
         }
-        var lastChar = url[^1];
-        if (lastChar is not '?' and not '&')
+        var lastChar = url[url.Length - 1];
+        if (lastChar != '?' && lastChar != '&')
         {
             url += "&";
         }
@@ -222,7 +224,8 @@ public static class WebHelpers
 
     public static string GetValueOrDefault(this HttpResponseHeaders headers, string headerName, string missing = null)
     {
-        if (headers.TryGetValues(headerName, out var vals))
+        IEnumerable<string> vals;
+        if (headers.TryGetValues(headerName, out vals))
         {
             var e = vals.GetEnumerator();
             return e.MoveNext() ? e.Current : missing;

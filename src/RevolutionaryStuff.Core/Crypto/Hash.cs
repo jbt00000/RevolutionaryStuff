@@ -61,7 +61,8 @@ public sealed class Hash
 
     public static string GetHashAlgorithmName(HashAlgorithm ha)
     {
-        return ha?.GetType().Name;
+        if (ha == null) return null;
+        return ha.GetType().Name;
     }
 
     public static bool IsHashAlgorithmInstalled(string hashName)
@@ -81,14 +82,15 @@ public sealed class Hash
                 //                    return new MerkleHashTree(CreateDelegate, parts[1]);
             }
         }
-        return !HashAlgorithmCreationMap.ContainsKey(hashName) ? throw new NotSupportedException() : HashAlgorithmCreationMap[hashName]();
+        if (!HashAlgorithmCreationMap.ContainsKey(hashName)) throw new NotSupportedException();
+        return HashAlgorithmCreationMap[hashName]();
     }
 
     private static readonly IDictionary<string, string> NameByNameLowerMap = new Dictionary<string, string>(Comparers.CaseInsensitiveStringComparer);
     public static readonly Hash[] NoHashes = new Hash[0];
 
     private static readonly Regex UrnTypeExpression = new("[^:]+:([^:]+):.+", RegexOptions.Compiled);
-    private static readonly Regex UrnExpr = new(@"urn:(.*):(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    private static Regex UrnExpr = new(@"urn:(.*):(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     public byte[] Data;
 
@@ -193,9 +195,10 @@ public sealed class Hash
 
     public override bool Equals(object o)
     {
-        if (o is null or not Hash) return false;
+        if (null == o || !(o is Hash)) return false;
         var that = (Hash)o;
-        return this == that || Urn == that.Urn;
+        if (this == that) return true;
+        return Urn == that.Urn;
     }
 
     public static bool operator ==(Hash a, Hash b)
@@ -207,7 +210,12 @@ public sealed class Hash
         }
 
         // If one is null, but not both, return false.
-        return a is not null && b is not null && a.Urn == b.Urn;
+        if (((object)a == null) || ((object)b == null))
+        {
+            return false;
+        }
+
+        return a.Urn == b.Urn;
     }
 
     public static bool operator !=(Hash a, Hash b)

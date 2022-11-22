@@ -222,6 +222,10 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
     async Task<string> IBearerGetter.GetBearerAsync(string name)
     {
         var auth = await AuthorizeAsync(name);
-        return auth.TokenType == "Bearer" ? auth.Token : null;
+        if (auth.TokenType == "Bearer")
+        {
+            return auth.Token;
+        }
+        return null;
     }
 }

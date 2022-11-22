@@ -1,4 +1,5 @@
-﻿using System.Text;
+﻿using System.IO;
+using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
 
@@ -56,7 +57,7 @@ public static partial class XmlHelpers
         [External Code]                  
 
      */
-    public static string ToXml(this XmlSerializer ser, object o, bool allowAsync = true)
+    public static string ToXml(this XmlSerializer ser, object o, bool allowAsync=true)
     {
         var sb = new StringBuilder();
         using (var xmlWriter = XmlWriter.Create(sb, new XmlWriterSettings() { Async = allowAsync }))
