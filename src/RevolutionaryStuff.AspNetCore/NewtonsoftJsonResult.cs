@@ -31,7 +31,7 @@ public class NewtonsoftJsonResult : ContentResult
         ContentType = MimeType.Application.Json.PrimaryContentType;
         if (statusCode != null)
         {
-            StatusCode = (int)(statusCode.Value);
+            StatusCode = (int)statusCode.Value;
         }
     }
 }

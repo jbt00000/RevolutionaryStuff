@@ -15,7 +15,7 @@ public class LogRegion : BaseDisposable
     private readonly string Message;
     private readonly IDisposable LogScope;
     private readonly Stopwatch Stopwatch;
-    private LogLevel LogLevel;
+    private readonly LogLevel LogLevel;
 
     #region Constructors
 

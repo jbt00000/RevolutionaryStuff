@@ -74,7 +74,7 @@ public static class Parse
         return fallback;
     }
 
-    public static Int32? ParseNullableInt32(string s, Int32? fallback = null)
+    public static int? ParseNullableInt32(string s, int? fallback = null)
     {
         if (!string.IsNullOrEmpty(s))
         {
@@ -83,7 +83,7 @@ public static class Parse
         return fallback;
     }
 
-    public static Int64? ParseNullableInt64(string s, Int64? fallback = null)
+    public static long? ParseNullableInt64(string s, long? fallback = null)
     {
         if (!string.IsNullOrEmpty(s))
         {
@@ -124,11 +124,7 @@ public static class Parse
 
     public static bool? ParseNullableBool(string sv, bool? fallback = null)
     {
-        if (TryParseBool(sv, out var v))
-        {
-            return v;
-        }
-        return fallback;
+        return TryParseBool(sv, out var v) ? v : fallback;
     }
 
     public static bool TryParseBool(string s, out bool v)
@@ -162,9 +158,9 @@ public static class Parse
     /// <param name="s">String that contains the number</param>
     /// <param name="fallback">Value to return if there is a parsing error</param>
     /// <returns>Parsed Value OR Default </returns>
-    public static Int64 ParseInt64(string s, Int64 fallback = 0)
+    public static long ParseInt64(string s, long fallback = 0)
     {
-        if (!Int64.TryParse(s, out var ret))
+        if (!long.TryParse(s, out var ret))
         {
             ret = fallback;
         }
@@ -197,9 +193,9 @@ public static class Parse
     /// <param name="s">String that contains the number</param>
     /// <param name="default">Value to return if there is a parsing error</param>
     /// <returns>Parsed Value OR Default </returns>
-    public static Int32 ParseInt32(string s, Int32 fallback = 0)
+    public static int ParseInt32(string s, int fallback = 0)
     {
-        if (!Int32.TryParse(s, out var ret))
+        if (!int.TryParse(s, out var ret))
         {
             ret = fallback;
         }
@@ -225,8 +221,7 @@ public static class Parse
     /// <returns>Parsed value or default</returns>
     public static TimeSpan ParseTimeSpan(string s, TimeSpan fallback)
     {
-        if (TimeSpan.TryParse(s, out var ts)) return ts;
-        return fallback;
+        return TimeSpan.TryParse(s, out var ts) ? ts : fallback;
     }
 
     public static TEnum ParseEnum<TEnum>(string val, TEnum? fallback = null) where TEnum : struct
@@ -240,11 +235,9 @@ public static class Parse
             catch (Exception)
             { }
         }
-        if (fallback == null)
-        {
-            throw new ArgumentOutOfRangeException(nameof(val), $"{val} cannot be cast to {typeof(TEnum)}");
-        }
-        return fallback.Value;
+        return fallback == null
+            ? throw new ArgumentOutOfRangeException(nameof(val), $"{val} cannot be cast to {typeof(TEnum)}")
+            : fallback.Value;
     }
 
     /// <summary>

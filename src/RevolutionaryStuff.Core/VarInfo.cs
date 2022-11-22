@@ -17,11 +17,9 @@ internal class VarInfo
 
     internal VarInfo(string FullName, object basevar, MemberInfo mi)
     {
-        if (null == mi) throw new ArgumentNullException("mi");
-        if (null == basevar) throw new ArgumentNullException("basevar");
         this.FullName = FullName;
-        Basevar = basevar;
-        Mi = mi;
+        Basevar = basevar ?? throw new ArgumentNullException("basevar");
+        Mi = mi ?? throw new ArgumentNullException("mi");
         CanWrite = mi.CanWrite();
         if (null == basevar) return;
         try

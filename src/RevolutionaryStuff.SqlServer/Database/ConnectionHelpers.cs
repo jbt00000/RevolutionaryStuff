@@ -14,8 +14,10 @@ public static class ConnectionHelpers
 
     public static string ConnectionStringAlter(string connectionString, ApplicationIntent intent)
     {
-        var csb = new SqlConnectionStringBuilder(connectionString);
-        csb.ApplicationIntent = intent;
+        var csb = new SqlConnectionStringBuilder(connectionString)
+        {
+            ApplicationIntent = intent
+        };
         return csb.ConnectionString;
     }
 
@@ -383,11 +385,7 @@ public static class ConnectionHelpers
                 }
                 if (0 == string.Compare(pn, name, true) && p.Direction.HasFlag(ParameterDirection.Output))
                 {
-                    if (p.Value == DBNull.Value)
-                    {
-                        return default;
-                    }
-                    return (T)p.Value;
+                    return p.Value == DBNull.Value ? default : (T)p.Value;
                 }
             }
             throw new ArgumentException($"{name} was not in the parameter set for the sproc", "name");
@@ -396,11 +394,9 @@ public static class ConnectionHelpers
         public T GetOutputParameterVal<T>(int position)
         {
             var p = Parameters[position];
-            if (p.Direction.HasFlag(ParameterDirection.Output))
-            {
-                return (T)p.Value;
-            }
-            throw new ArgumentException($"{position} was not in the parameter set for the sproc", "position");
+            return p.Direction.HasFlag(ParameterDirection.Output)
+                ? (T)p.Value
+                : throw new ArgumentException($"{position} was not in the parameter set for the sproc", "position");
         }
 
         public object GetOutputParameterVal(int position)

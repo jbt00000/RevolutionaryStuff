@@ -36,7 +36,7 @@ public static class RegexHelpers
 
         public static readonly Regex InvalidPathChars =
             new(
-                String.Format(
+                string.Format(
                     @"([\*\?{0}])",
                     Regex.Escape(new string(Path.GetInvalidPathChars()))
                     ),

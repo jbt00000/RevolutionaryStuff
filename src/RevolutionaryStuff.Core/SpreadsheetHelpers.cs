@@ -77,10 +77,11 @@ public static class SpreadsheetHelpers
             var sharedStringsPath = Path.Combine(workDir, "xl", "sharedStrings.xml");
             var indexBySharedString = LoadSharedStrings(sharedStringsPath);
 
-            var itemsByType = new MultipleValueDictionary<string, Item>();
-            itemsByType.Add(RelationshipTypeNames.SharedStrings, new Item("sharedStrings.xml"));
-
-            var items = new List<Item>();
+            var itemsByType = new MultipleValueDictionary<string, Item>
+            {
+                { RelationshipTypeNames.SharedStrings, new Item("sharedStrings.xml") }
+            };
+            _ = new List<Item>();
             foreach (DataTable dt in ds.Tables)
             {
                 var fn = RegexHelpers.Common.NonWordChars.Replace(dt.TableName, " ").ToUpperCamelCase();
@@ -287,9 +288,9 @@ public static class SpreadsheetHelpers
         var cr = "";
         for (; ; )
         {
-            cr = ((char)('A' + colNum % 26)) + cr;
+            cr = ((char)('A' + (colNum % 26))) + cr;
             if (colNum < 26) break;
-            colNum = colNum / 26 - 1;
+            colNum = (colNum / 26) - 1;
         }
         cr += (rowNum + 1).ToString();
         return cr;

@@ -59,7 +59,7 @@ public static class Stuff
     }
 
     public static string ToString(object o)
-        => o == null ? null : o.ToString();
+        => o?.ToString();
 
     private static readonly JsonSerializerSettings ToJsonJsonSerializerSettings = new()
     {
@@ -74,21 +74,13 @@ public static class Stuff
         => StringHelpers.Coalesce(vals);
 
     public static void Swap<T>(ref T a, ref T b)
-    {
-        var t = a;
-        a = b;
-        b = t;
-    }
+        => (b, a) = (a, b);
 
     public static T Min<T>(T a, T b) where T : IComparable<T>
-    {
-        return a.CompareTo(b) < 0 ? a : b;
-    }
+        => a.CompareTo(b) < 0 ? a : b;
 
     public static T Max<T>(T a, T b) where T : IComparable<T>
-    {
-        return a.CompareTo(b) < 0 ? b : a;
-    }
+        => a.CompareTo(b) < 0 ? b : a;
 
     /// <summary>
     /// Convert a tickcount that was created in this windows session to a date time
@@ -200,8 +192,7 @@ public static class Stuff
                         left = pi.Name;
                         if (right == null) return left;
                         right = GetPathFromSerializedPath(pi.PropertyType, right);
-                        if (right == null) return null;
-                        return left + "." + right;
+                        return right == null ? null : left + "." + right;
                     }
                 }
                 return null;

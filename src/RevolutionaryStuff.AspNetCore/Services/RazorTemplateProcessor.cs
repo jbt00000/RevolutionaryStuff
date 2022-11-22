@@ -70,8 +70,7 @@ public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITempla
 
     IDirectoryContents IFileProvider.GetDirectoryContents(string subpath)
     {
-        if (subpath is "/Pages" or "/Views") return this;
-        return null;
+        return subpath is "/Pages" or "/Views" ? this : (IDirectoryContents)null;
     }
 
     IFileInfo IFileProvider.GetFileInfo(string subpath)

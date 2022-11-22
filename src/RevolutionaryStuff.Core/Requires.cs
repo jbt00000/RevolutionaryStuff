@@ -252,7 +252,7 @@ public static class Requires
         Between(buf.Length, $"{argName}.Length", minLength.GetValueOrDefault(0), maxLength.GetValueOrDefault(int.MaxValue));
     }
 
-    public static void PortNumber(int portNumber, [CallerArgumentExpression("portNumber")]  string argName=null, bool allowZero = false)
+    public static void PortNumber(int portNumber, [CallerArgumentExpression("portNumber")] string argName = null, bool allowZero = false)
         => Between(portNumber, argName, allowZero ? 0 : 1, 65536);
 
     public static void ZeroRows(DataTable dt, [CallerArgumentExpression("dt")] string argName = null)

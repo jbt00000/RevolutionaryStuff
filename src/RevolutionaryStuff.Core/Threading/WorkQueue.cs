@@ -8,9 +8,9 @@ public class WorkQueue : BaseDisposable
 {
     protected List<Thread> Threads { get; } = new();
     protected ConcurrentQueue<Action> Queue = new();
-    private ManualResetEvent PleaseStop = new(false);
-    private ManualResetEvent IsBored = new(true);
-    private WaitHandle[] StopSnoozingHandles;
+    private readonly ManualResetEvent PleaseStop = new(false);
+    private readonly ManualResetEvent IsBored = new(true);
+    private readonly WaitHandle[] StopSnoozingHandles;
 
 
     protected int MaxThreads { get; }

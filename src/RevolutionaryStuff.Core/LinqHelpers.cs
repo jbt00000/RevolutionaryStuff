@@ -30,8 +30,7 @@ public static class LinqHelpers
         var left = fieldName.LeftOf(".");
         var right = fieldName.RightOf(".").TrimOrNull();
         var leftExp = Expression.Property(arg, left);
-        if (right == null) return leftExp;
-        return NestedProperty(leftExp, right);
+        return right == null ? leftExp : NestedProperty(leftExp, right);
     }
 
     private static Expression NullCheckNestedProperty(Expression arg, string fieldName)
@@ -42,8 +41,7 @@ public static class LinqHelpers
         var leftNameExp = Expression.Property(arg, left);
         var leftExp = Expression.NotEqual(leftNameExp, Expression.Constant(null));
         var rightExp = NullCheckNestedProperty(leftNameExp, right);
-        if (rightExp == null) return leftExp;
-        return Expression.AndAlso(leftExp, rightExp);
+        return rightExp == null ? leftExp : (Expression)Expression.AndAlso(leftExp, rightExp);
     }
 
     public static IQueryable<TSource> ApplyFilters<TSource>(this IQueryable<TSource> q, IEnumerable<KeyValuePair<string, string>> filters)
@@ -161,7 +159,7 @@ public static class LinqHelpers
                 expr);
         }
 
-        var types = new[] { q.ElementType, prop.Type };
+        _ = new[] { q.ElementType, prop.Type };
         var mce = Expression.Call(
             typeof(Queryable),
             StandardMethodNames.GetSortOrder(isAscending),
@@ -215,12 +213,9 @@ public static class LinqHelpers
                 ++cnt;
             }
         }
-        if (cnt > 0)
-        {
-            return q.OrderByField(sortColumn, d, isAscending, OrderByFieldUnmappedBehaviors.AtEnd);
-        }
-
-        return q.OrderByField(sortColumn, isAscending);
+        return cnt > 0
+            ? q.OrderByField(sortColumn, d, isAscending, OrderByFieldUnmappedBehaviors.AtEnd)
+            : q.OrderByField(sortColumn, isAscending);
     }
 
     public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IDictionary<string, string> valueMapper, bool isAscending = true, OrderByFieldUnmappedBehaviors unmappedValueBehavior = OrderByFieldUnmappedBehaviors.InPlace)
@@ -232,46 +227,29 @@ public static class LinqHelpers
         var prop = NestedProperty(param, sortColumn);
 
         var last = valueMapper.Values.OrderBy().LastOrDefault() ?? "";
-
-        Expression expr;
-        switch (unmappedValueBehavior)
+        var expr = unmappedValueBehavior switch
         {
-            case OrderByFieldUnmappedBehaviors.UpFront:
-                expr = GenerateStringConcat(Expression.Constant("UpFront_a_"), prop);
-                break;
-            case OrderByFieldUnmappedBehaviors.InPlace:
-                expr = prop;
-                break;
-            case OrderByFieldUnmappedBehaviors.AtEnd:
-                expr = GenerateStringConcat(Expression.Constant(last + "_AtEnd_"), prop);
-                break;
-            default:
-                throw new UnexpectedSwitchValueException(unmappedValueBehavior);
-        }
+            OrderByFieldUnmappedBehaviors.UpFront => GenerateStringConcat(Expression.Constant("UpFront_a_"), prop),
+            OrderByFieldUnmappedBehaviors.InPlace => prop,
+            OrderByFieldUnmappedBehaviors.AtEnd => GenerateStringConcat(Expression.Constant(last + "_AtEnd_"), prop),
+            _ => throw new UnexpectedSwitchValueException(unmappedValueBehavior),
+        };
         foreach (var kvp in valueMapper)
         {
-            Expression mapped;
-            switch (unmappedValueBehavior)
+            Expression mapped = unmappedValueBehavior switch
             {
-                case OrderByFieldUnmappedBehaviors.UpFront:
-                    mapped = Expression.Constant("UpFront_b_" + kvp.Value);
-                    break;
-                case OrderByFieldUnmappedBehaviors.InPlace:
-                    mapped = Expression.Constant(kvp.Value);
-                    break;
-                case OrderByFieldUnmappedBehaviors.AtEnd:
-                    mapped = Expression.Constant(kvp.Value);
-                    break;
-                default:
-                    throw new UnexpectedSwitchValueException(unmappedValueBehavior);
-            }
+                OrderByFieldUnmappedBehaviors.UpFront => Expression.Constant("UpFront_b_" + kvp.Value),
+                OrderByFieldUnmappedBehaviors.InPlace => Expression.Constant(kvp.Value),
+                OrderByFieldUnmappedBehaviors.AtEnd => Expression.Constant(kvp.Value),
+                _ => throw new UnexpectedSwitchValueException(unmappedValueBehavior),
+            };
             expr = Expression.Condition(
                 Expression.Equal(prop, Expression.Constant(kvp.Key)),
                 mapped,
                 expr);
         }
 
-        var types = new[] { q.ElementType, prop.Type };
+        _ = new[] { q.ElementType, prop.Type };
         var mce = Expression.Call(
             typeof(Queryable),
             StandardMethodNames.GetSortOrder(isAscending),
@@ -286,9 +264,8 @@ public static class LinqHelpers
     {
         var memberInfos = new List<MemberInfo>();
 
-        var body = e.Body as MemberExpression;
 Again:
-        if (body == null)
+        if (e.Body is not MemberExpression body)
         {
             var ubody = (UnaryExpression)e.Body;
             body = ubody.Operand as MemberExpression;
@@ -361,8 +338,8 @@ Again:
 
         public ReplaceParameterVisitor(ParameterExpression parameter, Expression replacement)
         {
-            this.Parameter = parameter;
-            this.Replacement = replacement;
+            Parameter = parameter;
+            Replacement = replacement;
         }
 
         public Expression<TResult> Visit<T>(Expression<T> node)

@@ -5,7 +5,7 @@ public static class DateHelpers
     public static DateTimeOffset UnixEarliestFileDate = new(1601, 1, 1, 0, 0, 0, TimeSpan.Zero);
 
     public static DateTime DateTimeFromUnixEpoch(int secondsSince1970)
-        => new DateTime(1970, 1, 1, 0, 0, 0, (DateTimeKind)DateTimeKind.Utc).AddSeconds((double)secondsSince1970);
+        => new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).AddSeconds(secondsSince1970);
 
     public static DateTimeOffset GetFirstSpecifiedFileDate(params DateTimeOffset?[] dtos)
     {
@@ -18,14 +18,11 @@ public static class DateHelpers
 
     public static bool IsWeekday(this DateTime dt)
     {
-        switch (dt.DayOfWeek)
+        return dt.DayOfWeek switch
         {
-            case DayOfWeek.Saturday:
-            case DayOfWeek.Sunday:
-                return false;
-            default:
-                return true;
-        }
+            DayOfWeek.Saturday or DayOfWeek.Sunday => false,
+            _ => true,
+        };
     }
 
     public static bool IsWeekend(this DateTime dt)
@@ -89,7 +86,7 @@ public static class DateHelpers
     {
         var dateTime = !asOf.HasValue ? DateTime.Today : asOf.Value;
         var age = dateTime.Year - dt.Year;
-        if (dt.Month > dateTime.Month || dt.Month == dateTime.Month && dt.Day > dateTime.Day)
+        if (dt.Month > dateTime.Month || (dt.Month == dateTime.Month && dt.Day > dateTime.Day))
         {
             --age;
         }

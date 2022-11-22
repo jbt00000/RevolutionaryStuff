@@ -37,11 +37,9 @@ public class CommandLineSwitchAttribute : Attribute
         if (string.IsNullOrEmpty(mode)) return true;
         if (!string.IsNullOrEmpty(Mode))
         {
-            if (Modes != null && Modes.Length > 0)
-            {
-                throw new NotSupportedException("Cannot specify both Mode and Modes");
-            }
-            return 0 == StringHelpers.CompareIgnoreCase(Mode, mode);
+            return Modes != null && Modes.Length > 0
+                ? throw new NotSupportedException("Cannot specify both Mode and Modes")
+                : 0 == StringHelpers.CompareIgnoreCase(Mode, mode);
         }
         if (Modes == null || Modes.Length == 0) return true;
         foreach (var m in Modes)
@@ -122,11 +120,7 @@ public class CommandLineSwitchAttribute : Attribute
         }
 
         var name = t.FullName;
-        if (name.StartsWith("System.") && name.IndexOf(".", 7) == -1)
-        {
-            return t.Name;
-        }
-        return name;
+        return name.StartsWith("System.") && name.IndexOf(".", 7) == -1 ? t.Name : name;
     }
 
     public static string SimpleUsageSwitchFormatter(KeyValuePair<CommandLineSwitchAttribute, MemberInfo> s, int pos)
@@ -163,17 +157,7 @@ public class CommandLineSwitchAttribute : Attribute
         var ti = t.GetTypeInfo();
         var switches = Find(t).OrderBy(z => z.Key.Mandatory ? 0 : 1).ThenBy(z => z.Key.Names.OrderBy().First()).ThenBy(z => z.Key.Names[0]);
         var mandates = ti.GetCustomAttributes(typeof(CommandLineMandateAttribute), true).OfType<CommandLineMandateAttribute>();
-        if (formatter == null)
-        {
-            if (mandates.HasData())
-            {
-                formatter = MandatesUsageSwitchFormatter;
-            }
-            else
-            {
-                formatter = SimpleUsageSwitchFormatter;
-            }
-        }
+        formatter ??= mandates.HasData() ? MandatesUsageSwitchFormatter : SimpleUsageSwitchFormatter;
         if (mandates.HasData())
         {
             var indent = "\t";
@@ -251,7 +235,7 @@ public class CommandLineSwitchAttribute : Attribute
                     object val = s;
                     if (v.VarType() == typeof(bool))
                     {
-                        val = string.IsNullOrEmpty(s) ? true : Parse.ParseBool(s);
+                        val = string.IsNullOrEmpty(s) || Parse.ParseBool(s);
                     }
                     if (a.Translator.HasFlag(CommandLineSwitchAttributeTranslators.Csv))
                     {
@@ -279,13 +263,13 @@ public class CommandLineSwitchAttribute : Attribute
                     }
                     else if (a.Translator.HasFlag(CommandLineSwitchAttributeTranslators.Url))
                     {
-                        val = (new Uri(s)).ToString();
+                        val = new Uri(s).ToString();
                     }
                     else if (a.Translator.HasFlag(CommandLineSwitchAttributeTranslators.FilePathOrUrl))
                     {
                         if (Uri.TryCreate(s, UriKind.Absolute, out var u) && u.Scheme != WebHelpers.CommonSchemes.File)
                         {
-                            val = (new Uri(s)).ToString();
+                            val = new Uri(s).ToString();
                         }
                         else
                         {
