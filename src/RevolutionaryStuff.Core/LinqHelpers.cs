@@ -159,7 +159,6 @@ public static class LinqHelpers
                 expr);
         }
 
-        _ = new[] { q.ElementType, prop.Type };
         var mce = Expression.Call(
             typeof(Queryable),
             StandardMethodNames.GetSortOrder(isAscending),
@@ -249,7 +248,6 @@ public static class LinqHelpers
                 expr);
         }
 
-        _ = new[] { q.ElementType, prop.Type };
         var mce = Expression.Call(
             typeof(Queryable),
             StandardMethodNames.GetSortOrder(isAscending),
@@ -264,8 +262,9 @@ public static class LinqHelpers
     {
         var memberInfos = new List<MemberInfo>();
 
+        var body = e.Body as MemberExpression;
 Again:
-        if (e.Body is not MemberExpression body)
+        if (body == null)
         {
             var ubody = (UnaryExpression)e.Body;
             body = ubody.Operand as MemberExpression;
