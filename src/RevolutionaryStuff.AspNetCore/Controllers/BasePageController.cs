@@ -86,7 +86,7 @@ public abstract class BasePageController : Controller
         return q.Skip((p - 1) * s).Take(s);
     }
 
-    protected static readonly IDictionary<string, string> NoMappings = new Dictionary<string, string>().AsReadOnly();
+    protected static readonly IDictionary<string, string> NoMappings = new Dictionary<string, string>().AsReadOnlyDictionary();
 
     protected static readonly IDictionary<string, string> ApplySortDefaultMappings = new Dictionary<string, string>(Comparers.CaseInsensitiveStringComparer);
 

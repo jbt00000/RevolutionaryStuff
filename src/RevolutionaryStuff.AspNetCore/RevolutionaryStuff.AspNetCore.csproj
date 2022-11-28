@@ -1,12 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net7.0</TargetFramework>
         <AssemblyName>RevolutionaryStuff.AspNetCore</AssemblyName>
         <PackageId>RevolutionaryStuff.AspNetCore</PackageId>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-        <PackageReleaseNotes>This is now a .NET 6 library</PackageReleaseNotes>
+        <PackageReleaseNotes>This is now a .NET 7 library</PackageReleaseNotes>
         <Authors>jason@jasonthomas.com</Authors>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -16,9 +16,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright ©  2022</Copyright>
-        <FileVersion>3.80.60.0</FileVersion>
-        <AssemblyVersion>3.80.60.0</AssemblyVersion>
-        <Version>3.80.60</Version>
+        <FileVersion>3.85.70.0</FileVersion>
+        <AssemblyVersion>3.85.70.0</AssemblyVersion>
+        <Version>3.85.70</Version>
     </PropertyGroup>
 
     <ItemGroup>

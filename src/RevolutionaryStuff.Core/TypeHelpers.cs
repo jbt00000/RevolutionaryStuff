@@ -67,7 +67,7 @@ public static class TypeHelpers
                 d ??= new Dictionary<string, object>();
                 d[prop.Name] = prop.GetValue(o, null);
             }
-            if (d != null) return d.AsReadOnly();
+            if (d != null) return d.AsReadOnlyDictionary();
         }
         return Empty.StringObjectDictionary;
     }

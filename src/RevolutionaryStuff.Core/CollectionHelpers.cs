@@ -208,7 +208,7 @@ public static class CollectionHelpers
         return items == null ? (new T[0]) : new List<T>(items).AsReadOnly();
     }
 
-    public static IDictionary<K, V> AsReadOnly<K, V>(this IDictionary<K, V> dict)
+    public static IDictionary<K, V> AsReadOnlyDictionary<K, V>(this IDictionary<K, V> dict)
     {
         return new ReadonlyDictionary<K, V>(dict);
     }
