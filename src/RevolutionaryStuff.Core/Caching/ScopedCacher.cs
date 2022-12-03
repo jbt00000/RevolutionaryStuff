@@ -8,7 +8,7 @@ internal class ScopedCacher : ICacher
 
     public ScopedCacher(ICacher inner, params object[] keyParts)
     {
-        Requires.NonNull(inner);
+        ArgumentNullException.ThrowIfNull(inner);
         Inner = inner;
         ScopeKey = Cache.CreateKey(keyParts);
     }

@@ -6,7 +6,7 @@ public class ReadonlyDictionary<K, V> : IDictionary<K, V>
 
     public ReadonlyDictionary(IDictionary<K, V> inner)
     {
-        Requires.NonNull("inner", nameof(inner));
+        ArgumentNullException.ThrowIfNull("inner", nameof(inner));
         Inner = inner;
     }
 

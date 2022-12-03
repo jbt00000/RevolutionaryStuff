@@ -22,7 +22,7 @@ namespace RevolutionaryStuff.Core
 
         public static bool IsValid(this IValidate v)
         {
-            Requires.NonNull(v, "v");
+            ArgumentNullException.ThrowIfNull(v, "v");
             try
             {
                 v.Validate();

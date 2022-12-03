@@ -24,9 +24,9 @@ public sealed class Hash
     private static readonly Regex HashNameHashVersionExpr = new(@"^([A-Z]+)(\d+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
     public static void RegisterHashAlgorithmCreator(Func<HashAlgorithm> creator, params string[] alternateNames)
     {
-        Requires.NonNull(creator);
+        ArgumentNullException.ThrowIfNull(creator);
         var ha = creator();
-        Requires.NonNull(ha);
+        ArgumentNullException.ThrowIfNull(ha);
         var t = ha.GetType();
         HashAlgorithmCreationMap[t.FullName] = creator;
         var name = t.Name;
@@ -236,14 +236,14 @@ public sealed class Hash
     private static Hash Compute(Stream st, HashAlgorithm ha)
     {
         Requires.ReadableStreamArg(st);
-        Requires.NonNull(ha);
+        ArgumentNullException.ThrowIfNull(ha);
         var hashAlgorithmName = GetHashAlgorithmName(ha);
         return new Hash(hashAlgorithmName, ha.ComputeHash(st));
     }
 
     public static Hash Compute(byte[] buf, string hashAlgorithmName = null)
     {
-        Requires.NonNull(buf);
+        ArgumentNullException.ThrowIfNull(buf);
         hashAlgorithmName ??= CommonHashAlgorithmNames.Default;
         var ha = CreateHashAlgorithm(hashAlgorithmName);
         return new Hash(hashAlgorithmName, ha.ComputeHash(buf));
@@ -251,8 +251,8 @@ public sealed class Hash
 
     private static Hash Compute(byte[] buf, HashAlgorithm ha)
     {
-        Requires.NonNull(buf, "buf");
-        Requires.NonNull(ha);
+        ArgumentNullException.ThrowIfNull(buf, "buf");
+        ArgumentNullException.ThrowIfNull(ha);
         var hashAlgorithmName = GetHashAlgorithmName(ha);
         return new Hash(hashAlgorithmName, ha.ComputeHash(buf));
     }

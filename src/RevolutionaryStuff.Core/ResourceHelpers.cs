@@ -13,7 +13,7 @@ public static class ResourceHelpers
     /// <returns>The stream, else null</returns>
     public static Stream GetEmbeddedResourceAsStream(this Assembly a, string name)
     {
-        Requires.NonNull(a);
+        ArgumentNullException.ThrowIfNull(a);
         if (null == name) return null;
         var streamNames = a.GetManifestResourceNames();
         name = name.ToLower();

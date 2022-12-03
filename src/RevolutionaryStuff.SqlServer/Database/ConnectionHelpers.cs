@@ -23,7 +23,7 @@ public static class ConnectionHelpers
 
     public static void OpenIfNeeded(this IDbConnection conn)
     {
-        Requires.NonNull(conn);
+        ArgumentNullException.ThrowIfNull(conn);
         if (conn.State == ConnectionState.Closed)
         {
             conn.Open();
@@ -46,7 +46,7 @@ public static class ConnectionHelpers
 
     public static void ExecuteNonQuery(this IDbConnection conn, string sql, IDbTransaction trans = null, bool useNewTransaction = false, TimeSpan? timeout = null)
     {
-        Requires.NonNull(conn);
+        ArgumentNullException.ThrowIfNull(conn);
         Requires.Text(sql);
 
         Debug.WriteLine(sql);
@@ -78,8 +78,8 @@ public static class ConnectionHelpers
 
     public static void BulkUpload(this SqlConnection conn, DataTable dt, string schema, string table, Action<long, long> notificationCallback = null, int notifyIncrement = 1000, TimeSpan? timeout = null)
     {
-        Requires.NonNull(conn);
-        Requires.NonNull(dt);
+        ArgumentNullException.ThrowIfNull(conn);
+        ArgumentNullException.ThrowIfNull(dt);
         Requires.Text(schema);
         Requires.Text(table);
 
@@ -125,7 +125,7 @@ public static class ConnectionHelpers
         IEnumerable<SqlParameter> parameters
         )
     {
-        Requires.NonNull(conn);
+        ArgumentNullException.ThrowIfNull(conn);
         Requires.Text(sql);
         conn.OpenIfNeeded();
         using var cmd = new SqlCommand(sql, (SqlConnection)conn)
@@ -153,7 +153,7 @@ public static class ConnectionHelpers
         TimeSpan? timeout = null,
         IEnumerable<SqlParameter> parameters = null)
     {
-        Requires.NonNull(conn);
+        ArgumentNullException.ThrowIfNull(conn);
         Requires.Text(sql);
         using var cmd = new SqlCommand(sql, (SqlConnection)conn)
         {
@@ -176,7 +176,7 @@ public static class ConnectionHelpers
         CommandType? forcedCommandType = null
         )
     {
-        Requires.NonNull(conn);
+        ArgumentNullException.ThrowIfNull(conn);
         Requires.Text(sql);
         conn.OpenIfNeeded();
         await using var cmd = new SqlCommand(sql, (SqlConnection)conn)
@@ -209,7 +209,7 @@ public static class ConnectionHelpers
         IEnumerable<SqlParameter> parameters,
         params Action<IDataReader>[] actions)
     {
-        Requires.NonNull(conn);
+        ArgumentNullException.ThrowIfNull(conn);
         Requires.Text(sql);
         conn.OpenIfNeeded();
         try

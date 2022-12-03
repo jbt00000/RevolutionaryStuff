@@ -27,13 +27,13 @@ public static class Requires
     public static void SetMembership<T>(ICollection<T> set, string setName, T arg, string argName, bool nullInputOk = false)
     {
         if (nullInputOk && arg == null) return;
-        NonNull(set, setName);
+        ArgumentNullException.ThrowIfNull(set, setName);
         if (!set.Contains(arg)) throw new ArgumentOutOfRangeException(argName, $"[{arg}] not a member of {setName}.");
     }
 
     public static void ArrayArg(IList arg, int offset, int size, string argName, int minSize = 0, bool nullable = false)
     {
-        if (!nullable) NonNull(arg, argName);
+        if (!nullable) ArgumentNullException.ThrowIfNull(arg, argName);
         if (size < minSize) throw new ArgumentException($"size must be >= {minSize}");
         if (offset < 0) throw new ArgumentException("offset must be >= 0");
         if (size + offset > arg.Count)
@@ -42,14 +42,14 @@ public static class Requires
 
     public static void ListArg<T>(IList<T> arg, [CallerArgumentExpression("arg")] string argName = null, int minSize = 0)
     {
-        NonNull(arg, argName);
+        ArgumentNullException.ThrowIfNull(arg, argName);
         if (arg.Count < minSize) throw new ArgumentOutOfRangeException(argName, $"Length must be >0 {minSize}");
     }
 
     public static void Valid(IValidate arg, [CallerArgumentExpression("arg")] string argName = null, bool canBeNull = false)
     {
         if (arg == null && canBeNull) return;
-        NonNull(arg, argName);
+        ArgumentNullException.ThrowIfNull(arg, argName);
         arg.Validate();
     }
 
@@ -90,7 +90,7 @@ public static class Requires
 
     public static void HasData(IEnumerable arg, [CallerArgumentExpression("arg")] string argName = null)
     {
-        NonNull(arg, argName);
+        ArgumentNullException.ThrowIfNull(arg, argName);
         var e = arg.GetEnumerator();
         if (!e.MoveNext())
         {
@@ -106,11 +106,6 @@ public static class Requires
     public static void True(bool arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (!arg) throw new ArgumentOutOfRangeException(argName, "Must be true");
-    }
-
-    public static void NonNull(object arg, [CallerArgumentExpression("arg")] string argName = null)
-    {
-        if (null == arg) throw new ArgumentNullException(argName);
     }
 
     public static void Null(object arg, [CallerArgumentExpression("arg")] string argName = null)
@@ -130,8 +125,8 @@ public static class Requires
 
     public static void IsType(Type testType, Type isType)
     {
-        NonNull(testType, nameof(testType));
-        NonNull(isType, nameof(isType));
+        ArgumentNullException.ThrowIfNull(testType, nameof(testType));
+        ArgumentNullException.ThrowIfNull(isType, nameof(isType));
         if (isType.GetTypeInfo().IsAssignableFrom(testType)) return;
         throw new ArgumentException($"{testType} is not a {isType}");
     }
@@ -213,7 +208,7 @@ public static class Requires
     public static void StreamArg(Stream stream, string argName, bool mustBeReadable, bool mustBeWriteable,
                                  bool mustBeSeekable)
     {
-        NonNull(stream, argName);
+        ArgumentNullException.ThrowIfNull(stream, argName);
         if (mustBeReadable && !stream.CanRead) throw new ArgumentException("Cannot read from this stream", argName);
         if (mustBeWriteable && !stream.CanWrite)
             throw new ArgumentException("Cannot write to this stream", argName);
@@ -248,7 +243,7 @@ public static class Requires
 
     public static void Buffer(byte[] buf, [CallerArgumentExpression("buf")] string argName = null, long? minLength = null, long? maxLength = null)
     {
-        NonNull(buf, argName);
+        ArgumentNullException.ThrowIfNull(buf, argName);
         Between(buf.Length, $"{argName}.Length", minLength.GetValueOrDefault(0), maxLength.GetValueOrDefault(int.MaxValue));
     }
 
@@ -257,13 +252,13 @@ public static class Requires
 
     public static void ZeroRows(DataTable dt, [CallerArgumentExpression("dt")] string argName = null)
     {
-        NonNull(dt, argName ?? nameof(dt));
+        ArgumentNullException.ThrowIfNull(dt, argName ?? nameof(dt));
         if (dt.Rows.Count > 0) throw new ArgumentException("dt must not already have any rows", nameof(dt));
     }
 
     public static void ZeroColumns(DataTable dt, [CallerArgumentExpression("dt")] string argName = null)
     {
-        NonNull(dt, argName ?? nameof(dt));
+        ArgumentNullException.ThrowIfNull(dt, argName ?? nameof(dt));
         if (dt.Columns.Count > 0) throw new ArgumentException("dt must not already have any columns", nameof(dt));
     }
 

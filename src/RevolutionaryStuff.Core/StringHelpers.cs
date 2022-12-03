@@ -271,7 +271,7 @@ public static class StringHelpers
 
     public static string[] Split(this string s, Regex r)
     {
-        Requires.NonNull(r);
+        ArgumentNullException.ThrowIfNull(r);
         return r.Split(s);
     }
 
@@ -319,7 +319,7 @@ public static class StringHelpers
 
     public static string FormatWithNamedArgs(string format, IEnumerable<KeyValuePair<string, object>> args, object missingVal = null)
     {
-        Requires.NonNull(format);
+        ArgumentNullException.ThrowIfNull(format);
 
         var d = args.NullSafeEnumerable().ToDictionary(z => z.Key, z => z.Value);
 

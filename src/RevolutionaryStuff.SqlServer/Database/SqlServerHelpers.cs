@@ -13,7 +13,7 @@ public static class SqlServerHelpers
 
     public static void MakeDateColumnsFitSqlServerBounds(this DataTable dt, DateTime? minDate = null, DateTime? maxDate = null)
     {
-        Requires.NonNull(dt);
+        ArgumentNullException.ThrowIfNull(dt);
 
         var lower = minDate.GetValueOrDefault(SqlServerMinDateTime);
         var upper = maxDate.GetValueOrDefault(SqlServerMaxDateTime);
@@ -80,7 +80,7 @@ public static class SqlServerHelpers
 
     public static void MakeColumnNamesSqlServerFriendly(this DataTable dt)
     {
-        Requires.NonNull(dt);
+        ArgumentNullException.ThrowIfNull(dt);
 
         foreach (DataColumn dc in dt.Columns)
         {

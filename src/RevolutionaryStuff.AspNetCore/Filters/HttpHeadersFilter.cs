@@ -22,7 +22,7 @@ public class HttpHeadersFilter : IAsyncActionFilter
 
     public HttpHeadersFilter(IOptions<Config> configOptions, IWebHostEnvironment host)
     {
-        Requires.NonNull(configOptions);
+        ArgumentNullException.ThrowIfNull(configOptions);
         ConfigOptions = configOptions;
         Host = host;
     }

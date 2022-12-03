@@ -85,9 +85,9 @@ public static class CollectionHelpers
 
     public static IList<O> Map<TInput, K, V, O>(this IEnumerable<TInput> items, IDictionary<K, V> map, Func<TInput, K> keyGetter, Func<V, O> outputTransformer, bool omitMissing = false)
     {
-        Requires.NonNull(map);
-        Requires.NonNull(keyGetter);
-        Requires.NonNull(outputTransformer);
+        ArgumentNullException.ThrowIfNull(map);
+        ArgumentNullException.ThrowIfNull(keyGetter);
+        ArgumentNullException.ThrowIfNull(outputTransformer);
 
         var ret = new List<O>();
         foreach (var item in items)
@@ -171,7 +171,7 @@ public static class CollectionHelpers
     [Obsolete("Use Shuffle instead", false)]
     public static void ShuffleList(this IList list, Random random = null)
     {
-        Requires.NonNull(list);
+        ArgumentNullException.ThrowIfNull(list);
         var len = list.Count;
         if (len < 2) return;
         random ??= Stuff.Random;
@@ -188,7 +188,7 @@ public static class CollectionHelpers
 
     public static void Shuffle<T>(this IList<T> list, Random random = null)
     {
-        Requires.NonNull(list);
+        ArgumentNullException.ThrowIfNull(list);
         var len = list.Count;
         if (len < 2) return;
         random ??= Stuff.Random;
@@ -573,8 +573,8 @@ public static class CollectionHelpers
 
     public static void ForEach<T>(this IEnumerable<T> col, Action<T, int> a)
     {
-        Requires.NonNull(col);
-        Requires.NonNull(a);
+        ArgumentNullException.ThrowIfNull(col);
+        ArgumentNullException.ThrowIfNull(a);
 
         var z = 0;
         foreach (var item in col)
@@ -585,7 +585,7 @@ public static class CollectionHelpers
 
     public static async Task<IList<T>> ToListAsync<T>(this IAsyncEnumerable<T> asyncEnumerable)
     {
-        Requires.NonNull(asyncEnumerable);
+        ArgumentNullException.ThrowIfNull(asyncEnumerable);
 
         if (asyncEnumerable == null) return null;
         var items = new List<T>();

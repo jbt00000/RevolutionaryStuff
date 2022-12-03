@@ -87,8 +87,8 @@ public static class JsonNetHelpers
 
     public static void SetValue(this JObject baseObject, IList<PathSegment> segments, object val)
     {
-        Requires.NonNull(baseObject);
-        Requires.NonNull(segments);
+        ArgumentNullException.ThrowIfNull(baseObject);
+        ArgumentNullException.ThrowIfNull(segments);
 
         var jval = val is JToken ? (JToken)val : new JValue(val);
 

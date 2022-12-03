@@ -8,7 +8,7 @@ internal sealed class DisposableReaderWriterLock : BaseDisposable, IDisposableRe
 
     internal DisposableReaderWriterLock(ReaderWriterLock rwl)
     {
-        Requires.NonNull(rwl);
+        ArgumentNullException.ThrowIfNull(rwl);
 
         RWL = rwl;
         RWL.AcquireReaderLock(int.MaxValue);

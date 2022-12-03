@@ -56,21 +56,12 @@ public class RequiresTests
         => Requires.Null("I'm supposed to be null", "hasdata");
 
     [TestMethod]
-    public void NonNullValid()
-        => Requires.NonNull("jason thomas", "hasdata");
-
-    [TestMethod]
-    [ExpectedException(typeof(ArgumentException), AllowDerivedTypes = true)]
-    public void NonNullInvalid()
-        => Requires.NonNull(null, "hasnodata");
-
-    [TestMethod]
     public void NonNullInvalidCheckingCallerArgumentExpression()
     {
         string myVariableName = null;
         try
         {
-            Requires.NonNull(myVariableName);
+            ArgumentNullException.ThrowIfNull(myVariableName);
             Assert.Fail($"Expected {nameof(ArgumentNullException)}");
         }
         catch (ArgumentNullException anex)
@@ -83,7 +74,6 @@ public class RequiresTests
         }
     }
     
-
     [TestMethod]
     [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     public void XmlWithNonXmlData()

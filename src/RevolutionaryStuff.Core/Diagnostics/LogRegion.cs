@@ -25,7 +25,7 @@ public class LogRegion : BaseDisposable
 
     public LogRegion(ILogger logger, LogLevel? logLevel, [CallerMemberName] string message = null, params object[] scopeArgs)
     {
-        Requires.NonNull(logger);
+        ArgumentNullException.ThrowIfNull(logger);
 
         LogLevel = logLevel.GetValueOrDefault(DefaultLogLevel);
         Logger = logger;

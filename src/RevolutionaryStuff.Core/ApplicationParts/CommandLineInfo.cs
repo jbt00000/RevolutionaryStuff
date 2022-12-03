@@ -19,7 +19,7 @@ public class CommandLineInfo
 
     public CommandLineInfo(IConfiguration configuration, string[] args, bool switchesAreCaseInsensitive = true, string switchCharacters = null)
     {
-        Requires.NonNull(configuration);
+        ArgumentNullException.ThrowIfNull(configuration);
 
         Configuration = configuration;
         SwitchesAreCaseInsensitive = switchesAreCaseInsensitive;

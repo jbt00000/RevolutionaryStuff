@@ -67,7 +67,7 @@ public class CRC32Checksum : IChecksum
 
     public void Update(byte[] buf, int offset, int length)
     {
-        Requires.NonNull(buf);
+        ArgumentNullException.ThrowIfNull(buf);
         if (offset + length > buf.Length || offset < 0 || length < 0)
         {
             throw new ArgumentOutOfRangeException();

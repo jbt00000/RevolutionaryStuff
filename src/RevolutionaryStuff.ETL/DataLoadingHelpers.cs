@@ -17,9 +17,9 @@ public static partial class DataLoadingHelpers
 
     public static void SetColumnWithValue<T>(this DataTable dt, string columnName, Func<DataRow, int, T> valueGenerator)
     {
-        Requires.NonNull(dt);
+        ArgumentNullException.ThrowIfNull(dt);
         Requires.Text(columnName);
-        Requires.NonNull(valueGenerator);
+        ArgumentNullException.ThrowIfNull(valueGenerator);
 
         var pos = dt.Columns[columnName].Ordinal;
         for (var z = 0; z < dt.Rows.Count; ++z)
@@ -315,7 +315,7 @@ public static partial class DataLoadingHelpers
     internal static DataTable LoadRowsInternal(this DataTable dt, IEnumerable<IList<object>> rows, LoadRowsSettings settings, bool headerRowEmbedded = true)
     {
         Requires.ZeroRows(dt);
-        Requires.NonNull(rows);
+        ArgumentNullException.ThrowIfNull(rows);
         settings ??= new LoadRowsSettings();
         if (!((headerRowEmbedded && dt.Columns.Count == 0) || (!headerRowEmbedded && dt.Columns.Count > 0)))
         {
@@ -455,7 +455,7 @@ public static partial class DataLoadingHelpers
 
     public static void Append(this DataTable dt, DataTable other, bool appendOtherTableColumns = false)
     {
-        Requires.NonNull(other);
+        ArgumentNullException.ThrowIfNull(other);
 
         var sameStructure = dt.Columns.Count == other.Columns.Count;
         var dtWasBlank = dt.Columns.Count == 0;
@@ -508,7 +508,7 @@ public static partial class DataLoadingHelpers
 
     public static Func<string, string> CreateDictionaryMapper(IDictionary<string, string> m, bool onMissingPassthrough = false)
     {
-        Requires.NonNull(m);
+        ArgumentNullException.ThrowIfNull(m);
         var f = delegate (string s)
         {
             if (m.ContainsKey(s)) return m[s];

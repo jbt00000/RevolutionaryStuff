@@ -61,7 +61,7 @@ public static class SpreadsheetHelpers
 
     public static void ToSpreadSheet(this DataSet ds, string outputPath, Stream templateSpreadsheetStream = null)
     {
-        Requires.NonNull(ds);
+        ArgumentNullException.ThrowIfNull(ds);
         Requires.Text(outputPath);
         templateSpreadsheetStream ??= Stuff.ThisAssembly.GetEmbeddedResourceAsStream("Template.xlsx");
         Requires.ReadableStreamArg(templateSpreadsheetStream);

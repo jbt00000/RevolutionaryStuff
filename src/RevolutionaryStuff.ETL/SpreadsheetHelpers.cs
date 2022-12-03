@@ -227,7 +227,7 @@ public static partial class SpreadsheetHelpers
 
     public static void LoadSheetsFromExcel(this DataSet ds, Stream st, LoadTablesFromSpreadsheetSettings settings = null)
     {
-        Requires.NonNull(ds);
+        ArgumentNullException.ThrowIfNull(ds);
         Requires.ReadableStreamArg(st);
 
         settings ??= new LoadTablesFromSpreadsheetSettings();
@@ -251,7 +251,7 @@ public static partial class SpreadsheetHelpers
 
     public static void LoadRowsFromExcel(this DataTable dt, Stream st, LoadRowsFromSpreadsheetSettings settings)
     {
-        Requires.NonNull(dt);
+        ArgumentNullException.ThrowIfNull(dt);
         Requires.ReadableStreamArg(st);
 
         using (var sd = SpreadsheetDocument.Open(st, false))
@@ -263,8 +263,8 @@ public static partial class SpreadsheetHelpers
     private static void LoadRowsFromExcel(this DataTable dt, SpreadsheetDocument sd, LoadRowsFromSpreadsheetSettings settings)
     {
         Requires.ZeroRows(dt);
-        Requires.NonNull(sd);
-        Requires.NonNull(settings);
+        ArgumentNullException.ThrowIfNull(sd);
+        ArgumentNullException.ThrowIfNull(settings);
 
         var rows = new List<IList<object>>();
 

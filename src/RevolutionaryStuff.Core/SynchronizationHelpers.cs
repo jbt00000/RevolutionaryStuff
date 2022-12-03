@@ -6,7 +6,7 @@ public static class SynchronizationHelpers
 {
     public static async Task<T> ExecuteAsync<T>(this SemaphoreSlim semaphore, Func<Task<T>> funcAsync)
     {
-        Requires.NonNull(funcAsync);
+        ArgumentNullException.ThrowIfNull(funcAsync);
 
         await semaphore.WaitAsync();
         try
@@ -20,7 +20,7 @@ public static class SynchronizationHelpers
     }
     public static async Task ExecuteAsync(this SemaphoreSlim semaphore, Func<Task> actionAsync)
     {
-        Requires.NonNull(actionAsync);
+        ArgumentNullException.ThrowIfNull(actionAsync);
 
         await semaphore.WaitAsync();
         try
@@ -35,7 +35,7 @@ public static class SynchronizationHelpers
 
     public static async Task<T> ExecuteAsync<T>(this SemaphoreSlim semaphore, Func<T> func)
     {
-        Requires.NonNull(func);
+        ArgumentNullException.ThrowIfNull(func);
 
         await semaphore.WaitAsync();
         try
@@ -49,7 +49,7 @@ public static class SynchronizationHelpers
     }
     public static async Task ExecuteAsync(this SemaphoreSlim semaphore, Action action)
     {
-        Requires.NonNull(action);
+        ArgumentNullException.ThrowIfNull(action);
 
         await semaphore.WaitAsync();
         try

@@ -56,7 +56,7 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
 
         public void Validate()
         {
-            Requires.NonNull(Authenticators);
+            ArgumentNullException.ThrowIfNull(Authenticators);
             foreach (var a in Authenticators)
             {
                 Requires.Valid(a, nameof(AuthenticatorConfig));
@@ -135,7 +135,7 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
 
     public AzureActiveDirectoryResourceAuthorizationGetter(IOptions<Config> configOptions, ICacher resultCache = null)
     {
-        Requires.NonNull(configOptions);
+        ArgumentNullException.ThrowIfNull(configOptions);
 
         ConfigOptions = configOptions;
         ResultCache = resultCache ?? Cache.Passthrough;
@@ -179,7 +179,7 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
         Requires.Valid(config);
 
         var authenticatorConfig = name == null ? config.Authenticators[0] : config.Authenticators.FirstOrDefault(ac => ac.Name == name);
-        Requires.NonNull(authenticatorConfig, $"{nameof(config.Authenticators)}['{name}']");
+        ArgumentNullException.ThrowIfNull(authenticatorConfig, $"{nameof(config.Authenticators)}['{name}']");
 
         var datas = new Dictionary<string, string>();
         switch (authenticatorConfig.GrantType)

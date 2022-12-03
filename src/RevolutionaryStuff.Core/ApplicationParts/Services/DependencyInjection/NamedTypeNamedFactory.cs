@@ -16,7 +16,7 @@ public class NamedTypeNamedFactory : BaseLoggingDisposable, INamedFactory
 
     T INamedFactory.GetServiceByName<T>(string name)
     {
-        Requires.NonNull(name);
+        ArgumentNullException.ThrowIfNull(name);
 
         var sd = ServiceCollectionAccessor.Services.First(
             z =>

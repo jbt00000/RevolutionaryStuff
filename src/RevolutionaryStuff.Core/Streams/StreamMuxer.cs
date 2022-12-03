@@ -163,7 +163,7 @@ public class StreamMuxer : BaseDisposable
         /// <param name="size">The size of this new stream, -1 if determined by the parent</param>
         public MyStream(StreamMuxer muxer, bool canRead, bool canWrite, long offset, long size)
         {
-            Requires.NonNull(muxer);
+            ArgumentNullException.ThrowIfNull(muxer);
 
             Muxer = muxer;
             Inner = muxer.Inner;

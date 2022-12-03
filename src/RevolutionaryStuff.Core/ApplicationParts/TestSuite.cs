@@ -14,7 +14,7 @@ public abstract class TestSuite<TSubject> : BaseDisposable
 
     protected TestSuite(IServiceProvider serviceProvider)
     {
-        Requires.NonNull(serviceProvider);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
         ServiceProvider = serviceProvider;
     }
 

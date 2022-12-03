@@ -18,7 +18,7 @@ internal class TemporaryStreamFactory : ITemporaryStreamFactory
 
     public TemporaryStreamFactory(IOptions<Config> configOptions)
     {
-        Requires.NonNull(configOptions);
+        ArgumentNullException.ThrowIfNull(configOptions);
 
         ConfigOptions = configOptions;
     }

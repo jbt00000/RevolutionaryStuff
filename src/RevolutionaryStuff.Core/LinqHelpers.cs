@@ -142,7 +142,7 @@ public static class LinqHelpers
     public static IOrderedQueryable<T> OrderByField<T, TMappedVal>(this IQueryable<T> q, string sortColumn, IDictionary<int, TMappedVal> sortPosByfieldVal, bool isAscending = true) where TMappedVal : IComparable<TMappedVal>
     {
         Requires.Text(sortColumn);
-        Requires.NonNull(sortPosByfieldVal);
+        ArgumentNullException.ThrowIfNull(sortPosByfieldVal);
         Requires.Positive(sortPosByfieldVal.Count, nameof(sortPosByfieldVal.Count));
 
         var param = Expression.Parameter(typeof(T), "p");

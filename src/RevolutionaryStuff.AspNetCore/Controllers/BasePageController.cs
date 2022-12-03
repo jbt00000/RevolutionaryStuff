@@ -13,7 +13,7 @@ public abstract class BasePageController : Controller
 
     protected BasePageController(ILogger logger)
     {
-        Requires.NonNull(logger);
+        ArgumentNullException.ThrowIfNull(logger);
 
         Logger = logger;
     }
@@ -155,7 +155,7 @@ public abstract class BasePageController : Controller
         try
         {
             LogInformation("{caller} function started processing", caller);
-            Requires.NonNull(executeAsync);
+            ArgumentNullException.ThrowIfNull(executeAsync);
             await executeAsync();
             LogInformation("{caller} function completed", caller);
         }

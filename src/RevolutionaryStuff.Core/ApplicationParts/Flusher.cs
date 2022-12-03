@@ -6,7 +6,7 @@ public sealed class Flusher : IFlushable
 
     public Flusher(Action flush)
     {
-        Requires.NonNull(flush);
+        ArgumentNullException.ThrowIfNull(flush);
         Flush = flush;
     }
 

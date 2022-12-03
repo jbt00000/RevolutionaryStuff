@@ -34,7 +34,7 @@ public static class Format
 
     public static string Join(this IEnumerable e, string separator, Func<object, int, string> formatter)
     {
-        Requires.NonNull(formatter);
+        ArgumentNullException.ThrowIfNull(formatter);
         if (null == e) return "";
         var sb = new StringBuilder();
         var x = 0;
