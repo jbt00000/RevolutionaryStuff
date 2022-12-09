@@ -19,7 +19,7 @@ namespace RevolutionaryStuff.Core.Tests
             dt.Columns.Add("b");
             dt.Columns.Add("c");
             dt.Rows.Add("a1", "a2", "a3");
-            var tfn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.Xlsx.PrimaryFileExtension);
+            var tfn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.MicrosoftExcelOpenXml.PrimaryFileExtension);
             Trace.WriteLine($"create {tfn}");
             ds.ToSpreadSheet(tfn);
         }

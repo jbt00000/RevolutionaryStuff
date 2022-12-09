@@ -54,7 +54,7 @@ public static class SpreadsheetHelpers
 
     public static void ToSpreadSheet(this DataSet ds, Stream outputStream, Stream templateSpreadsheetStream = null)
     {
-        var outFn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.Xlsx.PrimaryFileExtension);
+        var outFn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.MicrosoftExcelOpenXml.PrimaryFileExtension);
         ds.ToSpreadSheet(outFn, templateSpreadsheetStream);
         outputStream.CopyFrom(outFn);
     }
@@ -70,7 +70,7 @@ public static class SpreadsheetHelpers
         Directory.CreateDirectory(dir);
         try
         {
-            var tfn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.Xlsx.PrimaryFileExtension, dir);
+            var tfn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.MicrosoftExcelOpenXml.PrimaryFileExtension, dir);
             templateSpreadsheetStream.CopyTo(tfn);
             var workDir = Path.Combine(dir, "t");
             ZipFile.ExtractToDirectory(tfn, workDir);
