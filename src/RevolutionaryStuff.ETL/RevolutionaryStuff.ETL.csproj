@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net6.0</TargetFramework>
         <AssemblyName>RevolutionaryStuff.ETL</AssemblyName>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <Authors>jason@jasonthomas.com</Authors>
@@ -14,12 +14,12 @@
         <RepositoryType>GIT</RepositoryType>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-        <PackageReleaseNotes>This is now a .NET 7 library</PackageReleaseNotes>
+        <PackageReleaseNotes>This is now a .NET 6 library</PackageReleaseNotes>
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-        <FileVersion>3.85.70.0</FileVersion>
-        <AssemblyVersion>3.85.70.0</AssemblyVersion>
-        <Version>3.85.70</Version>
+        <FileVersion>3.90.60.0</FileVersion>
+        <AssemblyVersion>3.90.60.0</AssemblyVersion>
+        <Version>3.90.60</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -38,7 +38,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="DocumentFormat.OpenXml" Version="2.18.0" />
+        <PackageReference Include="DocumentFormat.OpenXml" Version="2.19.0" />
         <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
     </ItemGroup>
 
