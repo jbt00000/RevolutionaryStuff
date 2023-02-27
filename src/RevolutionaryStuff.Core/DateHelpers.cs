@@ -47,32 +47,11 @@ public static class DateHelpers
 
     /// <summary>
     /// 2008-10-01T17:04:32.0000000Z
-    /// </summary>
-    [Obsolete("Use ToIsoString instead", false)]
-    public static string ToRfc8601(this DateTime dt)
-        => dt.ToIsoString();
-
-    /// <summary>
-    /// 2008-10-01T17:04:32.0000000Z
     /// ISO 8601 Format
     /// </summary>
     /// <remarks>https://en.wikipedia.org/wiki/ISO_8601</remarks>
     public static string ToIsoString(this DateTime dt)
-    {
-        var s = dt.ToUniversalTime().ToString("o");
-        if (!s.EndsWith("Z"))
-        {
-            s += "Z";
-        }
-        return s;
-    }
-
-    /// <summary>
-    /// 2008-10-01T17:04:32.0000000Z
-    /// </summary>
-    [Obsolete("Use ToIsoString instead", false)]
-    public static string ToRfc8601(this DateTimeOffset dto)
-        => dto.UtcDateTime.ToIsoString();
+        => dt.ToUniversalTime().ToString("o");
 
     /// <summary>
     /// 2008-10-01T17:04:32.0000000Z
@@ -80,7 +59,7 @@ public static class DateHelpers
     /// </summary>
     /// <remarks>https://en.wikipedia.org/wiki/ISO_8601</remarks>
     public static string ToIsoString(this DateTimeOffset dto)
-        => dto.ToIsoString();
+        => dto.ToUniversalTime().ToString("o");
 
     public static int Age(this DateTime dt, DateTime? asOf = null)
     {

@@ -27,7 +27,10 @@ public abstract class BaseLoggingDisposable : BaseDisposable
         => Logger.LogError(message, args);
 
     protected void LogError(Exception ex, string message, params object[] args)
-        => Logger.LogError(ex, message, args);
+    {
+        using var _ = Logger.BeginScope("{ex}", ex);
+        Logger.LogError(message, args);
+    }
 
     protected void LogException(Exception ex, [CallerMemberName] string caller = null)
         => Logger.LogError(ex, "Invoked from {caller}", caller);

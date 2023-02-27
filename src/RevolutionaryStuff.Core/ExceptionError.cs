@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Newtonsoft.Json;
 
 namespace RevolutionaryStuff.Core;
@@ -8,22 +9,27 @@ public class ExceptionError
 {
     [DataMember(Name = "errorType")]
     [JsonProperty("errorType")]
+    [JsonPropertyName("errorType")]
     public string ErrorType { get; set; }
 
     [DataMember(Name = "errorMessage")]
     [JsonProperty("errorMessage")]
+    [JsonPropertyName("errorMessage")]
     public string ErrorMessage { get; set; }
 
     [DataMember(Name = "errorCode")]
     [JsonProperty("errorCode")]
+    [JsonPropertyName("errorCode")]
     public object ErrorCode { get; set; }
 
     [DataMember(Name = "innerErrors")]
     [JsonProperty("innerErrors")]
+    [JsonPropertyName("innerErrors")]
     public IList<ExceptionError> InnerErrors { get; set; }
 
     [DataMember(Name = "errorStackTrace")]
     [JsonProperty("errorStackTrace")]
+    [JsonPropertyName("errorStackTrace")]
     public string ErrorStackTrace { get; set; }
 
     public ExceptionError()

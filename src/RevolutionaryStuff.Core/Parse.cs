@@ -101,6 +101,23 @@ public static class Parse
         return fallback;
     }
 
+    public static DateTimeOffset? ParseNullableDateTimeOffset(string s, DateTimeOffset? fallback = null)
+    {
+        if (!string.IsNullOrEmpty(s))
+        {
+            if (DateTimeOffset.TryParse(s, out var dto)) return dto;
+            if (s.EndsWith('Z') || s.EndsWith('z'))
+            {
+                if (DateTimeOffset.TryParse(s[..^1], out dto))
+                {
+                    return dto;
+                }
+            }
+            if (DateTime.TryParse(s, out var dt)) return new DateTimeOffset(dt);
+        }
+        return fallback;
+    }
+
     public static DateTime ParseYYYYMMDD(string date)
     {
         date = date.Trim();

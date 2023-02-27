@@ -2,6 +2,8 @@
 
 public abstract class BaseCodedException : Exception
 {
+    public bool IsPermanent { get; protected set; }
+
     public abstract object GetCode();
 
     public static object GetCode(Exception ex, object missing = null)
@@ -28,16 +30,16 @@ public abstract class BaseCodedException : Exception
 /// <summary>
 /// The base class for all coded exceptions
 /// </summary>
-public class CodedException<T> : BaseCodedException where T : struct
+public class CodedException<TCode> : BaseCodedException where TCode : System.Enum
 {
-    public readonly T Code;
+    public readonly TCode Code;
 
     #region Constructors
 
     /// <summary>
     /// Construct an empty instance
     /// </summary>
-    public CodedException(T code)
+    public CodedException(TCode code)
         : base(code.ToString())
     {
         Code = code;
@@ -47,7 +49,7 @@ public class CodedException<T> : BaseCodedException where T : struct
     /// Construct an instance with the given message as extra information
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
-    public CodedException(T code, string message)
+    public CodedException(TCode code, string message)
         : base($"{code}: {message}")
     {
         Code = code;
@@ -58,7 +60,7 @@ public class CodedException<T> : BaseCodedException where T : struct
     /// </summary>
     /// <param name="message">The message that describes the error.</param>
     /// <param name="inner">The exception that is the cause of the current exception, or a null reference</param>
-    public CodedException(T code, Exception inner)
+    public CodedException(TCode code, Exception inner)
         : base(code.ToString(), inner)
     {
         Code = code;
