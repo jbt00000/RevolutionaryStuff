@@ -37,9 +37,6 @@ public static class DependencyInjectionHelpers
     public static void Substitute<TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
         => services.Substitute<TImp, TImp>(newServiceLifetime, existingServiceLifetime);
 
-    public static T GetRequiredScopedService<T>(this IServiceProvider provider)
-        => provider.CreateScope().ServiceProvider.GetRequiredService<T>();
-
     public static SERVICE_TYPE InstantiateServiceWithOverriddenDependencies<SERVICE_TYPE>(this IServiceProvider provider, IServiceCollection services, params object[] overriddenLoadedDependencies)
     {
         var serviceType = typeof(SERVICE_TYPE);
