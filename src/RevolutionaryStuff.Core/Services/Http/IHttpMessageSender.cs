@@ -1,7 +1,7 @@
 ﻿using System.Net.Http;
 using System.Threading;
 
-namespace RevolutionaryStuff.Core.ApplicationParts.Services;
+namespace RevolutionaryStuff.Core.Services.Http;
 
 public interface IHttpMessageSender
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 
-namespace RevolutionaryStuff.Core.ApplicationParts.Services.DependencyInjection;
+namespace RevolutionaryStuff.Core.Services.DependencyInjection;
 
 public class NamedTypeNamedFactory : BaseLoggingDisposable, INamedFactory
 {

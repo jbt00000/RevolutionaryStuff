@@ -17,6 +17,9 @@ public abstract class BaseLoggingDisposable : BaseDisposable
 
     protected readonly ILogger Logger;
 
+    protected void LogTrace(string message, params object[] args)
+        => Logger.LogTrace(message, args);
+
     protected void LogWarning(string message, params object[] args)
         => Logger.LogWarning(message, args);
 
@@ -46,9 +49,6 @@ public abstract class BaseLoggingDisposable : BaseDisposable
 
     protected void LogDebug(string message, params object[] args)
         => Logger.LogDebug(message, args);
-
-    protected void LogTrace(string message, params object[] args)
-        => Logger.LogTrace(message, args);
 
     protected IDisposable CreateLogRegion([CallerMemberName] string message = null, params object[] args)
         => new LogRegion(Logger, message, args);

@@ -1,4 +1,4 @@
-﻿namespace RevolutionaryStuff.Core.ApplicationParts.Services.DependencyInjection;
+﻿namespace RevolutionaryStuff.Core.Services.DependencyInjection;
 
 [AttributeUsage(AttributeTargets.Class)]
 public sealed class NamedTypeAttribute : Attribute

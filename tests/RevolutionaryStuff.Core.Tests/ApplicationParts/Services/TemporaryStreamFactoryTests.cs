@@ -2,7 +2,7 @@
 using System.IO;
 using Microsoft.Extensions.Options;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RevolutionaryStuff.Core.ApplicationParts.Services;
+using RevolutionaryStuff.Core.Services.TemporaryStreamFactory;
 
 namespace RevolutionaryStuff.Core.Tests.ApplicationParts.Services
 {
@@ -11,7 +11,7 @@ namespace RevolutionaryStuff.Core.Tests.ApplicationParts.Services
     {
         private const int MemStreamCapacity = 16 * 1024;
 
-        private static readonly ITemporaryStreamFactory Factory = new TemporaryStreamFactory(new OptionsWrapper<TemporaryStreamFactory.Config>(new TemporaryStreamFactory.Config
+        private static readonly ITemporaryStreamFactory Factory = new RsllcTemporaryStreamFactory(new OptionsWrapper<RsllcTemporaryStreamFactory.Config>(new RsllcTemporaryStreamFactory.Config
         {
             MemoryStreamExpectedCapacityLimit = MemStreamCapacity,
             FileBufferSize = 1024

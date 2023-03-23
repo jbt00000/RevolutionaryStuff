@@ -1,9 +1,9 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Options;
 
-namespace RevolutionaryStuff.Core.ApplicationParts.Services;
+namespace RevolutionaryStuff.Core.Services.TemporaryStreamFactory;
 
-internal class TemporaryStreamFactory : ITemporaryStreamFactory
+internal class RsllcTemporaryStreamFactory : ITemporaryStreamFactory
 {
     private readonly IOptions<Config> ConfigOptions;
 
@@ -16,7 +16,7 @@ internal class TemporaryStreamFactory : ITemporaryStreamFactory
         public int FileBufferSize { get; set; } = 1024 * 16;
     }
 
-    public TemporaryStreamFactory(IOptions<Config> configOptions)
+    public RsllcTemporaryStreamFactory(IOptions<Config> configOptions)
     {
         ArgumentNullException.ThrowIfNull(configOptions);
 
@@ -27,9 +27,7 @@ internal class TemporaryStreamFactory : ITemporaryStreamFactory
     {
         var config = ConfigOptions.Value;
         if (capacity.GetValueOrDefault(int.MaxValue) < config.MemoryStreamExpectedCapacityLimit)
-        {
             return new MemoryStream(capacity.Value);
-        }
 
         var fn = Path.GetTempFileName();
         return File.Create(fn, config.FileBufferSize, FileOptions.DeleteOnClose);

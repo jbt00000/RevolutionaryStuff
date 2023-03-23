@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace RevolutionaryStuff.Core.ApplicationParts.Services.DependencyInjection;
+namespace RevolutionaryStuff.Core.Services.DependencyInjection;
 
 public interface IServiceCollectionAccessor
 {

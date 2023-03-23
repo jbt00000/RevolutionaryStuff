@@ -24,6 +24,8 @@ public static class Stuff
 
     public const string BaseRsllcUrn = "urn:www.revolutionarystuff.com";
 
+    internal const string ConfigSectionNamePrefix = "Rsllc";
+
     public static readonly CultureInfo CultureUS = new("en-US");
 
     public static readonly string ApplicationName;

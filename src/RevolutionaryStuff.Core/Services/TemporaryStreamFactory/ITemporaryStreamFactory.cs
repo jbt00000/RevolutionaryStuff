@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace RevolutionaryStuff.Core.ApplicationParts.Services;
+namespace RevolutionaryStuff.Core.Services.TemporaryStreamFactory;
 
 public interface ITemporaryStreamFactory
 {
