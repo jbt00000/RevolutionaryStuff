@@ -136,4 +136,17 @@ public static class StreamHelpers
         }
         if (remaining > 0) throw new IndexOutOfRangeException($"{nameof(st)} was too small.  could not read remaining {remaining} bytes");
     }
+
+    public async static Task<byte[]> ToBufferAsync(this Stream st)
+    {
+        Requires.ReadableStreamArg(st);
+
+        if (!(st is MemoryStream mst))
+        {
+            mst = new MemoryStream();
+            await st.CopyToAsync(mst);
+            mst.Position = 0;
+        }
+        return mst.ToArray();
+    }
 }
