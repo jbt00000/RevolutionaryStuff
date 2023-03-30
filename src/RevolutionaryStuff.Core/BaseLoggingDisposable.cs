@@ -53,6 +53,9 @@ public abstract class BaseLoggingDisposable : BaseDisposable
     protected IDisposable CreateLogRegion([CallerMemberName] string message = null, params object[] args)
         => new LogRegion(Logger, message, args);
 
+    protected IDisposable LogScopedProperty(string propertyName, object propertyValue)
+        => Logger.BeginScope("{propertyName}:{propertyValue}", propertyName, propertyValue);
+
     #endregion
 
     protected async Task ActAsync(Func<Task> executeAsync, [CallerMemberName] string caller = null)

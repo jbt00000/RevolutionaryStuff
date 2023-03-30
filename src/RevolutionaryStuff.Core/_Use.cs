@@ -39,7 +39,7 @@ public static class _Use
         services.AddScoped<ICorrelationIdFinder, HttpContextCorrelationIdFinder>();
         services.AddScoped<HardcodedCorrelationIdFinder>(); //so this can simply be asked for
 
-        services.AddScoped<IConnectionStringProvider, ServiceProviderConnectionStringProvider>();
+        services.AddSingleton<IConnectionStringProvider, ServiceProviderConnectionStringProvider>();
 
         services.AddScoped<IHttpMessageSender, HttpClientHttpMessageSender>();
     }
