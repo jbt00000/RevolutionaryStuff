@@ -82,6 +82,27 @@ public class CodedException<TCode> : BaseCodedException where TCode : System.Enu
         => Code;
 }
 
+public class PermanentException : Exception
+{
+    #region Constructors
+
+    public PermanentException()
+    { }
+
+    public PermanentException(Exception inner) 
+        : this("Permanent condition", inner)
+    { }
+
+    public PermanentException(string message) 
+        : base(message)
+    { }
+
+    public PermanentException(string message, Exception inner)
+        : base(message, inner)
+    { }
+
+    #endregion
+}
 
 public class NotNowException : Exception
 {
