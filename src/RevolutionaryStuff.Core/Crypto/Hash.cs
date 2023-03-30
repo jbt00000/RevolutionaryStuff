@@ -114,27 +114,20 @@ public sealed class Hash
     #endregion
 
     public override string ToString()
-    {
-        return $"{GetType().Name} {Urn}";
-    }
+        => $"{GetType().Name} {Urn}";
 
     public static string CreateUrn(string hashName, byte[] hashBytes)
-    {
-        return $"urn:{hashName}:{Base32.Encode(hashBytes)}";
-    }
+        => $"urn:{hashName}:{Base32.Encode(hashBytes)}";
+
+    public string NameDashBase64
+        => $"{HashName}-{Base64.Encode(Data)}";
 
     public string Urn
-    {
-        [DebuggerStepThrough]
-        get { return $"urn:{HashName}:{DataHuman}"; }
-    }
+        => $"urn:{HashName}:{DataHuman}";
 
     /// <remarks>http://www.ietf.org/mail-archive/web/urn-nid/current/msg00043.html</remarks>
     public string ThiemannHashUrn
-    {
-        [DebuggerStepThrough]
-        get { return $"urn:hash::{HashName}:{DataHuman}"; }
-    }
+        => $"urn:hash::{HashName}:{DataHuman}";
 
     public string DataHuman
     {
@@ -145,9 +138,7 @@ public sealed class Hash
     }
 
     public static string GetUrnType(string urn)
-    {
-        return UrnTypeExpression.GetGroupValue(urn);
-    }
+        => UrnTypeExpression.GetGroupValue(urn);
 
     public static string GetBitprint(string[] urns)
     {

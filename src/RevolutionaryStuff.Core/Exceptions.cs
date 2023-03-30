@@ -82,6 +82,21 @@ public class CodedException<TCode> : BaseCodedException where TCode : System.Enu
         => Code;
 }
 
+public class ItemNotFoundException : KeyNotFoundException
+{
+    public ItemNotFoundException(string reason)
+        : base(reason)
+    { }
+
+    public static void ThrowIfNull<T>(T item, string itemKey) where T : class
+    {
+        if (item == null)
+        {
+            throw new ItemNotFoundException($"Could not find {typeof(T)} with key=[{itemKey}]");
+        }
+    }
+}
+
 public class PermanentException : Exception
 {
     #region Constructors
