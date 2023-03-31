@@ -54,7 +54,7 @@ public abstract class BaseLoggingDisposable : BaseDisposable
         => new LogRegion(Logger, message, args);
 
     protected IDisposable LogScopedProperty(string propertyName, object propertyValue)
-        => Logger.BeginScope("{propertyName}:{propertyValue}", propertyName, propertyValue);
+        => Logger.LogScopedProperty(propertyName, propertyValue);
 
     #endregion
 
