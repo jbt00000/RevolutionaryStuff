@@ -23,9 +23,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright ©  2022</Copyright>
-        <FileVersion>3.90.60.0</FileVersion>
-        <AssemblyVersion>3.90.60.0</AssemblyVersion>
-        <Version>3.90.60</Version>
+        <FileVersion>3.91.60.0</FileVersion>
+        <AssemblyVersion>3.91.60.0</AssemblyVersion>
+        <Version>3.91.60</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,7 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.0" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
     </ItemGroup>
 
     <ItemGroup>

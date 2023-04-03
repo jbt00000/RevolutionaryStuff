@@ -23,9 +23,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright ©  2022</Copyright>
-        <FileVersion>3.90.60.0</FileVersion>
-        <AssemblyVersion>3.90.60.0</AssemblyVersion>
-        <Version>3.90.60</Version>
+        <FileVersion>3.91.60.0</FileVersion>
+        <AssemblyVersion>3.91.60.0</AssemblyVersion>
+        <Version>3.91.60</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -59,7 +59,7 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="6.0.0" />
         <PackageReference Include="Microsoft.Extensions.Options" Version="6.0.0" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.2" />
+        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     </ItemGroup>
 
 </Project>
