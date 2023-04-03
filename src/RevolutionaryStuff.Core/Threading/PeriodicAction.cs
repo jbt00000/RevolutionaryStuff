@@ -7,6 +7,10 @@ public class PeriodicAction : BaseDisposable
 {
     private readonly Timer T;
 
+    public PeriodicAction(Func<Task> func, TimeSpan waitBetweenInvocationsDuration, TimeSpan? waitBeforeStartup = null)
+        : this(() => func().ExecuteSynchronously(), waitBetweenInvocationsDuration, waitBeforeStartup)
+    { }
+
     public PeriodicAction(Action action, TimeSpan waitBetweenInvocationsDuration, TimeSpan? waitBeforeStartup = null)
     {
         ArgumentNullException.ThrowIfNull(action);
