@@ -17,8 +17,8 @@ public class NamedFactoryAttribute : Attribute
     public static ICollection<Type> Find(Predicate<string> factoryNameFilter, Type interfaceType = null)
     {
         factoryNameFilter ??= delegate (string z) { return true; };
-        return Cache.DataCacher.FindOrCreateValue(
-            Cache.CreateKey(typeof(NamedFactoryAttribute), nameof(Find), factoryNameFilter, interfaceType == null ? "" : interfaceType.AssemblyQualifiedName),
+        return PermaCache.FindOrCreate(
+            factoryNameFilter, interfaceType,
             delegate ()
             {
                 var m = AttributeStuff.GetAttributesByPublicType(
@@ -82,8 +82,8 @@ public class NamedFactoryAttribute : Attribute
         var types = Find(factoryNameFilter, typeof(I));
         foreach (var t in types)
         {
-            var factory = Cache.DataCacher.FindOrCreateValue(
-                Cache.CreateKey(typeof(NamedFactoryAttribute), nameof(InstantiateFactories), t, nameof(InstantiateFactories)),
+            var factory = PermaCache.FindOrCreate(
+                t,
                 () =>
                 {
                     var factoryConstructorInfo = t.GetTypeInfo().GetConstructor(Empty.TypeArray);

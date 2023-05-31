@@ -30,8 +30,8 @@ public static class Parse
 
     public static Enum ParseEnumWithEnumMemberValues(Type t, string val, bool caseSensitive = false, Enum missing = default)
     {
-        var d = Cache.DataCacher.FindOrCreateValue<IDictionary<string, object>>(
-            Cache.CreateKey(t, caseSensitive),
+        var d = PermaCache.FindOrCreate<IDictionary<string, object>>(
+            t, caseSensitive,
             () =>
             {
                 var z = caseSensitive ?

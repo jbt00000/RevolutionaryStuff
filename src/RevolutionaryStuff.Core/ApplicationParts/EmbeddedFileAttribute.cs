@@ -16,7 +16,6 @@ public abstract class EmbeddedFileAttribute : Attribute
         => GetAsString(t.Assembly);
 
     public string GetAsString(Assembly a)
-        => Cache.DataCacher.FindOrCreateValue(
-            Cache.CreateKey(a.FullName, nameof(GetAsString), ResourceName), () => ResourceHelpers.GetEmbeddedResourceAsString(a, ResourceName));
+        => PermaCache.FindOrCreate(a.FullName, nameof(GetAsString), ResourceName, () => ResourceHelpers.GetEmbeddedResourceAsString(a, ResourceName));
 }
 

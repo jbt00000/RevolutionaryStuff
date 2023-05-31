@@ -31,8 +31,8 @@ public static class AttributeStuff
     public static TAttribute GetCustomAttribute<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute => t.GetCustomAttributes<TAttribute>(inherit).FirstOrDefault();
 
     public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute
-        => Cache.DataCacher.FindOrCreateValue(
-            Cache.CreateKey(typeof(AttributeStuff), nameof(GetCustomAttributes), t, typeof(TAttribute), inherit),
+        => PermaCache.FindOrCreate(
+            t, typeof(TAttribute), inherit,
             () => t.GetTypeInfo().GetCustomAttributes(inherit).OfType<TAttribute>().ConvertAll(a => (Attribute)a).AsReadOnly()
             ).OfType<TAttribute>();
 

@@ -22,10 +22,10 @@
         <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-        <Copyright>Copyright ©  2022</Copyright>
-        <FileVersion>3.94.60.0</FileVersion>
-        <AssemblyVersion>3.94.60.0</AssemblyVersion>
-        <Version>3.94.60</Version>
+        <Copyright>Copyright © 2023</Copyright>
+        <FileVersion>3.96.60.0</FileVersion>
+        <AssemblyVersion>3.96.60.0</AssemblyVersion>
+        <Version>3.96.60</Version>
     </PropertyGroup>
 
     <ItemGroup>

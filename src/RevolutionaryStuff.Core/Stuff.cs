@@ -177,8 +177,8 @@ public static class Stuff
     }
 
     public static string GetPathFromSerializedPath(Type t, string serializedPath)
-        => Cache.DataCacher.FindOrCreateValue(
-            Cache.CreateKey(typeof(Stuff), nameof(GetPathFromSerializedPath), t, serializedPath),
+        => PermaCache.FindOrCreate(
+            t, serializedPath,
             () =>
             {
                 if (serializedPath == null) return null;

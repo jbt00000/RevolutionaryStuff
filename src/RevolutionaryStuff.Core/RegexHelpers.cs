@@ -9,8 +9,8 @@ public static class RegexHelpers
     public const RegexOptions IgnoreCaseSingleLineCompiled = RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled;
 
     public static Regex Create(string pattern, RegexOptions options = RegexOptions.None)
-        => Cache.DataCacher.FindOrCreateValue(
-            Cache.CreateKey(typeof(RegexHelpers), nameof(Create), pattern, options | RegexOptions.Compiled),
+        => PermaCache.FindOrCreate(
+            pattern, options | RegexOptions.Compiled,
             () => new Regex(pattern, options | RegexOptions.Compiled));
 
     public static class Common

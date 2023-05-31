@@ -20,6 +20,7 @@ public static partial class Cache
 
     public static readonly ILocalCacher Passthrough = new PassthroughCacher();
 
+    #region CacheKey
     public static string CreateKey<T>()
         => CreateKey(new object[] { typeof(T) });
 
@@ -113,4 +114,6 @@ public static partial class Cache
         var buf = Encoding.UTF8.GetBytes(key);
         return $"urn:crc32:{CRC32Checksum.Do(buf)}{key.GetHashCode()}";
     }
+
+    #endregion
 }

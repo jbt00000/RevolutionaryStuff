@@ -8,8 +8,8 @@ namespace RevolutionaryStuff.Core;
 public static class SerializationHelpers
 {
     public static DataContractJsonSerializer GetJsonSerializer(this Type t)
-        => Cache.DataCacher.FindOrCreateValue(
-            Cache.CreateKey(typeof(SerializationHelpers), nameof(GetJsonSerializer), t),
+        => PermaCache.FindOrCreate(
+            t,
             () => new DataContractJsonSerializer(t));
 
     public static DataContractJsonSerializer GetJsonSerializer<TSerializationType>()
