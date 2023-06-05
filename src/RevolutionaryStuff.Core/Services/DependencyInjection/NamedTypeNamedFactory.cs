@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http.Features;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.Collections;
 
 namespace RevolutionaryStuff.Core.Services.DependencyInjection;
@@ -36,20 +35,15 @@ public class NamedTypeNamedFactory : BaseLoggingDisposable, INamedFactory
             z.ServiceType.IsA<T>() &&
             (z.ImplementationType.GetCustomAttribute<NamedTypeAttribute>()?.Names ?? Empty.StringArray).Contains(name)
             )
-            .OrderBy(sd=> ImplementationTypesByServiceType[sd.ServiceType].Count)
+            .OrderBy(sd => ImplementationTypesByServiceType[sd.ServiceType].Count)
             .ToList();
 
         if (sds.Count > 0)
         {
             var sd = sds[0];
-            if (ImplementationTypesByServiceType[sd.ServiceType].Count == 1)
-            {
-                service = (T)ServiceProvider.GetService(sd.ServiceType);
-            }
-            else
-            { 
-                service = (T)ServiceProvider.GetService(sd.ImplementationType);
-            }
+            service = ImplementationTypesByServiceType[sd.ServiceType].Count == 1
+                ? (T)ServiceProvider.GetService(sd.ServiceType)
+                : (T)ServiceProvider.GetService(sd.ImplementationType);
         }
 
         return service;

@@ -104,11 +104,11 @@ public class PermanentException : Exception
     public PermanentException()
     { }
 
-    public PermanentException(Exception inner) 
+    public PermanentException(Exception inner)
         : this("Permanent condition", inner)
     { }
 
-    public PermanentException(string message) 
+    public PermanentException(string message)
         : base(message)
     { }
 

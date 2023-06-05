@@ -48,11 +48,11 @@ internal class HttpClientHttpMessageSender : BaseLoggingDisposable, IHttpMessage
 
     async Task<HttpResponseMessage> IHttpMessageSender.SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
-        await SetHeadersAsync(request);
+        SetHeaders(request);
         return await HttpClient.SendAsync(request, cancellationToken);
     }
 
-    private async Task SetHeadersAsync(HttpRequestMessage request)
+    private void SetHeaders(HttpRequestMessage request)
     {
         SetConfigHeaders(request);
         SetCorrelationIdHeader(request);

@@ -18,7 +18,7 @@ public class HttpContextCorrelationIdFinder : ICorrelationIdFinder
         public IList<string> HttpHeaderNames { get; set; } = new[] { DefaultCorrelationIdHeaderKey };
     }
 
-    public HttpContextCorrelationIdFinder(IOptions<Config> configOptions, IHttpContextAccessor httpContextAccessor=null)
+    public HttpContextCorrelationIdFinder(IOptions<Config> configOptions, IHttpContextAccessor httpContextAccessor = null)
     {
         //ArgumentNullException.ThrowIfNull(httpContextAccessor);
         ArgumentNullException.ThrowIfNull(configOptions);
@@ -34,7 +34,7 @@ public class HttpContextCorrelationIdFinder : ICorrelationIdFinder
             var req = HttpContextAccessor?.HttpContext?.Request;
             if (req == null) return null;
             List<string> ret = null;
-            foreach (var headerName in ConfigOptions.Value.HttpHeaderNames.NullSafeEnumerable().Select(z=>z.TrimOrNull()).WhereNotNull())
+            foreach (var headerName in ConfigOptions.Value.HttpHeaderNames.NullSafeEnumerable().Select(z => z.TrimOrNull()).WhereNotNull())
             {
                 var vals = req.Headers[headerName];
                 if (vals.Count > 0)

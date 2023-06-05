@@ -14,7 +14,7 @@ public interface ICorrelationIdFinder
 }
 
 public interface ICorrectionIdFindOrCreate
-{ 
+{
     string CorrelationId { get; }
 }
 
@@ -39,7 +39,7 @@ public class CorrectionIdFindOrCreate : ICorrectionIdFindOrCreate
             if (CorrelationIdField == null)
             {
                 var finders = ServiceProvider.GetServices<ICorrelationIdFinder>();
-                foreach (var finder in finders) 
+                foreach (var finder in finders)
                 {
                     var ids = finder.CorrelationIds;
                     if (ids != null && ids.Count > 0)

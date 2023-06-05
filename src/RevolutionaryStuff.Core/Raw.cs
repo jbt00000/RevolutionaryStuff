@@ -496,12 +496,9 @@ public static class Raw
 
         public static byte HexCharAsByte2Val(byte b)
         {
-            if (b >= byte0 && b <= byte9)
-            {
-                return (byte)(b - byte0);
-            }
-
-            return b >= bytea && b <= bytef ? (byte)(b - bytea + 10) : b >= byteA && b <= byteF ? (byte)(b - byteA + 10) : byte.MaxValue;
+            return b >= byte0 && b <= byte9
+                ? (byte)(b - byte0)
+                : b >= bytea && b <= bytef ? (byte)(b - bytea + 10) : b >= byteA && b <= byteF ? (byte)(b - byteA + 10) : byte.MaxValue;
         }
     }
 

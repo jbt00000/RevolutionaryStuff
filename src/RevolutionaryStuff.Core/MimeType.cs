@@ -34,31 +34,32 @@ public class MimeType
             public static readonly MimeType ArchiveDocument = new("application/x-freearc", ".arc");
             public static readonly MimeType BZipArchive = new("application/x-bzip", ".bz");
             public static readonly MimeType BZip2Archive = new("application/x-bzip2", ".bz2");
+            public static readonly MimeType Tar = new("application/x-tar", ".tar");
             public static readonly MimeType Zip = new("application/zip", ".zip");
-            internal static readonly IList<MimeType> All = new[] { ArchiveDocument, BZipArchive, BZip2Archive, _7Zip, Zip }.ToList().AsReadOnly();
+            internal static readonly IList<MimeType> All = new[] { ArchiveDocument, BZipArchive, BZip2Archive, _7Zip, Tar, Zip }.ToList().AsReadOnly();
         }
 
         public static class Font
         {
-            public static readonly MimeType OpenTypeFont = new MimeType("font/otf", ".otf");
-            public static readonly MimeType TrueTypeFont = new MimeType("font/ttf", ".ttf");
-            public static readonly MimeType WebOpenFontFormat = new MimeType("font/woff", ".woff");
-            public static readonly MimeType WebOpenFontFormat2 = new MimeType("font/woff2", ".woff2");
+            public static readonly MimeType OpenTypeFont = new("font/otf", ".otf");
+            public static readonly MimeType TrueTypeFont = new("font/ttf", ".ttf");
+            public static readonly MimeType WebOpenFontFormat = new("font/woff", ".woff");
+            public static readonly MimeType WebOpenFontFormat2 = new("font/woff2", ".woff2");
             internal static readonly IList<MimeType> All = new[] { OpenTypeFont, TrueTypeFont, WebOpenFontFormat, WebOpenFontFormat2 }.ToList().AsReadOnly();
         }
 
         public static class Presentation
         {
-            public static readonly MimeType MicrosoftPowerPoint = new MimeType("application/vnd.ms-powerpoint", ".ppt");
-            public static readonly MimeType MicrosoftPowerPointOpenXML = new MimeType("application/vnd.openxmlformats-officedocument.presentationml.presentation", ".pptx");
+            public static readonly MimeType MicrosoftPowerPoint = new("application/vnd.ms-powerpoint", ".ppt");
+            public static readonly MimeType MicrosoftPowerPointOpenXML = new("application/vnd.openxmlformats-officedocument.presentationml.presentation", ".pptx");
             internal static readonly IList<MimeType> All = new[] { MicrosoftPowerPoint, MicrosoftPowerPointOpenXML }.ToList().AsReadOnly();
         }
 
         public static class WordProcessing
         {
-            public static readonly MimeType MicrosoftWord = new MimeType("application/msword", ".doc");
-            public static readonly MimeType MicrosoftWordOpenXml = new MimeType("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx");
-            public static readonly MimeType OpenDocumentTextDocument = new MimeType("application/vnd.oasis.opendocument.text", ".odt");
+            public static readonly MimeType MicrosoftWord = new("application/msword", ".doc");
+            public static readonly MimeType MicrosoftWordOpenXml = new("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx");
+            public static readonly MimeType OpenDocumentTextDocument = new("application/vnd.oasis.opendocument.text", ".odt");
             internal static readonly IList<MimeType> All = new[] { MicrosoftWord, MicrosoftWordOpenXml, OpenDocumentTextDocument }.ToList().AsReadOnly();
         }
 
@@ -125,11 +126,11 @@ public class MimeType
         public static readonly MimeType Any = new("video/*");
         public static readonly MimeType _3gp = new("video/3gp");
         public static readonly MimeType Avi = new("video/avi", ".avi", "video/x-msvideo");
-        public static readonly MimeType Mp4Video = new ("video/mp4", ".mp4");
+        public static readonly MimeType Mp4Video = new("video/mp4", ".mp4");
         public static readonly MimeType MpegVideo = new("video/mpeg", ".mpeg");
-        public static readonly MimeType OggVideo = new ("video/ogg", ".ogv");
+        public static readonly MimeType OggVideo = new("video/ogg", ".ogv");
         public static readonly MimeType MpegTransportStream = new("video/mp2t", ".ts");
-        public static readonly MimeType WebmVideo = new ("video/webm", ".webm");
+        public static readonly MimeType WebmVideo = new("video/webm", ".webm");
         public static readonly MimeType _3gp2 = new("video/3gpp2", ".3g2");
         public static readonly MimeType Flv = new("video/x-flv", "video/flv", ".flv");
         public static readonly MimeType H264 = new("video/h264");

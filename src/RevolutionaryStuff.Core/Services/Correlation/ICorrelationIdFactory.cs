@@ -1,6 +1,6 @@
 ﻿namespace RevolutionaryStuff.Core.Services.Correlation;
 
-public interface ICorrelationIdFactory 
+public interface ICorrelationIdFactory
 {
     string Create();
 }

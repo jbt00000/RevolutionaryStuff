@@ -193,23 +193,15 @@ public static class TypeHelpers
     public static Type GetUnderlyingType(this MemberInfo mi)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        if (mi is PropertyInfo pi)
-        {
-            return pi.PropertyType;
-        }
-
-        return mi is FieldInfo fi ? fi.FieldType : null;
+        return mi is PropertyInfo pi ? pi.PropertyType : mi is FieldInfo fi ? fi.FieldType : null;
     }
 
     public static object GetValue(this MemberInfo mi, object basevar)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        if (mi is PropertyInfo pi)
-        {
-            return pi.GetValue(basevar, null);
-        }
-
-        return mi is FieldInfo fi ? fi.GetValue(basevar) : throw new UnexpectedSwitchValueException(mi.GetType().Name);
+        return mi is PropertyInfo pi
+            ? pi.GetValue(basevar, null)
+            : mi is FieldInfo fi ? fi.GetValue(basevar) : throw new UnexpectedSwitchValueException(mi.GetType().Name);
     }
 
     public static void SetValue(this MemberInfo mi, object basevar, object val)
@@ -233,12 +225,9 @@ public static class TypeHelpers
     public static object ConvertValue(this MemberInfo mi, object val)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        if (mi is PropertyInfo pi)
-        {
-            return ConvertValue(pi.PropertyType, val);
-        }
-
-        return mi is FieldInfo fi ? ConvertValue(fi.FieldType, val) : throw new UnexpectedSwitchValueException(mi.GetType().Name);
+        return mi is PropertyInfo pi
+            ? ConvertValue(pi.PropertyType, val)
+            : mi is FieldInfo fi ? ConvertValue(fi.FieldType, val) : throw new UnexpectedSwitchValueException(mi.GetType().Name);
     }
 
     public static object ConvertValue(Type t, string val)
@@ -285,13 +274,9 @@ public static class TypeHelpers
         else
         {
             var ti = t.GetTypeInfo();
-            if (ti.IsAssignableFrom(val.GetType()))
-            {
-                v = val;
-            }
-            else
-            {
-                v = ti.IsEnum
+            v = ti.IsAssignableFrom(val.GetType())
+                ? val
+                : ti.IsEnum
                     ? Enum.Parse(t, val.ToString(), true)
                     : ti.IsGenericType &&
                                                 t.GetGenericTypeDefinition() == typeof(Nullable<>) &&
@@ -299,7 +284,6 @@ public static class TypeHelpers
                                                 t.GenericTypeArguments[0].GetTypeInfo().IsEnum
                                     ? Enum.Parse(t.GenericTypeArguments[0], val.ToString(), true)
                                     : ChangeType(val, t);
-            }
         }
         return v;
     }
@@ -321,12 +305,7 @@ public static class TypeHelpers
     public static bool CanWrite(this MemberInfo mi)
     {
         RequiresIsPropertyInfoOrFieldInfo(mi);
-        if (mi is PropertyInfo pi)
-        {
-            return pi.CanWrite;
-        }
-
-        return mi is FieldInfo fi && !(fi.IsInitOnly || fi.IsLiteral);
+        return mi is PropertyInfo pi ? pi.CanWrite : mi is FieldInfo fi && !(fi.IsInitOnly || fi.IsLiteral);
     }
 
     //        public static bool A
