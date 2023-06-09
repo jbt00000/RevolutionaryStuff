@@ -29,7 +29,7 @@ public static class _Use
         services.AddSingleton<ITemporaryStreamFactory, RsllcTemporaryStreamFactory>();
 
         services.AddSingleton<IServiceCollectionAccessor>(new HardcodedServiceCollectionProvider(services));
-        services.AddSingleton<INamedFactory, NamedTypeNamedFactory>();
+        services.AddScoped<INamedFactory, NamedTypeNamedFactory>();
 
 
         services.ConfigureOptions<CorrelationIdFactory.Config>(CorrelationIdFactory.Config.ConfigSectionName);
