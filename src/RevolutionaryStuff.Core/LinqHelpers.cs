@@ -318,9 +318,9 @@ Again:
         return exp.GetMembers().Last().Name;
     }
 
-    public static string GetFullyQualifiedName<TModel, TResult>(this Expression<Func<TModel, TResult>> exp)
+    public static string GetFullyQualifiedName<TModel, TResult>(this Expression<Func<TModel, TResult>> exp, string separator = ".")
     {
-        return exp.GetMembers().ConvertAll(z => z.Name).Format(".");
+        return exp.GetMembers().ConvertAll(z => z.Name).Format(separator);
     }
 
     /// <remarks>As an extension method, this "infects" way too many items</remarks>

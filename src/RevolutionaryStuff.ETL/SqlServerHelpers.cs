@@ -1,9 +1,9 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
-using RevolutionaryStuff.Core.Database;
+using RevolutionaryStuff.Core.Data.SqlServer.Database;
 
-namespace RevolutionaryStuff.ETL;
+namespace RevolutionaryStuff.Data.ETL;
 
 public static class SqlServerHelpers
 {
@@ -24,11 +24,13 @@ public static class SqlServerHelpers
                 conn.ExecuteNonQuery(sql);
             }
 
-            var copy = new SqlBulkCopy(conn);
-            copy.BulkCopyTimeout = 60 * 60 * 4;
-            copy.DestinationTableName = $"[{settings.Schema}].[{dt.TableName}]";
+            var copy = new SqlBulkCopy(conn)
+            {
+                BulkCopyTimeout = 60 * 60 * 4,
+                DestinationTableName = $"[{settings.Schema}].[{dt.TableName}]",
 
-            copy.NotifyAfter = settings.RowsTransferredNotifyIncrement;
+                NotifyAfter = settings.RowsTransferredNotifyIncrement
+            };
             copy.SqlRowsCopied += (sender, e) => Trace.WriteLine(string.Format("Uploaded {0}/{1} rows",
                 e.RowsCopied,
                 dt.Rows.Count

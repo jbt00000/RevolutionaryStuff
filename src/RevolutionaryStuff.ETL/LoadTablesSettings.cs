@@ -1,6 +1,6 @@
 ﻿using System.Data;
 
-namespace RevolutionaryStuff.ETL;
+namespace RevolutionaryStuff.Data.ETL;
 
 public class LoadTablesSettings
 {

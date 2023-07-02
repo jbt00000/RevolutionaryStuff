@@ -2,7 +2,7 @@
 using System.IO;
 using HtmlAgilityPack;
 
-namespace RevolutionaryStuff.ETL;
+namespace RevolutionaryStuff.Data.ETL;
 
 public class LoadRowsFromHtmlSettings : LoadRowsSettings
 {

@@ -1,8 +1,9 @@
 ﻿using System.Data;
 using System.Diagnostics;
 using Microsoft.Data.SqlClient;
+using RevolutionaryStuff.Core.Database;
 
-namespace RevolutionaryStuff.Core.Database;
+namespace RevolutionaryStuff.Core.Data.SqlServer.Database;
 
 public static class SqlServerHelpers
 {

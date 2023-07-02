@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 
-namespace RevolutionaryStuff.ETL;
+namespace RevolutionaryStuff.Data.ETL;
 
 /// <remarks>
 /// https://www.clicketyclick.dk/databases/xbase/format/dbf.html#DBF_NOTE_15_SOURCE
@@ -312,7 +312,7 @@ public static class DBaseHelpers
             fields.Add(field);
             dt.Columns.Add(field.ToDataColumn());
         }
-        st.Position -= (32 - 1);
+        st.Position -= 32 - 1;
         if (fieldBuf[1] == 0)
         {
             st.Position += 1;

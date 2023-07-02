@@ -1,0 +1,50 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFramework>net6.0</TargetFramework>
+        <AssemblyName>RevolutionaryStuff.ETL</AssemblyName>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <Authors>jason@jasonthomas.com</Authors>
+        <Company>Revolutionary Stuff, LLC</Company>
+        <Description>Utility library to help with ETL.</Description>
+        <PackageLicenseUrl></PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
+        <RepositoryType>GIT</RepositoryType>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageReleaseNotes>This is now a .NET 6 library</PackageReleaseNotes>
+        <PackageIcon>package\icon.png</PackageIcon>
+        <PackageLicenseFile>package\license.txt</PackageLicenseFile>
+        <Copyright>Copyright © 2023</Copyright>
+        <FileVersion>3.99.60.0</FileVersion>
+        <AssemblyVersion>3.99.60.0</AssemblyVersion>
+        <Version>3.99.60</Version>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
+        <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
+    </ItemGroup>
+
+    <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
+
+    <ItemGroup>
+        <None Remove="SpreadsheetResources\Styles.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="SpreadsheetResources\Styles.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <PackageReference Include="DocumentFormat.OpenXml" Version="2.20.0" />
+        <PackageReference Include="HtmlAgilityPack" Version="1.11.46" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
+        <ProjectReference Include="..\RevolutionaryStuff.SqlServer\RevolutionaryStuff.Data.SqlServer.csproj" />
+    </ItemGroup>
+
+</Project>

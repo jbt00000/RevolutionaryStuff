@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using RevolutionaryStuff.Core.ApplicationParts;
 
-namespace RevolutionaryStuff.ETL;
+namespace RevolutionaryStuff.Data.ETL;
 
 public class LoadRowsSettings : IValidate
 {

@@ -17,7 +17,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
-    <ProjectReference Include="..\..\src\RevolutionaryStuff.ETL\RevolutionaryStuff.ETL.csproj" />
+    <ProjectReference Include="..\..\src\RevolutionaryStuff.ETL\RevolutionaryStuff.Data.ETL.csproj" />
   </ItemGroup>
 
 </Project>

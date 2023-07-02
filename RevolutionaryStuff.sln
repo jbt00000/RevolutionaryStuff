@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.SSIS", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Core.Tests", "tests\RevolutionaryStuff.Core.Tests\RevolutionaryStuff.Core.Tests.csproj", "{A94BE5E2-E5A4-4BE3-8CCD-E5B343791AD6}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.ETL", "src\RevolutionaryStuff.ETL\RevolutionaryStuff.ETL.csproj", "{A7622E2B-255A-4C84-A8AA-B34B96678189}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Data.ETL", "src\RevolutionaryStuff.ETL\RevolutionaryStuff.Data.ETL.csproj", "{A7622E2B-255A-4C84-A8AA-B34B96678189}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.TheLoader", "src\RevolutionaryStuff.TheLoader\RevolutionaryStuff.TheLoader.csproj", "{4C2ADF1B-6E56-43E6-8DAF-A88326414FE1}"
 EndProject
@@ -64,7 +64,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.AspNetCo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConsoleApp1", "src\ConsoleApp1\ConsoleApp1.csproj", "{13D521F4-7A7D-4AE9-AE98-E749F081A21D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.SqlServer", "src\RevolutionaryStuff.SqlServer\RevolutionaryStuff.SqlServer.csproj", "{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Data.SqlServer", "src\RevolutionaryStuff.SqlServer\RevolutionaryStuff.Data.SqlServer.csproj", "{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Data.JsonStore", "src\RevolutionaryStuff.Data.JsonStore\RevolutionaryStuff.Data.JsonStore.csproj", "{1D04788F-2C40-4707-A55D-199FEF02AE3E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.Data.JsonStore.Cosmos", "src\RevolutionaryStuff.Data.JsonStore.Cosmos\RevolutionaryStuff.Data.JsonStore.Cosmos.csproj", "{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.Data.Cosmos", "src\RevolutionaryStuff.Data.Cosmos\RevolutionaryStuff.Data.Cosmos.csproj", "{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -244,6 +250,42 @@ Global
 		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
 		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
 		{7510F3DE-5CB1-4798-BD0D-7F99D54D7B62}.VSTS-CI|x64.Build.0 = Debug|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.Debug|x64.Build.0 = Debug|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.Release|x64.ActiveCfg = Release|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.Release|x64.Build.0 = Release|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
+		{1D04788F-2C40-4707-A55D-199FEF02AE3E}.VSTS-CI|x64.Build.0 = Debug|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.Debug|x64.Build.0 = Debug|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.Release|x64.ActiveCfg = Release|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.Release|x64.Build.0 = Release|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
+		{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}.VSTS-CI|x64.Build.0 = Debug|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.Debug|x64.Build.0 = Debug|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.Release|x64.ActiveCfg = Release|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.Release|x64.Build.0 = Release|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
+		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.VSTS-CI|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

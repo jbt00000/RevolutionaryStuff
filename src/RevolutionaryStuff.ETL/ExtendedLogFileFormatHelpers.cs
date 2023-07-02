@@ -3,7 +3,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Text;
 
-namespace RevolutionaryStuff.ETL;
+namespace RevolutionaryStuff.Data.ETL;
 
 /// <remarks>http://www.w3.org/TR/WD-logfile.html</remarks>
 public static class ExtendedLogFileFormatHelpers

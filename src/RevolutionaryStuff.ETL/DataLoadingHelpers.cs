@@ -6,7 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
 
-namespace RevolutionaryStuff.ETL;
+namespace RevolutionaryStuff.Data.ETL;
 
 public static partial class DataLoadingHelpers
 {
@@ -241,7 +241,7 @@ public static partial class DataLoadingHelpers
             using (var sr = new StreamReader(st))
             {
                 var maxCapacity = 1024 * 1024 * 127;
-                var sb = new StringBuilder(maxCapacity + 1024 * 1024);
+                var sb = new StringBuilder(maxCapacity + (1024 * 1024));
                 for (; ; )
                 {
                     var line = sr.ReadLine();

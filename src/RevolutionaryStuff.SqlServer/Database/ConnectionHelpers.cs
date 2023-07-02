@@ -5,8 +5,9 @@ using System.Diagnostics;
 using System.Reflection;
 using Microsoft.Data.SqlClient;
 using RevolutionaryStuff.Core.Caching;
+using RevolutionaryStuff.Core.Database;
 
-namespace RevolutionaryStuff.Core.Database;
+namespace RevolutionaryStuff.Core.Data.SqlServer.Database;
 
 public static class ConnectionHelpers
 {

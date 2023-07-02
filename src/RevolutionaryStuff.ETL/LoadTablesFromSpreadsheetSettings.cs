@@ -1,4 +1,4 @@
-﻿namespace RevolutionaryStuff.ETL;
+﻿namespace RevolutionaryStuff.Data.ETL;
 
 public class LoadTablesFromSpreadsheetSettings : LoadTablesSettings
 {
