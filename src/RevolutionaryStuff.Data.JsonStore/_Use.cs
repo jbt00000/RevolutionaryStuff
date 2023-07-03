@@ -1,5 +1,5 @@
-﻿using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Data.JsonStore.Entities;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
@@ -14,21 +14,21 @@ public static class _Use
         public IJsonEntityIdServices? JsonEntityIdServices { get; set; }
     }
 
-    private static int InitCalls;
     public static void UseRevolutionaryStuffDataJsonStore(this IServiceCollection services, Settings? settings = null)
-    {
-        if (Interlocked.Increment(ref InitCalls) > 1) return;
+        => ServiceUseManager.Use(
+            settings,
+            () =>
+            {
+                services.UseRevolutionaryStuffCore();
 
-        services.UseRevolutionaryStuffCore();
+                if (settings?.JsonSerializer != null)
+                {
 
-        if (settings?.JsonSerializer != null)
-        {
-
-            JsonSerializable.Serializer = settings.JsonSerializer;
-        }
-        if (settings?.JsonEntityIdServices != null)
-        {
-            JsonEntity.JsonEntityIdServices = settings.JsonEntityIdServices;
-        }
-    }
+                    JsonSerializable.Serializer = settings.JsonSerializer;
+                }
+                if (settings?.JsonEntityIdServices != null)
+                {
+                    JsonEntity.JsonEntityIdServices = settings.JsonEntityIdServices;
+                }
+            });
 }

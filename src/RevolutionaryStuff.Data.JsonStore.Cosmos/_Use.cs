@@ -1,5 +1,5 @@
-﻿using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
@@ -12,18 +12,17 @@ public static class _Use
     {
     }
 
-    private static int InitCalls;
     public static void UseRevolutionaryStuffDataJsonStoreCosmos(this IServiceCollection services, Settings? settings = null)
-    {
-        if (Interlocked.Increment(ref InitCalls) > 1) return;
+        => ServiceUseManager.Use(
+            settings,
+            () =>
+            {
+                #region Database
 
-        #region Database
+                services.ConfigureOptions<CosmosJsonEntityServer.Config>(CosmosJsonEntityServer.Config.ConfigSectionName);
+                services.AddScoped<CosmosJsonEntityServer.CosmosJsonEntityServerConstructorArgs>();
+                services.AddScoped<IJsonEntityServer, CosmosJsonEntityServer>();
 
-        services.ConfigureOptions<CosmosJsonEntityServer.Config>(CosmosJsonEntityServer.Config.ConfigSectionName);
-        services.AddScoped<CosmosJsonEntityServer.CosmosJsonEntityServerConstructorArgs>();
-        services.AddScoped<IJsonEntityServer, CosmosJsonEntityServer>();
-
-        #endregion
-
-    }
+                #endregion
+            });
 }

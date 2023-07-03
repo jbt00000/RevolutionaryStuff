@@ -1,5 +1,5 @@
-﻿using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
+using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Data.Cosmos;
 
@@ -11,9 +11,10 @@ public static class _Use
     {
     }
 
-    private static int InitCalls;
     public static void UseRevolutionaryStuffDataCosmos(this IServiceCollection services, Settings? settings = null)
-    {
-        if (Interlocked.Increment(ref InitCalls) > 1) return;
-    }
+        => ServiceUseManager.Use(
+            settings,
+            () =>
+            {
+            });
 }

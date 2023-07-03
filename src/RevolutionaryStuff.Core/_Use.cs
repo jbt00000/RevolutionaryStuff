@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Caching;
 using RevolutionaryStuff.Core.Services.CodeStringGenerator;
@@ -19,11 +18,11 @@ public static class _Use
         public string TemporaryStreamFactoryConfigSectionName { get; set; }
     }
 
-    private static int InitCalls;
     public static void UseRevolutionaryStuffCore(this IServiceCollection services, Settings settings = null)
+        => ServiceUseManager.Use(
+            settings,
+            () =>
     {
-        if (Interlocked.Increment(ref InitCalls) > 1) return;
-
         services.AddHttpClient();
 
         services.AddSingleton<ILocalCacher>(Cache.DataCacher);
@@ -51,5 +50,5 @@ public static class _Use
         #region Services
         services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
         #endregion
-    }
+    });
 }
