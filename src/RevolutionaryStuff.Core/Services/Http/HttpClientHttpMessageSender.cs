@@ -1,6 +1,7 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.Services.Correlation;
@@ -12,27 +13,30 @@ internal class HttpClientHttpMessageSender : BaseLoggingDisposable, IHttpMessage
     public class Config
     {
         public const string ConfigSectionName = Stuff.ConfigSectionNamePrefix + "HttpClientHttpMessageSenderConfig";
-        public string CorrelationIdHeaderKey { get; set; } = HttpContextCorrelationIdFinder.DefaultCorrelationIdHeaderKey;
+        public string CorrelationIdHeaderKey { get; set; } = IHttpMessageSender.DefaultCorrelationIdHeaderKey;
         public IDictionary<string, string> HeaderValueByHeaderName { get; set; }
         public string UserAgentString { get; set; }
     }
 
+    private readonly IServiceProvider ServiceProvider;
     private readonly IHttpClientFactory HttpClientFactory;
     private readonly ICorrectionIdFindOrCreate CorrectionIdFindOrCreate;
     private readonly IOptions<Config> ConfigOptions;
 
-    public HttpClientHttpMessageSender(ICorrectionIdFindOrCreate correctionIdFindOrCreate, IOptions<Config> configOptions, ILogger<HttpClientHttpMessageSender> logger)
-        : this(null, correctionIdFindOrCreate, configOptions, logger)
+    public HttpClientHttpMessageSender(ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, ILogger<HttpClientHttpMessageSender> logger)
+        : this(null, correctionIdFindOrCreate, serviceProvider, configOptions, logger)
     { }
 
-    public HttpClientHttpMessageSender(IHttpClientFactory httpClientFactory, ICorrectionIdFindOrCreate correctionIdFindOrCreate, IOptions<Config> configOptions, ILogger<HttpClientHttpMessageSender> logger)
+    public HttpClientHttpMessageSender(IHttpClientFactory httpClientFactory, ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, ILogger<HttpClientHttpMessageSender> logger)
         : base(logger)
     {
         ArgumentNullException.ThrowIfNull(correctionIdFindOrCreate);
+        ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(configOptions);
 
         HttpClientFactory = httpClientFactory;
         CorrectionIdFindOrCreate = correctionIdFindOrCreate;
+        ServiceProvider = serviceProvider;
         ConfigOptions = configOptions;
     }
 
@@ -52,10 +56,16 @@ internal class HttpClientHttpMessageSender : BaseLoggingDisposable, IHttpMessage
         return await HttpClient.SendAsync(request, cancellationToken);
     }
 
+    private IList<IHttpMessageSenderExtender> ExtendersField;
+
+    private IList<IHttpMessageSenderExtender> Extenders
+        => ExtendersField ??= ServiceProvider.GetServices<IHttpMessageSenderExtender>().ToList();
+
     private void SetHeaders(HttpRequestMessage request)
     {
         SetConfigHeaders(request);
         SetCorrelationIdHeader(request);
+        Extenders.ForEach(z => z.ModifyMessage(request));
     }
 
     private void SetCorrelationIdHeader(HttpRequestMessage request)

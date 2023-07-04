@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace RevolutionaryStuff.Core;
+namespace RevolutionaryStuff.AspNetCore;
 
 public static class HttpHelpers
 {

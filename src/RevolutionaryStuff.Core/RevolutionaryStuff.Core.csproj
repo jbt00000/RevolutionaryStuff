@@ -29,15 +29,6 @@
         <AssemblyVersion>3.99.60.0</AssemblyVersion>
         <Version>3.99.60</Version>
     </PropertyGroup>
-
-    <ItemGroup>
-        <!-- 
-        https://stackoverflow.com/questions/76173982/migrating-the-deprecated-microsoft-aspnetcore-http-abstractions-nuget-package
-        https://learn.microsoft.com/en-us/aspnet/core/fundamentals/target-aspnetcore?view=aspnetcore-6.0&tabs=visual-studio#use-the-aspnet-core-shared-framework 
-        -->
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        <SupportedPlatform Include="browser" />
-    </ItemGroup>
     
     <ItemGroup>
         <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />

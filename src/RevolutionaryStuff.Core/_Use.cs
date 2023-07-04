@@ -40,7 +40,6 @@ public static class _Use
         services.AddSingleton<ICorrelationIdFactory, CorrelationIdFactory>();
         services.AddScoped<ICorrectionIdFindOrCreate, CorrectionIdFindOrCreate>();
         services.AddScoped<ICorrelationIdFinder, HardcodedCorrelationIdFinder>();
-        services.AddScoped<ICorrelationIdFinder, HttpContextCorrelationIdFinder>();
         services.AddScoped<HardcodedCorrelationIdFinder>(); //so this can simply be asked for
 
         services.AddSingleton<IConnectionStringProvider, ServiceProviderConnectionStringProvider>();

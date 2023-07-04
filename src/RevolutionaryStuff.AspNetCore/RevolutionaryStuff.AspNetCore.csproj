@@ -27,6 +27,10 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- 
+        https://stackoverflow.com/questions/76173982/migrating-the-deprecated-microsoft-aspnetcore-http-abstractions-nuget-package
+        https://learn.microsoft.com/en-us/aspnet/core/fundamentals/target-aspnetcore?view=aspnetcore-6.0&tabs=visual-studio#use-the-aspnet-core-shared-framework 
+        -->
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
 

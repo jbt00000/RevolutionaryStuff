@@ -1,21 +1,20 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Core.Services.Correlation;
+using RevolutionaryStuff.Core.Services.Http;
 
-namespace RevolutionaryStuff.Core.Services.Correlation;
+namespace RevolutionaryStuff.AspNetCore.Services.Correlation;
 
 public class HttpContextCorrelationIdFinder : ICorrelationIdFinder
 {
-    public const string DefaultCorrelationIdHeaderKey = "x-correlation-id";
-
-
     private readonly IHttpContextAccessor HttpContextAccessor;
     private readonly IOptions<Config> ConfigOptions;
 
     public class Config
     {
-        public const string ConfigSectionName = Stuff.ConfigSectionNamePrefix + "HttpContextCorrelationIdFinderConfig";
+        public const string ConfigSectionName = MyHelpers.ConfigSectionNamePrefix + "HttpContextCorrelationIdFinderConfig";
 
-        public IList<string> HttpHeaderNames { get; set; } = new[] { DefaultCorrelationIdHeaderKey };
+        public IList<string> HttpHeaderNames { get; set; } = new[] { IHttpMessageSender.DefaultCorrelationIdHeaderKey };
     }
 
     public HttpContextCorrelationIdFinder(IOptions<Config> configOptions, IHttpContextAccessor httpContextAccessor = null)

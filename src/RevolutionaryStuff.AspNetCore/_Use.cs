@@ -1,5 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RevolutionaryStuff.AspNetCore.Services.Correlation;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Services.Correlation;
 
 namespace RevolutionaryStuff.AspNetCore;
 
@@ -14,5 +16,6 @@ public static class _Use
             settings,
             () =>
     {
+        services.AddScoped<ICorrelationIdFinder, HttpContextCorrelationIdFinder>();
     });
 }
