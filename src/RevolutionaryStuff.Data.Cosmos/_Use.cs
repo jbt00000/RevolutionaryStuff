@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Data.Cosmos.Services.Setup;
 
 namespace RevolutionaryStuff.Data.Cosmos;
 
@@ -16,5 +17,6 @@ public static class _Use
             settings,
             () =>
             {
+                services.AddScoped<ICosmosAdministration, CosmosAdministration>();
             });
 }

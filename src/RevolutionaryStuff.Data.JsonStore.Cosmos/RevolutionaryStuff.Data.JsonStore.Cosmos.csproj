@@ -38,6 +38,11 @@
     </ItemGroup>
 
     <ItemGroup>
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.35.0" PrivateAssets="All" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
         <ProjectReference Include="..\RevolutionaryStuff.Data.Cosmos\RevolutionaryStuff.Data.Cosmos.csproj" />
         <ProjectReference Include="..\RevolutionaryStuff.Data.JsonStore\RevolutionaryStuff.Data.JsonStore.csproj" />
     </ItemGroup>
