@@ -8,11 +8,18 @@ using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
 
-public abstract partial class JsonEntity : JsonSerializable, ITenanted<string?>, IPreSave, IValidate, IPrimaryKey<string>
+public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate, IPrimaryKey<string>, IETagGetter
 {
     public static IJsonEntityIdServices JsonEntityIdServices { get; internal set; } = DefaultJsonEntityServices.Instance;
 
     protected abstract string EntityDataType { get; }
+
+    protected virtual string? OnGetETag()
+        => null;
+
+    [JsonIgnore]
+    public string? ETag
+        => OnGetETag();
 
     public static class JsonEntityPropertyNames
     {
@@ -30,34 +37,21 @@ public abstract partial class JsonEntity : JsonSerializable, ITenanted<string?>,
     [JsonExtensionData]
     public IDictionary<string, JToken>? AdditionalData { get; set; }
 
-#pragma warning disable CS8601 // Possible null reference assignment.
-    public TVal GetAdditionalDataValue<TVal>(string key, TVal defaultValue = default)
-#pragma warning restore CS8601 // Possible null reference assignment.
-    {
-        if (AdditionalData != null && AdditionalData.TryGetValue(key, out var val))
-        {
-#pragma warning disable CS8603 // Possible null reference return.
-            return val.Value<TVal>();
-#pragma warning restore CS8603 // Possible null reference return.
-        }
-        return defaultValue;
-    }
-
     [Key] //This is required by ODataSources
     [JsonProperty(JsonEntityPropertyNames.Id)]
     public string Id { get; set; }
 
     [JsonProperty(JsonEntityPropertyNames.SoftDeletedAt)]
-    public DateTimeOffset? SoftDeletedAt { get; set; } = null;
-
-    [JsonProperty(JsonEntityPropertyNames.TenantId)]
-    public string? TenantId { get; set; }
+    public DateTimeOffset? SoftDeletedAt { get; set; }
 
     [JsonProperty(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 
     [JsonProperty(JsonEntityPropertyNames.PartitionKey)]
     public string? PartitionKey { get; set; }
+
+    [JsonProperty(JsonEntityPropertyNames.TenantId)]
+    public string? TenantId { get; set; }
 
     protected JsonEntity()
     {

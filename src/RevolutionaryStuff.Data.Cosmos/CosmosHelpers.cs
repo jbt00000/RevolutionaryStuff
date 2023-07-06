@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.Data.Cosmos;
 
 public static class CosmosHelpers
 {
-    public static async Task<T?> GetFirstOrDefaultAsync<T>(this IQueryable<T> q, T? fallback = default)
+    public static async Task<T?> GetFirstOrDefaultAsync<T>(this IQueryable<T> q, CancellationToken cancellationToken = default)
         where T : class
     {
         ArgumentNullException.ThrowIfNull(q);
@@ -18,7 +18,7 @@ public static class CosmosHelpers
             ArgumentNullException.ThrowIfNull(fi);
             while (fi.HasMoreResults)
             {
-                foreach (var item in await fi.ReadNextAsync())
+                foreach (var item in await fi.ReadNextAsync(cancellationToken))
                 {
                     return item;
                 }
@@ -28,7 +28,7 @@ public static class CosmosHelpers
         {
             // This is expected and suppressed
         }
-        return fallback;
+        return default;
     }
 
     public static async Task<int> ExecuteForEachAsync<T>(this IQueryable<T> q, Func<T, Task> executeAsync)
@@ -57,7 +57,7 @@ public static class CosmosHelpers
         return count;
     }
 
-    public static async Task<IList<T>> GetAllItemsAsync<T>(this IQueryable<T> q, bool asReadonly = false) where T : class
+    public static async Task<IReadOnlyList<T>> GetAllItemsAsync<T>(this IQueryable<T> q, CancellationToken cancellationToken = default) where T : class
     {
         ArgumentNullException.ThrowIfNull(q);
 
@@ -69,7 +69,7 @@ public static class CosmosHelpers
             ArgumentNullException.ThrowIfNull(fi);
             while (fi.HasMoreResults)
             {
-                foreach (var item in await fi.ReadNextAsync())
+                foreach (var item in await fi.ReadNextAsync(cancellationToken))
                 {
                     items.Add(item);
                 }
@@ -80,7 +80,7 @@ public static class CosmosHelpers
             Stuff.Noop();
             // This is expected and suppressed
         }
-        return asReadonly ? items.AsReadOnly() : items;
+        return items.AsReadOnly();
     }
 
     public static async Task<StoredProcedureResponse> UpsertStoredProcedureAsync(this Scripts scripts, StoredProcedureProperties properties)

@@ -3,7 +3,9 @@
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
+        <!--
         <Nullable>enable</Nullable>
+        -->
         <RootNamespace>RevolutionaryStuff.Data.JsonStore.Cosmos</RootNamespace>
         <PackageId>RevolutionaryStuff.Data.JsonStore.Cosmos</PackageId>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
@@ -39,6 +41,8 @@
 
     <ItemGroup>
         <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.35.1" PrivateAssets="All" />
+        <PackageReference Include="Polly" Version="7.2.4" />
+        <PackageReference Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
     </ItemGroup>
 
     <ItemGroup>

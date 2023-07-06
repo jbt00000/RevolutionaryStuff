@@ -22,27 +22,23 @@ public interface IJsonEntityContainer
     /// <param name="options"> (Optional) The options for the delete operation.</param>
     /// <param name="cancellationToken">(Optional) System.Threading.CancellationToken representing request cancellation.</param>
     /// <returns>A waitable task</returns>
-    Task DeleteItemAsync<TItem>(string id, string partitionKey, DeleteOptions options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+    Task DeleteItemAsync<TItem>(string id, string partitionKey, DeleteOptions? options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
-    Task DeleteItemsAsync<TItem>(DeleteOptions options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+    Task CreateItemAsync<TItem>(TItem item, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
+    Task<TItem> GetItemByIdAsync<TItem>(string id, string? partitionKey, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
-    Task CreateItemAsync<TItem>(TItem entity, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+    IQueryable<TItem> GetQueryable<TItem>(QueryOptions? requestOptions = null) where TItem : JsonEntity;
 
-    Task<TItem> GetItemByIdAsync<TItem>(string id, string partitionKey, CancellationToken cancellationToken = default) where TItem : JsonEntity;
-
-    IQueryable<TItem> GetQueryable<TItem>(QueryOptions requestOptions = null) where TItem : JsonEntity;
-
-    Task<IReadOnlyList<TItem>> GetItemsAsync<TItem>(Expression<Func<TItem, bool>> predicate = null, QueryOptions options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+    Task<IReadOnlyList<TItem>> GetItemsAsync<TItem>(Expression<Func<TItem, bool>>? predicate = null, QueryOptions? options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
     Task PatchItemAsync<TItem>(TItem item, Func<TItem, CancellationToken, Task<IList<PatchOperation>>> getPatchesAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
     Task<TItem> UpdateItemAsync<TItem>(TItem item, Func<TItem, Task<bool>> amendAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
-
     #region Default Implementations
 
-    Task DeleteItemAsync<TItem>(TItem item, DeleteOptions options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity
+    Task DeleteItemAsync<TItem>(TItem item, DeleteOptions? options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity
         => DeleteItemAsync<TItem>(item.Id, item.PartitionKey, options, cancellationToken);
 
     Task PatchItemAsync<TEntity>(TEntity entity, Expression<Func<TEntity, object>> property, object updatedValue, PatchOperationTypeEnum op = PatchOperationTypeEnum.Add) where TEntity : JsonEntity

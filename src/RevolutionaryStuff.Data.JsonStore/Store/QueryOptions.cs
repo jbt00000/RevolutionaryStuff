@@ -8,8 +8,12 @@ public class QueryOptions : IValidate
 
     public bool IgnoreEntityDataType { get; set; }
 
-    public string? ContinuationToken { get; set; }
-
     public void Validate()
     { }
+
+    public static QueryOptions CreateWithParitionKey(string partitionKey)
+        => new()
+        {
+            PartitionKey = partitionKey
+        };
 }

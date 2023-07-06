@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using System.Reflection;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 
@@ -19,6 +20,12 @@ public static class JsonNetHelpers
         DefaultSerializerSettings.Converters.Add(new StringEnumConverter());
         FallbackSerializerSettings = DefaultSerializerSettings;
     }
+
+    public static string GetString(this IDictionary<string, JToken> extensionData, string key, string missing = default)
+        => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.Value<string>() : missing;
+
+    public static int GetInt(this IDictionary<string, JToken> extensionData, string key, int missing = default)
+        => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.Value<int>() : missing;
 
     public static string ToJson(object o)
         => JsonConvert.SerializeObject(o, DefaultSerializerSettings ?? FallbackSerializerSettings);
