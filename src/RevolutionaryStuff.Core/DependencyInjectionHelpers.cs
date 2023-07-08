@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Core;
@@ -83,5 +84,62 @@ NextConstructor:
             Stuff.Noop();
         }
         throw new TypeLoadException($"Could not find a workable constructor to instantiate {t}");
+    }
+
+    public static void ConfigureTenantedOptions<TTenantFinder, TTenantIdType, TOptions>(this IServiceCollection services, string sectionName)
+        where TTenantFinder : ITenantFinder<TTenantIdType>
+        where TOptions : class, new()
+    {
+        services.ConfigureOptions<TenantedConfig<TTenantIdType, TOptions>>(sectionName);
+        services.AddScoped<IOptions<TOptions>, TenantedOptionsWrapper<TTenantFinder, TTenantIdType, TOptions>>();
+    }
+
+    private class TenantedConfig<TTenantIdType, TConfig>
+    {
+        public Dictionary<TTenantIdType, TConfig> Tenants { get; } = new();
+    }
+
+    private class TenantedOptionsWrapper<TTenantFinder, TTenantIdType, TOptions> : IOptions<TOptions>
+        where TTenantFinder : ITenantFinder<TTenantIdType>
+        where TOptions : class, new()
+    {
+        private readonly TTenantFinder TenantFinder;
+        private readonly IOptions<TenantedConfig<TTenantIdType, TOptions>> TenantedConfigOptions;
+
+        public TenantedOptionsWrapper(TTenantFinder tenantFinder, IOptions<TenantedConfig<TTenantIdType, TOptions>> tenantedConfigOptions)
+        {
+            ArgumentNullException.ThrowIfNull(tenantFinder);
+            ArgumentNullException.ThrowIfNull(tenantedConfigOptions);
+
+            TenantFinder = tenantFinder;
+            TenantedConfigOptions = tenantedConfigOptions;
+        }
+
+        TOptions IOptions<TOptions>.Value
+        {
+            get
+            {
+                var tid = TenantFinder.GetTenantIdAsync().ExecuteSynchronously();
+                var tenantedConfig = TenantedConfigOptions.Value;
+
+                TOptions c;
+                lock (tenantedConfig)
+                {
+                    if (!tenantedConfig.Tenants.TryGetValue(tid, out c))
+                    {
+                        var dtid = (TTenantIdType) (typeof(TTenantIdType) == typeof(string) ? "" : typeof(TTenantIdType).GetDefaultValue());
+                        if (!tenantedConfig.Tenants.TryGetValue(dtid, out c))
+                        {
+                            c = new();
+                            tenantedConfig.Tenants[dtid] = c;
+                        }
+                    }
+                }
+
+                ArgumentNullException.ThrowIfNull(c);
+
+                return c;
+            }
+        }
     }
 }

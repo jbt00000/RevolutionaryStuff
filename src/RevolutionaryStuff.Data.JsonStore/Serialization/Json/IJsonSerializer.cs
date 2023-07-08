@@ -2,6 +2,6 @@
 
 public interface IJsonSerializer
 {
-    T? FromJson<T>(string json) where T : class;
+    T? FromJson<T>(string json);
     string ToJson(object o);
 }

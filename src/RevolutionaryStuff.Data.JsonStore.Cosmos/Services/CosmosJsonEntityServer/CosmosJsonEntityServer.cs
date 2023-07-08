@@ -7,12 +7,13 @@ using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
+
 public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposable, IJsonEntityServer
     where TTenantFinder : ITenantFinder<string>
 {
     private static readonly IDictionary<string, CosmosClient> CosmosClientByTenantId = new ConcurrentDictionary<string, CosmosClient>();
     protected readonly IServiceProvider ServiceProvider;
-    private readonly TTenantFinder TenantFinder;
+    protected readonly TTenantFinder TenantFinder;
     protected readonly IOptions<CosmosJsonEntityServerConfig> ConfigOptions;
     private CosmosClient? CosmosClientField;
     private string? TenantIdField;
