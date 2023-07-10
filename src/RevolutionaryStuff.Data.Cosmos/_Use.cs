@@ -17,6 +17,6 @@ public static class _Use
             settings,
             () =>
             {
-                services.AddScoped<ICosmosAdministration, CosmosAdministration>();
+                services.AddSingleton<ICosmosAdministration, CosmosAdministration>();
             });
 }
