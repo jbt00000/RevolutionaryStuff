@@ -7,10 +7,10 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
 {
     public static readonly IJsonEntityIdServices Instance = new DefaultJsonEntityServices();
 
-    [GeneratedRegex(@"^[a-zA-Z0-9\-_]+$")]
+    [GeneratedRegex(@"^[a-zA-Z0-9\-_\.@]+$")]
     private static partial Regex IdRegex();
 
-    [GeneratedRegex(@"[^\\w@]")]
+    [GeneratedRegex(@"[^\w@.]")]
     private static partial Regex NonIdFriendlyCharacterExpr();
 
     private readonly ICodeStringGenerator CodeStringGenerator;
@@ -51,7 +51,7 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
             var safeName = NonIdFriendlyCharacterExpr().Replace(name.RemoveDiacritics(), "");
             id = $"{abbreviation}-{safeName}-{CreateCode()}";
         }
-        return id;
+        return id.ToLower();
     }
 
     void IJsonEntityIdServices.ThrowIfInvalid(Type entityDataType, string id)

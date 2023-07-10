@@ -61,9 +61,9 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, IJsonEntityConta
             {
                 throw new CrossTenantException(item.TenantId, TenantId, item);
             }
-            ArgumentNullException.ThrowIfNull(item.PartitionKey);
             (item as IPreSave)?.PreSave();
             (item as IValidate)?.Validate();
+            ArgumentNullException.ThrowIfNull(item.PartitionKey);
         }
         catch (Exception ex)
         {
@@ -162,17 +162,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, IJsonEntityConta
 
         if (queryOptions?.PartitionKey != null)
         {
-            var partitionKey = queryOptions.PartitionKey;
-
-            //there is no way to get the raw key out, the internals .ToString this to a json string
-            var partitionKeyStrings = JsonConvert
-                .DeserializeObject<List<string>>(partitionKey.ToString())
-                .Where(x => !string.IsNullOrWhiteSpace(x)).ToList();
-
-            if (partitionKeyStrings.Count == 1)
-            {
-                q = q.Where(z => z.PartitionKey == partitionKeyStrings[0]);
-            }
+            q = q.Where(z => z.PartitionKey == queryOptions.PartitionKey);
         }
 
         return q;

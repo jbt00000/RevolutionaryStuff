@@ -100,7 +100,28 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
         => OnPreSave();
 
     protected virtual void OnPreSave()
-    { }
+    { 
+        var pka = GetType().GetCustomAttribute<JsonEntityPartitionKeyBaseAttribute>();
+        if (pka != null)
+        {
+            switch (pka.PartitionKeyScheme)
+            {
+                case JsonEntityPartitionKeyBaseAttribute.PartitionKeySchemeEnum.SameAsObjectId:
+                    if (PartitionKey == null)
+                    {
+                        PartitionKey = Id;
+                    }
+                    else if (PartitionKey != Id)
+                    {
+                        throw new Exception($"Someone has intentionally set the PartitionKey {PartitionKey} to something other than the Id {Id} of this object, which in this case is invalid.");
+                    }
+                    break;
+                case JsonEntityPartitionKeyBaseAttribute.PartitionKeySchemeEnum.RelatedObjectId:
+                    JsonEntityIdServices.ThrowIfInvalid(pka.RelatedType, PartitionKey);
+                    break;
+            }
+        }
+    }
 
     #region IValidate
 
