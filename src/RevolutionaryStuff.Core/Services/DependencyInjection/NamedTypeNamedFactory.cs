@@ -1,51 +1,17 @@
-﻿using Microsoft.Extensions.Logging;
-using RevolutionaryStuff.Core.Collections;
+﻿namespace RevolutionaryStuff.Core.Services.DependencyInjection;
 
-namespace RevolutionaryStuff.Core.Services.DependencyInjection;
-
-public class NamedTypeNamedFactory : BaseLoggingDisposable, INamedFactory
+[Obsolete("Use the ServiceProvider.GetServiceByName extension method instead", false)]
+public class NamedTypeNamedFactory : INamedFactory
 {
     private readonly IServiceProvider ServiceProvider;
-    private readonly IServiceCollectionAccessor ServiceCollectionAccessor;
-    private readonly MultipleValueDictionary<Type, Type> ImplementationTypesByServiceType = new();
 
-    public NamedTypeNamedFactory(IServiceProvider serviceProvider, IServiceCollectionAccessor serviceCollectionAccessor, ILogger<NamedTypeNamedFactory> logger)
-        : base(logger)
+    public NamedTypeNamedFactory(IServiceProvider serviceProvider)
     {
-        ServiceProvider = serviceProvider;
-        ServiceCollectionAccessor = serviceCollectionAccessor;
-    }
+        ArgumentNullException.ThrowIfNull(serviceProvider);
 
+        ServiceProvider = serviceProvider;
+    }
 
     T INamedFactory.GetServiceByName<T>(string name)
-    {
-        ArgumentNullException.ThrowIfNull(name);
-        T service = default;
-
-        lock (ImplementationTypesByServiceType)
-        {
-            if (ImplementationTypesByServiceType.Count == 0)
-            {
-                ServiceCollectionAccessor.Services.ForEach(sd => ImplementationTypesByServiceType.Add(sd.ServiceType, sd.ImplementationType));
-            }
-        }
-
-        var sds = ServiceCollectionAccessor.Services.Where(
-            z =>
-            z.ServiceType.IsA<T>() &&
-            (z.ImplementationType.GetCustomAttribute<NamedTypeAttribute>()?.Names ?? Empty.StringArray).Contains(name)
-            )
-            .OrderBy(sd => ImplementationTypesByServiceType[sd.ServiceType].Count)
-            .ToList();
-
-        if (sds.Count > 0)
-        {
-            var sd = sds[0];
-            service = ImplementationTypesByServiceType[sd.ServiceType].Count == 1
-                ? (T)ServiceProvider.GetService(sd.ServiceType)
-                : (T)ServiceProvider.GetService(sd.ImplementationType);
-        }
-
-        return service;
-    }
+        => ServiceProvider.GetServiceByName<T>(name);
 }

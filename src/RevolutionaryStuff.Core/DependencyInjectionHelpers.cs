@@ -2,6 +2,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Collections;
+using RevolutionaryStuff.Core.Services.DependencyInjection;
 
 namespace RevolutionaryStuff.Core;
 
@@ -20,8 +22,8 @@ public static class DependencyInjectionHelpers
         }
     }
 
-    public static string GetConnectionString(this IServiceProvider sp, string connectionStringName)
-        => sp.GetService<IConfiguration>().GetConnectionString(connectionStringName);
+    public static string GetConnectionString(this IServiceProvider serviceProvider, string connectionStringName)
+        => serviceProvider.GetService<IConfiguration>().GetConnectionString(connectionStringName);
 
     public static void Substitute<TInt, TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
     {
@@ -38,7 +40,7 @@ public static class DependencyInjectionHelpers
     public static void Substitute<TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
         => services.Substitute<TImp, TImp>(newServiceLifetime, existingServiceLifetime);
 
-    public static SERVICE_TYPE InstantiateServiceWithOverriddenDependencies<SERVICE_TYPE>(this IServiceProvider provider, IServiceCollection services, params object[] overriddenLoadedDependencies)
+    public static SERVICE_TYPE InstantiateServiceWithOverriddenDependencies<SERVICE_TYPE>(this IServiceProvider serviceProvider, IServiceCollection services, params object[] overriddenLoadedDependencies)
     {
         var serviceType = typeof(SERVICE_TYPE);
         Type implementationType = null;
@@ -50,7 +52,7 @@ public static class DependencyInjectionHelpers
         }
         return implementationType == null
             ? throw new TypeLoadException($"Could not find a seervice description for {typeof(SERVICE_TYPE)}")
-            : (SERVICE_TYPE)provider.Construct(implementationType, overriddenLoadedDependencies);
+            : (SERVICE_TYPE)serviceProvider.Construct(implementationType, overriddenLoadedDependencies);
     }
 
     public static T Construct<T>(this IServiceProvider provider, params object[] overriddenLoadedDependencies)
@@ -141,5 +143,43 @@ NextConstructor:
                 return c;
             }
         }
+    }
+
+
+    private static readonly MultipleValueDictionary<Type, Type> ImplementationTypesByServiceType = new();
+
+    public static TService GetServiceByName<TService>(this IServiceProvider serviceProvider, string serviceName)
+    {
+        Requires.Text(serviceName);
+
+        TService service = default;
+
+        var serviceCollectionAccessor = serviceProvider.GetRequiredService<IServiceCollectionAccessor>();
+
+        lock (ImplementationTypesByServiceType)
+        {
+            if (ImplementationTypesByServiceType.Count == 0)
+            {
+                serviceCollectionAccessor.Services.ForEach(sd => ImplementationTypesByServiceType.Add(sd.ServiceType, sd.ImplementationType));
+            }
+        }
+
+        var sds = serviceCollectionAccessor.Services.Where(
+            z =>
+            z.ServiceType.IsA<TService>() &&
+            (z.ImplementationType.GetCustomAttribute<NamedServiceAttribute>()?.ServiceNames ?? Empty.StringArray).Contains(serviceName)
+            )
+            .OrderBy(sd => ImplementationTypesByServiceType[sd.ServiceType].Count)
+            .ToList();
+
+        if (sds.Count > 0)
+        {
+            var sd = sds[0];
+            service = ImplementationTypesByServiceType[sd.ServiceType].Count == 1
+                ? (TService)serviceProvider.GetService(sd.ServiceType)
+                : (TService)serviceProvider.GetService(sd.ImplementationType);
+        }
+
+        return service;
     }
 }
