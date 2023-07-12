@@ -56,6 +56,9 @@ public class ExceptionError
         }
     }
 
+    public static implicit operator ExceptionError(Exception ex)
+        => new(ex);
+
     public string ToJson()
         => JsonConvert.SerializeObject(this);
 
