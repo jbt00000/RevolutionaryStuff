@@ -129,7 +129,7 @@ NextConstructor:
                 {
                     if (!tenantedConfig.Tenants.TryGetValue(tid, out c))
                     {
-                        var dtid = (TTenantIdType) (typeof(TTenantIdType) == typeof(string) ? "" : typeof(TTenantIdType).GetDefaultValue());
+                        var dtid = (TTenantIdType)(typeof(TTenantIdType) == typeof(string) ? "" : typeof(TTenantIdType).GetDefaultValue());
                         if (!tenantedConfig.Tenants.TryGetValue(dtid, out c))
                         {
                             c = new();

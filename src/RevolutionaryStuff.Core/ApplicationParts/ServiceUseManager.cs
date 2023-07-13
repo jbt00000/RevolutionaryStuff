@@ -18,7 +18,7 @@ public static class ServiceUseManager
     {
         ArgumentNullException.ThrowIfNull(initialize);
 
-        Type settingsType = typeof(TSettings);
+        var settingsType = typeof(TSettings);
 
         var settingsJson = settings == null ? null : JsonConvert.SerializeObject(settings);
         if (UsageByUseType.ContainsKey(settingsType))

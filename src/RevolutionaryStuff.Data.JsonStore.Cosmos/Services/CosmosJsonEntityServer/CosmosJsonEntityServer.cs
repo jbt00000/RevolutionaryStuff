@@ -79,7 +79,7 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     {
         Requires.Text(containerId);
 
-        return JsonEntityContainerByRepositoryId.FindOrCreate(containerId, () => 
+        return JsonEntityContainerByRepositoryId.FindOrCreate(containerId, () =>
         {
             var databaseId = GetDatabaseId(containerId);
             Requires.Text(databaseId);

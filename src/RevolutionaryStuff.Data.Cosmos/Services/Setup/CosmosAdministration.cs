@@ -1,5 +1,5 @@
-﻿using Microsoft.Azure.Cosmos.Scripts;
-using Microsoft.Azure.Cosmos;
+﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.Extensions.Logging;
 
 namespace RevolutionaryStuff.Data.Cosmos.Services.Setup;

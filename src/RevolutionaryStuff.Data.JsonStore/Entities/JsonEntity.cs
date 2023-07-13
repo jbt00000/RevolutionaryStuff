@@ -100,7 +100,7 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
         => OnPreSave();
 
     protected virtual void OnPreSave()
-    { 
+    {
         var pka = GetType().GetCustomAttribute<JsonEntityPartitionKeyBaseAttribute>();
         if (pka != null)
         {

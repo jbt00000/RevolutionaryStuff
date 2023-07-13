@@ -52,7 +52,7 @@ internal class DefaultJsonSerializer : IJsonSerializer
         return Encoding.Default.GetString(st.ToArray());
     }
 
-    T? IJsonSerializer.FromJson<T>(string json) 
-        where T : default 
+    T? IJsonSerializer.FromJson<T>(string json)
+        where T : default
         => JsonConvert.DeserializeObject<T>(json, MyJsonSerializationSettings);
 }

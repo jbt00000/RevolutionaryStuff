@@ -40,14 +40,14 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, IJsonEntityConta
         ConfigOptions = configOptions;
     }
 
-    private void EnsureCorrectContainer<TItem>() 
+    private void EnsureCorrectContainer<TItem>()
         where TItem : JsonEntity
     {
         var containerId = JsonEntityContainerIdAttribute.GetContainerId<TItem>();
         if (containerId != I.ContainerId) throw new($"Entity ({typeof(TItem)}) lives container {containerId} but we are trying to operate on container {I.ContainerId}");
     }
 
-    private TItem PrepareItem<TItem>(TItem item) 
+    private TItem PrepareItem<TItem>(TItem item)
         where TItem : JsonEntity
     {
         try
@@ -172,14 +172,14 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, IJsonEntityConta
     {
         var q = I.GetQueryable<TItem>(options);
         if (predicate != null)
-        { 
+        {
             q = q.Where(predicate);
         }
         return q.GetAllItemsAsync(cancellationToken);
     }
 
     private static MAC.PatchOperation CreatePatchOperation(Store.PatchOperation po)
-        => po.PatchOperationType switch 
+        => po.PatchOperationType switch
         {
             Store.PatchOperationTypeEnum.Add => MAC.PatchOperation.Add(po.Path, po.Value),
             Store.PatchOperationTypeEnum.Replace => MAC.PatchOperation.Replace(po.Path, po.Value),
