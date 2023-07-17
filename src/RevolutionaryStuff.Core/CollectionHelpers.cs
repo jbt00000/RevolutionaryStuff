@@ -168,24 +168,6 @@ public static class CollectionHelpers
     /// </summary>
     /// <param name="list">List of items to be randomized in place</param>
     /// <param name="random">The random number generator to be used, when null, use the default</param>
-    [Obsolete("Use Shuffle instead", false)]
-    public static void ShuffleList(this IList list, Random random = null)
-    {
-        ArgumentNullException.ThrowIfNull(list);
-        var len = list.Count;
-        if (len < 2) return;
-        random ??= Stuff.Random;
-        int x, y;
-        object o;
-        for (x = 0; x < len; ++x)
-        {
-            y = random.Next(len);
-            o = list[x];
-            list[x] = list[y];
-            list[y] = o;
-        }
-    }
-
     public static void Shuffle<T>(this IList<T> list, Random random = null)
     {
         ArgumentNullException.ThrowIfNull(list);
@@ -201,6 +183,14 @@ public static class CollectionHelpers
             list[x] = list[y];
             list[y] = o;
         }
+    }
+
+    public static T RandomElement<T>(this IList<T> list, Random random = null)
+    {
+        if (list.Count == 0) return default;
+        random ??= Stuff.Random;
+        var i = random.Next(list.Count);
+        return list[i];
     }
 
     public static IList<T> AsReadOnly<T>(this IEnumerable<T> items)
