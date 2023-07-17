@@ -8,6 +8,14 @@ public static class DelegateHelpers
 {
     private static bool AllowAllExceptions(Exception ex) { return true; }
 
+    public delegate Task AsyncEventHandler<TEventArgs>(object sender, TEventArgs e);
+    public static Task NullSafeInvokeAsync<TEventArgs>(this AsyncEventHandler<TEventArgs> handler, object sender, TEventArgs e)
+    {
+        if (handler == null) return Task.CompletedTask;
+        var tasks = handler.GetInvocationList().Cast<AsyncEventHandler<TEventArgs>>().Select(x => x(sender, e));
+        return Task.WhenAll(tasks);
+    }
+
     public static async Task<T> CallAndRetryOnFailureAsync<T>(this Func<Task<T>> func, int? retryCount = 5, TimeSpan? backoffPeriod = null, Predicate<Exception> exceptionChecker = null)
     {
         exceptionChecker ??= AllowAllExceptions;

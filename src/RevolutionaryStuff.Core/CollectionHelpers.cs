@@ -325,10 +325,10 @@ public static class CollectionHelpers
         return ret;
     }
 
-    public static void Remove<T>(this ICollection<T> col, Func<T, bool> toRemove)
+    public static IList<T> Remove<T>(this ICollection<T> col, Func<T, bool> toRemove)
     {
-        if (col == null || toRemove == null) return;
-        var removes = new List<T>();
+        if (col == null || toRemove == null) return Array.Empty<T>();
+        List<T> removes = new();
         foreach (var item in col)
         {
             if (toRemove(item))
@@ -347,6 +347,7 @@ public static class CollectionHelpers
                 col.Remove(removes);
             }
         }
+        return removes;
     }
 
     public static int Remove<T>(this ICollection<T> col, IEnumerable<T> items)
