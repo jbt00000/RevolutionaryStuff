@@ -12,7 +12,8 @@ public static class DelegateHelpers
     public static Task NullSafeInvokeAsync<TEventArgs>(this AsyncEventHandler<TEventArgs> handler, object sender, TEventArgs e)
     {
         if (handler == null) return Task.CompletedTask;
-        var tasks = handler.GetInvocationList().Cast<AsyncEventHandler<TEventArgs>>().Select(x => x(sender, e));
+        var handlers = handler.GetInvocationList().Cast<AsyncEventHandler<TEventArgs>>().ToList();
+        var tasks = handlers.Select(z => z(sender, e)).ToList();
         return Task.WhenAll(tasks);
     }
 
