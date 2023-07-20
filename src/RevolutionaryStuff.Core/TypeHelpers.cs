@@ -6,6 +6,9 @@ namespace RevolutionaryStuff.Core;
 
 public static class TypeHelpers
 {
+    public static bool IsValueTypeOrString(this Type t)
+        => t.IsValueType || t == typeof(string);
+
     public static bool IsNullableEnum(this Type t)
     {
         if (t.IsValueType)
