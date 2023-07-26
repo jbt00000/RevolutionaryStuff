@@ -19,7 +19,7 @@ public interface IJsonEntityIdServices
         where T : JsonEntity
         => ThrowIfInvalid(typeof(T), id);
 
-    void ThrowIfNotNullAndInvalid<T>(string id)
+    void ThrowIfNotNullAndInvalid<T>(string? id)
         where T : JsonEntity
     {
         if (id != null)

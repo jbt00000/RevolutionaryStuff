@@ -104,6 +104,7 @@ Again:
     public static void TaskWaitAllForEach<TSource>(IEnumerable<TSource> items, Func<TSource, Task> body, [CallerMemberName] string caller = null)
         => TaskWhenAllForEachAsync(items, body, int.MaxValue, caller).ExecuteSynchronously();
 
+    /*
     internal static Task WhenAll(IEnumerable<Task> tasks)
     {
         if (tasks == null) return Task.CompletedTask;
@@ -117,4 +118,5 @@ Again:
         var ts = tasks.ToList();
         return ts.Count == 0 ? Task.FromResult(new TRet[0]) : Task.WhenAll(ts);
     }
+    */
 }
