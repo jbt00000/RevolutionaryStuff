@@ -1,0 +1,57 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+
+
+      <AssemblyName>RevolutionaryStuff.Azure</AssemblyName>
+      <PackageId>RevolutionaryStuff.Azure</PackageId>
+      <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+      <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+      <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+      <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+      <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+      <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+      <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+      <PackageReleaseNotes>This is now a .NET 6 library ... again</PackageReleaseNotes>
+      <Authors>jason@jasonthomas.com</Authors>
+      <IncludeSymbols>true</IncludeSymbols>
+      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+      <PackageLicenseUrl></PackageLicenseUrl>
+      <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
+      <RepositoryType>GIT</RepositoryType>
+      <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
+      <Copyright>Copyright © 2023</Copyright>
+      <FileVersion>3.99.60.0</FileVersion>
+      <AssemblyVersion>3.99.60.0</AssemblyVersion>
+      <Version>3.99.60</Version>
+      <PackageIcon>icon.png</PackageIcon>
+      <PackageLicenseFile>license.txt</PackageLicenseFile>
+
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\package\icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Include="..\..\package\license.txt">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
+  </ItemGroup>
+
+    <ItemGroup>
+
+        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.12.0" />
+
+    </ItemGroup>
+
+</Project>

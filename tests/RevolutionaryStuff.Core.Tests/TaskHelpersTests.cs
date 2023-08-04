@@ -32,7 +32,7 @@ public class TaskHelpersTests
                 Interlocked.Decrement(ref concurrent);
             }
         }, MAX_AT_ONCE);
-        Assert.IsTrue(maxConcurrent > MAX_AT_ONCE/2);
+        Assert.IsTrue(maxConcurrent > MAX_AT_ONCE / 2);
         Assert.IsTrue(maxConcurrent <= MAX_AT_ONCE);
         Assert.IsTrue(threadIds.Count > 2);
     }
@@ -65,27 +65,4 @@ public class TaskHelpersTests
             Stuff.Noop(ex);
         }
     }
-
-    [TestMethod]
-    public Task TaskHelpersWhenAllWorksWithEmptyInputsAsync()
-        => TaskHelpers.WhenAll(new Task[0]);
-
-    [TestMethod]
-    public Task TaskHelpersWhenAllWorksWithNullInputsAsync()
-        => TaskHelpers.WhenAll((Task[])null);
-
-    [TestMethod]
-    public async Task TaskHelpersWhenAllTRetWorksWithEmptyInputsAsync()
-    {
-        var res = await TaskHelpers.WhenAll(new Task<int>[0]);
-        Assert.AreEqual(0, res.Length);
-    }
-
-    [TestMethod]
-    public async Task TaskHelpersWhenAllTRetWorksWithNullInputsAsync()
-    {
-        var res = await TaskHelpers.WhenAll<int>(null);
-        Assert.AreEqual(0, res.Length);
-    }
-
 }

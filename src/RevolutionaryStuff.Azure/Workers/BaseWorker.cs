@@ -1,21 +1,21 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.Diagnostics;
 
-namespace RevolutionaryStuff.Core;
-
-public abstract class BaseLoggingDisposable : BaseDisposable
+namespace RevolutionaryStuff.Azure.Workers;
+public abstract class BaseWorker : BackgroundService
 {
-    protected BaseLoggingDisposable(ILogger logger)
+    protected BaseWorker(ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(logger);
-
+       
         Logger = logger;
     }
 
     #region Logging
 
-    protected readonly ILogger Logger;
+    private readonly ILogger Logger;
 
     protected void LogTrace(string message, params object[] args)
         => Logger.LogTrace(message, args);
@@ -35,8 +35,8 @@ public abstract class BaseLoggingDisposable : BaseDisposable
         Logger.LogError(message, args);
     }
 
-    protected void LogException(Exception ex, [CallerMemberName] string caller = null)
-        => Logger.LogError(ex, "Invoked from {caller}", caller);
+    protected void LogError(Exception ex, [CallerMemberName] string caller = null)
+        => Logger.LogError(ex, ex.Message);
 
     protected void LogCritical(string message, params object[] args)
         => Logger.LogCritical(message, args);
@@ -60,20 +60,4 @@ public abstract class BaseLoggingDisposable : BaseDisposable
         => Logger.LogScopedProperty(propertyName, propertyValue);
 
     #endregion
-
-    protected async Task ActAsync(Func<Task> executeAsync, [CallerMemberName] string caller = null)
-    {
-        try
-        {
-            LogInformation("{caller} function started processing", caller);
-            ArgumentNullException.ThrowIfNull(executeAsync);
-            await executeAsync();
-            LogInformation("{caller} function completed", caller);
-        }
-        catch (Exception ex)
-        {
-            LogException(ex);
-            throw;
-        }
-    }
 }

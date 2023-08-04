@@ -68,9 +68,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Data.Sql
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Data.JsonStore", "src\RevolutionaryStuff.Data.JsonStore\RevolutionaryStuff.Data.JsonStore.csproj", "{1D04788F-2C40-4707-A55D-199FEF02AE3E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.Data.JsonStore.Cosmos", "src\RevolutionaryStuff.Data.JsonStore.Cosmos\RevolutionaryStuff.Data.JsonStore.Cosmos.csproj", "{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Data.JsonStore.Cosmos", "src\RevolutionaryStuff.Data.JsonStore.Cosmos\RevolutionaryStuff.Data.JsonStore.Cosmos.csproj", "{6BFE4327-B30D-4CC2-8761-A6B6DC7FADB6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.Data.Cosmos", "src\RevolutionaryStuff.Data.Cosmos\RevolutionaryStuff.Data.Cosmos.csproj", "{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Data.Cosmos", "src\RevolutionaryStuff.Data.Cosmos\RevolutionaryStuff.Data.Cosmos.csproj", "{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RevolutionaryStuff.Azure", "src\RevolutionaryStuff.Azure\RevolutionaryStuff.Azure.csproj", "{4D6F6F06-8DD5-4A28-B620-634D855EB68C}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -286,6 +288,18 @@ Global
 		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
 		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
 		{BBD2E000-66BA-45CE-BBA0-DD19CF3AFD5D}.VSTS-CI|x64.Build.0 = Debug|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.Debug|x64.Build.0 = Debug|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.Release|x64.ActiveCfg = Release|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.Release|x64.Build.0 = Release|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.VSTS-CI|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.VSTS-CI|Any CPU.Build.0 = Debug|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.VSTS-CI|x64.ActiveCfg = Debug|Any CPU
+		{4D6F6F06-8DD5-4A28-B620-634D855EB68C}.VSTS-CI|x64.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
