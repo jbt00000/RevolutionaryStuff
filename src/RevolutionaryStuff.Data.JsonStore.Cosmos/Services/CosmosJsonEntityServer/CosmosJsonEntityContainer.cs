@@ -4,7 +4,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json;
 using Polly;
 using Polly.Contrib.WaitAndRetry;
 using RevolutionaryStuff.Core.ApplicationParts;

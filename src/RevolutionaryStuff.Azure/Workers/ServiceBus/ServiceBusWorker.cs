@@ -146,7 +146,7 @@ public class ServiceBusWorker : BaseWorker
 
         var listener = serviceBusClient.CreateReceiver(execution.TopicName, execution.SubscriptionName, new ServiceBusReceiverOptions
         {
-            PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,             
+            PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,
         });
 
         long currentlyRunning = 0;

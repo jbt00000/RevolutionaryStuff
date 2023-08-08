@@ -9,7 +9,7 @@ public abstract class BaseWorker : BackgroundService
     protected BaseWorker(ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(logger);
-       
+
         Logger = logger;
     }
 
