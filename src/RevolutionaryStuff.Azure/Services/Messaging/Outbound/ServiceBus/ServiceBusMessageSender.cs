@@ -58,15 +58,33 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
         }
     }
 
-    async Task IMessageSender.SendAsync(string port, OutboundMessage message, Action<IDictionary<string, object>> propertyOverride, CancellationToken cancellationToken)
+    async Task IMessageSender.SendAsync(string port, OutboundMessage message, Action<IDictionary<string, object>> propertyOverride, MessageSendSettings settings, CancellationToken cancellationToken)
     {
         Requires.Text(port);
 
         var serviceBusMessage = await CreateServiceBusMessageAsync(message);
 
+        if (settings != null)
+        {
+            if (settings.Properties.NullSafeAny())
+            {
+                settings.Properties.ForEach(kvp => serviceBusMessage.ApplicationProperties[kvp.Key] = kvp.Value);
+            }
+            if (settings.SendAt != null)
+            {
+                serviceBusMessage.ScheduledEnqueueTime = settings.SendAt.Value;
+            }
+            else if (settings.SendIn != null)
+            {
+                serviceBusMessage.ScheduledEnqueueTime = DateTimeOffset.UtcNow.Add(settings.SendIn.Value);
+            }
+        }
+
         propertyOverride?.Invoke(serviceBusMessage.ApplicationProperties);
 
         var client = GetClient(port);
+
+
 
         await client.SendMessageAsync(serviceBusMessage, cancellationToken);
     }

@@ -202,7 +202,7 @@ public class ServiceBusWorker : BaseWorker
             }
             finally
             {
-                Interlocked.Decrement(ref totalRunCount);
+                Interlocked.Decrement(ref currentlyRunning);
                 MessageSupervisorStateBySequenceNumber.Remove(m.SequenceNumber);
             }
         }

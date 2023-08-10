@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 using System.Text;
 using RevolutionaryStuff.Core.Collections;
 
@@ -183,6 +184,20 @@ public static class CollectionHelpers
             list[x] = list[y];
             list[y] = o;
         }
+    }
+
+    public static T Dequeue<T>(this IList<T> list)
+    {
+        var item = list[0];
+        list.RemoveAt(0);
+        return item;
+    }
+
+    public static T Pop<T>(this IList<T> list)
+    {
+        var item = list[^1];
+        list.RemoveAt(list.Count - 1);
+        return item;
     }
 
     public static T RandomElement<T>(this IList<T> list, Random random = null)

@@ -36,7 +36,7 @@ public abstract class BaseWorker : BackgroundService
     }
 
     protected void LogError(Exception ex, [CallerMemberName] string caller = null)
-        => Logger.LogError(ex, ex.Message);
+        => Logger.LogError(ex, ex?.Message);
 
     protected void LogCritical(string message, params object[] args)
         => Logger.LogCritical(message, args);

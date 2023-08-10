@@ -5,7 +5,7 @@ namespace RevolutionaryStuff.Core;
 public static class LoggerHelpers
 {
     public static void LogError(this ILogger logger, Exception ex)
-        => logger.LogError(ex, ex.Message);
+        => logger.LogError(ex, ex?.Message);
 
     public static IDisposable CreateLogRegion(this ILogger logger, string message, params object[] scopeArgs)
         => new RevolutionaryStuff.Core.Diagnostics.LogRegion(logger, message, scopeArgs);
