@@ -1,5 +1,4 @@
-﻿using System.Runtime.Serialization;
-using RevolutionaryStuff.Core.ApplicationParts;
+﻿using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
