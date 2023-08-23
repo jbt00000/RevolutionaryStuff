@@ -1,4 +1,6 @@
-﻿using Microsoft.Azure.Cosmos;
+﻿using System.IO;
+using System.Threading;
+using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.Extensions.Logging;
 
@@ -6,24 +8,42 @@ namespace RevolutionaryStuff.Data.Cosmos.Services.Setup;
 
 internal class CosmosAdministration : BaseLoggingDisposable, ICosmosAdministration
 {
+    private readonly ICosmosAdministration I;
+
     public CosmosAdministration(ILogger<CosmosAdministration> logger)
         : base(logger)
-    { }
+    {
+        I = this;
+    }
+
+    private Task NoopChangeFeedStreamHandler(
+            ChangeFeedProcessorContext context,
+            Stream changes,
+            CancellationToken cancellationToken)
+        => Task.CompletedTask;
 
     async Task ICosmosAdministration.SetupContainerAsync(string connectionString, string databaseId, ContainerSetupInfo containerBootstrapInfo)
     {
         Requires.Text(connectionString);
         Requires.Text(databaseId);
-        ArgumentNullException.ThrowIfNull(containerBootstrapInfo);
+        Requires.Valid(containerBootstrapInfo);
 
         using var cosmos = new CosmosClient(connectionString);
 
         var dbResp = await cosmos.CreateDatabaseIfNotExistsAsync(databaseId);
+        var database = dbResp.Database;
         var containerProperties = new ContainerProperties
         {
             Id = containerBootstrapInfo.ContainerId,
-            PartitionKeyPath = containerBootstrapInfo.PartitionKeyPath
         };
+        if (containerBootstrapInfo.PartitionKeyPaths.Count == 1)
+        {
+            containerProperties.PartitionKeyPath = containerBootstrapInfo.PartitionKeyPaths[0];
+        }
+        else
+        {
+            containerProperties.PartitionKeyPaths = containerBootstrapInfo.PartitionKeyPaths;
+        }
         if (containerBootstrapInfo.UniqueKeyPaths != null)
         {
             containerProperties.UniqueKeyPolicy = new();
@@ -34,8 +54,28 @@ internal class CosmosAdministration : BaseLoggingDisposable, ICosmosAdministrati
                 containerProperties.UniqueKeyPolicy.UniqueKeys.Add(uk);
             }
         };
-        var containerResp = await dbResp.Database.CreateContainerIfNotExistsAsync(containerProperties);
-        var scripts = containerResp.Container.Scripts;
+        var containerResp = await database.CreateContainerIfNotExistsAsync(containerProperties);
+        var container = containerResp.Container;
+        var scripts = container.Scripts;
+
+        if (containerBootstrapInfo.EnableChangeFeed)
+        {
+            var leasesContainerId = containerBootstrapInfo.LeasesContainerId ?? "leases";
+            await I.SetupContainerAsync(connectionString, databaseId, new() 
+            {
+                ContainerId = leasesContainerId,
+                PartitionKeyPaths = new() { "/id" },
+                EnableChangeFeed = false
+            });
+            var changeFeedBuilder = container
+                .GetChangeFeedProcessorBuilder("processorForSetupOfLeaseContainer", NoopChangeFeedStreamHandler)
+                .WithLeaseContainer(database.GetContainer(leasesContainerId))
+                .WithInstanceName($"processorForSetupOfLeaseContainer");
+            var changeFeed = changeFeedBuilder.Build();
+            await changeFeed.StartAsync();
+            await changeFeed.StopAsync();
+        }
+
         foreach (var sprocInfo in containerBootstrapInfo.StoredProcedureInfos.NullSafeEnumerable())
         {
             var storedProcedureProperties = new StoredProcedureProperties(sprocInfo.StoredProcedureId, sprocInfo.StoredProcedureText);
