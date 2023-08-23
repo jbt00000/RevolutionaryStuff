@@ -61,7 +61,7 @@ internal class CosmosAdministration : BaseLoggingDisposable, ICosmosAdministrati
         if (containerBootstrapInfo.EnableChangeFeed)
         {
             var leasesContainerId = containerBootstrapInfo.LeasesContainerId ?? "leases";
-            await I.SetupContainerAsync(connectionString, databaseId, new() 
+            await I.SetupContainerAsync(connectionString, databaseId, new()
             {
                 ContainerId = leasesContainerId,
                 PartitionKeyPaths = new() { "/id" },
