@@ -1,6 +1,4 @@
-﻿using System.IO;
-using System.Threading;
-using Microsoft.Azure.Cosmos;
+﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Scripts;
 using Microsoft.Extensions.Logging;
 
@@ -15,12 +13,6 @@ internal class CosmosAdministration : BaseLoggingDisposable, ICosmosAdministrati
     {
         I = this;
     }
-
-    private Task NoopChangeFeedStreamHandler(
-            ChangeFeedProcessorContext context,
-            Stream changes,
-            CancellationToken cancellationToken)
-        => Task.CompletedTask;
 
     async Task ICosmosAdministration.SetupContainerAsync(string connectionString, string databaseId, ContainerSetupInfo containerBootstrapInfo)
     {
@@ -58,17 +50,22 @@ internal class CosmosAdministration : BaseLoggingDisposable, ICosmosAdministrati
         var container = containerResp.Container;
         var scripts = container.Scripts;
 
-        if (containerBootstrapInfo.EnableChangeFeed)
+        if (containerBootstrapInfo.CreateLeasesContainer)
         {
             var leasesContainerId = containerBootstrapInfo.LeasesContainerId ?? "leases";
             await I.SetupContainerAsync(connectionString, databaseId, new()
             {
                 ContainerId = leasesContainerId,
                 PartitionKeyPaths = new() { "/id" },
-                EnableChangeFeed = false
+                CreateLeasesContainer = false
             });
+            const string processorName = $"processorForSetupOfLeasesContainer";
             var changeFeedBuilder = container
-                .GetChangeFeedProcessorBuilder("processorForSetupOfLeaseContainer", NoopChangeFeedStreamHandler)
+                .GetChangeFeedProcessorBuilder(processorName, (leaseContext, leaseChanges, leaseCancellationToken) => {
+                    LogDebug("ChangeFeed Processor for {containerId} with {leaseToken}", container.Id, leaseContext.LeaseToken);
+                    return Task.CompletedTask;
+                })
+                .WithPollInterval(TimeSpan.FromSeconds(2))
                 .WithLeaseContainer(database.GetContainer(leasesContainerId))
                 .WithInstanceName($"processorForSetupOfLeaseContainer");
             var changeFeed = changeFeedBuilder.Build();

@@ -10,7 +10,7 @@ public class ContainerSetupInfo : IValidate
     public IList<StoredProcedureBootstrapInfo>? StoredProcedureInfos { get; set; }
     public bool DeleteExistingTriggers { get; set; }
     public IList<TriggerBootstrapInfo>? TriggerInfos { get; set; }
-    public bool EnableChangeFeed { get; set; }
+    public bool CreateLeasesContainer { get; set; }
     public string? LeasesContainerId { get; set; }
 
     public void Validate()
