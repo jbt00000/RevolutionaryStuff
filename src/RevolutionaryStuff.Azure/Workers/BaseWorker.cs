@@ -56,8 +56,8 @@ public abstract class BaseWorker : BackgroundService
     protected IDisposable CreateLogRegion([CallerMemberName] string message = null, params object[] args)
         => new LogRegion(Logger, message, args);
 
-    protected IDisposable LogScopedProperty(string propertyName, object propertyValue)
-        => Logger.LogScopedProperty(propertyName, propertyValue);
+    protected IDisposable LogScopedProperty(string propertyName, object propertyValue, bool decomposeValue = false)
+        => Logger.LogScopedProperty(propertyName, propertyValue, decomposeValue);
 
     #endregion
 }

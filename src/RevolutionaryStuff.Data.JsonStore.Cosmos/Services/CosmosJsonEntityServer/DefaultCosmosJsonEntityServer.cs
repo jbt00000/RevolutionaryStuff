@@ -33,15 +33,15 @@ public abstract class DefaultCosmosJsonEntityServer<TTenantFinder> : CosmosJsonE
     protected override string GetConnectionString()
         => ConnectionStringProvider.GetConnectionString(MyConfigOptions.Value.ConnectionStringName);
 
-    protected override CosmosClientOptions CreateCosmosClientOptions()
-        => new()
-        {
-            Serializer = new DefaultJsonEntityCosmosSerializer<TTenantFinder>(TenantFinder),
-            ConnectionMode = ConnectionMode.Direct,
-            AllowBulkExecution = true,
-            MaxRetryAttemptsOnRateLimitedRequests = 10,
-            MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(30),
-        };
+    protected override void ConfigureCosmosClientOptions(CosmosClientOptions clientOptions)
+    {
+        base.ConfigureCosmosClientOptions(clientOptions);
+        clientOptions.Serializer = new DefaultJsonEntityCosmosSerializer<TTenantFinder>(TenantFinder);
+        clientOptions.ConnectionMode = ConnectionMode.Direct;
+        clientOptions.AllowBulkExecution = true;
+        clientOptions.MaxRetryAttemptsOnRateLimitedRequests = 10;
+        clientOptions.MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(30);
+    }
 
     protected override string GetDatabaseId(string containerId)
         => MyConfigOptions.Value.DatabaseId;

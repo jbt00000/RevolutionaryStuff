@@ -137,8 +137,8 @@ public class ServiceBusWorker : BaseWorker
         var connectionString = ConnectionStringProvider.GetConnectionString(execution.ConnectionStringName ?? config.ConnectionStringName);
         var serviceBusClient = new ServiceBusClient(connectionString);
 
-        using var _ScopeProperty0 = LogScopedProperty("{executionName}", executionName);
-        using var _ScopeProperty1 = LogScopedProperty("{@ServiceBusExecution}", execution);
+        using var _ScopeProperty0 = LogScopedProperty("executionName", executionName);
+        using var _ScopeProperty1 = LogScopedProperty("serviceBusExecution", execution, true);
 
         LogWarning(
             "{Host} listening to {topic}.{subscription} running {messageProcessor} with {concurrentExecutors} executors",

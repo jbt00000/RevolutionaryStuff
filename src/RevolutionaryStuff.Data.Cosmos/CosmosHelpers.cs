@@ -18,10 +18,9 @@ public static class CosmosHelpers
             ArgumentNullException.ThrowIfNull(fi);
             while (fi.HasMoreResults)
             {
-                foreach (var item in await fi.ReadNextAsync(cancellationToken))
-                {
-                    return item;
-                }
+                FeedResponse<T> resp = await fi.ReadNextAsync(cancellationToken);
+                //at least we can set a breakpoint here to look at items inside of the FeedResponse like cost!
+                return resp.FirstOrDefault();
             }
         }
         catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
@@ -31,7 +30,7 @@ public static class CosmosHelpers
         return default;
     }
 
-    public static async Task<int> ExecuteForEachAsync<T>(this IQueryable<T> q, Func<T, Task> executeAsync)
+    public static async Task<int> ExecuteForEachAsync<T>(this IQueryable<T> q, Func<T, Task> executeAsync, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(q);
         ArgumentNullException.ThrowIfNull(executeAsync);
@@ -43,8 +42,13 @@ public static class CosmosHelpers
             ArgumentNullException.ThrowIfNull(fi);
             while (fi.HasMoreResults)
             {
-                foreach (var item in await fi.ReadNextAsync())
+                FeedResponse<T> resp = await fi.ReadNextAsync(cancellationToken);
+                foreach (var item in resp)
                 {
+                    if (cancellationToken.IsCancellationRequested) 
+                    { 
+                        break; 
+                    }
                     await executeAsync(item);
                     ++count;
                 }
@@ -61,7 +65,7 @@ public static class CosmosHelpers
     {
         ArgumentNullException.ThrowIfNull(q);
 
-        var items = new List<T>();
+        List<T> items = new();
 
         try
         {
@@ -69,10 +73,9 @@ public static class CosmosHelpers
             ArgumentNullException.ThrowIfNull(fi);
             while (fi.HasMoreResults)
             {
-                foreach (var item in await fi.ReadNextAsync(cancellationToken))
-                {
-                    items.Add(item);
-                }
+                FeedResponse<T> resp = await fi.ReadNextAsync(cancellationToken);
+                //at least we can set a breakpoint here to look at items inside of the FeedResponse like cost!
+                items.AddRange(resp);
             }
         }
         catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)

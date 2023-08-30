@@ -11,8 +11,11 @@ public static class ConfigurationHelpers
     public static string CreateKeyFromSegments(params string[] segments)
         => segments.Format(":");
 
-    public static TRet GetValue<TRet>(this IConfiguration config, params string[] segments)
-        => config.GetValue<TRet>(CreateKeyFromSegments(segments));
+    public static string GetString(this IConfiguration config, params string[] segments)
+        => config[CreateKeyFromSegments(segments)];
+
+    public static bool GetBool(this IConfiguration config, params string[] segments)
+        => Parse.ParseBool(config.GetString(segments));
 
     public static void AddJsonString(this IConfigurationBuilder builder, string json)
     {

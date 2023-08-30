@@ -7,13 +7,23 @@ public class PeriodicAction : BaseDisposable
 {
     private readonly Timer T;
 
-    public PeriodicAction(Func<Task> func, TimeSpan waitBetweenInvocationsDuration, TimeSpan? waitBeforeStartup = null)
-        : this(() => func().ExecuteSynchronously(), waitBetweenInvocationsDuration, waitBeforeStartup)
+    public PeriodicAction(Func<Task<bool>> func, TimeSpan waitBetweenInvocationsDuration, TimeSpan? waitBeforeStartup = null)
+        : this(() => { var res = func().ExecuteSynchronously(); return res; }, waitBetweenInvocationsDuration, waitBeforeStartup)
+    { }
+
+    public PeriodicAction(Func<Task> action, TimeSpan waitBetweenInvocationsDuration, TimeSpan? waitBeforeStartup = null)
+        : this(() => action().ExecuteSynchronously(), waitBetweenInvocationsDuration, waitBeforeStartup)
     { }
 
     public PeriodicAction(Action action, TimeSpan waitBetweenInvocationsDuration, TimeSpan? waitBeforeStartup = null)
+        : this(() => { action(); return false; }, waitBetweenInvocationsDuration, waitBeforeStartup)
+    { }
+
+    public PeriodicAction(Func<bool> action, TimeSpan waitBetweenInvocationsDuration, TimeSpan? waitBeforeStartup = null)
     {
         ArgumentNullException.ThrowIfNull(action);
+
+        bool cancel = false;
 
         T = new Timer(
             delegate (object state)
@@ -22,7 +32,7 @@ public class PeriodicAction : BaseDisposable
                 if (IsDisposed) return;
                 try
                 {
-                    action();
+                    cancel = action();
                 }
                 catch (Exception ex)
                 {
@@ -30,7 +40,10 @@ public class PeriodicAction : BaseDisposable
                 }
                 finally
                 {
-                    T.Change(waitBetweenInvocationsDuration, waitBetweenInvocationsDuration);
+                    if (!cancel)
+                    {
+                        T.Change(waitBetweenInvocationsDuration, waitBetweenInvocationsDuration);
+                    }
                 }
             },
             null,

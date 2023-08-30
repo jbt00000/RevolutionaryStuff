@@ -14,9 +14,9 @@ using MAC = Microsoft.Azure.Cosmos;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
-public class CosmosJsonEntityContainer : BaseLoggingDisposable, IJsonEntityContainer
+public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntityContainer
 {
-    private readonly IJsonEntityContainer I;
+    private readonly ICosmosJsonEntityContainer I;
     private readonly Container Container;
     private readonly string TenantId;
     private readonly IOptions<CosmosJsonEntityContainerConfig> ConfigOptions;
@@ -26,6 +26,9 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, IJsonEntityConta
 
     public string ContainerId
         => Container.Id;
+
+    Container ICosmosJsonEntityContainer.Container
+        => Container;
 
     public CosmosJsonEntityContainer(Container container, string tenantId, IOptions<CosmosJsonEntityContainerConfig> configOptions, ILogger<CosmosJsonEntityContainer> logger)
         : base(logger)
@@ -121,13 +124,32 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, IJsonEntityConta
     Task IJsonEntityContainer.CreateItemAsync<TItem>(TItem item, CancellationToken cancellationToken)
         => Container.CreateItemAsync(PrepareItem(item), new PartitionKey(item.PartitionKey), CreateItemDefaultItemRequestOptions, cancellationToken);
 
-    Task<TItem> IJsonEntityContainer.GetItemByIdAsync<TItem>(string id, string partitionKey, CancellationToken cancellationToken)
+
+    /// <summary>
+    /// Overrride so you can do things such as setting a default integrated gateway cache settings for the application
+    /// </summary>
+    /// <param name="options">ItemRequestOptions for override configuration that will be used in an upcoming ReadItem call</param>
+    protected virtual void ConfigureItemRequestOptions(ItemRequestOptions options)
+    {
+        //TODO: Add suport for default settings into CosmosJsonEntityContainerConfig and then set during the ConfigureQueryRequestOptions and ConfigureItemRequestOptions methods
+    }
+
+    async Task<TItem> IJsonEntityContainer.GetItemByIdAsync<TItem>(string id, string partitionKey, CancellationToken cancellationToken)
     {
         JsonEntity.JsonEntityIdServices.ThrowIfInvalid(typeof(TItem), id);
-        Requires.Text(partitionKey);
 
-        var q = I.GetQueryable<TItem>(partitionKey == null ? null : QueryOptions.CreateWithParitionKey(partitionKey));
-        return q.Where(z => z.Id == id).GetFirstOrDefaultAsync(cancellationToken);
+        if (string.IsNullOrEmpty(partitionKey))
+        {
+            var q = I.GetQueryable<TItem>(partitionKey == null ? null : QueryOptions.CreateWithParitionKey(partitionKey));
+            return await q.Where(z => z.Id == id).GetFirstOrDefaultAsync(cancellationToken);
+        }
+        else
+        {
+            var options = new ItemRequestOptions();
+            ConfigureItemRequestOptions(options);
+            var resp = await Container.ReadItemAsync<TItem>(id, new PartitionKey(partitionKey), options, cancellationToken);
+            return resp.Resource;
+        }
     }
 
     private static readonly QueryOptions GetQueryableDefaultQueryOptions = new()
@@ -140,8 +162,16 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, IJsonEntityConta
         {
             ro.PartitionKey = new PartitionKey(options.PartitionKey);
         }
+        ConfigureQueryRequestOptions(ro);
         return ro;
     }
+
+    /// <summary>
+    /// Overrride so you can do things such as setting a default integrated gateway cache settings for the application
+    /// </summary>
+    /// <param name="options">QueryRequestOptions to be overridden at an application level for an upcoming Query operation</param>
+    protected virtual void ConfigureQueryRequestOptions(QueryRequestOptions options)
+    { }
 
     IQueryable<TItem> IJsonEntityContainer.GetQueryable<TItem>(QueryOptions queryOptions)
     {

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -43,7 +44,17 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     /// This should take into account the current TenantId
     /// </summary>
     /// <returns>CosmosClientOptions associated with the to be created CosmosClient</returns>
-    protected abstract CosmosClientOptions CreateCosmosClientOptions();
+    private CosmosClientOptions CreateCosmosClientOptions()
+    { 
+        var cco = new CosmosClientOptions();
+        ConfigureCosmosClientOptions(cco);
+        return cco;
+    }
+
+    protected virtual void ConfigureCosmosClientOptions(CosmosClientOptions clientOptions)
+    {
+        clientOptions.ConnectionMode = ConnectionMode.Direct;
+    }
 
     /// <summary>
     /// This should take into account the current TenantId

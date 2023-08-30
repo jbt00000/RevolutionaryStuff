@@ -24,6 +24,7 @@ internal class CosmosAdministration : BaseLoggingDisposable, ICosmosAdministrati
 
         var dbResp = await cosmos.CreateDatabaseIfNotExistsAsync(databaseId);
         var database = dbResp.Database;
+
         var containerProperties = new ContainerProperties
         {
             Id = containerBootstrapInfo.ContainerId,

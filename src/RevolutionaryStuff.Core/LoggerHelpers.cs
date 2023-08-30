@@ -13,6 +13,8 @@ public static class LoggerHelpers
     public static IDisposable CreateLogRegion(this ILogger logger, LogLevel logLevel, string message, params object[] scopeArgs)
         => new RevolutionaryStuff.Core.Diagnostics.LogRegion(logger, logLevel, message, scopeArgs);
 
-    public static IDisposable LogScopedProperty(this ILogger logger, string propertyName, object propertyValue)
-        => logger.BeginScope("{propertyName}:{propertyValue}", propertyName, propertyValue);
+    public static IDisposable LogScopedProperty(this ILogger logger, string propertyName, object propertyValue, bool decomposeValue = false)
+        => decomposeValue ?
+            logger.BeginScope($"{{@{propertyName}}}", propertyValue) :
+            logger.BeginScope("{propertyName}:{propertyValue}", propertyName, propertyValue);
 }
