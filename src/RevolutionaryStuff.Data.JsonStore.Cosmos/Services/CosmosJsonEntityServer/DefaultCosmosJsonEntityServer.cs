@@ -38,7 +38,6 @@ public abstract class DefaultCosmosJsonEntityServer<TTenantFinder> : CosmosJsonE
         base.ConfigureCosmosClientOptions(clientOptions);
         clientOptions.Serializer = new DefaultJsonEntityCosmosSerializer<TTenantFinder>(TenantFinder);
         clientOptions.ConnectionMode = ConnectionMode.Direct;
-        clientOptions.AllowBulkExecution = true;
         clientOptions.MaxRetryAttemptsOnRateLimitedRequests = 10;
         clientOptions.MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(30);
     }
