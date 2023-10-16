@@ -52,6 +52,15 @@
     </ItemGroup>
 
     <ItemGroup>
+        <Content Include="JsonHelpers.Newtonsoft.cs">
+            <DependentUpon>JsonHelpers.cs</DependentUpon>
+        </Content>
+        <Content Include="JsonHelpers.Microsoft.cs">
+            <DependentUpon>JsonHelpers.cs</DependentUpon>
+        </Content>
+    </ItemGroup>
+
+    <ItemGroup>
         <!--
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         -->

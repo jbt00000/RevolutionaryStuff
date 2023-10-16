@@ -18,7 +18,7 @@ public static class CosmosHelpers
             ArgumentNullException.ThrowIfNull(fi);
             while (fi.HasMoreResults)
             {
-                FeedResponse<T> resp = await fi.ReadNextAsync(cancellationToken);
+                var resp = await fi.ReadNextAsync(cancellationToken);
                 //at least we can set a breakpoint here to look at items inside of the FeedResponse like cost!
                 return resp.FirstOrDefault();
             }
@@ -42,12 +42,12 @@ public static class CosmosHelpers
             ArgumentNullException.ThrowIfNull(fi);
             while (fi.HasMoreResults)
             {
-                FeedResponse<T> resp = await fi.ReadNextAsync(cancellationToken);
+                var resp = await fi.ReadNextAsync(cancellationToken);
                 foreach (var item in resp)
                 {
-                    if (cancellationToken.IsCancellationRequested) 
-                    { 
-                        break; 
+                    if (cancellationToken.IsCancellationRequested)
+                    {
+                        break;
                     }
                     await executeAsync(item);
                     ++count;
@@ -73,7 +73,7 @@ public static class CosmosHelpers
             ArgumentNullException.ThrowIfNull(fi);
             while (fi.HasMoreResults)
             {
-                FeedResponse<T> resp = await fi.ReadNextAsync(cancellationToken);
+                var resp = await fi.ReadNextAsync(cancellationToken);
                 //at least we can set a breakpoint here to look at items inside of the FeedResponse like cost!
                 items.AddRange(resp);
             }

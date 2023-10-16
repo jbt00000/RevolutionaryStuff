@@ -1,10 +1,12 @@
 ﻿using System.Collections.Concurrent;
+using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Data.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
@@ -45,15 +47,18 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     /// </summary>
     /// <returns>CosmosClientOptions associated with the to be created CosmosClient</returns>
     private CosmosClientOptions CreateCosmosClientOptions()
-    { 
+    {
         var cco = new CosmosClientOptions();
         ConfigureCosmosClientOptions(cco);
         return cco;
     }
 
-    protected virtual void ConfigureCosmosClientOptions(CosmosClientOptions clientOptions)
+    protected virtual void ConfigureCosmosClientOptions(CosmosClientOptions cosmosClientOptions)
     {
-        clientOptions.ConnectionMode = ConnectionMode.Direct;
+        var config = ConfigOptions.Value;
+        cosmosClientOptions.Serializer = new DefaultCosmosEntitySerializer();
+        cosmosClientOptions.ConnectionMode = config.ConnectionMode;
+        cosmosClientOptions.ApplicationName = config.ApplicationName ?? RevolutionaryStuffCoreConfig.GetApplicationName(ServiceProvider.GetRequiredService<IConfiguration>());
     }
 
     /// <summary>
@@ -78,11 +83,25 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
                 {
                     CosmosClientField = CosmosClientByTenantId.FindOrCreate(
                         TenantId,
-                        () => new(connectionString, CreateCosmosClientOptions()) //no part of the CosmosClient can be scoped
+                        () => ConstructCosmosClient(connectionString, CreateCosmosClientOptions())
                         );
                 }
             }
             return CosmosClientField;
+        }
+    }
+
+    protected virtual CosmosClient ConstructCosmosClient(string connectionString, CosmosClientOptions cosmosClientOptions)
+    {
+        var config = ConfigOptions.Value;
+        if (config.AuthenticateWithWithDefaultAzureCredentials)
+        {
+            var creds = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
+            return new CosmosClient(connectionString, creds, cosmosClientOptions);
+        }
+        else
+        {
+            return new CosmosClient(connectionString, cosmosClientOptions);
         }
     }
 

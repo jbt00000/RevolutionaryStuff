@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using Newtonsoft.Json;
 
-namespace RevolutionaryStuff.Data.JsonStore.Serialization.Json;
+namespace RevolutionaryStuff.Core.Services.JsonSerializers.Newtonsoft.Converters;
 
 public class BlankTypeRemovingJsonWriter : JsonTextWriter
 {
@@ -19,9 +19,7 @@ public class BlankTypeRemovingJsonWriter : JsonTextWriter
     public override void WritePropertyName(string name, bool escape)
     {
         if (name == "$type")
-        {
             LastPropertyNameWasType = true;
-        }
         else
         {
             LastPropertyNameWasType = false;
@@ -37,9 +35,7 @@ public class BlankTypeRemovingJsonWriter : JsonTextWriter
             LastPropertyNameWasType = false;
             var vt = value.Trim();
             if (vt is "" or ",")
-            {
                 return;
-            }
             base.WritePropertyName(TypePropertyName, false);
         }
         base.WriteValue(value);

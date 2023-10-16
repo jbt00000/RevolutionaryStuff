@@ -1,17 +1,18 @@
 ﻿using System.Text;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using Microsoft.Azure.Cosmos;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Data.Cosmos;
 
 public class CosmosEntity<TPrimaryKey> : IPrimaryKey<TPrimaryKey>, IETagGetter
 {
-    [JsonProperty(CosmosEntityPropertyNames.Id)]
+    [JsonPropertyName(CosmosEntityPropertyNames.Id)]
     public TPrimaryKey Id { get; set; }
 
     [JsonExtensionData]
-    public IDictionary<string, JToken> AdditionalData { get; set; }
+    public IDictionary<string, JsonElement> AdditionalData { get; set; }
 
     #region Cosmos Managed Properties
 

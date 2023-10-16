@@ -64,6 +64,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
                 throw new CrossTenantException(item.TenantId, TenantId, item);
             }
             (item as IPreSave)?.PreSave();
+            (item as JsonEntity)?.PreSave(this);
             (item as IValidate)?.Validate();
             ArgumentNullException.ThrowIfNull(item.PartitionKey);
         }
@@ -94,6 +95,10 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         EnableContentResponseOnWrite = false
     };
 
+    //TODO: CreatePartitionKey to inspect the base container entity, looking for any multi-part keys that have implicit parameters (like tenantId), and construct a full key based on this 
+    protected virtual PartitionKey CreatePartitionKey(string partitionKey)
+        => new(partitionKey);
+
     Task IJsonEntityContainer.DeleteItemAsync<TItem>(string id, string partitionKey, DeleteOptions options, CancellationToken cancellationToken)
     {
         JsonEntity.JsonEntityIdServices.ThrowIfInvalid(typeof(TItem), id);
@@ -105,12 +110,12 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         return options.ForceHardDelete
             ? Container.DeleteItemAsync<TItem>(
                 id,
-                new PartitionKey(partitionKey),
+                CreatePartitionKey(partitionKey),
                 HardDeleteItemRequestOptions,
                 cancellationToken)
             : (Task)Container.PatchItemAsync<TItem>(
                 id,
-                new PartitionKey(partitionKey),
+                CreatePartitionKey(partitionKey),
                 new[] { MAC.PatchOperation.Set("/" + JsonEntity.JsonEntityPropertyNames.SoftDeletedAt, DateTimeOffset.Now.ToIsoString()) },
                 SoftDeletePatchItemRequestOptions,
                 cancellationToken);
@@ -122,17 +127,19 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
     };
 
     Task IJsonEntityContainer.CreateItemAsync<TItem>(TItem item, CancellationToken cancellationToken)
-        => Container.CreateItemAsync(PrepareItem(item), new PartitionKey(item.PartitionKey), CreateItemDefaultItemRequestOptions, cancellationToken);
+        => Container.CreateItemAsync(PrepareItem(item), CreatePartitionKey(item.PartitionKey), CreateItemDefaultItemRequestOptions, cancellationToken);
 
 
     /// <summary>
-    /// Overrride so you can do things such as setting a default integrated gateway cache settings for the application
+    /// Override so you can do things such as setting a default integrated gateway cache settings for the application
     /// </summary>
     /// <param name="options">ItemRequestOptions for override configuration that will be used in an upcoming ReadItem call</param>
     protected virtual void ConfigureItemRequestOptions(ItemRequestOptions options)
     {
-        //TODO: Add suport for default settings into CosmosJsonEntityContainerConfig and then set during the ConfigureQueryRequestOptions and ConfigureItemRequestOptions methods
+        //TODO: Add support for default settings into CosmosJsonEntityContainerConfig and then set during the ConfigureQueryRequestOptions and ConfigureItemRequestOptions methods
     }
+
+    private ItemRequestOptions GetItemByIdItemRequestOptions;
 
     async Task<TItem> IJsonEntityContainer.GetItemByIdAsync<TItem>(string id, string partitionKey, CancellationToken cancellationToken)
     {
@@ -145,10 +152,22 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         }
         else
         {
-            var options = new ItemRequestOptions();
-            ConfigureItemRequestOptions(options);
-            var resp = await Container.ReadItemAsync<TItem>(id, new PartitionKey(partitionKey), options, cancellationToken);
-            return resp.Resource;
+            var options = GetItemByIdItemRequestOptions;
+            if (options == null)
+            {
+                options = new ItemRequestOptions();
+                ConfigureItemRequestOptions(options);
+                GetItemByIdItemRequestOptions = options;
+            }
+            try
+            {
+                var resp = await Container.ReadItemAsync<TItem>(id, CreatePartitionKey(partitionKey), options, cancellationToken);
+                return resp.Resource;
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                return default;
+            }
         }
     }
 
@@ -160,7 +179,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         var ro = new QueryRequestOptions();
         if (options.PartitionKey != null)
         {
-            ro.PartitionKey = new PartitionKey(options.PartitionKey);
+            ro.PartitionKey = CreatePartitionKey(options.PartitionKey);
         }
         ConfigureQueryRequestOptions(ro);
         return ro;
@@ -226,7 +245,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
             item,
             async (z, token) => await Container.PatchItemAsync<TItem>(
                 z.Id,
-                new PartitionKey(z.PartitionKey),
+                CreatePartitionKey(z.PartitionKey),
                 (await getPatchesAsync(z, token)).Select(CreatePatchOperation).ToList().AsReadOnly(),
                 new PatchItemRequestOptions
                 {
@@ -255,7 +274,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
                 if (!update) return;
                 await Container.UpsertItemAsync<TItem>(
                     z,
-                    new PartitionKey(z.PartitionKey),
+                    CreatePartitionKey(z.PartitionKey),
                     new ItemRequestOptions
                     {
                         EnableContentResponseOnWrite = false,

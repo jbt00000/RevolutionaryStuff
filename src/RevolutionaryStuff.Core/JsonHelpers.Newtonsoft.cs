@@ -4,12 +4,12 @@ using Newtonsoft.Json.Linq;
 
 namespace RevolutionaryStuff.Core;
 
-public static class JsonNetHelpers
+public static partial class JsonHelpers
 {
     private static readonly JsonSerializerSettings FallbackSerializerSettings;
     public static JsonSerializerSettings DefaultSerializerSettings;
 
-    static JsonNetHelpers()
+    static JsonHelpers()
     {
         DefaultSerializerSettings = new JsonSerializerSettings
         {

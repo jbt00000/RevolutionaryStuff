@@ -62,7 +62,8 @@ internal class CosmosAdministration : BaseLoggingDisposable, ICosmosAdministrati
             });
             const string processorName = $"processorForSetupOfLeasesContainer";
             var changeFeedBuilder = container
-                .GetChangeFeedProcessorBuilder(processorName, (leaseContext, leaseChanges, leaseCancellationToken) => {
+                .GetChangeFeedProcessorBuilder(processorName, (leaseContext, leaseChanges, leaseCancellationToken) =>
+                {
                     LogDebug("ChangeFeed Processor for {containerId} with {leaseToken}", container.Id, leaseContext.LeaseToken);
                     return Task.CompletedTask;
                 })

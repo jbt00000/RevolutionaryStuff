@@ -3,9 +3,8 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
-namespace RevolutionaryStuff.Data.JsonStore.Serialization.Json;
-
-internal class EnumMemberJsonConverter : StringEnumConverter
+namespace RevolutionaryStuff.Core.Services.JsonSerializers.Newtonsoft.Converters;
+public class EnumMemberJsonConverter : StringEnumConverter
 {
     public static readonly EnumMemberJsonConverter Instance = new();
 

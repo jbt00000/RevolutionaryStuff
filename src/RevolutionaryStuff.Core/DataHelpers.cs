@@ -480,20 +480,18 @@ public static class DataHelpers
                     sqlType += $"({precision},{scale})";
                 }
             }
-            else if (dc.DataType == typeof(DateTime))
-            {
-                sqlType = "datetime";
-            }
             else
             {
-                sqlType = dc.DataType == typeof(DateTimeOffset)
-                    ? "datetimeoffset"
-                    : dc.DataType == typeof(string)
-                                    ? string.Format(
-                                                    "{0}({1})",
-                                                    dc.Unicode() ? "nvarchar" : "varchar",
-                                                    dc.MaxLength is <= 0 or > 4000 ? "max" : dc.MaxLength.ToString())
-                                    : throw new ArgumentException($"cannot translate type {dc.DataType.Name} to sql", dc.ColumnName);
+                sqlType = dc.DataType == typeof(DateTime)
+                    ? "datetime"
+                    : dc.DataType == typeof(DateTimeOffset)
+                                    ? "datetimeoffset"
+                                    : dc.DataType == typeof(string)
+                                                    ? string.Format(
+                                                                    "{0}({1})",
+                                                                    dc.Unicode() ? "nvarchar" : "varchar",
+                                                                    dc.MaxLength is <= 0 or > 4000 ? "max" : dc.MaxLength.ToString())
+                                                    : throw new ArgumentException($"cannot translate type {dc.DataType.Name} to sql", dc.ColumnName);
             }
             var isPk = dt.PrimaryKey != null && dt.PrimaryKey.Length == 1 && dt.PrimaryKey[0] == dc;
             sb.AppendFormat("\t[{0}] {1} {2}{3}{4}\n",

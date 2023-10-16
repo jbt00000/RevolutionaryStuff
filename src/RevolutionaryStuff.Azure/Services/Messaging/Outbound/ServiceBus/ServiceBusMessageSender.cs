@@ -99,14 +99,9 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
 
         var size = outboundMessage.Size;
 
-        if (outboundMessage.Size >= config.MaxPayloadSize)
-        {
-            serviceBusMessage = await OnCreateOversizeMessageAsync(outboundMessage);
-        }
-        else
-        {
-            serviceBusMessage = new ServiceBusMessage(new BinaryData(await outboundMessage.Payload.ToBufferAsync()));
-        }
+        serviceBusMessage = outboundMessage.Size >= config.MaxPayloadSize
+            ? await OnCreateOversizeMessageAsync(outboundMessage)
+            : new ServiceBusMessage(new BinaryData(await outboundMessage.Payload.ToBufferAsync()));
 
         await OnPopulateAdditionalPropertiesAsync(serviceBusMessage);
 

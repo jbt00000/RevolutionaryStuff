@@ -2,9 +2,10 @@
 using System.IO.Hashing;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
 
@@ -35,22 +36,22 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     }
 
     [JsonExtensionData]
-    public IDictionary<string, JToken>? AdditionalData { get; set; }
+    public IDictionary<string, JsonElement>? AdditionalData { get; set; }
 
     [Key] //This is required by ODataSources
-    [JsonProperty(JsonEntityPropertyNames.Id)]
+    [JsonPropertyName(JsonEntityPropertyNames.Id)]
     public string Id { get; set; }
 
-    [JsonProperty(JsonEntityPropertyNames.SoftDeletedAt)]
+    [JsonPropertyName(JsonEntityPropertyNames.SoftDeletedAt)]
     public DateTimeOffset? SoftDeletedAt { get; set; }
 
-    [JsonProperty(JsonEntityPropertyNames.DataType)]
+    [JsonPropertyName(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 
-    [JsonProperty(JsonEntityPropertyNames.PartitionKey)]
+    [JsonPropertyName(JsonEntityPropertyNames.PartitionKey)]
     public string? PartitionKey { get; set; }
 
-    [JsonProperty(JsonEntityPropertyNames.TenantId)]
+    [JsonPropertyName(JsonEntityPropertyNames.TenantId)]
     public string? TenantId { get; set; }
 
     protected JsonEntity()
@@ -122,6 +123,14 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
             }
         }
     }
+
+    public void PreSave(IJsonEntityContainer container)
+        => OnPreSave(container);
+
+
+    protected virtual void OnPreSave(IJsonEntityContainer container)
+    { }
+
 
     #region IValidate
 

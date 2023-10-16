@@ -23,7 +23,6 @@ public static class _Use
 
                 if (settings?.JsonSerializer != null)
                 {
-
                     JsonSerializable.Serializer = settings.JsonSerializer;
                 }
                 if (settings?.JsonEntityIdServices != null)

@@ -2,8 +2,10 @@
 using System.Text;
 using Newtonsoft.Json;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Services.JsonSerializers.Newtonsoft.Converters;
+using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
-namespace RevolutionaryStuff.Data.JsonStore.Serialization.Json;
+namespace RevolutionaryStuff.Core.Services.JsonSerializers.Newtonsoft;
 
 internal class DefaultJsonSerializer : IJsonSerializer
 {
@@ -52,6 +54,6 @@ internal class DefaultJsonSerializer : IJsonSerializer
         return Encoding.Default.GetString(st.ToArray());
     }
 
-    object? IJsonSerializer.FromJson(string json, Type t)
+    object IJsonSerializer.FromJson(string json, Type t)
         => JsonConvert.DeserializeObject(json, t);
 }

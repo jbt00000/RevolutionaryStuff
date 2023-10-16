@@ -1,11 +1,11 @@
-﻿using RevolutionaryStuff.Core.ApplicationParts;
+﻿using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
-namespace RevolutionaryStuff.Data.JsonStore.Entities;
+namespace RevolutionaryStuff.Core.ApplicationParts;
 
 public abstract class JsonSerializable : IJsonSerializable
 {
-    public static IJsonSerializer Serializer { get; internal set; } = DefaultJsonSerializer.Instance;
+    public static IJsonSerializer Serializer { get; set; } = DefaultJsonSerializer.Instance;
 
     public string ToJson()
         => Serializer.ToJson(this);

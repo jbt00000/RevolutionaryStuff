@@ -23,7 +23,7 @@ public class PeriodicAction : BaseDisposable
     {
         ArgumentNullException.ThrowIfNull(action);
 
-        bool cancel = false;
+        var cancel = false;
 
         T = new Timer(
             delegate (object state)

@@ -36,8 +36,6 @@ public abstract class DefaultCosmosJsonEntityServer<TTenantFinder> : CosmosJsonE
     protected override void ConfigureCosmosClientOptions(CosmosClientOptions clientOptions)
     {
         base.ConfigureCosmosClientOptions(clientOptions);
-        clientOptions.Serializer = new DefaultJsonEntityCosmosSerializer<TTenantFinder>(TenantFinder);
-        clientOptions.ConnectionMode = ConnectionMode.Direct;
         clientOptions.MaxRetryAttemptsOnRateLimitedRequests = 10;
         clientOptions.MaxRetryWaitTimeOnRateLimitedRequests = TimeSpan.FromSeconds(30);
     }
