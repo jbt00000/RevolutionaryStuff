@@ -20,7 +20,6 @@ public static class _Use
 
                 services.ConfigureOptions<CosmosJsonEntityServerConfig>(CosmosJsonEntityServerConfig.ConfigSectionName);
                 services.AddScoped<CosmosJsonEntityServerConstructorArgs>();
-                services.ConfigureOptions<CosmosJsonEntityContainerConfig>(CosmosJsonEntityContainerConfig.ConfigSectionName);
 
                 #endregion
             });

@@ -243,15 +243,15 @@ public static class ExceptionExtensions
 
 public class CrossTenantException : Exception
 {
-    public readonly object OriginalTenantId;
-    public readonly object NewTenantId;
+    public readonly object ExpectedTenantId;
+    public readonly object ActualTenantId;
     public readonly object O;
 
-    public CrossTenantException(object originalTenantId, object newTenantId, object o)
-        : base($"origTenantId={originalTenantId} newTenantId={newTenantId} o.Type={o?.GetType()}")
+    public CrossTenantException(object expectedTenantId, object newTenantId, object o)
+        : base($"expectedTenantId={expectedTenantId} actualTenantId={newTenantId} o.Type={o?.GetType()}")
     {
-        OriginalTenantId = originalTenantId;
-        NewTenantId = newTenantId;
+        ExpectedTenantId = expectedTenantId;
+        ActualTenantId = newTenantId;
         O = o;
     }
 }

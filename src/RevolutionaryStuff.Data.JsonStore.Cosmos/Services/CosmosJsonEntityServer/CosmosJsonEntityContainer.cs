@@ -14,12 +14,12 @@ using MAC = Microsoft.Azure.Cosmos;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
-public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntityContainer
+public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntityContainer, ITenanted<string>
 {
     private readonly ICosmosJsonEntityContainer I;
-    private readonly Container Container;
-    private readonly string TenantId;
-    private readonly IOptions<CosmosJsonEntityContainerConfig> ConfigOptions;
+    protected readonly Container Container;
+    protected readonly string TenantId;
+    private readonly IOptions<CosmosJsonEntityServerConfig> ServerConfigOptions;
 
     public override string ToString()
         => $"{ContainerId}; {base.ToString()}";
@@ -30,7 +30,16 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
     Container ICosmosJsonEntityContainer.Container
         => Container;
 
-    public CosmosJsonEntityContainer(Container container, string tenantId, IOptions<CosmosJsonEntityContainerConfig> configOptions, ILogger<CosmosJsonEntityContainer> logger)
+    string ITenanted<string>.TenantId 
+    {
+        get => TenantId;
+        set => throw new NotSupportedException();
+    }
+
+    protected CosmosJsonEntityServerConfig.ContainerConfig ContainerConfig
+        => ServerConfigOptions.Value.ContainerConfigByContainerId.GetValueOrDefault(ContainerId);
+
+    public CosmosJsonEntityContainer(Container container, string tenantId, IOptions<CosmosJsonEntityServerConfig> serverConfigOptions, ILogger logger)
         : base(logger)
     {
         ArgumentNullException.ThrowIfNull(container);
@@ -39,7 +48,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         I = this;
         Container = container;
         TenantId = tenantId;
-        ConfigOptions = configOptions;
+        ServerConfigOptions = serverConfigOptions;
     }
 
     private void EnsureCorrectContainer<TItem>()
@@ -55,14 +64,6 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         try
         {
             EnsureCorrectContainer<TItem>();
-            if (item.TenantId == null)
-            {
-                item.TenantId = TenantId;
-            }
-            else if (item.TenantId != TenantId)
-            {
-                throw new CrossTenantException(item.TenantId, TenantId, item);
-            }
             (item as IPreSave)?.PreSave();
             (item as JsonEntity)?.PreSave(this);
             (item as IValidate)?.Validate();
@@ -99,7 +100,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
     protected virtual PartitionKey CreatePartitionKey(string partitionKey)
         => new(partitionKey);
 
-    Task IJsonEntityContainer.DeleteItemAsync<TItem>(string id, string partitionKey, DeleteOptions options, CancellationToken cancellationToken)
+    async Task IJsonEntityContainer.DeleteItemAsync<TItem>(string id, string partitionKey, DeleteOptions options, CancellationToken cancellationToken)
     {
         JsonEntity.JsonEntityIdServices.ThrowIfInvalid(typeof(TItem), id);
         Requires.Text(partitionKey);
@@ -107,18 +108,30 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         options ??= DeleteItemDefaultDeleteOptions;
         Requires.Valid(options);
 
-        return options.ForceHardDelete
-            ? Container.DeleteItemAsync<TItem>(
+        double requestCharge;
+        if (options.ForceHardDelete)
+        {
+            var resp = await Container.DeleteItemAsync<TItem>(
                 id,
                 CreatePartitionKey(partitionKey),
                 HardDeleteItemRequestOptions,
-                cancellationToken)
-            : (Task)Container.PatchItemAsync<TItem>(
+                cancellationToken);
+            requestCharge = resp.RequestCharge;
+        }
+        else
+        { 
+            var resp = await Container.PatchItemAsync<TItem>(
                 id,
                 CreatePartitionKey(partitionKey),
                 new[] { MAC.PatchOperation.Set("/" + JsonEntity.JsonEntityPropertyNames.SoftDeletedAt, DateTimeOffset.Now.ToIsoString()) },
                 SoftDeletePatchItemRequestOptions,
                 cancellationToken);
+            requestCharge = resp.RequestCharge;
+        }
+        if (ServerConfigOptions.Value.EnableAnalytics)
+        {
+            LogTrace("DeleteItemAsync({isHard}) on {containerId} cost {requestUnits} RU", options.ForceHardDelete, ContainerId, requestCharge);
+        }
     }
 
     private static readonly ItemRequestOptions CreateItemDefaultItemRequestOptions = new()
@@ -159,14 +172,24 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
                 ConfigureItemRequestOptions(options);
                 GetItemByIdItemRequestOptions = options;
             }
+            double requestCharge = -1;
             try
             {
                 var resp = await Container.ReadItemAsync<TItem>(id, CreatePartitionKey(partitionKey), options, cancellationToken);
+                requestCharge = resp.RequestCharge;
                 return resp.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
+                requestCharge = ex.RequestCharge;
                 return default;
+            }
+            finally
+            {
+                if (ServerConfigOptions.Value.EnableAnalytics)
+                {
+                    LogTrace("ReadItemAsync on {containerId} cost {requestUnits} RU", ContainerId, requestCharge);
+                }
             }
         }
     }
@@ -186,21 +209,15 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
     }
 
     /// <summary>
-    /// Overrride so you can do things such as setting a default integrated gateway cache settings for the application
+    /// Override so you can do things such as setting a default integrated gateway cache settings for the application
     /// </summary>
     /// <param name="options">QueryRequestOptions to be overridden at an application level for an upcoming Query operation</param>
     protected virtual void ConfigureQueryRequestOptions(QueryRequestOptions options)
     { }
 
-    IQueryable<TItem> IJsonEntityContainer.GetQueryable<TItem>(QueryOptions queryOptions)
+    protected virtual IQueryable<TItem> ConfigureQueryable<TItem>(IQueryable<TItem> q, QueryOptions queryOptions) where TItem : JsonEntity
     {
-        EnsureCorrectContainer<TItem>();
-        queryOptions ??= GetQueryableDefaultQueryOptions;
-        Requires.Valid(queryOptions);
-
-        var q = (IQueryable<TItem>)Container.GetItemLinqQueryable<TItem>(requestOptions: CreateQueryRequestOptions(queryOptions));
-
-        q = q.Where(z => z.TenantId == TenantId && (!z.SoftDeletedAt.IsDefined() || z.SoftDeletedAt == null));
+        q = q.Where(z => (!z.SoftDeletedAt.IsDefined() || z.SoftDeletedAt == null));
 
         if (!queryOptions.IgnoreEntityDataType)
         {
@@ -212,6 +229,22 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         {
             q = q.Where(z => z.PartitionKey == queryOptions.PartitionKey);
         }
+
+        return q;
+    }
+
+    protected virtual IQueryable<TItem> CreateQueryable<TItem>(QueryRequestOptions queryRequestOptions) where TItem : JsonEntity
+        => Container.GetItemLinqQueryable<TItem>(requestOptions: queryRequestOptions);
+
+    IQueryable<TItem> IJsonEntityContainer.GetQueryable<TItem>(QueryOptions queryOptions)
+    {
+        EnsureCorrectContainer<TItem>();
+        queryOptions ??= GetQueryableDefaultQueryOptions;
+        Requires.Valid(queryOptions);
+
+        var q = CreateQueryable<TItem>(CreateQueryRequestOptions(queryOptions));
+
+        q = ConfigureQueryable(q, queryOptions);
 
         return q;
     }
@@ -253,7 +286,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
                 },
                 token),
             (z, token) => ReloadItemAsync(z, token),
-            ConfigOptions.Value.PreconditionFailedRetryInfo,
+            ServerConfigOptions.Value.PreconditionFailedRetryInfo,
             cancellationToken);
     }
 
@@ -283,7 +316,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
                     token);
             },
             (z, token) => ReloadItemAsync(z, token),
-            ConfigOptions.Value.PreconditionFailedRetryInfo,
+            ServerConfigOptions.Value.PreconditionFailedRetryInfo,
             cancellationToken);
     }
 
@@ -291,7 +324,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         TItem item,
         Func<TItem, CancellationToken, Task> executeAsync,
         Func<TItem, CancellationToken, Task<TItem>> reloadAsync,
-        CosmosJsonEntityContainerConfig.RetryInfo retryInfo,
+        CosmosJsonEntityServerConfig.RetryInfo retryInfo,
         CancellationToken cancellationToken
         )
     where TItem : JsonEntity

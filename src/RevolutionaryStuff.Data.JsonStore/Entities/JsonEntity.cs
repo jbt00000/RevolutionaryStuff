@@ -51,9 +51,6 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonPropertyName(JsonEntityPropertyNames.PartitionKey)]
     public string? PartitionKey { get; set; }
 
-    [JsonPropertyName(JsonEntityPropertyNames.TenantId)]
-    public string? TenantId { get; set; }
-
     protected JsonEntity()
     {
         var t = GetType();
@@ -126,7 +123,6 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
 
     public void PreSave(IJsonEntityContainer container)
         => OnPreSave(container);
-
 
     protected virtual void OnPreSave(IJsonEntityContainer container)
     { }

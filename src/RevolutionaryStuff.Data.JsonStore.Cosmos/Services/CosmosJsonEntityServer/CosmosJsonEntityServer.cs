@@ -69,7 +69,7 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     protected abstract string GetDatabaseId(string containerId);
 
     protected virtual IJsonEntityContainer CreateJsonEntityContainer(Container container)
-        => new CosmosJsonEntityContainer(container, TenantId, ServiceProvider.GetRequiredService<IOptions<CosmosJsonEntityContainerConfig>>(), ServiceProvider.GetRequiredService<ILogger<CosmosJsonEntityContainer>>());
+        => new CosmosJsonEntityContainer(container, TenantId, ConfigOptions, ServiceProvider.GetRequiredService<ILogger<CosmosJsonEntityContainer>>());
 
     private CosmosClient CosmosClient
     {
