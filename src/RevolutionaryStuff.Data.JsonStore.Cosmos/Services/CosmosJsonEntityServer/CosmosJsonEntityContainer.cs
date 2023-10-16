@@ -30,7 +30,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
     Container ICosmosJsonEntityContainer.Container
         => Container;
 
-    string ITenanted<string>.TenantId 
+    string ITenanted<string>.TenantId
     {
         get => TenantId;
         set => throw new NotSupportedException();
@@ -119,7 +119,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
             requestCharge = resp.RequestCharge;
         }
         else
-        { 
+        {
             var resp = await Container.PatchItemAsync<TItem>(
                 id,
                 CreatePartitionKey(partitionKey),
@@ -217,7 +217,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
 
     protected virtual IQueryable<TItem> ConfigureQueryable<TItem>(IQueryable<TItem> q, QueryOptions queryOptions) where TItem : JsonEntity
     {
-        q = q.Where(z => (!z.SoftDeletedAt.IsDefined() || z.SoftDeletedAt == null));
+        q = q.Where(z => !z.SoftDeletedAt.IsDefined() || z.SoftDeletedAt == null);
 
         if (!queryOptions.IgnoreEntityDataType)
         {

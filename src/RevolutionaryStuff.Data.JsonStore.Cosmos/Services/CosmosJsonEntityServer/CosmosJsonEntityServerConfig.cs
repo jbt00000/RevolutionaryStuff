@@ -35,7 +35,7 @@ public class CosmosJsonEntityServerConfig
     public Dictionary<string, ContainerConfig> ContainerConfigByContainerId { get; set; } = new();
 
     public class ContainerConfig
-    { 
+    {
         public Dictionary<string, string> Settings { get; set; } = new();
 
         // When Settings was Dictionary<string, object>, booleans would come into .net as strings, so stop pretending, and make them strings.
