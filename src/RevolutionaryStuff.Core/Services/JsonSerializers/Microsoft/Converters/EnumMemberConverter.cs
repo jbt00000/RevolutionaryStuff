@@ -24,7 +24,9 @@ public class EnumMemberConverter : JsonConverter<Enum>
     public override void Write(Utf8JsonWriter writer, Enum value, JsonSerializerOptions options)
     {
         if (SerializeEnumAsString)
+        {
             writer.WriteStringValue(value.EnumWithEnumMemberValuesToString());
+        }
         else
         {
             writer.WriteNumberValue((long)(object)value);
