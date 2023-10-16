@@ -14,4 +14,10 @@ public static partial class JsonHelpers
 
     public static T FromMicrosoftJson<T>(string json)
         => Services.JsonSerializers.Microsoft.DefaultJsonSerializer.Instance.FromJson<T>(json);
+
+    public static JsonElement ToJsonElement(object o)
+        => JsonDocument.Parse(ToMicrosoftJson(o)).RootElement;
+
+    public static T FromJsonElement<T>(this JsonElement jsonElement)
+        => FromMicrosoftJson<T>(jsonElement.GetRawText());
 }

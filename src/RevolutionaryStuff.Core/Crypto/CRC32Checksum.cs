@@ -82,6 +82,7 @@ public class CRC32Checksum : IChecksum
 
     #endregion
 
+    //TODO: System.IO.Hashing has a CRC32 implementation that is probably faster, convert to use that one
     public static uint Do(byte[] buf, int offset = 0, int length = -1)
     {
         if (length == -1) length = buf.Length;
