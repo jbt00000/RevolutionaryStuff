@@ -190,7 +190,7 @@ public static class AspHelpers
     public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpRequest r, bool checkContentType = false)
     {
         var json = await r.BodyAsJsonAsync(checkContentType);
-        return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+        return JsonHelpers.FromJson<T>(json);
     }
 
     public static async Task<string> BodyAsJsonAsync(this HttpRequest r, bool checkContentType = false)
@@ -213,7 +213,7 @@ public static class AspHelpers
     public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpResponse r, bool checkContentType = false)
     {
         var json = await r.BodyAsJsonAsync(checkContentType);
-        return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+        return JsonHelpers.FromJson<T>(json);
     }
 
     public static async Task<string> BodyAsJsonAsync(this HttpResponse r, bool checkContentType = false)

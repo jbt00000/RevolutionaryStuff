@@ -26,8 +26,11 @@ public static partial class JsonHelpers
     public static int GetInt(this IDictionary<string, JToken> extensionData, string key, int missing = default)
         => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.Value<int>() : missing;
 
-    public static string ToJson(object o)
-        => JsonConvert.SerializeObject(o, DefaultSerializerSettings ?? FallbackSerializerSettings);
+    public static string ToNewtonsoftJson(object o)
+        => Services.JsonSerializers.Newtonsoft.DefaultJsonSerializer.Instance.ToJson(o);
+
+    public static T FromNewtonsoftJson<T>(string json)
+        => Services.JsonSerializers.Newtonsoft.DefaultJsonSerializer.Instance.FromJson<T>(json);
 
     public enum PathFormats
     {

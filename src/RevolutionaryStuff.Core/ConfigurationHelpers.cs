@@ -34,11 +34,11 @@ public static class ConfigurationHelpers
             var ot = o.GetType();
             json = ot.GetCustomAttribute<DataContractAttribute>() != null
                 ? o.GetType().GetJsonSerializer().WriteObjectToString(o)
-                : Newtonsoft.Json.JsonConvert.SerializeObject(o);
+                : JsonHelpers.ToJson(o);
         }
         catch (InvalidDataContractException)
         {
-            json = Newtonsoft.Json.JsonConvert.SerializeObject(o);
+            json = JsonHelpers.ToJson(o);
         }
         if (excludeNullMembers)
         {

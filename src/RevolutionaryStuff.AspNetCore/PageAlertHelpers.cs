@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Mvc.ViewFeatures;
-using Newtonsoft.Json;
 
 namespace RevolutionaryStuff.AspNetCore;
 
@@ -21,7 +20,7 @@ public static class PageAlertHelpers
         var alerts = new List<PageAlert>();
         if (tdd.Peek(PageAlertsKey) is string json && json != "")
         {
-            var z = JsonConvert.DeserializeObject<IList<PageAlert>>(json);
+            var z = JsonHelpers.FromJson<IList<PageAlert>>(json);
             alerts.AddRange(z);
         }
         if (clear)
@@ -33,7 +32,7 @@ public static class PageAlertHelpers
 
     public static void SetPageAlerts(this ITempDataDictionary tdd, IList<PageAlert> alerts)
     {
-        var json = JsonConvert.SerializeObject(alerts ?? PageAlert.None);
+        var json = JsonHelpers.ToJson(alerts ?? PageAlert.None);
         tdd[PageAlertsKey] = json;
     }
 }

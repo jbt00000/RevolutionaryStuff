@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using System.Reflection;
 using System.Text;
-using Newtonsoft.Json;
 using RevolutionaryStuff.Core.Crypto;
 
 namespace RevolutionaryStuff.Core.Caching;
@@ -93,7 +92,7 @@ public static partial class Cache
                 {
                     try
                     {
-                        o = JsonConvert.ToString(o);
+                        o = JsonHelpers.ToJson(o);
                     }
                     catch (Exception)
                     {

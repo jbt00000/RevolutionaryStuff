@@ -1,4 +1,5 @@
 ﻿using System.Net.Http;
+using System.Text.Json.Serialization;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using RevolutionaryStuff.Core.ApplicationParts;
@@ -67,28 +68,36 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
     public class AuthenticationResult
     {
         public static AuthenticationResult CreateFromJson(string json)
-            => JsonConvert.DeserializeObject<AuthenticationResult>(json);
+            => JsonHelpers.FromJson<AuthenticationResult>(json);
 
-        public string ToJson() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public string ToJson()
+            => JsonHelpers.ToJson(this);
 
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public bool IsError => Error != null;
 
+        [JsonPropertyName("error")]
         [JsonProperty("error")]
         public string Error { get; set; }
 
+        [JsonPropertyName("error_description")]
         [JsonProperty("error_description")]
         public string ErrorDescription { get; set; }
 
+        [JsonPropertyName("token_type")]
         [JsonProperty("token_type")]
         public string TokenType { get; set; }
 
+        [JsonPropertyName("scope")]
         [JsonProperty("scope")]
         public string Scope { get; set; }
 
+        [JsonPropertyName("resource")]
         [JsonProperty("resource")]
         public string Resource { get; set; }
 
+        [JsonPropertyName("access_token")]
         [JsonProperty("access_token")]
         public string Token { get; set; }
         /*
@@ -104,16 +113,19 @@ public class AzureActiveDirectoryResourceAuthorizationGetter : IBearerGetter
                         }
         */
 
+        [JsonPropertyName("expires_in")]
         [JsonProperty("expires_in")]
         public int ExpiresInSeconds { get; set; }
 
         private readonly DateTimeOffset CreatedAt = DateTimeOffset.Now;
 
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public DateTimeOffset ExpiresAt
             => CreatedAt.AddSeconds(ExpiresInSeconds);
 
-        [JsonIgnore]
+        [System.Text.Json.Serialization.JsonIgnore]
+        [Newtonsoft.Json.JsonIgnore]
         public bool IsExpired
             => DateTimeOffset.Now > ExpiresAt;
 

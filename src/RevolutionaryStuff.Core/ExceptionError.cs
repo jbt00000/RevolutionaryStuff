@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace RevolutionaryStuff.Core;
 
+/// <summary>
+/// Yes, is one of the rare classes that is setup to support Newtonsoft SystemTextJson and DataContract serialization
+/// </summary>
 [DataContract]
 public class ExceptionError
 {
@@ -60,8 +63,8 @@ public class ExceptionError
         => new(ex);
 
     public string ToJson()
-        => JsonConvert.SerializeObject(this);
+        => JsonHelpers.ToJson(this);
 
     public static ExceptionError CreateFromJson(string json)
-        => JsonConvert.DeserializeObject<ExceptionError>(json);
+        => JsonHelpers.FromJson<ExceptionError>(json);
 }

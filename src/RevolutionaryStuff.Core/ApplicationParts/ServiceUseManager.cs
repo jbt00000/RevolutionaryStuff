@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using Newtonsoft.Json;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
 public static class ServiceUseManager
@@ -20,7 +19,7 @@ public static class ServiceUseManager
 
         var settingsType = typeof(TSettings);
 
-        var settingsJson = settings == null ? null : JsonConvert.SerializeObject(settings);
+        var settingsJson = settings == null ? null : JsonHelpers.ToJson(settings);
         if (UsageByUseType.ContainsKey(settingsType))
         {
             var usage = UsageByUseType[settingsType];

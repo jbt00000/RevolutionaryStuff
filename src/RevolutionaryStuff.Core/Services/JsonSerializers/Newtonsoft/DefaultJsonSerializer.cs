@@ -11,8 +11,6 @@ internal class DefaultJsonSerializer : IJsonSerializer
 {
     public static readonly IJsonSerializer Instance = new DefaultJsonSerializer();
 
-    private readonly JsonSerializerSettings MyJsonSerializationSettings;
-
     private readonly JsonSerializer Serializer;
 
     private static readonly Encoding UTF8 = new UTF8Encoding(false);
@@ -39,11 +37,6 @@ internal class DefaultJsonSerializer : IJsonSerializer
             //            SerializationBinder = binder
         };
         converters.ForEach(Serializer.Converters.Add);
-
-        MyJsonSerializationSettings = new()
-        {
-            Converters = converters
-        };
     }
 
     string IJsonSerializer.ToJson(object o)

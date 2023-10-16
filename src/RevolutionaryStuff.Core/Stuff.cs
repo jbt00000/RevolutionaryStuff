@@ -2,7 +2,6 @@
 using System.Globalization;
 using System.IO;
 using System.Reflection;
-using Newtonsoft.Json;
 using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Core;
@@ -62,14 +61,6 @@ public static class Stuff
 
     public static string ToString(object o)
         => o?.ToString();
-
-    private static readonly JsonSerializerSettings ToJsonJsonSerializerSettings = new()
-    {
-        NullValueHandling = NullValueHandling.Ignore
-    };
-
-    public static string ToJson(object o)
-        => JsonConvert.SerializeObject(o, Formatting.Indented, ToJsonJsonSerializerSettings);
 
     [Obsolete("Use StringHelpers.Coalesce", false)]
     public static string CoalesceStrings(params string[] vals)
@@ -187,9 +178,9 @@ public static class Stuff
 
                 foreach (var pi in t.GetProperties(BindingFlags.Public | BindingFlags.Instance))
                 {
-                    if (pi.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
-                    var jpn = pi.GetCustomAttribute<JsonPropertyAttribute>();
-                    if ((jpn == null && pi.Name == left) || (jpn != null && jpn.PropertyName == left))
+                    if (pi.HasJsonIgnoreAttribute()) continue;
+                    var jpn = pi.GetJsonPropertyName();
+                    if (jpn==left)
                     {
                         left = pi.Name;
                         if (right == null) return left;

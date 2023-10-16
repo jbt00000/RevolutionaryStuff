@@ -8,4 +8,10 @@ public static partial class JsonHelpers
 
     public static int GetInt(this IDictionary<string, JsonElement> extensionData, string key, int missing = default)
         => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.GetInt32() : missing;
+
+    public static string ToMicrosoftJson(object o)
+        => Services.JsonSerializers.Microsoft.DefaultJsonSerializer.Instance.ToJson(o);
+
+    public static T FromMicrosoftJson<T>(string json)
+        => Services.JsonSerializers.Microsoft.DefaultJsonSerializer.Instance.FromJson<T>(json);
 }
