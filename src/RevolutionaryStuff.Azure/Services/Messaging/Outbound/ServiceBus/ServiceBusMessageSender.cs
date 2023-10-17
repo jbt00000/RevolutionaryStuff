@@ -16,6 +16,7 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
     {
         public const string ConfigSectionName = "ServiceBusMessageSenderConfig";
         public string ConnectionStringName { get; set; }
+        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
         public int MaxPayloadSize { get; set; } = 1024 * 256;
         public bool StoreOverMaxMessagesInDatalake { get; set; } = true;
     }
@@ -45,16 +46,19 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
     }
 
     private static readonly Dictionary<string, ServiceBusSender> ClientByKey = new();
+
     private ServiceBusSender GetClient(string messageContainerName)
     {
         Requires.Text(messageContainerName);
-        var connectionString = ConnectionStringProvider.GetConnectionString(ConfigOptions.Value.ConnectionStringName);
+
+        var config = ConfigOptions.Value;
+        var connectionString = ConnectionStringProvider.GetConnectionString(config.ConnectionStringName);
         var cacheKey = Cache.CreateKey(connectionString, messageContainerName);
         lock (typeof(ServiceBusSender))
         {
             return ClientByKey.FindOrCreate(
                 cacheKey,
-                () => new ServiceBusClient(connectionString).CreateSender(messageContainerName));
+                () => ServiceBusHelpers.ConstructServiceBusClient(connectionString, config.AuthenticateWithWithDefaultAzureCredentials).CreateSender(messageContainerName));
         }
     }
 

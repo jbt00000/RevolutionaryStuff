@@ -23,6 +23,7 @@ public class ServiceBusWorker : BaseWorker
         public IList<string> ExecutionNames { get; set; }
         public IDictionary<string, Execution> ExecutionByName { get; set; }
         public string ConnectionStringName { get; set; }
+        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
         public TimeSpan MessageLockRenewalTimeout { get; set; } = TimeSpan.FromSeconds(15);
         public TimeSpan MaxMessageLockTime { get; set; } = TimeSpan.FromMinutes(2);
         public TimeSpan RenewalTime { get; set; } = TimeSpan.FromSeconds(10);
@@ -135,7 +136,7 @@ public class ServiceBusWorker : BaseWorker
         var concurrentExecutors = execution.ConcurrentExecutors ?? config.ConcurrentExecutors;
 
         var connectionString = ConnectionStringProvider.GetConnectionString(execution.ConnectionStringName ?? config.ConnectionStringName);
-        var serviceBusClient = new ServiceBusClient(connectionString);
+        var serviceBusClient = ServiceBusHelpers.ConstructServiceBusClient(connectionString, config.AuthenticateWithWithDefaultAzureCredentials);
 
         using var _ScopeProperty0 = LogScopedProperty("executionName", executionName);
         using var _ScopeProperty1 = LogScopedProperty("serviceBusExecution", execution, true);
