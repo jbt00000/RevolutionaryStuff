@@ -136,7 +136,7 @@ public class ServiceBusWorker : BaseWorker
         var concurrentExecutors = execution.ConcurrentExecutors ?? config.ConcurrentExecutors;
 
         var connectionString = ConnectionStringProvider.GetConnectionString(execution.ConnectionStringName ?? config.ConnectionStringName);
-        var serviceBusClient = ServiceBusHelpers.ConstructServiceBusClient(connectionString, config.AuthenticateWithWithDefaultAzureCredentials);
+        var serviceBusClient = ServiceBusHelpers.ConstructServiceBusClient(new(connectionString, config.AuthenticateWithWithDefaultAzureCredentials));
 
         using var _ScopeProperty0 = LogScopedProperty("executionName", executionName);
         using var _ScopeProperty1 = LogScopedProperty("serviceBusExecution", execution, true);

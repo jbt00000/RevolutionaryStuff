@@ -1,19 +1,44 @@
 ﻿using Azure.Identity;
 using Azure.Messaging.ServiceBus;
+using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure;
 public class ServiceBusHelpers
 {
-    public static ServiceBusClient ConstructServiceBusClient(string connectionString, bool authenticateWithWithDefaultAzureCredentials)
+    public class ServiceBusClientAuthenticationSettings : IValidate
     {
-        if (authenticateWithWithDefaultAzureCredentials)
+        public string ServiceBusConnectionStringOrFullyQualifiedName { get; }
+        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
+
+        public void Validate()
+            => ExceptionHelpers.AggregateExceptionsAndReThrow(
+                () => Requires.Text(ServiceBusConnectionStringOrFullyQualifiedName),
+                () => Requires.True(AuthenticateWithWithDefaultAzureCredentials)
+                );
+
+        public ServiceBusClientAuthenticationSettings() { }
+
+        public ServiceBusClientAuthenticationSettings(string serviceBusConnectionStringOrFullyQualifiedName, bool authenticateWithWithDefaultAzureCredentials = true)
+        {
+            Requires.Text(serviceBusConnectionStringOrFullyQualifiedName);
+
+            ServiceBusConnectionStringOrFullyQualifiedName = serviceBusConnectionStringOrFullyQualifiedName;
+            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials;
+        }
+    }
+
+    public static ServiceBusClient ConstructServiceBusClient(ServiceBusClientAuthenticationSettings authenticationSettings)
+    {
+        Requires.Valid(authenticationSettings);
+
+        if (authenticationSettings.AuthenticateWithWithDefaultAzureCredentials)
         {
             var creds = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
-            return new ServiceBusClient(connectionString, creds);
+            return new ServiceBusClient(authenticationSettings.ServiceBusConnectionStringOrFullyQualifiedName, creds);
         }
         else
         {
-            return new ServiceBusClient(connectionString);
+            return new ServiceBusClient(authenticationSettings.ServiceBusConnectionStringOrFullyQualifiedName);
         }
     }
 }

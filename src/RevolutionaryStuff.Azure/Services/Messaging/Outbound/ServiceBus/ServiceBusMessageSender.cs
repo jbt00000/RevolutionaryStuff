@@ -58,7 +58,7 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
         {
             return ClientByKey.FindOrCreate(
                 cacheKey,
-                () => ServiceBusHelpers.ConstructServiceBusClient(connectionString, config.AuthenticateWithWithDefaultAzureCredentials).CreateSender(messageContainerName));
+                () => ServiceBusHelpers.ConstructServiceBusClient(new(connectionString, config.AuthenticateWithWithDefaultAzureCredentials)).CreateSender(messageContainerName));
         }
     }
 
