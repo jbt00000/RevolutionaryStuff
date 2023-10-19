@@ -17,6 +17,9 @@ public abstract class BaseLoggingDisposable : BaseDisposable
 
     protected readonly ILogger Logger;
 
+    protected void Log(LogLevel level, string message, params object[] args)
+        => Logger.Log(level, message, args);
+
     protected void LogTrace(string message, params object[] args)
         => Logger.LogTrace(message, args);
 
