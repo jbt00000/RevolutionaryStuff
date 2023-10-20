@@ -9,17 +9,18 @@ internal class EnumMemberConverter<TEnum> : JsonConverter<TEnum> where TEnum : E
 
     public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
+        TEnum ret = default;
         if (reader.TokenType == JsonTokenType.String)
         {
             var enumString = reader.GetString();
-            return Parse.ParseEnumWithEnumMemberValues<TEnum>(enumString);
+            ret = Parse.ParseEnumWithEnumMemberValues<TEnum>(enumString);
         }
         else if (reader.TokenType == JsonTokenType.Number)
         {
             var enumLong = reader.GetInt64();
-            return (TEnum)Enum.ToObject(typeToConvert, enumLong);
+            ret = (TEnum)Enum.ToObject(typeToConvert, enumLong);
         }
-        return default;
+        return ret;
     }
 
     public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)

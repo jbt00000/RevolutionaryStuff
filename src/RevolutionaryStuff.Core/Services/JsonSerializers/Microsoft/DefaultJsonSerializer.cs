@@ -7,6 +7,12 @@ namespace RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
 
 public class DefaultJsonSerializer : IJsonSerializer
 {
+    public static readonly IEnumerable<JsonConverter> DefaultConverters = new JsonConverter[]
+    {
+        EnumMemberConverterFactory.Instance,
+        NullableEnumMemberConverterFactory.Instance,
+    };
+
     public static readonly IJsonSerializer Instance = new DefaultJsonSerializer();
 
     private readonly JsonSerializerOptions MyJsonSerializationSettings;
@@ -20,7 +26,7 @@ public class DefaultJsonSerializer : IJsonSerializer
             ReadCommentHandling = JsonCommentHandling.Skip,
             AllowTrailingCommas = true,
         };
-        MyJsonSerializationSettings.Converters.Add(EnumMemberConverterFactory.Instance);
+        MyJsonSerializationSettings.Converters.FluentAddRange(DefaultConverters);
     }
 
     string IJsonSerializer.ToJson(object o)
