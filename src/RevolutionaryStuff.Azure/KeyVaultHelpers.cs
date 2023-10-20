@@ -18,7 +18,7 @@ public static class KeyVaultHelpers
 
         public SecretClientAuthenticationSettings() { }
 
-        public SecretClientAuthenticationSettings(string keyVaultConnectionString, bool authenticateWithWithDefaultAzureCredentials=true) 
+        public SecretClientAuthenticationSettings(string keyVaultConnectionString, bool authenticateWithWithDefaultAzureCredentials = true)
         {
             Requires.Text(keyVaultConnectionString);
 
@@ -32,6 +32,6 @@ public static class KeyVaultHelpers
         Requires.Valid(authenticationSettings);
 
         var creds = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
-        return new SecretClient(new (authenticationSettings.KeyVaultConnectionString), creds);
+        return new SecretClient(new(authenticationSettings.KeyVaultConnectionString), creds);
     }
 }

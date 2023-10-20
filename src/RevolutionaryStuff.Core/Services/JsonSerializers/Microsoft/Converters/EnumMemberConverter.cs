@@ -2,26 +2,27 @@
 using System.Text.Json.Serialization;
 
 namespace RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft.Converters;
-public class EnumMemberConverter : JsonConverter<Enum>
+
+internal class EnumMemberConverter<TEnum> : JsonConverter<TEnum> where TEnum : Enum
 {
     public bool SerializeEnumAsString { get; set; } = true;
 
-    public override Enum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
+    public override TEnum Read(ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options)
     {
         if (reader.TokenType == JsonTokenType.String)
         {
             var enumString = reader.GetString();
-            return Parse.ParseEnumWithEnumMemberValues(typeToConvert, enumString);
+            return Parse.ParseEnumWithEnumMemberValues<TEnum>(enumString);
         }
         else if (reader.TokenType == JsonTokenType.Number)
         {
             var enumLong = reader.GetInt64();
-            return (Enum)Enum.ToObject(typeToConvert, enumLong);
+            return (TEnum)Enum.ToObject(typeToConvert, enumLong);
         }
         return default;
     }
 
-    public override void Write(Utf8JsonWriter writer, Enum value, JsonSerializerOptions options)
+    public override void Write(Utf8JsonWriter writer, TEnum value, JsonSerializerOptions options)
     {
         if (SerializeEnumAsString)
         {

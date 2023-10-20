@@ -180,7 +180,7 @@ public static class Stuff
                 {
                     if (pi.HasJsonIgnoreAttribute()) continue;
                     var jpn = pi.GetJsonPropertyName();
-                    if (jpn==left)
+                    if (jpn == left)
                     {
                         left = pi.Name;
                         if (right == null) return left;

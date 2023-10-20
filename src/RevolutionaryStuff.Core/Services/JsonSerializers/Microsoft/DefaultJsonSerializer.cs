@@ -20,7 +20,7 @@ public class DefaultJsonSerializer : IJsonSerializer
             ReadCommentHandling = JsonCommentHandling.Skip,
             AllowTrailingCommas = true,
         };
-        MyJsonSerializationSettings.Converters.Add(new EnumMemberConverter());
+        MyJsonSerializationSettings.Converters.Add(EnumMemberConverterFactory.Instance);
     }
 
     string IJsonSerializer.ToJson(object o)

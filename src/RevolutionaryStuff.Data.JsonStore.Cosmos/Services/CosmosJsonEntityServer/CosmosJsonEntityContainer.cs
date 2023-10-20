@@ -51,6 +51,16 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         ServerConfigOptions = serverConfigOptions;
     }
 
+    private void LogOperationRequestCharge(CosmosOperationEnum operation, double requestCharge)
+    {
+        if (ServerConfigOptions.Value.EnableAnalytics)
+        {
+            var rcl = ServerConfigOptions.Value.RequestChargeLoggings.Where(z => z.Operation == operation && z.RequestCharge <= requestCharge).MaxBy(z => z.RequestCharge);
+            var level = rcl?.LogLevel ?? LogLevel.Trace;
+            Log(level, nameof(CosmosJsonEntityContainer) + " operation {operation} on {containerId} cost {requestUnits} RU", operation, ContainerId, requestCharge);
+        }
+    }
+
     private void EnsureCorrectContainer<TItem>()
         where TItem : JsonEntity
     {
@@ -108,7 +118,6 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         options ??= DeleteItemDefaultDeleteOptions;
         Requires.Valid(options);
 
-        double requestCharge;
         if (options.ForceHardDelete)
         {
             var resp = await Container.DeleteItemAsync<TItem>(
@@ -116,7 +125,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
                 CreatePartitionKey(partitionKey),
                 HardDeleteItemRequestOptions,
                 cancellationToken);
-            requestCharge = resp.RequestCharge;
+            LogOperationRequestCharge(CosmosOperationEnum.DeleteHard, resp.RequestCharge);
         }
         else
         {
@@ -126,11 +135,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
                 new[] { MAC.PatchOperation.Set("/" + JsonEntity.JsonEntityPropertyNames.SoftDeletedAt, DateTimeOffset.Now.ToIsoString()) },
                 SoftDeletePatchItemRequestOptions,
                 cancellationToken);
-            requestCharge = resp.RequestCharge;
-        }
-        if (ServerConfigOptions.Value.EnableAnalytics)
-        {
-            LogTrace("DeleteItemAsync({isHard}) on {containerId} cost {requestUnits} RU", options.ForceHardDelete, ContainerId, requestCharge);
+            LogOperationRequestCharge(CosmosOperationEnum.DeleteSoft, resp.RequestCharge);
         }
     }
 
@@ -139,8 +144,11 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         EnableContentResponseOnWrite = false
     };
 
-    Task IJsonEntityContainer.CreateItemAsync<TItem>(TItem item, CancellationToken cancellationToken)
-        => Container.CreateItemAsync(PrepareItem(item), CreatePartitionKey(item.PartitionKey), CreateItemDefaultItemRequestOptions, cancellationToken);
+    async Task IJsonEntityContainer.CreateItemAsync<TItem>(TItem item, CancellationToken cancellationToken)
+    {
+        var resp = await Container.CreateItemAsync(PrepareItem(item), CreatePartitionKey(item.PartitionKey), CreateItemDefaultItemRequestOptions, cancellationToken);
+        LogOperationRequestCharge(CosmosOperationEnum.Create, resp.RequestCharge);
+    }
 
 
     /// <summary>
@@ -172,24 +180,16 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
                 ConfigureItemRequestOptions(options);
                 GetItemByIdItemRequestOptions = options;
             }
-            double requestCharge = -1;
             try
             {
                 var resp = await Container.ReadItemAsync<TItem>(id, CreatePartitionKey(partitionKey), options, cancellationToken);
-                requestCharge = resp.RequestCharge;
+                LogOperationRequestCharge(CosmosOperationEnum.Read, resp.RequestCharge);
                 return resp.Resource;
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                requestCharge = ex.RequestCharge;
+                LogOperationRequestCharge(CosmosOperationEnum.Read, ex.RequestCharge);
                 return default;
-            }
-            finally
-            {
-                if (ServerConfigOptions.Value.EnableAnalytics)
-                {
-                    LogTrace("ReadItemAsync on {containerId} cost {requestUnits} RU", ContainerId, requestCharge);
-                }
             }
         }
     }
@@ -274,7 +274,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         EnsureCorrectContainer<TItem>();
 
         item = string.IsNullOrWhiteSpace(item.ETag) ? await ReloadItemAsync(item, cancellationToken) : item;
-        await CosmosRetryItemRefreshFunctionAsync(
+        var resp = await CosmosRetryItemRefreshFunctionAsync(
             item,
             async (z, token) => await Container.PatchItemAsync<TItem>(
                 z.Id,

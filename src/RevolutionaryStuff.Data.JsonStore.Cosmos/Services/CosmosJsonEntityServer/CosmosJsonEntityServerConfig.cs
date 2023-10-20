@@ -1,4 +1,5 @@
 ﻿using Microsoft.Azure.Cosmos;
+using Microsoft.Extensions.Logging;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
@@ -42,4 +43,13 @@ public class CosmosJsonEntityServerConfig
         public bool GetSettingBool(string key, bool defaultValue = false)
             => Parse.ParseBool(Settings.GetValueOrDefault(key), defaultValue);
     }
+
+    public class RequestChargeLogging
+    {
+        public CosmosOperationEnum Operation { get; set; }
+        public double RequestCharge { get; set; } = 1;
+        public LogLevel LogLevel { get; set; } = LogLevel.Information;
+    }
+
+    public List<RequestChargeLogging> RequestChargeLoggings { get; set; } = new();
 }

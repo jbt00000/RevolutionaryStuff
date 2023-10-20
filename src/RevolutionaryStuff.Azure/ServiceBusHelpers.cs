@@ -27,18 +27,21 @@ public class ServiceBusHelpers
         }
     }
 
-    public static ServiceBusClient ConstructServiceBusClient(ServiceBusClientAuthenticationSettings authenticationSettings)
+    public static ServiceBusClient ConstructServiceBusClient(ServiceBusClientAuthenticationSettings authenticationSettings, ServiceBusClientOptions options = null)
     {
         Requires.Valid(authenticationSettings);
+        options ??= new();
 
+        ServiceBusClient client;
         if (authenticationSettings.AuthenticateWithWithDefaultAzureCredentials)
         {
             var creds = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
-            return new ServiceBusClient(authenticationSettings.ServiceBusConnectionStringOrFullyQualifiedName, creds);
+            client = new ServiceBusClient(authenticationSettings.ServiceBusConnectionStringOrFullyQualifiedName, creds, options);
         }
         else
         {
-            return new ServiceBusClient(authenticationSettings.ServiceBusConnectionStringOrFullyQualifiedName);
+            client = new ServiceBusClient(authenticationSettings.ServiceBusConnectionStringOrFullyQualifiedName, options);
         }
+        return client;
     }
 }

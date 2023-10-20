@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using Azure.Identity;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -92,18 +91,9 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     }
 
     protected virtual CosmosClient ConstructCosmosClient(string connectionString, CosmosClientOptions cosmosClientOptions)
-    {
-        var config = ConfigOptions.Value;
-        if (config.AuthenticateWithWithDefaultAzureCredentials)
-        {
-            var creds = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
-            return new CosmosClient(connectionString, creds, cosmosClientOptions);
-        }
-        else
-        {
-            return new CosmosClient(connectionString, cosmosClientOptions);
-        }
-    }
+        => CosmosHelpers.ConstructCosmosClient(
+            new CosmosHelpers.CosmosClientAuthenticationSettings(connectionString, ConfigOptions.Value.AuthenticateWithWithDefaultAzureCredentials, true),
+            cosmosClientOptions);
 
     IJsonEntityContainer IJsonEntityServer.GetContainer(string containerId)
     {
