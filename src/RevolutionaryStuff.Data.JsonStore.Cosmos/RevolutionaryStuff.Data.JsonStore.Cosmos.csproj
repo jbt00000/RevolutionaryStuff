@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net7.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <!--
         <Nullable>enable</Nullable>
@@ -10,7 +10,7 @@
         <PackageId>RevolutionaryStuff.Data.JsonStore.Cosmos</PackageId>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-        <PackageReleaseNotes>This is now a .NET 6 library ... again</PackageReleaseNotes>
+        <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
         <Authors>jason@jasonthomas.com</Authors>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -21,9 +21,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>3.99.60.0</FileVersion>
-        <AssemblyVersion>3.99.60.0</AssemblyVersion>
-        <Version>3.99.60</Version>
+        <FileVersion>4.01.80.0</FileVersion>
+        <AssemblyVersion>4.01.80.0</AssemblyVersion>
+        <Version>4.01.80</Version>
     </PropertyGroup>
 
     <ItemGroup>
