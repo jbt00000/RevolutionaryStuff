@@ -2,6 +2,24 @@
 
 public static class EnvironmentNames
 {
+    public static IEnumerable<string> AllNames => new[]
+    {
+        Production.Name,
+        Staging.Name,
+        Development.Name,
+        Experimentation.Name,
+        Infrastructure.Name
+    };
+
+    public static IEnumerable<string> AllAbbreviations => new[]
+    {
+        Production.InfrastructureAbbreviation,
+        Staging.InfrastructureAbbreviation,
+        Development.InfrastructureAbbreviation,
+        Experimentation.InfrastructureAbbreviation,
+        Infrastructure.InfrastructureAbbreviation
+    };
+
     public static class Production
     {
         public const string Name = "Production";

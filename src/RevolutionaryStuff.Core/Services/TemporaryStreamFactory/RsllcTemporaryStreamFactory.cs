@@ -23,12 +23,16 @@ internal class RsllcTemporaryStreamFactory : ITemporaryStreamFactory
         ConfigOptions = configOptions;
     }
 
-    Stream ITemporaryStreamFactory.Create(int? capacity)
+    Stream ITemporaryStreamFactory.Create(long? capacity)
     {
         var config = ConfigOptions.Value;
-        if (capacity.GetValueOrDefault(int.MaxValue) < config.MemoryStreamExpectedCapacityLimit)
-            return new MemoryStream(capacity.Value);
-
+        if (capacity.HasValue && capacity.Value < int.MaxValue)
+        {
+            if (capacity.GetValueOrDefault(int.MaxValue) < config.MemoryStreamExpectedCapacityLimit)
+            {
+                return new MemoryStream(Convert.ToInt32(capacity.Value));
+            }
+        }
         var fn = Path.GetTempFileName();
         return File.Create(fn, config.FileBufferSize, FileOptions.DeleteOnClose);
     }

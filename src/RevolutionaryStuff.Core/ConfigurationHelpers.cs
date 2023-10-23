@@ -1,8 +1,5 @@
 ﻿using System.IO;
-using System.Reflection;
-using System.Runtime.Serialization;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 
 namespace RevolutionaryStuff.Core;
 
@@ -19,11 +16,15 @@ public static class ConfigurationHelpers
 
     public static void AddJsonString(this IConfigurationBuilder builder, string json)
     {
-        var filename = Path.GetTempFileName();
-        File.WriteAllText(filename, json);
-        builder.AddJsonFile(filename);
+        ArgumentNullException.ThrowIfNull(builder);
+        Requires.Text(json);
+
+        var buf = Raw.ToUTF8(json);
+        var st = new MemoryStream(buf, false);
+        builder.AddJsonStream(st);
     }
 
+#if false
     public static void AddObject(this IConfigurationBuilder builder, object o, string objectName = null, bool excludeNullMembers = false)
     {
         if (o == null) return;
@@ -88,70 +89,15 @@ public static class ConfigurationHelpers
         }
         return builder.Build();
     }
+#endif
 
-    public static O Get<O>(this IConfiguration configuration, string sectionName = null, bool throwOnExtraneousSettings = true) where O : new()
+    public static T Get<T>(this IConfiguration configuration, string sectionName) where T : new()
     {
-        sectionName ??= typeof(O).Name;
-        var section = configuration.GetSection(sectionName);
-        return section.Get<O>(throwOnExtraneousSettings);
-    }
+        ArgumentNullException.ThrowIfNull(configuration);
+        Requires.Text(sectionName);
 
-    public static O Get<O>(this IConfigurationSection section, bool throwOnExtraneousSettings = true) where O : new()
-    {
-        return (O)section.Get(typeof(O), throwOnExtraneousSettings);
-    }
-
-    private static object Get(this IConfigurationSection section, Type t, bool throwOnExtraneousSettings = true)
-    {
-        object o = null;
-        var ti = t.GetTypeInfo();
-        var ci = ti.GetConstructor(Empty.TypeArray);
-        if (ci != null)
-        {
-            o = ci.Invoke(Empty.ObjectArray);
-            if (section != null)
-            {
-                var childSectionsByName = section.GetChildren().ToDictionary(z => z.Key, Comparers.CaseInsensitiveStringComparer);
-                var propByName = o.GetType().GetTypeInfo().GetProperties(BindingFlags.Public | BindingFlags.SetProperty | BindingFlags.Instance).ToDictionary(pi => pi.Name, Comparers.CaseInsensitiveStringComparer);
-                foreach (var pi in propByName.Values)
-                {
-                    if (!childSectionsByName.TryGetValue(pi.Name, out var childSection)) continue;
-                    object val;
-                    var s = section[pi.Name];
-                    val = s == null
-                        ? childSection.GetChildren().HasData() ? childSection.Get(pi.PropertyType, throwOnExtraneousSettings) : null
-                        : TypeHelpers.ConvertValue(pi.PropertyType, s);
-                    pi.SetValue(o, val);
-                }
-                if (throwOnExtraneousSettings)
-                {
-                    var extras = childSectionsByName.Keys.Where(sn => !propByName.ContainsKey(sn)).ConvertAll(sn => new ArgumentOutOfRangeException(sn));
-                    if (extras.Count > 0)
-                    {
-                        throw new AggregateException("Extraneous settings exist", extras);
-                    }
-                }
-            }
-        }
-        else if (ti.IsArray)
-        {
-            var childSections = section.GetChildren().ToList();
-            ci = ti.GetConstructor(new[] { typeof(int) });
-            var arr = (Array)ci.Invoke(new object[] { childSections.Count });
-            var elType = ti.GetElementType();
-            for (var z = 0; z < childSections.Count; ++z)
-            {
-                var childSection = childSections[z];
-                var val = childSection.GetChildren().HasData() ? childSection.Get(elType, false) : TypeHelpers.ConvertValue(elType, childSection.Value);
-                arr.SetValue(val, z);
-            }
-            o = arr;
-        }
-        else
-        {
-            throw new NotSupportedException();
-        }
-
-        return o;
+        var ret = new T();
+        configuration.Bind(sectionName, ret);
+        return ret;
     }
 }

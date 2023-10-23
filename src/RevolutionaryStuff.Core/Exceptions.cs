@@ -255,3 +255,34 @@ public class CrossTenantException : Exception
         O = o;
     }
 }
+
+public class HttpStatusCodeException : CodedException<System.Net.HttpStatusCode>
+{
+    #region Constructors
+
+    /// <summary>
+    /// Construct an empty instance
+    /// </summary>
+    public HttpStatusCodeException(System.Net.HttpStatusCode code)
+        : base(code)
+    { }
+
+    /// <summary>
+    /// Construct an instance with the given message as extra information
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
+    public HttpStatusCodeException(System.Net.HttpStatusCode code, string message)
+        : base(code, message)
+    { }
+
+    /// <summary>
+    /// Construct an instance with the given message as extra information
+    /// </summary>
+    /// <param name="message">The message that describes the error.</param>
+    /// <param name="inner">The exception that is the cause of the current exception, or a null reference</param>
+    public HttpStatusCodeException(System.Net.HttpStatusCode code, Exception inner)
+        : base(code, inner)
+    { }
+
+    #endregion
+}

@@ -9,7 +9,9 @@ using RevolutionaryStuff.Core.Services.TemporaryStreamFactory;
 
 namespace RevolutionaryStuff.Core;
 
+#pragma warning disable IDE1006 // Naming Styles
 public static class _Use
+#pragma warning restore IDE1006 // Naming Styles
 {
     public class Settings
     {

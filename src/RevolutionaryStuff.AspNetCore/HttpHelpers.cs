@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
 
 namespace RevolutionaryStuff.AspNetCore;
 
@@ -19,6 +20,32 @@ public static class HttpHelpers
             }
         }
         return s ?? missing;
+    }
+
+    public static string GetClientIp(this HttpRequest req)
+    {
+        static string GetIp(StringValues vals)
+        {
+            var ipn = vals.FirstOrDefault()?.Split(new[] { ',' }).FirstOrDefault()
+                ?.Split(new[] { ':' }).FirstOrDefault();
+            _ = System.Net.IPAddress.TryParse(ipn, out var ip);
+            var result = ip?.ToString();
+            return result;
+        }
+        //https://docs.microsoft.com/en-us/azure/frontdoor/front-door-http-headers-protocol
+        //https://stackoverflow.com/questions/37582553/how-to-get-client-ip-address-in-azure-functions-c
+        if (req.Headers.TryGetValue("X-Forwarded-For", out var values))
+        {
+            return GetIp(values);
+        }
+
+        if (req.Headers.TryGetValue("X-Azure-ClientIP", out values))
+        {
+            return GetIp(values);
+        }
+
+        var ipaddr = req.HttpContext.Connection.RemoteIpAddress;
+        return ipaddr != null ? ipaddr.ToString() : GetIp(values);
     }
 
     public static string GetString(this IHeaderDictionary q, string key, string missing = null)

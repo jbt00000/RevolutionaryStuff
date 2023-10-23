@@ -4,5 +4,5 @@ namespace RevolutionaryStuff.Core.Services.TemporaryStreamFactory;
 
 public interface ITemporaryStreamFactory
 {
-    Stream Create(int? capacity = null);
+    Stream Create(long? capacity = null);
 }

@@ -68,6 +68,8 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
 
         var serviceBusMessage = await CreateServiceBusMessageAsync(message);
 
+        message.Properties?.ForEach(kvp => serviceBusMessage.ApplicationProperties[kvp.Key] = kvp.Value);
+
         if (settings != null)
         {
             if (settings.Properties.NullSafeAny())
@@ -87,8 +89,6 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
         propertyOverride?.Invoke(serviceBusMessage.ApplicationProperties);
 
         var client = GetClient(port);
-
-
 
         await client.SendMessageAsync(serviceBusMessage, cancellationToken);
     }

@@ -12,14 +12,17 @@ public class OutboundMessage : BaseDisposable, IValidate
     internal long Size
         => Payload?.Length ?? 0;
 
-    public IDictionary<string, object> Properties { get; set; }
+    public Dictionary<string, object> Properties { get; private set; }
 
     public OutboundMessage() { }
 
     public static OutboundMessage Create(Stream stream, string contentType)
     {
         Requires.ReadableStreamArg(stream);
-        Requires.True(stream.Position == 0, "stream.Position");
+        if (stream.CanSeek)
+        {
+            Requires.True(stream.Position == 0, "stream.Position");
+        }
         return new()
         {
             Payload = stream,
@@ -39,4 +42,7 @@ public class OutboundMessage : BaseDisposable, IValidate
             () => Requires.Text(ContentType),
             () => ArgumentNullException.ThrowIfNull(Payload)
             );
+
+    public void SetProperty(string name, object val)
+        => (Properties ??= new())[name] = val;
 }

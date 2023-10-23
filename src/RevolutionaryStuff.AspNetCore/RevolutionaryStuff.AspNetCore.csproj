@@ -1,12 +1,14 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
         <AssemblyName>RevolutionaryStuff.AspNetCore</AssemblyName>
         <PackageId>RevolutionaryStuff.AspNetCore</PackageId>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-        <PackageReleaseNotes>This is now a .NET 6 library</PackageReleaseNotes>
+        <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
         <Authors>jason@jasonthomas.com</Authors>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -16,9 +18,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>3.99.60.0</FileVersion>
-        <AssemblyVersion>3.99.60.0</AssemblyVersion>
-        <Version>3.99.60</Version>
+        <FileVersion>4.01.80.0</FileVersion>
+        <AssemblyVersion>4.01.80.0</AssemblyVersion>
+        <Version>4.01.80</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -27,11 +29,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <!-- 
-        https://stackoverflow.com/questions/76173982/migrating-the-deprecated-microsoft-aspnetcore-http-abstractions-nuget-package
-        https://learn.microsoft.com/en-us/aspnet/core/fundamentals/target-aspnetcore?view=aspnetcore-6.0&tabs=visual-studio#use-the-aspnet-core-shared-framework 
-        -->
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0-rc.2.23480.2" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
     </ItemGroup>
 
     <ItemGroup>
