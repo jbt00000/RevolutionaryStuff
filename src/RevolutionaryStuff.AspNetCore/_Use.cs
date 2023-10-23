@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.AspNetCore.Services.Correlation;
+using RevolutionaryStuff.AspNetCore.Services.SazGenerators;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.Correlation;
 
@@ -18,6 +19,9 @@ public static class _Use
             settings,
             () =>
     {
+        services.UseRevolutionaryStuffCore();
         services.AddScoped<ICorrelationIdFinder, HttpContextCorrelationIdFinder>();
+        services.AddSingleton<IWebSessionArchiver, SazWebSessionArchiver>();
+        services.AddSingleton<ISazWebSessionArchiver, SazWebSessionArchiver>();
     });
 }
