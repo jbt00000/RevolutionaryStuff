@@ -38,7 +38,7 @@ public class HttpContextCorrelationIdFinder : ICorrelationIdFinder
                 var vals = req.Headers[headerName];
                 if (vals.Count > 0)
                 {
-                    ret ??= new();
+                    ret ??= [];
                     ret.AddRange(vals);
                 }
             }

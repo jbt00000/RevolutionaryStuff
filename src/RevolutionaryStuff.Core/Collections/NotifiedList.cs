@@ -31,7 +31,7 @@ public class NotifiedList<T> : IList<T>, INotifyCollection<T>
     /// <param name="initialData">The initialization data</param>
     private NotifiedList(IEnumerable<T> initialData)
     {
-        Inner = initialData == null ? new List<T>() : new List<T>(initialData);
+        Inner = initialData == null ? [] : new List<T>(initialData);
     }
 
     #endregion

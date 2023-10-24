@@ -16,7 +16,7 @@ internal class SazWebSessionArchiver : ISazWebSessionArchiver
         {
             var places = sessions.Count.ToString().Length;
             var idFormat = $"0{{0:D{places}}}";
-            int sessionNum = 0;
+            var sessionNum = 0;
             foreach (var session in sessions.NullSafeEnumerable())
             {
                 var id = string.Format(idFormat, ++sessionNum);

@@ -33,11 +33,11 @@ public class CosmosJsonEntityServerConfig
 
     public bool EnableAnalytics { get; set; }
 
-    public Dictionary<string, ContainerConfig> ContainerConfigByContainerId { get; set; } = new();
+    public Dictionary<string, ContainerConfig> ContainerConfigByContainerId { get; set; } = [];
 
     public class ContainerConfig
     {
-        public Dictionary<string, string> Settings { get; set; } = new();
+        public Dictionary<string, string> Settings { get; set; } = [];
 
         // When Settings was Dictionary<string, object>, booleans would come into .net as strings, so stop pretending, and make them strings.
         public bool GetSettingBool(string key, bool defaultValue = false)
@@ -51,5 +51,5 @@ public class CosmosJsonEntityServerConfig
         public LogLevel LogLevel { get; set; } = LogLevel.Information;
     }
 
-    public List<RequestChargeLogging> RequestChargeLoggings { get; set; } = new();
+    public List<RequestChargeLogging> RequestChargeLoggings { get; set; } = [];
 }

@@ -105,7 +105,7 @@ public static class AspHelpers
 
     public static IList<SelectListItem> SelectItems<TVal>(this IList<SelectListItem> items, IEnumerable<TVal> selectedValues, bool unselectOthers = true, bool ignoreCase = true)
     {
-        var vals = ignoreCase ? new HashSet<string>(Comparers.CaseInsensitiveStringComparer) : new HashSet<string>();
+        var vals = ignoreCase ? new HashSet<string>(Comparers.CaseInsensitiveStringComparer) : [];
         if (selectedValues != null)
         {
             foreach (var sv in selectedValues)
@@ -159,7 +159,7 @@ public static class AspHelpers
         {
             if (key is string sk && sk.StartsWith(LateContentPrefix))
             {
-                orderedKeys ??= new List<string>();
+                orderedKeys ??= [];
                 orderedKeys.Add(sk);
             }
         }

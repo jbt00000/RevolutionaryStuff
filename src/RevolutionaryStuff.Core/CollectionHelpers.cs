@@ -332,7 +332,7 @@ public static class CollectionHelpers
     public static IList<T> Remove<T>(this ICollection<T> col, Func<T, bool> toRemove)
     {
         if (col == null || toRemove == null) return Array.Empty<T>();
-        List<T> removes = new();
+        List<T> removes = [];
         foreach (var item in col)
         {
             if (toRemove(item))

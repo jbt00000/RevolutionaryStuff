@@ -23,7 +23,7 @@ public class AssemblyAttributeInfo
     public readonly string Culture;
     public readonly string Version;
     public readonly string FileVersion;
-    public readonly MultipleValueDictionary<Type, Attribute> AttributesByType = new();
+    public readonly MultipleValueDictionary<Type, Attribute> AttributesByType = [];
 
     public AssemblyAttributeInfo(Assembly a)
     {

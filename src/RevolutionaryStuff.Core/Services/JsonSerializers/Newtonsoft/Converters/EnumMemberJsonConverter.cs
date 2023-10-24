@@ -8,7 +8,7 @@ public class EnumMemberJsonConverter : StringEnumConverter
 {
     public static readonly EnumMemberJsonConverter Instance = new();
 
-    private static readonly Dictionary<Type, Dictionary<string, object>> EnumByKeyByType = new();
+    private static readonly Dictionary<Type, Dictionary<string, object>> EnumByKeyByType = [];
 
     private EnumMemberJsonConverter()
     { }
@@ -29,7 +29,7 @@ public class EnumMemberJsonConverter : StringEnumConverter
         {
             orCreateValue = EnumByKeyByType.FindOrCreate(t, () =>
             {
-                var dictionary = caseSensitive ? new() : new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
+                var dictionary = caseSensitive ? [] : new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
                 var enumType = t.IsNullableEnum() ? t.GenericTypeArguments[0] : t;
                 foreach (var obj in Enum.GetValues(enumType))
                 {

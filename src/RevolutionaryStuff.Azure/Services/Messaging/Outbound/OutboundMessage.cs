@@ -44,5 +44,5 @@ public class OutboundMessage : BaseDisposable, IValidate
             );
 
     public void SetProperty(string name, object val)
-        => (Properties ??= new())[name] = val;
+        => (Properties ??= [])[name] = val;
 }

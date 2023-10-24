@@ -13,7 +13,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
     public MultipleValueDictionary(IEqualityComparer<K> comparer = null, Func<ICollection<V>> collectionCreator = null)
     {
         CollectionCreator = collectionCreator;
-        ValuesByKey = comparer == null ? new Dictionary<K, ICollection<V>>() : new Dictionary<K, ICollection<V>>(comparer);
+        ValuesByKey = comparer == null ? [] : new Dictionary<K, ICollection<V>>(comparer);
     }
 
     public override string ToString()

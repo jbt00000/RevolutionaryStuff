@@ -119,7 +119,7 @@ Arguments:
             var orderedArgs = new List<Arg>();
             var m = switchesAreCaseInsensitive
                 ? new MultipleValueDictionary<string, Arg>(Comparers.CaseInsensitiveStringComparer)
-                : new MultipleValueDictionary<string, Arg>();
+                : [];
             var pos = 0;
             foreach (var arg in args)
             {

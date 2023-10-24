@@ -218,7 +218,7 @@ public static class CosmosHelpers
     {
         ArgumentNullException.ThrowIfNull(q);
 
-        List<T> items = new();
+        List<T> items = [];
 
         try
         {

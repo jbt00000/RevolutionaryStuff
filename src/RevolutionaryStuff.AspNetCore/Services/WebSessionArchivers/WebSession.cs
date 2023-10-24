@@ -9,7 +9,7 @@ public class WebSession
     public Stream RequestBody { get; set; }
     //public HttpResponse Response { get; set; }
 
-    public WebSession(HttpRequest request, Stream requestBody=null)
+    public WebSession(HttpRequest request, Stream requestBody = null)
     {
         ArgumentNullException.ThrowIfNull(request);
         Request = request;

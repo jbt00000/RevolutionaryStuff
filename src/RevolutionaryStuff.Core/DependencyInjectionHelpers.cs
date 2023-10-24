@@ -98,7 +98,7 @@ NextConstructor:
 
     private class TenantedConfig<TTenantIdType, TConfig>
     {
-        public Dictionary<TTenantIdType, TConfig> Tenants { get; } = new();
+        public Dictionary<TTenantIdType, TConfig> Tenants { get; } = [];
     }
 
     private class TenantedOptionsWrapper<TTenantFinder, TTenantIdType, TOptions> : IOptions<TOptions>
@@ -146,7 +146,7 @@ NextConstructor:
     }
 
 
-    private static readonly MultipleValueDictionary<Type, Type> ImplementationTypesByServiceType = new();
+    private static readonly MultipleValueDictionary<Type, Type> ImplementationTypesByServiceType = [];
 
     public static TService GetServiceByName<TService>(this IServiceProvider serviceProvider, string serviceName)
     {

@@ -131,7 +131,7 @@ Again:
         return entry;
     }
 
-    private readonly HashSet<string> RunningKeys = new();
+    private readonly HashSet<string> RunningKeys = [];
 
     public async Task RemoveAsync(string key)
     {

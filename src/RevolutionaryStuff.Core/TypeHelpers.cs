@@ -380,7 +380,7 @@ Again:
         recurse ??= delegate (TNodeContext a, Type b, MemberInfo c) { return true; };
         var nodeContext = createContext(parentNodeContext, baseType, baseTypeMemberInfo);
 
-        loopChecker ??= new HashSet<Type>();
+        loopChecker ??= [];
         if (loopChecker.Contains(baseType)) return;
         loopChecker.Add(baseType);
         foreach (var mi in baseType.GetMembers(bindingFlags))

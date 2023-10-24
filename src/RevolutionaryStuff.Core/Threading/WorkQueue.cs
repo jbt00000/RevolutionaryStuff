@@ -6,7 +6,7 @@ namespace RevolutionaryStuff.Core.Threading;
 
 public class WorkQueue : BaseDisposable
 {
-    protected List<Thread> Threads { get; } = new();
+    protected List<Thread> Threads { get; } = [];
     protected ConcurrentQueue<Action> Queue = new();
     private readonly ManualResetEvent PleaseStop = new(false);
     private readonly ManualResetEvent IsBored = new(true);

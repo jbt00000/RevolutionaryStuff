@@ -45,7 +45,7 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
         ConfigOptions = constructorArgs.ConfigOptions;
     }
 
-    private static readonly Dictionary<string, ServiceBusSender> ClientByKey = new();
+    private static readonly Dictionary<string, ServiceBusSender> ClientByKey = [];
 
     private ServiceBusSender GetClient(string messageContainerName)
     {

@@ -35,7 +35,7 @@ public static class Parse
             () =>
             {
                 var z = caseSensitive ?
-                    new Dictionary<string, object>() :
+                    [] :
                     new Dictionary<string, object>(Comparers.CaseInsensitiveStringComparer);
                 foreach (var v in Enum.GetValues(t))
                 {
