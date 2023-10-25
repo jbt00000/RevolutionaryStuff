@@ -8,12 +8,15 @@ public class InboundMessage : IInboundMessage
     private readonly IInboundMessage I;
     private readonly BinaryData BinaryData;
 
+    public string MessageId { get; }
+    public string ContentType { get; }
     public long SequenceNumber { get; }
     public string CorrelationId { get; }
     public string Subject { get; }
     public bool MessageRetrievedFromStorage { get; }
 
     internal readonly IDictionary<string, object> PropertiesField;
+    public IDictionary<string, object> DeliveryProperties { get; init; }
 
     IDictionary<string, object> IInboundMessage.Properties
         => PropertiesField ?? Empty.StringObjectDictionary;
@@ -57,7 +60,9 @@ public class InboundMessage : IInboundMessage
             }
             catch (Exception) { }
             if (throwOnConversionIssue)
+            {
                 return (TVal)o;
+            }
         }
         return missing;
     }
@@ -66,14 +71,20 @@ public class InboundMessage : IInboundMessage
     {
         var ret = new List<KeyValuePair<string, object>>();
         if (properties != null)
+        {
             ret.AddRange(properties);
+        }
         if (!ret.Any(kvp => kvp.Key == MessageHelpers.PropertyNames.TenantId))
+        {
             ret.Add(new KeyValuePair<string, object>(MessageHelpers.PropertyNames.TenantId, tenantId));
+        }
         return ret;
     }
 
     public static IInboundMessage Create(
         byte[] messageBody,
+        string contentType = null,
+        string messageId = null,
         IEnumerable<KeyValuePair<string, object>> properties = null,
         long sequenceNumber = 0,
         string tenantId = null,
@@ -81,6 +92,8 @@ public class InboundMessage : IInboundMessage
         bool messageRetrievedFromStorage = false)
         => new InboundMessage(
             new BinaryData(messageBody),
+            contentType,
+            messageId,
             PropertiesWithTenantId(properties, tenantId),
             sequenceNumber,
             null,
@@ -90,6 +103,8 @@ public class InboundMessage : IInboundMessage
 
     public static IInboundMessage Create(
         string messageBody,
+        string contentType = null,
+        string messageId = null,
         IEnumerable<KeyValuePair<string, object>> properties = null,
         long sequenceNumber = 0,
         string tenantId = null,
@@ -97,6 +112,8 @@ public class InboundMessage : IInboundMessage
         bool messageRetrievedFromStorage = false)
         => new InboundMessage(
             new BinaryData(messageBody),
+            contentType,
+            messageId,
             PropertiesWithTenantId(properties, tenantId),
             sequenceNumber,
             null,
@@ -105,11 +122,23 @@ public class InboundMessage : IInboundMessage
             messageRetrievedFromStorage);
 
     public static IInboundMessage Create(ServiceBusReceivedMessage sbrm)
-        => new InboundMessage(sbrm.Body, sbrm.ApplicationProperties,
-            sbrm.SequenceNumber, sbrm.CorrelationId, sbrm.EnqueuedTime, sbrm.Subject);
+        => new InboundMessage(
+            sbrm.Body,
+            sbrm.ContentType,
+            sbrm.MessageId,
+            sbrm.ApplicationProperties,
+            sbrm.SequenceNumber,
+            sbrm.CorrelationId,
+            sbrm.EnqueuedTime,
+            sbrm.Subject)
+        {
+            DeliveryProperties = sbrm.GetRawAmqpMessage().DeliveryAnnotations
+        };
 
     private InboundMessage(
         BinaryData binaryData,
+        string contentType,
+        string messageId,
         IEnumerable<KeyValuePair<string, object>> properties,
         long sequenceNumber,
         string correlationId,
@@ -120,8 +149,12 @@ public class InboundMessage : IInboundMessage
         I = this;
         SequenceNumber = sequenceNumber;
         BinaryData = binaryData;
+        ContentType = contentType;
+        MessageId = messageId;
         if (properties.NullSafeAny())
+        {
             PropertiesField = new Dictionary<string, object>(properties);
+        }
         CorrelationId = correlationId ?? string.Empty;
         EnqueuedTime = enqueuedTime;
         SubjectField = subject;

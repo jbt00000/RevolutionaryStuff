@@ -36,6 +36,7 @@ public class ServiceBusWorker : BaseWorker
             public int? ConcurrentExecutors { get; set; }
             public string ConnectionStringName { get; set; }
             public TimeSpan? MaxMessageLockTime { get; set; }
+            public string QueueName { get; set; }
             public string TopicName { get; set; }
             public string SubscriptionName { get; set; }
             public string MessageWorkerTypeName { get; set; }
@@ -141,14 +142,39 @@ public class ServiceBusWorker : BaseWorker
         using var _ScopeProperty0 = LogScopedProperty("executionName", executionName);
         using var _ScopeProperty1 = LogScopedProperty("serviceBusExecution", execution, true);
 
-        LogWarning(
-            "{Host} listening to {topic}.{subscription} running {messageProcessor} with {concurrentExecutors} executors",
-            nameof(ServiceBusWorker), execution.TopicName, execution.SubscriptionName, execution.MessageWorkerTypeName, concurrentExecutors);
+        ServiceBusReceiver listener;
+        string listenerPort;
 
-        var listener = serviceBusClient.CreateReceiver(execution.TopicName, execution.SubscriptionName, new ServiceBusReceiverOptions
+        if (execution.TopicName != null)
         {
-            PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,
-        });
+            listenerPort = $"{execution.TopicName}.{execution.SubscriptionName}";
+            LogWarning(
+                "{Host} listening to {listenerPort} running {messageProcessor} with {concurrentExecutors} executors",
+                nameof(ServiceBusWorker), listenerPort, execution.MessageWorkerTypeName, concurrentExecutors);
+
+            listener = serviceBusClient.CreateReceiver(execution.TopicName, execution.SubscriptionName, new ServiceBusReceiverOptions
+            {
+                PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,
+                ReceiveMode = ServiceBusReceiveMode.PeekLock,
+            });
+        }
+        else if (execution.QueueName != null)
+        {
+            listenerPort = $"{execution.QueueName}";
+            LogWarning(
+                "{Host} listening to {listenerPort} running {messageProcessor} with {concurrentExecutors} executors",
+                nameof(ServiceBusWorker), listenerPort, execution.MessageWorkerTypeName, concurrentExecutors);
+
+            listener = serviceBusClient.CreateReceiver(execution.QueueName, new ServiceBusReceiverOptions
+            {
+                PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,
+                ReceiveMode = ServiceBusReceiveMode.PeekLock,
+            });
+        }
+        else
+        {
+            throw new NotSupportedException("Must either specify a topic or a queue");
+        }
 
         long currentlyRunning = 0;
         long totalRunCount = 0;
@@ -227,12 +253,12 @@ public class ServiceBusWorker : BaseWorker
         {
             await Task.Delay(1000);
             LogInformation(
-                "Shutting down {topicName}.{subscriptionName} {running} with {success}/{error}/{total} ...",
-                execution.TopicName, execution.SubscriptionName, currentlyRunning, totalSuccessCount, totalErrorCount, totalRunCount);
+                "Shutting down {listenerPort} {running} with {success}/{error}/{total} ...",
+                listenerPort, currentlyRunning, totalSuccessCount, totalErrorCount, totalRunCount);
         }
 
         LogWarning(
-            "Shut down {topicName}.{subscriptionName} {running} with {success}/{error}/{total}",
-            execution.TopicName, execution.SubscriptionName, currentlyRunning, totalSuccessCount, totalErrorCount, totalRunCount);
+            "Shut down {listenerPort} {running} with {success}/{error}/{total}",
+            listenerPort, currentlyRunning, totalSuccessCount, totalErrorCount, totalRunCount);
     }
 }
