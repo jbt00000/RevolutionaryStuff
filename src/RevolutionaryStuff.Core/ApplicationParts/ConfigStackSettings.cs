@@ -7,6 +7,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts;
 
 public class ConfigStackSettings
 {
+    private const string ConfigSettingsJsonFileName = "configsettings.json";
     public const string ConfigSectionName = "ConfigStackSettings";
 
     public class ResourceInfo
@@ -19,7 +20,7 @@ public class ConfigStackSettings
 
     public static void Add(IConfigurationBuilder builder, string environmentName, string configSettingsResourceName = null)
     {
-        var st = Assembly.GetEntryAssembly().GetEmbeddedResourceAsStream(configSettingsResourceName ?? "configsettings.json");
+        var st = Assembly.GetEntryAssembly().GetEmbeddedResourceAsStream(configSettingsResourceName ?? ConfigSettingsJsonFileName);
         if (st != null)
         {
             builder.AddJsonStream(st);

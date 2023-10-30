@@ -40,6 +40,11 @@ public class ExceptionError
 
     public ExceptionError(Exception ex)
     {
+        if (ex == null)
+        {
+            ErrorMessage = "<null>";
+            return;
+        }
         ErrorType = ex.GetType().Name;
         ErrorMessage = ex.Message;
         ErrorCode = BaseCodedException.GetCode(ex);
