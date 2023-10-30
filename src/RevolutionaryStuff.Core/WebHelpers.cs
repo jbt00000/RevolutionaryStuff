@@ -1,54 +1,11 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using System.Text.RegularExpressions;
 using RevolutionaryStuff.Core.Collections;
 
 namespace RevolutionaryStuff.Core;
-public static class WebHelpers
+public static partial class WebHelpers
 {
-    public static class HeaderStrings
-    {
-        public const string AcceptEncoding = "Accept-Encoding";
-        public const string AcceptRanges = "Accept-Ranges";
-        public const string AcceptTypes = "Accept";
-        public const string AltLocation = "X-Gnutella-Alternate-Location";
-        public const string Authorization = "Authorization";
-        public const string AvailableRanges = "X-Available-Ranges";
-        public const string CacheControl = "Cache-Control";
-        public const string Connection = "Connection";
-        public const string ContentDisposition = "Content-Disposition";
-        public const string ContentEncoding = "Content-Encoding";
-        public const string ContentLength = "Content-Length";
-        public const string ContentRange = "Content-Range"; //used when responding
-        public const string ContentType = "Content-Type";
-        public const string ContentUrn = "X-Content-URN";
-        public const string Cookie = "Cookie";
-        public const string Date = "Date";
-        public const string ETag = "ETag";
-        public const string GnutellaAltLocation = "X-Alt";
-        public const string GnutellaNegativeAltLocation = "X-NAlt";
-        public const string Host = "Host";
-        public const string IfModifiedSince = "If-Modified-Since";
-        public const string IfNoneMatch = "If-None-Match";
-        public const string IfRange = "If-Range";
-        public const string IfUnmodifiedSince = "If-Unmodified-Since";
-        public const string KeepAlive = "Keep-Alive";
-        public const string LastModified = "Last-Modified";
-        public const string Location = "Location";
-        public const string MaxSlots = "X-Gnutella-maxSlots";
-        public const string MaxSlotsPerHost = "X-Gnutella-maxSlotsPerHost";
-        public const string ProxyConnection = "Proxy-Connection";
-        public const string Range = "Range"; //used when requesting
-        public const string Referer = "Referer";
-        public const string ServentID = "X-Gnutella-Servent-ID";
-        public const string Server = "Server";
-        public const string SetCookie = "Set-Cookie";
-        public const string UnlessModifiedSince = "Unless-Modified-Since";
-        public const string UserAgent = "User-Agent";
-        public const string WWWAuthenticate = "WWW-Authenticate";
-    }
-
     public static class CommonSchemes
     {
         public const string File = "file";
@@ -63,58 +20,6 @@ public static class WebHelpers
 
         public static bool IsInsecure(string scheme)
             => !IsSecure(scheme);
-    }
-
-    public static class Methods
-    {
-        public const string Get = "GET";
-        public const string Head = "HEAD";
-        public const string Delete = "DELETE";
-        public const string Post = "POST";
-        public const string Put = "PUT";
-        public const string Options = "OPTIONS";
-
-        private static readonly Regex VerbExpr = new(string.Format(
-            "{0}|{1}|{2}|{3}|{4}",
-            Get, Head, Post, Put, Options
-            ), RegexOptions.Compiled);
-
-        public static bool IsWebVerb(string s)
-        {
-            return IsStandardVerb(s);
-        }
-
-        public static bool IsStandardVerb(string s)
-        {
-            return s != null && VerbExpr.IsMatch(s);
-        }
-
-        public static bool IsGetOrHead(string s)
-        {
-            return s is Get or Head;
-        }
-    }
-
-    public static class WebDAVVerbs
-    {
-        public const string PropFind = "PROPFIND";
-        public const string PropPatch = "PROPPATCH";
-        public const string MkCol = "MKCOL";
-        public const string Delete = "DELETE";
-        public const string Copy = "COPY";
-        public const string Move = "MOVE";
-        public const string Lock = "LOCK";
-        public const string Unlock = "UNLOCK";
-
-        private static readonly Regex VerbExpr = new(string.Format(
-            "{0}|{1}|{2}|{3}|{4}|{5}|{6}|{7}",
-            PropFind, PropPatch, MkCol, Delete, Copy, Move, Lock, Unlock
-            ), RegexOptions.Compiled);
-
-        public static bool IsStandardVerb(string s)
-        {
-            return s != null && VerbExpr.IsMatch(s);
-        }
     }
 
     public static string CreateBasicAuthorizationHeaderValueParameter(string username, string password)

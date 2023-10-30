@@ -58,6 +58,18 @@
         <Content Include="JsonHelpers.Microsoft.cs">
             <DependentUpon>JsonHelpers.cs</DependentUpon>
         </Content>
+        <Content Include="WebHelpers.GnutellaHeaderStrings.cs">
+            <DependentUpon>WebHelpers.cs</DependentUpon>
+        </Content>
+        <Content Include="WebHelpers.HeaderStrings.cs">
+            <DependentUpon>WebHelpers.cs</DependentUpon>
+        </Content>
+        <Content Include="WebHelpers.Methods.cs">
+            <DependentUpon>WebHelpers.cs</DependentUpon>
+        </Content>
+        <Content Include="WebHelpers.WebDAVMethods.cs">
+            <DependentUpon>WebHelpers.cs</DependentUpon>
+        </Content>
     </ItemGroup>
 
     <ItemGroup>
