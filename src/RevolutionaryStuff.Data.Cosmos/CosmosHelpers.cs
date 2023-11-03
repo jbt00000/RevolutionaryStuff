@@ -91,6 +91,7 @@ public static class CosmosHelpers
             await client.CreateDatabaseIfNotExistsAsync(dbName);
             var database = client.GetDatabase(dbName);
             //            var keyId = "https://kv-eu2-dev-shuffletron.vault.azure.net/keys/cos-sql-cmk-02/bcaab797fe0a412eb25f39ab47ba289a";
+            if (Environment.TickCount >= 1) throw new NotImplementedException("HARDCODED PASSWORD HERE - probably for testing always encrypted");
             var keyId = "https://kv-eu2-dev-shuffletron.vault.azure.net/keys/cosSqlCmk/3f63134663274c55a1253eefeff1b33a";
             await database.CreateClientEncryptionKeyAsync(
                 dbKeyName,

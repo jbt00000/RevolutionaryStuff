@@ -29,6 +29,15 @@
     </ItemGroup>
 
     <ItemGroup>
+        <!-- This is in the .csproj file instead of a .cs file so that VS Code Cleanup cannot remove these before they are used -->
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+        <Using Include="System.Linq" />
+        <Using Include="System.Threading.Tasks" />
+        <Using Include="RevolutionaryStuff.Core" />
+    </ItemGroup>
+
+    <ItemGroup>
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0-rc.2.23480.2" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
     </ItemGroup>

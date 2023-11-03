@@ -14,6 +14,8 @@ public class ConfigStackSettings
     {
         public string AssemblyName { get; set; }
         public string BaseConfigFileName { get; set; }
+        public override string ToString()
+            => $"assembly=>{AssemblyName} baseConfig=>{BaseConfigFileName}";
     }
 
     public List<ResourceInfo> Resources { get; set; }
