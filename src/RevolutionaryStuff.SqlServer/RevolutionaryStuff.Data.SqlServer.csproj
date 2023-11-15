@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <AssemblyName>RevolutionaryStuff.Data.SqlServer</AssemblyName>
         <PackageId>RevolutionaryStuff.SqlServer</PackageId>
         <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
@@ -12,7 +12,7 @@
         <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-        <PackageReleaseNotes>These routines were removed from RevolutionaryStuff.Core to trim the download size in Blazor apps</PackageReleaseNotes>
+        <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
         <Authors>jason@jasonthomas.com</Authors>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -23,9 +23,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>3.99.60.0</FileVersion>
-        <AssemblyVersion>3.99.60.0</AssemblyVersion>
-        <Version>3.99.60</Version>
+        <FileVersion>4.01.80.0</FileVersion>
+        <AssemblyVersion>4.01.80.0</AssemblyVersion>
+        <Version>4.01.80</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -34,7 +34,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.1" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.2" />
     </ItemGroup>
 
     <ItemGroup>

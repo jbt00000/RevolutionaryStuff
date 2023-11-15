@@ -8,81 +8,81 @@ namespace RevolutionaryStuff.Core.Tests
     public class JsonNetTests
     {
         private static void TraceAsJson(object o)
-            => Trace.WriteLine(JsonNetHelpers.ToJson(o));
+            => Trace.WriteLine(JsonHelpers.ToJson(o));
 
         [TestMethod]
         public void SingleSegmentDueToWrongPathFormat()
         {
-            Assert.AreEqual(1, JsonNetHelpers.DecomposePath("a/b/c/d", JsonNetHelpers.PathFormats.DotNotation).Length);
-            Assert.AreEqual(1, JsonNetHelpers.DecomposePath("a.b.c.d", JsonNetHelpers.PathFormats.SlashNotation).Length);
+            Assert.AreEqual(1, JsonHelpers.DecomposePath("a/b/c/d", JsonHelpers.PathFormats.DotNotation).Length);
+            Assert.AreEqual(1, JsonHelpers.DecomposePath("a.b.c.d", JsonHelpers.PathFormats.SlashNotation).Length);
         }
 
         [TestMethod]
         public void CorrectSegmentCountDueToCorrectPathFormat()
         {
-            Assert.AreEqual(4, JsonNetHelpers.DecomposePath("a/b/c/d", JsonNetHelpers.PathFormats.SlashNotation).Length);
-            Assert.AreEqual(4, JsonNetHelpers.DecomposePath("a.b.c.d", JsonNetHelpers.PathFormats.DotNotation).Length);
-            Assert.AreEqual(4, JsonNetHelpers.DecomposePath("a/b/c/d", JsonNetHelpers.PathFormats.DotOrSlashNotation).Length);
-            Assert.AreEqual(4, JsonNetHelpers.DecomposePath("a.b.c.d", JsonNetHelpers.PathFormats.DotOrSlashNotation).Length);
+            Assert.AreEqual(4, JsonHelpers.DecomposePath("a/b/c/d", JsonHelpers.PathFormats.SlashNotation).Length);
+            Assert.AreEqual(4, JsonHelpers.DecomposePath("a.b.c.d", JsonHelpers.PathFormats.DotNotation).Length);
+            Assert.AreEqual(4, JsonHelpers.DecomposePath("a/b/c/d", JsonHelpers.PathFormats.DotOrSlashNotation).Length);
+            Assert.AreEqual(4, JsonHelpers.DecomposePath("a.b.c.d", JsonHelpers.PathFormats.DotOrSlashNotation).Length);
         }
 
         [TestMethod]
         public void PropertyPathSegment()
         {
-            var segments = JsonNetHelpers.PathSegment.CreateSegmentsFromJsonPath("a");
+            var segments = JsonHelpers.PathSegment.CreateSegmentsFromJsonPath("a");
             Assert.AreEqual(1, segments.Count);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Property, segments[0].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Property, segments[0].SegmentType);
         }
 
         [TestMethod]
         public void ObjectPropertyPathSegment()
         {
-            var segments = JsonNetHelpers.PathSegment.CreateSegmentsFromJsonPath("a.b");
+            var segments = JsonHelpers.PathSegment.CreateSegmentsFromJsonPath("a.b");
             Assert.AreEqual(2, segments.Count);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Object, segments[0].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Property, segments[1].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Object, segments[0].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Property, segments[1].SegmentType);
         }
 
         [TestMethod]
         public void ObjectObjectPropertyPathSegment()
         {
-            var segments = JsonNetHelpers.PathSegment.CreateSegmentsFromJsonPath("a.b.c");
+            var segments = JsonHelpers.PathSegment.CreateSegmentsFromJsonPath("a.b.c");
             Assert.AreEqual(3, segments.Count);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Object, segments[0].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Object, segments[1].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Property, segments[2].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Object, segments[0].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Object, segments[1].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Property, segments[2].SegmentType);
         }
 
         [TestMethod]
         public void ArrayIndexPathSegment()
         {
-            var segments = JsonNetHelpers.PathSegment.CreateSegmentsFromJsonPath("a.4");
+            var segments = JsonHelpers.PathSegment.CreateSegmentsFromJsonPath("a.4");
             Assert.AreEqual(2, segments.Count);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Array, segments[0].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.ArrayIndex, segments[1].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Array, segments[0].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.ArrayIndex, segments[1].SegmentType);
         }
 
         [TestMethod]
         public void ObjectObjectArrayIndexPathSegment()
         {
-            var segments = JsonNetHelpers.PathSegment.CreateSegmentsFromJsonPath("a.b.c.4");
+            var segments = JsonHelpers.PathSegment.CreateSegmentsFromJsonPath("a.b.c.4");
             Assert.AreEqual(4, segments.Count);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Object, segments[0].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Object, segments[1].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Array, segments[2].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.ArrayIndex, segments[3].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Object, segments[0].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Object, segments[1].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Array, segments[2].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.ArrayIndex, segments[3].SegmentType);
         }
 
         [TestMethod]
         public void ObjectObjectArrayIndexIndexPathSegment()
         {
-            var segments = JsonNetHelpers.PathSegment.CreateSegmentsFromJsonPath("a.b.c.4.5");
+            var segments = JsonHelpers.PathSegment.CreateSegmentsFromJsonPath("a.b.c.4.5");
             Assert.AreEqual(5, segments.Count);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Object, segments[0].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Object, segments[1].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.Array, segments[2].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.ArrayIndex, segments[3].SegmentType);
-            Assert.AreEqual(JsonNetHelpers.PathSegment.SegmentTypes.ArrayIndex, segments[4].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Object, segments[0].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Object, segments[1].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.Array, segments[2].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.ArrayIndex, segments[3].SegmentType);
+            Assert.AreEqual(JsonHelpers.PathSegment.SegmentTypes.ArrayIndex, segments[4].SegmentType);
         }
 
         [TestMethod]
