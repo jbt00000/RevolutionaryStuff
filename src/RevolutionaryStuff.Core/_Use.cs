@@ -6,6 +6,7 @@ using RevolutionaryStuff.Core.Services.Correlation;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
 using RevolutionaryStuff.Core.Services.Http;
 using RevolutionaryStuff.Core.Services.TemporaryStreamFactory;
+using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Core;
 
@@ -47,6 +48,8 @@ public static class _Use
         services.AddSingleton<IConnectionStringProvider, ServiceProviderConnectionStringProvider>();
 
         services.AddScoped<IHttpMessageSender, HttpClientHttpMessageSender>();
+
+        services.AddSingleton(IJsonSerializer.Default);
 
         #region Services
         services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();

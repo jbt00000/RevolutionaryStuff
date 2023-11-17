@@ -61,6 +61,14 @@ public static partial class WebHelpers
             Get, Head, Post, Put, Options, Patch, Trace
             ), RegexOptions.Compiled);
 
+        public static void RequiresStandardVerb(string s)
+        {
+            if (!IsStandardVerb(s))
+            {
+                throw new ArgumentException($"The HTTP method '{s}' is not a standard HTTP verb.");
+            }
+        }
+
         /// <summary>
         /// Checks if a given string is a standard web verb.
         /// </summary>

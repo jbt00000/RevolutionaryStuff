@@ -136,4 +136,13 @@ public static partial class WebHelpers
     }
     public static void AcceptJson(this HttpRequestHeaders headers)
         => headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
+
+    public static void Set(this HttpHeaders headers, string name, string val)
+    {
+        if (headers.Contains(name))
+        {
+            headers.Remove(name);
+        }
+        headers.Add(name, val);
+    }
 }

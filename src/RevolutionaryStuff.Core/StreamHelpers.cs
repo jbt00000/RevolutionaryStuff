@@ -149,4 +149,11 @@ public static class StreamHelpers
         }
         return mst.ToArray();
     }
+
+    public static void Write(this Stream st, string s, Encoding enc = null)
+    {
+        if (s == null) return;
+        var buf = (enc ?? Encoding.UTF8).GetBytes(s);
+        st.Write(buf, 0, buf.Length);
+    }
 }

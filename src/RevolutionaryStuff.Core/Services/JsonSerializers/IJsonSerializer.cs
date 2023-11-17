@@ -1,4 +1,7 @@
-﻿namespace RevolutionaryStuff.Data.JsonStore.Serialization.Json;
+﻿using System.IO;
+using RevolutionaryStuff.Core;
+
+namespace RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 public interface IJsonSerializer
 {
@@ -8,6 +11,9 @@ public interface IJsonSerializer
     string ToJson(object o);
 
     #region Default Implementation
+
+    public void Serialize(object o, Stream st)
+        => st.Write(ToJson(o));
 
     T FromJson<T>(string json)
         => (T)FromJson(json, typeof(T));
