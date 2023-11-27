@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Configuration;
+using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Core;
 
@@ -31,6 +32,7 @@ public static class ConfigurationHelpers
 
         var ret = new T();
         configuration.Bind(sectionName, ret);
+        (ret as IPostConfigure)?.PostConfigure();
         return ret;
     }
 }

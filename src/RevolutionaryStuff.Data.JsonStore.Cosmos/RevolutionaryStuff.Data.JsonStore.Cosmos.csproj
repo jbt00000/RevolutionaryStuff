@@ -38,7 +38,6 @@
         <Using Include="System.Linq" />
         <Using Include="System.Threading.Tasks" />
         <Using Include="RevolutionaryStuff.Core" />
-        <Using Include="RevolutionaryStuff.Azure" />
     </ItemGroup>
 
     <ItemGroup>

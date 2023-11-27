@@ -36,19 +36,19 @@
         <Using Include="System.Linq" />
         <Using Include="System.Threading.Tasks" />
         <Using Include="RevolutionaryStuff.Core" />
-        <Using Include="RevolutionaryStuff.Azure" />
     </ItemGroup>
 
     <ItemGroup>
         <PackageReference Include="Azure.Identity" Version="1.10.4" />
         <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.5.0" />
         <!-- can't upgrade Microsoft.Azure.Cosmos past 3.35.2 while Microsoft.Azure.Cosmos.Encryption is at 2.0.3 -->
-        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.36.0" />
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.36.0">
+          <TreatAsUsed>true</TreatAsUsed>
+        </PackageReference>
         <PackageReference Include="Microsoft.Azure.Cosmos.Encryption" Version="2.0.3" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\RevolutionaryStuff.Azure\RevolutionaryStuff.Azure.csproj" />
         <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
     </ItemGroup>
 
