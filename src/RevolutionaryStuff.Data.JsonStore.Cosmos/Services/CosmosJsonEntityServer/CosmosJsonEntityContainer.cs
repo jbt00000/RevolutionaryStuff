@@ -37,7 +37,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
     }
 
     protected CosmosJsonEntityServerConfig.ContainerConfig ContainerConfig
-        => ServerConfigOptions.Value.ContainerConfigByContainerId.GetValueOrDefault(ContainerId);
+        => ServerConfigOptions.Value.ContainerConfigByContainerKey.GetValueOrDefault(ContainerId);
 
     public CosmosJsonEntityContainer(Container container, string tenantId, IOptions<CosmosJsonEntityServerConfig> serverConfigOptions, ILogger logger)
         : base(logger)

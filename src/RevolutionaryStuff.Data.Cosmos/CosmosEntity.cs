@@ -8,7 +8,7 @@ namespace RevolutionaryStuff.Data.Cosmos;
 
 public class CosmosEntity<TPrimaryKey> : IPrimaryKey<TPrimaryKey>, IETagGetter
 {
-    [JsonPropertyName(CosmosEntityPropertyNames.Id)]
+    [JsonPropertyName(CosmosEntityPropertyNames.Id), Newtonsoft.Json.JsonProperty(CosmosEntityPropertyNames.Id)]
     public TPrimaryKey Id { get; set; }
 
     [JsonExtensionData]

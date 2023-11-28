@@ -1,4 +1,5 @@
-﻿using System.Text.Json.Serialization;
+﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using System.Threading;
 using Azure.Identity;
 using Azure.Security.KeyVault.Keys.Cryptography;

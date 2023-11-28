@@ -1,9 +1,10 @@
 ﻿using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
+using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
-public class CosmosJsonEntityServerConfig
+public class CosmosJsonEntityServerConfig : IPostConfigure
 {
     public const string ConfigSectionName = "CosmosJsonEntityServerConfig";
 
@@ -33,10 +34,23 @@ public class CosmosJsonEntityServerConfig
 
     public bool EnableAnalytics { get; set; }
 
-    public Dictionary<string, ContainerConfig> ContainerConfigByContainerId { get; set; } = [];
+    public Dictionary<string, ContainerConfig> ContainerConfigByContainerKey { get; set; } = [];
+
+    public Dictionary<string, DatabaseConfig> DatabaseConfigByDatabaseKey { get; set; } = [];
+
+    public string ConnectionStringName { get; set; } = null!;
+
+    public class DatabaseConfig
+    { 
+        public string DatabaseId { get; internal set; }
+    }
 
     public class ContainerConfig
     {
+        public DatabaseConfig DatabaseConfig { get; internal set; }
+        public string ContainerId { get; internal set; }
+        public string DatabaseKey { get; set; } = null!;
+        public string HierarchicalPartitionKeyScheme { get; set; }
         public Dictionary<string, string> Settings { get; set; } = [];
 
         // When Settings was Dictionary<string, object>, booleans would come into .net as strings, so stop pretending, and make them strings.
@@ -52,4 +66,21 @@ public class CosmosJsonEntityServerConfig
     }
 
     public List<RequestChargeLogging> RequestChargeLoggings { get; set; } = [];
+
+    void IPostConfigure.PostConfigure()
+    {
+        ContainerConfigByContainerKey ??= new();
+        DatabaseConfigByDatabaseKey ??= new();
+        foreach (var kvp in DatabaseConfigByDatabaseKey)
+        {
+            var dc = kvp.Value;
+            dc.DatabaseId = kvp.Key;
+        }
+        foreach (var kvp in ContainerConfigByContainerKey)
+        {
+            var cc = kvp.Value;
+            cc.ContainerId = kvp.Key;
+            cc.DatabaseConfig = DatabaseConfigByDatabaseKey.GetValue(cc.DatabaseKey);
+        }
+    }
 }

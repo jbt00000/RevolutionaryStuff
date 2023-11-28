@@ -39,16 +39,16 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     public IDictionary<string, JsonElement>? AdditionalData { get; set; }
 
     [Key] //This is required by ODataSources
-    [JsonPropertyName(JsonEntityPropertyNames.Id)]
+    [JsonPropertyName(JsonEntityPropertyNames.Id), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.Id)]
     public string Id { get; set; }
 
-    [JsonPropertyName(JsonEntityPropertyNames.SoftDeletedAt)]
+    [JsonPropertyName(JsonEntityPropertyNames.SoftDeletedAt), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.SoftDeletedAt)]
     public DateTimeOffset? SoftDeletedAt { get; set; }
 
-    [JsonPropertyName(JsonEntityPropertyNames.DataType)]
+    [JsonPropertyName(JsonEntityPropertyNames.DataType), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 
-    [JsonPropertyName(JsonEntityPropertyNames.PartitionKey)]
+    [JsonPropertyName(JsonEntityPropertyNames.PartitionKey), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.PartitionKey)]
     public string? PartitionKey { get; set; }
 
     protected JsonEntity()

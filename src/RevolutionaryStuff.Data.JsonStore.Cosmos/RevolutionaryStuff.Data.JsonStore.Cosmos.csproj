@@ -51,4 +51,24 @@
         <ProjectReference Include="..\RevolutionaryStuff.Data.JsonStore\RevolutionaryStuff.Data.JsonStore.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+        <Content Remove="appsettings.Development.json" />
+        <Content Remove="appsettings.json" />
+        <Content Remove="appsettings.Production.json" />
+        <Content Remove="appsettings.Staging.json" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <EmbeddedResource Include="appsettings.Development.json">
+            <DependentUpon>appsettings.json</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="appsettings.json" />
+        <EmbeddedResource Include="appsettings.Production.json">
+            <DependentUpon>appsettings.json</DependentUpon>
+        </EmbeddedResource>
+        <EmbeddedResource Include="appsettings.Staging.json">
+            <DependentUpon>appsettings.json</DependentUpon>
+        </EmbeddedResource>
+    </ItemGroup>
+
 </Project>

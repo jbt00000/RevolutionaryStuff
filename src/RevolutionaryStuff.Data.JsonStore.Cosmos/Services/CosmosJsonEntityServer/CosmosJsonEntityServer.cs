@@ -39,7 +39,7 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     /// This should take into account the current TenantId
     /// </summary>
     /// <returns>The connection string for the underlying CosmosClient</returns>
-    protected abstract string GetConnectionString();
+    protected abstract string GetConnectionString(string connectionStringName);
 
     /// <summary>
     /// This should take into account the current TenantId
@@ -60,13 +60,6 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
         cosmosClientOptions.ApplicationName = config.ApplicationName ?? RevolutionaryStuffCoreConfig.GetApplicationName(ServiceProvider.GetRequiredService<IConfiguration>());
     }
 
-    /// <summary>
-    /// This should take into account the current TenantId
-    /// </summary>
-    /// <param name="containerId">The inbound containerId</param>
-    /// <returns>The associated databaseId</returns>
-    protected abstract string GetDatabaseId(string containerId);
-
     protected virtual IJsonEntityContainer CreateJsonEntityContainer(Container container)
         => new CosmosJsonEntityContainer(container, TenantId, ConfigOptions, ServiceProvider.GetRequiredService<ILogger<CosmosJsonEntityContainer>>());
 
@@ -76,7 +69,8 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
         {
             if (CosmosClientField == null && !CosmosClientByTenantId.TryGetValue(TenantId, out CosmosClientField))
             {
-                var connectionString = GetConnectionString();
+                var config = ConfigOptions.Value;
+                var connectionString = GetConnectionString(config.ConnectionStringName);
                 _ = TenantId; //store locally before the lock as this may execute synchronously
                 lock (CosmosClientByTenantId)
                 {
@@ -95,17 +89,23 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
             new CosmosHelpers.CosmosClientAuthenticationSettings(connectionString, ConfigOptions.Value.AuthenticateWithWithDefaultAzureCredentials, true),
             cosmosClientOptions);
 
+    /// <summary>
+    /// You may want to override this if you want to do things such as changing the database based on the Tenant
+    /// </summary>
+    /// <param name="containerKey">The single string key for a container which ultimately maps its config</param>
+    /// <returns>The container config</returns>
+    protected virtual CosmosJsonEntityServerConfig.ContainerConfig GetContainerConfig(string containerKey)
+        => ConfigOptions.Value.ContainerConfigByContainerKey?.GetValue(containerKey);
+
     IJsonEntityContainer IJsonEntityServer.GetContainer(string containerId)
     {
         Requires.Text(containerId);
 
         return JsonEntityContainerByRepositoryId.FindOrCreate(containerId, () =>
         {
-            var databaseId = GetDatabaseId(containerId);
-            Requires.Text(databaseId);
-
-            var container = CosmosClient.GetContainer(databaseId, containerId);
-
+            var containerInfo = GetContainerConfig(containerId);
+            ArgumentNullException.ThrowIfNull(containerInfo, $"Cannot find containerInfo for containerKey=[{containerId}]");
+            var container = CosmosClient.GetContainer(containerInfo.DatabaseConfig.DatabaseId, containerInfo.ContainerId);
             return CreateJsonEntityContainer(container);
         });
     }
