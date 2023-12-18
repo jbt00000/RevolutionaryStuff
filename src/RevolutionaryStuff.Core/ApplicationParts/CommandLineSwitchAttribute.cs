@@ -71,7 +71,7 @@ public class CommandLineSwitchAttribute : Attribute
     public CommandLineSwitchAttribute(string name, bool mandatory, string description)
     {
         Requires.Text(name, "name");
-        Names = new[] { name };
+        Names = [name];
         Mandatory = mandatory;
         Description = description;
         Key = name;

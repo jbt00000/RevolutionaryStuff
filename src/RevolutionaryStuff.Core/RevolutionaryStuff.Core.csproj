@@ -25,9 +25,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.02.80.0</FileVersion>
-        <AssemblyVersion>4.02.80.0</AssemblyVersion>
-        <Version>4.02.80</Version>
+        <FileVersion>4.06.80.0</FileVersion>
+        <AssemblyVersion>4.06.80.0</AssemblyVersion>
+        <Version>4.06.80</Version>
     </PropertyGroup>
     
     <ItemGroup>
@@ -91,6 +91,7 @@
         <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.0" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+        <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
     </ItemGroup>
 
 </Project>

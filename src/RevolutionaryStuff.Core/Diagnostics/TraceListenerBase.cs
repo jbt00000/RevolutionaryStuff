@@ -85,7 +85,7 @@ public abstract class TraceListenerBase : TraceListener
     {
         if ((Filter == null) || Filter.ShouldTrace(eventCache, source, eventType, id, null, null, data, null))
         {
-            WriteTrace(eventCache, source, eventType, id, null, null, new object[] { data });
+            WriteTrace(eventCache, source, eventType, id, null, null, [data]);
         }
     }
 
@@ -373,7 +373,7 @@ public abstract class TraceListenerBase : TraceListener
 
     private void TraceWriteAsEvent(string category, string message, object data)
     {
-        if ((Filter == null) || Filter.ShouldTrace(null, null, TraceEventType.Verbose, 0, message, new object[] { category }, data, null))
+        if ((Filter == null) || Filter.ShouldTrace(null, null, TraceEventType.Verbose, 0, message, [category], data, null))
         {
             if (data == null)
             {
@@ -389,7 +389,7 @@ public abstract class TraceListenerBase : TraceListener
             }
             else
             {
-                WriteTrace(null, null, TraceEventType.Verbose, 0, category, null, new object[] { data });
+                WriteTrace(null, null, TraceEventType.Verbose, 0, category, null, [data]);
             }
         }
     }

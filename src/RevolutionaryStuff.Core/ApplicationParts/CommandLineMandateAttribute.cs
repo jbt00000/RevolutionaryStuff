@@ -15,6 +15,6 @@ public class CommandLineMandateAttribute : Attribute
     }
 
     public CommandLineMandateAttribute(int enumVal, string[] keys, string[] optionalKeys = null)
-        : this(new[] { enumVal }, keys, optionalKeys)
+        : this([enumVal], keys, optionalKeys)
     { }
 }

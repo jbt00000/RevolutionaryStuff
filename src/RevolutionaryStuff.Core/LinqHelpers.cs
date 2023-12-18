@@ -22,7 +22,7 @@ public static class LinqHelpers
 
     public static Expression GenerateStringConcat(Expression left, Expression right)
     {
-        return Expression.Add(left, right, typeof(string).GetMethod(StandardMethodNames.Concat, new[] { typeof(object), typeof(object) }));
+        return Expression.Add(left, right, typeof(string).GetMethod(StandardMethodNames.Concat, [typeof(object), typeof(object)]));
     }
 
     private static Expression NestedProperty(Expression arg, string fieldName)
@@ -162,9 +162,9 @@ public static class LinqHelpers
         var mce = Expression.Call(
             typeof(Queryable),
             StandardMethodNames.GetSortOrder(isAscending),
-            new[] { q.ElementType, typeof(TMappedVal) },
+            [q.ElementType, typeof(TMappedVal)],
             q.Expression,
-            Expression.Lambda<Func<T, TMappedVal>>(expr, new ParameterExpression[] { param })
+            Expression.Lambda<Func<T, TMappedVal>>(expr, [param])
             );
         return (IOrderedQueryable<T>)q.Provider.CreateQuery<T>(mce);
     }
@@ -251,9 +251,9 @@ public static class LinqHelpers
         var mce = Expression.Call(
             typeof(Queryable),
             StandardMethodNames.GetSortOrder(isAscending),
-            new[] { q.ElementType, typeof(string) },
+            [q.ElementType, typeof(string)],
             q.Expression,
-            Expression.Lambda<Func<T, string>>(expr, new ParameterExpression[] { param })
+            Expression.Lambda<Func<T, string>>(expr, [param])
             );
         return (IOrderedQueryable<T>)q.Provider.CreateQuery<T>(mce);
     }

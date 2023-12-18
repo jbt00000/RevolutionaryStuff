@@ -20,7 +20,7 @@ public class WorkQueue : BaseDisposable
     {
         MaxThreads = maxThreads;
         PoolName = StringHelpers.Coalesce(poolName, GetType().Name);
-        StopSnoozingHandles = new WaitHandle[] { PleaseStop, IsBored };
+        StopSnoozingHandles = [PleaseStop, IsBored];
         CreateThread(true);
     }
 

@@ -3,73 +3,157 @@ using System.IO;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using RevolutionaryStuff.Core.EncoderDecoders;
+using System.IO.Hashing;
 
 namespace RevolutionaryStuff.Core.Crypto;
 
 public sealed class Hash
 {
-    public static readonly IDictionary<string, Func<HashAlgorithm>> HashAlgorithmCreationMap = new Dictionary<string, Func<HashAlgorithm>>(Comparers.CaseInsensitiveStringComparer);
+    public delegate byte[] HasherDelegate(Stream st);
+
+    private static readonly IDictionary<string, HasherDelegate> HasherMap = new Dictionary<string, HasherDelegate>(Comparers.CaseInsensitiveStringComparer);
 
     public static class CommonHashAlgorithmNames
     {
-        public const string Sha512 = "sha512";
-        public const string Sha384 = "sha384";
-        public const string Sha256 = "sha256";
-        public const string Sha1 = "sha1";
-        public const string Md5 = "md5";
+        public static readonly IEnumerable<string> All = [.. CryptographicHashAlgorithms.All, .. NonCryptographicHashAlgorithms.All];
         //public const string Tiger = "tiger";
-        public static string Default = Sha1;
+        public static string Default = CryptographicHashAlgorithms.Sha1;
+
+        public static class CryptographicHashAlgorithms
+        {
+            public static readonly IEnumerable<string> All = [Sha1, Md5, .. Sha2.All];//, .. Sha3.All];
+
+            public const string Sha1 = "sha1";
+
+            public static class Sha2
+            {
+                public static readonly IEnumerable<string> All = [Sha2_512, Sha2_384, Sha2_256];
+                public const string Sha2_512 = "sha512";
+                public const string Sha2_384 = "sha384";
+                public const string Sha2_256 = "sha256";
+            }
+
+            //always seems to return not supported
+            internal static class Sha3
+            {
+                public static readonly IEnumerable<string> All = [Sha3_256, Sha3_384, Sha3_512];
+                public const string Sha3_256 = "SHA3-256";
+                public const string Sha3_384 = "SHA3-384";
+                public const string Sha3_512 = "SHA3-512";
+            }
+
+            public const string Md5 = "md5";
+        }
+
+        public static class NonCryptographicHashAlgorithms
+        {
+            public static readonly IEnumerable<string> All = [.. XxHash.All, .. Crc.All];
+
+            public static class XxHash
+            {
+                public static readonly IEnumerable<string> All = [XxHash32, XxHash64, XxHash128];
+                public const string XxHash32 = "xxh32";
+                public const string XxHash64 = "xxh64";
+                public const string XxHash128 = "xxh128";
+            }
+
+            public static class Crc
+            {
+                public static readonly IEnumerable<string> All = [Crc32];//, Crc64];
+                public const string Crc32 = "crc32";
+                //public const string Crc64 = "crc64"; doesn't seem to work
+            }
+        }
     }
 
     private static readonly Regex HashNameHashVersionExpr = new(@"^([A-Z]+)(\d+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+
+    public static void RegisterHashAlgorithmCreator(Func<NonCryptographicHashAlgorithm> creator, params string[] alternateNames)
+    {
+        Type hType;
+        var z = creator();
+        hType = z.GetType();
+        Stuff.Dispose(z);
+
+        RegisterHasher(
+            st =>
+            {
+                var h = creator();
+                h.Append(st);
+                var buf = h.GetHashAndReset();
+                Stuff.Dispose(h);
+                return buf;
+            },
+            [.. alternateNames, hType.Name, hType.FullName]);
+    }
+
     public static void RegisterHashAlgorithmCreator(Func<HashAlgorithm> creator, params string[] alternateNames)
     {
-        ArgumentNullException.ThrowIfNull(creator);
-        var ha = creator();
-        ArgumentNullException.ThrowIfNull(ha);
-        var t = ha.GetType();
-        HashAlgorithmCreationMap[t.FullName] = creator;
-        var name = t.Name;
-        HashAlgorithmCreationMap[name] = creator;
-        if (name.EndsWith("Managed"))
+        Type hType;
+        using (var z = creator())
         {
-            name = name.LeftOf("Managed");
-            HashAlgorithmCreationMap[name] = creator;
+            hType = z.GetType();
         }
-        var m = HashNameHashVersionExpr.Match(name);
-        if (m.Success)
-        {
-            HashAlgorithmCreationMap[$"{m.Groups[1].Value}-{m.Groups[2].Value}"] = creator;
-        }
-        if (alternateNames != null)
-        {
-            foreach (var alternateName in alternateNames)
+        RegisterHasher(
+            st =>
             {
-                HashAlgorithmCreationMap[alternateName] = creator;
+                using var ha = creator();
+                return ha.ComputeHash(st);
+            },
+            [.. alternateNames, hType.Name, hType.FullName]);
+    }
+
+    private static void RegisterHasher(HasherDelegate hasher, params string[] names)
+    {
+        ArgumentNullException.ThrowIfNull(hasher);
+
+        foreach (var name in names)
+        {
+            HasherMap[name] = hasher;
+            if (name.EndsWith("Managed"))
+            {
+                HasherMap[name.LeftOf("Managed")] = hasher;
             }
         }
     }
 
     static Hash()
     {
-        RegisterHashAlgorithmCreator(SHA1.Create, CommonHashAlgorithmNames.Sha1);
-        RegisterHashAlgorithmCreator(SHA256.Create, CommonHashAlgorithmNames.Sha256);
-        RegisterHashAlgorithmCreator(SHA384.Create, CommonHashAlgorithmNames.Sha384);
-        RegisterHashAlgorithmCreator(SHA512.Create, CommonHashAlgorithmNames.Sha512);
-        RegisterHashAlgorithmCreator(MD5.Create, CommonHashAlgorithmNames.Md5);
+        RegisterHashAlgorithmCreator(SHA1.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha1);
+        RegisterHashAlgorithmCreator(MD5.Create,  CommonHashAlgorithmNames.CryptographicHashAlgorithms.Md5);
+
+        RegisterHashAlgorithmCreator(SHA256.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha2.Sha2_256);
+        RegisterHashAlgorithmCreator(SHA384.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha2.Sha2_384);
+        RegisterHashAlgorithmCreator(SHA512.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha2.Sha2_512);
+
+        if (SHA3_256.IsSupported)
+        {
+            RegisterHashAlgorithmCreator(SHA3_256.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha3.Sha3_256);
+        }
+        if (SHA3_384.IsSupported)
+        {
+            RegisterHashAlgorithmCreator(SHA3_384.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha3.Sha3_384);
+        }
+        if (SHA3_512.IsSupported)
+        {
+            RegisterHashAlgorithmCreator(SHA3_512.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha3.Sha3_512);
+        }
+
+        RegisterHashAlgorithmCreator(() => new XxHash32(), CommonHashAlgorithmNames.NonCryptographicHashAlgorithms.XxHash.XxHash32);
+        RegisterHashAlgorithmCreator(() => new XxHash64(), CommonHashAlgorithmNames.NonCryptographicHashAlgorithms.XxHash.XxHash64);
+        RegisterHashAlgorithmCreator(() => new XxHash128(), CommonHashAlgorithmNames.NonCryptographicHashAlgorithms.XxHash.XxHash128);
+        RegisterHashAlgorithmCreator(() => new Crc32(), CommonHashAlgorithmNames.NonCryptographicHashAlgorithms.Crc.Crc32);
+        //RegisterHashAlgorithmCreator(() => new Crc64(), CommonHashAlgorithmNames.NonCryptographicHashAlgorithms.Crc.Crc64);
     }
 
     public static string GetHashAlgorithmName(HashAlgorithm ha)
-    {
-        return ha?.GetType().Name;
-    }
+        => ha?.GetType().Name;
 
     public static bool IsHashAlgorithmInstalled(string hashName)
-    {
-        return hashName != null && HashAlgorithmCreationMap.ContainsKey(hashName);
-    }
+        => hashName != null && HasherMap.ContainsKey(hashName);
 
-    public static HashAlgorithm CreateHashAlgorithm(string hashName)
+    public static HasherDelegate CreateHashAlgorithm(string hashName)
     {
         Requires.Text(hashName);
         if (hashName.IndexOf(':') > -1)
@@ -81,11 +165,10 @@ public sealed class Hash
                 //                    return new MerkleHashTree(CreateDelegate, parts[1]);
             }
         }
-        return !HashAlgorithmCreationMap.ContainsKey(hashName) ? throw new NotSupportedException() : HashAlgorithmCreationMap[hashName]();
+        return HasherMap.ContainsKey(hashName) ? HasherMap[hashName] : throw new NotSupportedException($"{hashName} has not been registered");
     }
 
-    private static readonly IDictionary<string, string> NameByNameLowerMap = new Dictionary<string, string>(Comparers.CaseInsensitiveStringComparer);
-    public static readonly Hash[] NoHashes = new Hash[0];
+    public static readonly Hash[] NoHashes = [];
 
     private static readonly Regex UrnTypeExpression = new("[^:]+:([^:]+):.+", RegexOptions.Compiled);
     private static readonly Regex UrnExpr = new(@"urn:(.*):(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
@@ -119,8 +202,23 @@ public sealed class Hash
     public static string CreateUrn(string hashName, byte[] hashBytes)
         => $"urn:{hashName}:{Base32.Encode(hashBytes)}";
 
+    /// <summary>
+    /// e.g., [{SHA1}Mzk4YTI5OWFjMWViMTEwZmE2Yzg5OWZhYjg1Y2EyMGI5NzQyOGI=]
+    /// </summary>
+    public string NameBracketsBase64
+        => $"{{{HashName}}}{Base64.Encode(Data)}";
+
+    /// <summary>
+    /// e.g., [SHA1 - Mzk4YTI5OWFjMWViMTEwZmE2Yzg5OWZhYjg1Y2EyMGI5NzQyOGI=]
+    /// </summary>
     public string NameDashBase64
-        => $"{HashName}-{Base64.Encode(Data)}";
+        => $"{HashName} - {Base64.Encode(Data)}";
+
+    /// <summary>
+    /// e.g., [SHA-256:3e23e8160039594a33894f6564e1b1348bbd7a008b1a92347225b65f1fc8f431]
+    /// </summary>
+    public string NameColonBase16
+        => $"{HashName}:{Base16.Encode(Data, 0, Data.Length, false)}";
 
     public string Urn
         => $"urn:{HashName}:{DataHuman}";
@@ -178,9 +276,7 @@ public sealed class Hash
     }
 
     public override int GetHashCode()
-    {
-        return Urn.GetHashCode();
-    }
+        => Urn.GetHashCode();
 
     public override bool Equals(object o)
     {
@@ -221,30 +317,12 @@ public sealed class Hash
         Requires.ReadableStreamArg(st);
         hashAlgorithmName ??= CommonHashAlgorithmNames.Default;
         var ha = CreateHashAlgorithm(hashAlgorithmName);
-        return new Hash(hashAlgorithmName, ha.ComputeHash(st));
-    }
-
-    private static Hash Compute(Stream st, HashAlgorithm ha)
-    {
-        Requires.ReadableStreamArg(st);
-        ArgumentNullException.ThrowIfNull(ha);
-        var hashAlgorithmName = GetHashAlgorithmName(ha);
-        return new Hash(hashAlgorithmName, ha.ComputeHash(st));
+        return new Hash(hashAlgorithmName, ha(st));
     }
 
     public static Hash Compute(byte[] buf, string hashAlgorithmName = null)
     {
-        ArgumentNullException.ThrowIfNull(buf);
-        hashAlgorithmName ??= CommonHashAlgorithmNames.Default;
-        var ha = CreateHashAlgorithm(hashAlgorithmName);
-        return new Hash(hashAlgorithmName, ha.ComputeHash(buf));
-    }
-
-    private static Hash Compute(byte[] buf, HashAlgorithm ha)
-    {
-        ArgumentNullException.ThrowIfNull(buf, "buf");
-        ArgumentNullException.ThrowIfNull(ha);
-        var hashAlgorithmName = GetHashAlgorithmName(ha);
-        return new Hash(hashAlgorithmName, ha.ComputeHash(buf));
+        using var st = new MemoryStream(buf);
+        return Compute(st, hashAlgorithmName);
     }
 }

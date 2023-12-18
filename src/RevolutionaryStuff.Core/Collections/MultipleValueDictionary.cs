@@ -6,7 +6,7 @@ namespace RevolutionaryStuff.Core.Collections;
 
 public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValuePair<K, ICollection<V>>>
 {
-    private readonly V[] NoValues = new V[0];
+    private readonly V[] NoValues = [];
     private readonly Dictionary<K, ICollection<V>> ValuesByKey;
     private readonly Func<ICollection<V>> CollectionCreator;
 

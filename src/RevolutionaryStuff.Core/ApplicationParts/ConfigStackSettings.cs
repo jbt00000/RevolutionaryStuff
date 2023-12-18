@@ -20,9 +20,11 @@ public class ConfigStackSettings
 
     public List<ResourceInfo> Resources { get; set; }
 
-    public static void Add(IConfigurationBuilder builder, string environmentName, string configSettingsResourceName = null)
+    public static void Add(IConfigurationBuilder builder, string environmentName, Assembly configSettingsAssembly = null, string configSettingsResourceName = null)
     {
-        var st = Assembly.GetEntryAssembly().GetEmbeddedResourceAsStream(configSettingsResourceName ?? ConfigSettingsJsonFileName);
+        var a = configSettingsAssembly ?? Assembly.GetEntryAssembly();
+        ArgumentNullException.ThrowIfNull(a, $"You must either pass in a {nameof(configSettingsAssembly)} OR be on a platform where Assembly.GetEntryAssembly() functions");
+        var st = a.GetEmbeddedResourceAsStream(configSettingsResourceName ?? ConfigSettingsJsonFileName);
         if (st != null)
         {
             builder.AddJsonStream(st);

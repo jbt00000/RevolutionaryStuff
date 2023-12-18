@@ -43,13 +43,13 @@ public static class TypeHelpers
 
     public static IDictionary ConstructDictionary(Type keyType, Type valType)
     {
-        var gt = typeof(Dictionary<,>).MakeGenericType(new[] { keyType, valType });
+        var gt = typeof(Dictionary<,>).MakeGenericType([keyType, valType]);
         return (IDictionary)Construct(gt);
     }
 
     public static IList ConstructList(Type itemType)
     {
-        var gt = typeof(List<>).MakeGenericType(new[] { itemType });
+        var gt = typeof(List<>).MakeGenericType([itemType]);
         return (IList)Construct(gt);
     }
 

@@ -21,22 +21,22 @@ public static partial class Cache
 
     #region CacheKey
     public static string CreateKey<T>()
-        => CreateKey(new object[] { typeof(T) });
+        => CreateKey([typeof(T)]);
 
     public static string CreateKey<T>(object a0)
-        => CreateKey(new object[] { typeof(T), a0 });
+        => CreateKey([typeof(T), a0]);
 
     public static string CreateKey<T>(object a0, object a1)
-        => CreateKey(new object[] { typeof(T), a0, a1 });
+        => CreateKey([typeof(T), a0, a1]);
 
     public static string CreateKey<T>(object a0, object a1, object a2)
-        => CreateKey(new object[] { typeof(T), a0, a1, a2 });
+        => CreateKey([typeof(T), a0, a1, a2]);
 
     public static string CreateKey<T>(object a0, object a1, object a2, object a3)
-        => CreateKey(new object[] { typeof(T), a0, a1, a2, a3 });
+        => CreateKey([typeof(T), a0, a1, a2, a3]);
 
     public static string CreateKey<T>(object a0, object a1, object a2, object a3, object a4)
-        => CreateKey(new object[] { typeof(T), a0, a1, a2, a3, a4 });
+        => CreateKey([typeof(T), a0, a1, a2, a3, a4]);
 
     public static string CreateKey(params object[] args)
         => CreateKey((IEnumerable<object>)args);
@@ -111,7 +111,7 @@ public static partial class Cache
         if (key == null) return "special:__NULL";
         if (key.Length < 123) return "lit:" + key;
         var buf = Encoding.UTF8.GetBytes(key);
-        return $"urn:crc32:{CRC32Checksum.Do(buf)}{key.GetHashCode()}";
+        return Hash.CreateUrn(Hash.CommonHashAlgorithmNames.NonCryptographicHashAlgorithms.XxHash.XxHash128, buf);
     }
 
     #endregion

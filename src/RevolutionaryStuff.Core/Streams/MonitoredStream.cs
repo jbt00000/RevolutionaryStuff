@@ -75,7 +75,7 @@ public class MonitoredStream : Stream
     }
 
     public override void WriteByte(byte value)
-        => Write(new[] { value }, 0, 1);
+        => Write([value], 0, 1);
 
     public override IAsyncResult BeginWrite(byte[] buffer, int offset, int count, AsyncCallback callback, object state)
     {

@@ -13,7 +13,7 @@ public static class CSV
     public const char QuoteChar = '"';
 
     private static char[] CreateEscapeTriggers(char fieldDelim)
-        => new[] { '\r', '\n', '\"', fieldDelim };
+        => ['\r', '\n', '\"', fieldDelim];
 
     private static readonly char[] CsvEscapeTrigger = CreateEscapeTriggers(FieldDelimComma);
 
@@ -104,7 +104,7 @@ public static class CSV
     public static T[] ParseRow<T>(string rowOfIntsCsv, Func<string, T> converter)
     {
         var parsedText = ParseText(rowOfIntsCsv);
-        if (parsedText == null || parsedText.Length == 0) return new T[0];
+        if (parsedText == null || parsedText.Length == 0) return [];
 
         var row = parsedText[0];
         var ret = new T[row.Length];
