@@ -38,6 +38,12 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? AdditionalData { get; set; }
 
+    public void AddAdditionalData(string name, object val)
+    {
+        AdditionalData ??= new Dictionary<string, JsonElement>();
+        AdditionalData[name] = val is JsonElement jel ? jel : JsonHelpers.ToJsonElement(val);
+    }
+
     [Key] //This is required by ODataSources
     [JsonPropertyName(JsonEntityPropertyNames.Id), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.Id)]
     public string Id { get; set; }

@@ -18,8 +18,8 @@ public static partial class JsonHelpers
         => pi.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>() != null
         || pi.GetCustomAttribute<Newtonsoft.Json.JsonIgnoreAttribute>() != null;
 
-    public static string GetJsonPropertyName(this PropertyInfo pi)
-        => pi.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()?.Name
-        ?? pi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>()?.PropertyName
-        ?? pi.Name;
+    public static string GetJsonPropertyName(this MemberInfo mi)
+        => mi.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()?.Name
+        ?? mi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>()?.PropertyName
+        ?? mi.Name;
 }

@@ -220,25 +220,41 @@ public static class CosmosHelpers
     {
         ArgumentNullException.ThrowIfNull(q);
 
-        List<T> items = [];
 
-        try
+        if (q is IList<T> list)
         {
-            using var fi = q.ToFeedIterator();
-            ArgumentNullException.ThrowIfNull(fi);
-            while (fi.HasMoreResults)
+            return list.AsReadOnly();
+        }
+        else if (q is IAsyncEnumerable<T> ae)
+        {
+            List<T> items = [];
+            await foreach (var item in ae.WithCancellation(cancellationToken))
             {
-                var resp = await fi.ReadNextAsync(cancellationToken);
-                //at least we can set a breakpoint here to look at items inside of the FeedResponse like cost!
-                items.AddRange(resp);
+                items.Add(item);
             }
+            return items.AsReadOnly();
         }
-        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+        else
         {
-            Stuff.Noop();
-            // This is expected and suppressed
+            List<T> items = [];
+            try
+            {
+                using var fi = q.ToFeedIterator();
+                ArgumentNullException.ThrowIfNull(fi);
+                while (fi.HasMoreResults)
+                {
+                    var resp = await fi.ReadNextAsync(cancellationToken);
+                    //at least we can set a breakpoint here to look at items inside of the FeedResponse like cost!
+                    items.AddRange(resp);
+                }
+            }
+            catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
+            {
+                Stuff.Noop();
+                // This is expected and suppressed
+            }
+            return items.AsReadOnly();
         }
-        return items.AsReadOnly();
     }
 
     public static async Task<StoredProcedureResponse> UpsertStoredProcedureAsync(this Scripts scripts, StoredProcedureProperties properties)

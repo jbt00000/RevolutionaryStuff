@@ -1,23 +1,77 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Text.Json.Serialization;
 
 namespace RevolutionaryStuff.Core;
 
 public static class LinqHelpers
 {
+    public delegate PropertyInfo PropertyAliasToPropertyInfoLookup(Type t, string name);
+
+    private static PropertyInfo PropertyAliasToPropertyInfoLookupImp(Type t, string name, bool ignoreCase, bool useSystemTextJson, bool useNewtonsoft, bool useClr)
+    {
+        if (useSystemTextJson)
+        {
+            foreach (var pi in t.GetPropertiesPublicInstanceRead())
+            {
+                var jpn = pi.GetCustomAttribute<JsonPropertyNameAttribute>();
+                if (0 == string.Compare(jpn?.Name, name, ignoreCase))
+                {
+                    return pi;
+                }
+            }
+        }
+        if (useNewtonsoft)
+        {
+            foreach (var pi in t.GetPropertiesPublicInstanceRead())
+            {
+                var jpn = pi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>();
+                if (0 == string.Compare(jpn?.PropertyName, name, ignoreCase))
+                {
+                    return pi;
+                }
+            }
+        }
+        if (useClr)
+        {
+            foreach (var pi in t.GetPropertiesPublicInstanceRead())
+            {
+                if (0 == string.Compare(pi.Name, name, ignoreCase))
+                {
+                    return pi;
+                }
+            }
+        }
+        return null;
+    }
+
+    public static readonly PropertyAliasToPropertyInfoLookup ClrCaseInsensitivePropertyNameToPropertyInfoLookup
+        = (Type t, string name) => PropertyAliasToPropertyInfoLookupImp(t, name, true, false, false, true);
+
+    public static readonly PropertyAliasToPropertyInfoLookup JsonCaseInsensitivePropertyNameToPropertyInfoLookup
+        = (Type t, string name) => PropertyAliasToPropertyInfoLookupImp(t, name, true, true, true, true);
+
     public static class StandardMethodNames
     {
         public const string OrderBy = "OrderBy";
         public const string OrderByDescending = "OrderByDescending";
+        public const string ThenBy = "ThenBy";
+        public const string ThenByDescending = "ThenByDescending";
         public const string Where = "Where";
         public const string FirstOrDefault = "FirstOrDefault";
         public const string Select = "Select";
         public const string Skip = "Skip";
         public const string Take = "Take";
         public const string Concat = "Concat";
+
+        public static string GetSortOrder<T>(IQueryable<T> q, bool isAscending)
+            => q is IOrderedQueryable<T> ? GetThenBy(isAscending) : GetSortOrder(isAscending);
+
         public static string GetSortOrder(bool isAscending)
             => isAscending ? OrderBy : OrderByDescending;
+        public static string GetThenBy(bool isAscending)
+            => isAscending ? ThenBy : ThenByDescending;
     }
 
     public static Expression GenerateStringConcat(Expression left, Expression right)
@@ -25,26 +79,29 @@ public static class LinqHelpers
         return Expression.Add(left, right, typeof(string).GetMethod(StandardMethodNames.Concat, [typeof(object), typeof(object)]));
     }
 
-    private static Expression NestedProperty(Expression arg, string fieldName)
+    private static Expression NestedProperty(Expression arg, string fieldName, PropertyAliasToPropertyInfoLookup lookup)
     {
+        lookup ??= ClrCaseInsensitivePropertyNameToPropertyInfoLookup;
         var left = fieldName.LeftOf(".");
         var right = fieldName.RightOf(".").TrimOrNull();
-        var leftExp = Expression.Property(arg, left);
-        return right == null ? leftExp : NestedProperty(leftExp, right);
+        var pi = lookup(arg.Type, left);
+        var leftExp = Expression.Property(arg, pi);
+        return right == null ? leftExp : NestedProperty(leftExp, right, lookup);
     }
 
-    private static Expression NullCheckNestedProperty(Expression arg, string fieldName)
+    private static Expression NullCheckNestedProperty(Expression arg, string fieldName, PropertyAliasToPropertyInfoLookup lookup)
     {
+        lookup ??= ClrCaseInsensitivePropertyNameToPropertyInfoLookup;
         var left = fieldName.LeftOf(".");
         var right = fieldName.RightOf(".").TrimOrNull();
         if (right == null) return null;
         var leftNameExp = Expression.Property(arg, left);
         var leftExp = Expression.NotEqual(leftNameExp, Expression.Constant(null));
-        var rightExp = NullCheckNestedProperty(leftNameExp, right);
+        var rightExp = NullCheckNestedProperty(leftNameExp, right, lookup);
         return rightExp == null ? leftExp : (Expression)Expression.AndAlso(leftExp, rightExp);
     }
 
-    public static IQueryable<TSource> ApplyFilters<TSource>(this IQueryable<TSource> q, IEnumerable<KeyValuePair<string, string>> filters)
+    public static IQueryable<TSource> ApplyFilters<TSource>(this IQueryable<TSource> q, IEnumerable<KeyValuePair<string, string>> filters, PropertyAliasToPropertyInfoLookup lookup = null)
     {
         if (filters == null) return q;
 
@@ -58,8 +115,8 @@ public static class LinqHelpers
             var expressions = new List<Expression>();
             foreach (var val in mfilters[fieldName])
             {
-                var nullCheckProperty = NullCheckNestedProperty(argParam, fieldName);
-                var nameProperty = NestedProperty(argParam, fieldName);
+                var nullCheckProperty = NullCheckNestedProperty(argParam, fieldName, lookup);
+                var nameProperty = NestedProperty(argParam, fieldName, lookup);
                 var val1 = Expression.Constant(val);
                 Expression e1 = Expression.Equal(nameProperty, val1);
                 if (nullCheckProperty != null)
@@ -100,7 +157,7 @@ public static class LinqHelpers
     /// <param name="enumType">An enumeration which serves as the type mapping.  Respects the DisplayAttribute</param>
     /// <param name="isAscending">When true, sort ascending else sort descending</param>
     /// <returns>The sorted input</returns>
-    public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, Type enumType, bool isAscending = true)
+    public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, Type enumType, bool isAscending = true, PropertyAliasToPropertyInfoLookup lookup = null)
     {
         var items = new List<Tuple<Enum, int, int?, string>>();
         foreach (var name in Enum.GetNames(enumType))
@@ -126,7 +183,7 @@ public static class LinqHelpers
         {
             d[item.Item2] = pos++;
         }
-        return OrderByField(q, sortColumn, d, isAscending);
+        return OrderByField(q, sortColumn, d, isAscending, lookup: lookup);
     }
 
     /// <summary>
@@ -139,14 +196,14 @@ public static class LinqHelpers
     /// <param name="sortPosByfieldVal">The dictionary that performs the mapping</param>
     /// <param name="isAscending">When true, sort ascending else sort descending</param>
     /// <returns>The sorted input</returns>
-    public static IOrderedQueryable<T> OrderByField<T, TMappedVal>(this IQueryable<T> q, string sortColumn, IDictionary<int, TMappedVal> sortPosByfieldVal, bool isAscending = true) where TMappedVal : IComparable<TMappedVal>
+    public static IOrderedQueryable<T> OrderByField<T, TMappedVal>(this IQueryable<T> q, string sortColumn, IDictionary<int, TMappedVal> sortPosByfieldVal, bool isAscending = true, PropertyAliasToPropertyInfoLookup lookup = null) where TMappedVal : IComparable<TMappedVal>
     {
         Requires.Text(sortColumn);
         ArgumentNullException.ThrowIfNull(sortPosByfieldVal);
         Requires.Positive(sortPosByfieldVal.Count, nameof(sortPosByfieldVal.Count));
 
         var param = Expression.Parameter(typeof(T), "p");
-        var prop = NestedProperty(param, sortColumn);
+        var prop = NestedProperty(param, sortColumn, lookup);
 
         var kvps = sortPosByfieldVal.ToList();
         var expr = (Expression)Expression.Constant(kvps.Last().Value);
@@ -161,7 +218,7 @@ public static class LinqHelpers
 
         var mce = Expression.Call(
             typeof(Queryable),
-            StandardMethodNames.GetSortOrder(isAscending),
+            StandardMethodNames.GetSortOrder(q, isAscending),
             [q.ElementType, typeof(TMappedVal)],
             q.Expression,
             Expression.Lambda<Func<T, TMappedVal>>(expr, [param])
@@ -178,20 +235,26 @@ public static class LinqHelpers
     /// <param name="isAscending">When true, sort ascending else sort descending</param>
     /// <returns></returns>
     /// <remarks>http://stackoverflow.com/questions/12284085/sort-using-linq-expressions-expression</remarks>
-    public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, bool isAscending = true)
+    public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, bool isAscending = true, PropertyAliasToPropertyInfoLookup lookup = null)
+        => q.SortByField(sortColumn, StandardMethodNames.GetSortOrder(isAscending), lookup);
+
+    public static IOrderedQueryable<T> ThenByField<T>(this IOrderedQueryable<T> q, string sortColumn, bool isAscending = true, PropertyAliasToPropertyInfoLookup lookup = null)
+        => q.SortByField(sortColumn, StandardMethodNames.GetThenBy(isAscending), lookup);
+
+    private static IOrderedQueryable<T> SortByField<T>(this IQueryable<T> q, string sortColumn, string sortMethodName, PropertyAliasToPropertyInfoLookup lookup = null)
     {
         Requires.Text(sortColumn);
 
         //Requires.Match(RegexHelpers.Common.CSharpIdentifier, sortColumn, nameof(sortColumn));
         var param = Expression.Parameter(typeof(T), "p");
-        var prop = NestedProperty(param, sortColumn);
+        var prop = NestedProperty(param, sortColumn, lookup);
         var exp = Expression.Lambda(prop, param);
         var types = new[] { q.ElementType, exp.Body.Type };
-        var mce = Expression.Call(typeof(Queryable), StandardMethodNames.GetSortOrder(isAscending), types, q.Expression, exp);
+        var mce = Expression.Call(typeof(Queryable), sortMethodName, types, q.Expression, exp);
         return (IOrderedQueryable<T>)q.Provider.CreateQuery<T>(mce);
     }
 
-    public enum OrderByFieldUnmappedBehaviors
+    public enum OrderByFieldUnmappedBehaviorEnum
     {
         UpFront,
         InPlace,
@@ -213,33 +276,33 @@ public static class LinqHelpers
             }
         }
         return cnt > 0
-            ? q.OrderByField(sortColumn, d, isAscending, OrderByFieldUnmappedBehaviors.AtEnd)
+            ? q.OrderByField(sortColumn, d, isAscending, OrderByFieldUnmappedBehaviorEnum.AtEnd)
             : q.OrderByField(sortColumn, isAscending);
     }
 
-    public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IDictionary<string, string> valueMapper, bool isAscending = true, OrderByFieldUnmappedBehaviors unmappedValueBehavior = OrderByFieldUnmappedBehaviors.InPlace)
+    public static IOrderedQueryable<T> OrderByField<T>(this IQueryable<T> q, string sortColumn, IDictionary<string, string> valueMapper, bool isAscending = true, OrderByFieldUnmappedBehaviorEnum unmappedValueBehavior = OrderByFieldUnmappedBehaviorEnum.InPlace, PropertyAliasToPropertyInfoLookup lookup = null)
     {
         Requires.Text(sortColumn);
         valueMapper ??= new Dictionary<string, string>();
 
         var param = Expression.Parameter(typeof(T), "p");
-        var prop = NestedProperty(param, sortColumn);
+        var prop = NestedProperty(param, sortColumn, lookup);
 
         var last = valueMapper.Values.OrderBy().LastOrDefault() ?? "";
         var expr = unmappedValueBehavior switch
         {
-            OrderByFieldUnmappedBehaviors.UpFront => GenerateStringConcat(Expression.Constant("UpFront_a_"), prop),
-            OrderByFieldUnmappedBehaviors.InPlace => prop,
-            OrderByFieldUnmappedBehaviors.AtEnd => GenerateStringConcat(Expression.Constant(last + "_AtEnd_"), prop),
+            OrderByFieldUnmappedBehaviorEnum.UpFront => GenerateStringConcat(Expression.Constant("UpFront_a_"), prop),
+            OrderByFieldUnmappedBehaviorEnum.InPlace => prop,
+            OrderByFieldUnmappedBehaviorEnum.AtEnd => GenerateStringConcat(Expression.Constant(last + "_AtEnd_"), prop),
             _ => throw new UnexpectedSwitchValueException(unmappedValueBehavior),
         };
         foreach (var kvp in valueMapper)
         {
             Expression mapped = unmappedValueBehavior switch
             {
-                OrderByFieldUnmappedBehaviors.UpFront => Expression.Constant("UpFront_b_" + kvp.Value),
-                OrderByFieldUnmappedBehaviors.InPlace => Expression.Constant(kvp.Value),
-                OrderByFieldUnmappedBehaviors.AtEnd => Expression.Constant(kvp.Value),
+                OrderByFieldUnmappedBehaviorEnum.UpFront => Expression.Constant("UpFront_b_" + kvp.Value),
+                OrderByFieldUnmappedBehaviorEnum.InPlace => Expression.Constant(kvp.Value),
+                OrderByFieldUnmappedBehaviorEnum.AtEnd => Expression.Constant(kvp.Value),
                 _ => throw new UnexpectedSwitchValueException(unmappedValueBehavior),
             };
             expr = Expression.Condition(
@@ -250,7 +313,7 @@ public static class LinqHelpers
 
         var mce = Expression.Call(
             typeof(Queryable),
-            StandardMethodNames.GetSortOrder(isAscending),
+            StandardMethodNames.GetSortOrder(q, isAscending),
             [q.ElementType, typeof(string)],
             q.Expression,
             Expression.Lambda<Func<T, string>>(expr, [param])
@@ -313,15 +376,14 @@ Again:
         return memberInfos;
     }
 
-    public static string GetName<TModel, TResult>(this Expression<Func<TModel, TResult>> exp)
-    {
-        return exp.GetMembers().Last().Name;
-    }
+    private static string GetMemberNameFromName(MemberInfo mi)
+        => mi.Name;
 
-    public static string GetFullyQualifiedName<TModel, TResult>(this Expression<Func<TModel, TResult>> exp, string separator = ".")
-    {
-        return exp.GetMembers().ConvertAll(z => z.Name).Format(separator);
-    }
+    public static string GetName<TModel, TResult>(this Expression<Func<TModel, TResult>> exp, Func<MemberInfo, string> getMemberName = null)
+        => (getMemberName ?? GetMemberNameFromName)(exp.GetMembers().Last());
+
+    public static string GetFullyQualifiedName<TModel, TResult>(this Expression<Func<TModel, TResult>> exp, Func<MemberInfo, string> getMemberName = null, string separator = ".")
+        => exp.GetMembers().ConvertAll(mi => (getMemberName ?? GetMemberNameFromName)(mi)).Format(separator);
 
     /// <remarks>As an extension method, this "infects" way too many items</remarks>
     public static T When<T>(T item, Func<T, bool> condition, T whenNot = default) where T : class

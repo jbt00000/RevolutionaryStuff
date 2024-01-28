@@ -18,7 +18,7 @@ public record PatchOperation
 
     public static PatchOperation Create<TEntity>(Expression<Func<TEntity, object>> property, object updatedValue, PatchOperationTypeEnum op = PatchOperationTypeEnum.Add)
     {
-        var path = $"{PathSeparator}{property.GetFullyQualifiedName(PathSeparator)}";
+        var path = $"{PathSeparator}{property.GetFullyQualifiedName(JsonHelpers.GetJsonPropertyName, PathSeparator)}";
         var po = op switch
         {
             PatchOperationTypeEnum.Add => PatchOperation.Add(path, updatedValue),
