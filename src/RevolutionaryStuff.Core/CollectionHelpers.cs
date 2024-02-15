@@ -601,4 +601,31 @@ public static class CollectionHelpers
         return items;
     }
 
+    public static bool TryGetValueIgnoreCase<T>(this IDictionary<string, T> d, string key, out T hit)
+    {
+        if (d.NullSafeAny())
+        {
+            if (d.TryGetValue(key, out hit)) return true;
+            var lkey = key.ToLower();
+            if (lkey != key)
+            {
+                if (d.TryGetValue(lkey, out hit)) return true;
+            }
+            foreach (var kvp in d)
+            {
+                if (0 == string.Compare(kvp.Key, key, true))
+                {
+                    hit = kvp.Value;
+                    return true;
+                }
+            }
+        }
+        else
+        {
+            hit = default;
+        }
+        return false;
+    }
+
+
 }

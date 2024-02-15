@@ -253,6 +253,10 @@ public static class CosmosHelpers
                 Stuff.Noop();
                 // This is expected and suppressed
             }
+            catch (System.ArgumentOutOfRangeException ex) when (ex.ParamName == "linqQuery") //yep... through decompilation
+            {
+                items = q.ToList();
+            }
             return items.AsReadOnly();
         }
     }
