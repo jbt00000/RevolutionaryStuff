@@ -65,7 +65,15 @@ public class ConfigStackSettings
                 return [aname];
             }
             testedAssemblyNames.Add(aname);
-            var a = Assembly.Load(an);
+            Assembly a;
+            try
+            {                 
+                a = Assembly.Load(an);
+            }
+            catch (System.IO.FileNotFoundException)
+            {
+                return [];
+            }
             HashSet<string> predecessors = new(Comparers.CaseInsensitiveStringComparer);
             foreach (var kid in a.GetReferencedAssemblies())
             {
