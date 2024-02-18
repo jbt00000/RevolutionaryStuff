@@ -3,9 +3,8 @@ using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos;
-#pragma warning disable IDE1006 // Naming Styles
-public static class _Use
-#pragma warning restore IDE1006 // Naming Styles
+
+public static class Use
 {
     public class Settings
     {

@@ -10,9 +10,7 @@ using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Core;
 
-#pragma warning disable IDE1006 // Naming Styles
-public static class _Use
-#pragma warning restore IDE1006 // Naming Styles
+public static class Use
 {
     public class Settings
     {

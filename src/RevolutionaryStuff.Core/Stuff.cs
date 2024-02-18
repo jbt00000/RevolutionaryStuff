@@ -25,8 +25,6 @@ public static class Stuff
 
     internal const string ConfigSectionNamePrefix = "Rsllc";
 
-    public static readonly CultureInfo CultureUS = new("en-US");
-
     public static readonly string ApplicationName;
 
     public static readonly string ApplicationFamily;

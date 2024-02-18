@@ -25,9 +25,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.09.80.0</FileVersion>
-        <AssemblyVersion>4.09.80.0</AssemblyVersion>
-        <Version>4.09.80</Version>
+        <FileVersion>4.12.80.0</FileVersion>
+        <AssemblyVersion>4.12.80.0</AssemblyVersion>
+        <Version>4.12.80</Version>
     </PropertyGroup>
     
     <ItemGroup>
@@ -60,27 +60,6 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="JsonHelpers.Newtonsoft.cs">
-            <DependentUpon>JsonHelpers.cs</DependentUpon>
-        </Content>
-        <Content Include="JsonHelpers.Microsoft.cs">
-            <DependentUpon>JsonHelpers.cs</DependentUpon>
-        </Content>
-        <Content Include="WebHelpers.GnutellaHeaderStrings.cs">
-            <DependentUpon>WebHelpers.cs</DependentUpon>
-        </Content>
-        <Content Include="WebHelpers.HeaderStrings.cs">
-            <DependentUpon>WebHelpers.cs</DependentUpon>
-        </Content>
-        <Content Include="WebHelpers.Methods.cs">
-            <DependentUpon>WebHelpers.cs</DependentUpon>
-        </Content>
-        <Content Include="WebHelpers.WebDAVMethods.cs">
-            <DependentUpon>WebHelpers.cs</DependentUpon>
-        </Content>
-    </ItemGroup>
-
-    <ItemGroup>
         <!--
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         -->
@@ -92,6 +71,27 @@
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.0" />
         <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Update="JsonHelpers.Microsoft.cs">
+        <DependentUpon>JsonHelpers.cs</DependentUpon>
+      </Compile>
+      <Compile Update="JsonHelpers.Newtonsoft.cs">
+        <DependentUpon>JsonHelpers.cs</DependentUpon>
+      </Compile>
+      <Compile Update="WebHelpers.GnutellaHeaderStrings.cs">
+        <DependentUpon>WebHelpers.cs</DependentUpon>
+      </Compile>
+      <Compile Update="WebHelpers.HeaderStrings.cs">
+        <DependentUpon>WebHelpers.cs</DependentUpon>
+      </Compile>
+      <Compile Update="WebHelpers.Methods.cs">
+        <DependentUpon>WebHelpers.cs</DependentUpon>
+      </Compile>
+      <Compile Update="WebHelpers.WebDAVMethods.cs">
+        <DependentUpon>WebHelpers.cs</DependentUpon>
+      </Compile>
     </ItemGroup>
 
 </Project>

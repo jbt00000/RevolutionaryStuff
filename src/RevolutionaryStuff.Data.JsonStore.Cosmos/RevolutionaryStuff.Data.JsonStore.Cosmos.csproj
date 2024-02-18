@@ -21,9 +21,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.09.80.0</FileVersion>
-        <AssemblyVersion>4.09.80.0</AssemblyVersion>
-        <Version>4.09.80</Version>
+        <FileVersion>4.12.80.0</FileVersion>
+        <AssemblyVersion>4.12.80.0</AssemblyVersion>
+        <Version>4.12.80</Version>
     </PropertyGroup>
 
     <ItemGroup>

@@ -4,9 +4,7 @@ using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure;
 
-#pragma warning disable IDE1006 // Naming Styles
-public static class _Use
-#pragma warning restore IDE1006 // Naming Styles
+public static class Use
 {
     public class Settings
     {
