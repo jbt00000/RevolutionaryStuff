@@ -66,15 +66,21 @@ public sealed class Hash
         }
     }
 
-    private static readonly Regex HashNameHashVersionExpr = new(@"^([A-Z]+)(\d+)$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-
     public static void RegisterHashAlgorithmCreator(Func<NonCryptographicHashAlgorithm> creator, params string[] alternateNames)
     {
         Type hType;
-        var z = creator();
-        hType = z.GetType();
-        Stuff.Dispose(z);
+
+        //Not all hash algorithms are supported on all platforms
+        try
+        {
+            var z = creator();
+            hType = z.GetType();
+            Stuff.Dispose(z);
+        }
+        catch (CryptographicException)
+        {
+            return;
+        }
 
         RegisterHasher(
             st =>
@@ -91,10 +97,20 @@ public sealed class Hash
     public static void RegisterHashAlgorithmCreator(Func<HashAlgorithm> creator, params string[] alternateNames)
     {
         Type hType;
-        using (var z = creator())
+
+        //Not all hash algorithms are supported on all platforms
+        try
         {
-            hType = z.GetType();
+            using (var z = creator())
+            {
+                hType = z.GetType();
+            }
         }
+        catch (CryptographicException)
+        {
+            return;
+        }
+
         RegisterHasher(
             st =>
             {
@@ -121,7 +137,7 @@ public sealed class Hash
     static Hash()
     {
         RegisterHashAlgorithmCreator(SHA1.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha1);
-        RegisterHashAlgorithmCreator(MD5.Create,  CommonHashAlgorithmNames.CryptographicHashAlgorithms.Md5);
+        RegisterHashAlgorithmCreator(MD5.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Md5);
 
         RegisterHashAlgorithmCreator(SHA256.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha2.Sha2_256);
         RegisterHashAlgorithmCreator(SHA384.Create, CommonHashAlgorithmNames.CryptographicHashAlgorithms.Sha2.Sha2_384);

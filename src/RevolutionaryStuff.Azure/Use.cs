@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus;
+using RevolutionaryStuff.Azure.Workers;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure;
@@ -18,6 +19,7 @@ public static class Use
     {
         services.UseRevolutionaryStuffCore();
 
+        services.AddSingleton<BaseWorker.BaseWorkerConstructorArgs>();
         services.ConfigureOptions<ServiceBusMessageSender.ServiceBusMessageSenderConfig>(settings?.ServiceBusMessageSenderConfigSectionName ?? ServiceBusMessageSender.ServiceBusMessageSenderConfig.ConfigSectionName);
         services.AddScoped<ServiceBusMessageSender.ServiceBusMessageSenderConstructorArgs>();
         services.AddScoped<IServiceBusMessageSender, DefaultServiceBusMessageSender>();

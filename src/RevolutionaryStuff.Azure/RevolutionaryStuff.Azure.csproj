@@ -1,48 +1,50 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-      <TargetFramework>net8.0</TargetFramework>
-      <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>disable</Nullable>
+    <PropertyGroup>
+        <TargetFramework>net8.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>disable</Nullable>
 
 
-      <AssemblyName>RevolutionaryStuff.Azure</AssemblyName>
-      <PackageId>RevolutionaryStuff.Azure</PackageId>
-      <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-      <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-      <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-      <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-      <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-      <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-      <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-      <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-      <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
-      <Authors>jason@jasonthomas.com</Authors>
-      <IncludeSymbols>true</IncludeSymbols>
-      <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-      <PackageLicenseUrl></PackageLicenseUrl>
-      <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
-      <RepositoryType>GIT</RepositoryType>
-      <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
-      <Copyright>Copyright © 2023</Copyright>
-      <FileVersion>4.11.80.0</FileVersion>
-      <AssemblyVersion>4.11.80.0</AssemblyVersion>
-      <Version>4.11.80</Version>
-      <PackageIcon>icon.png</PackageIcon>
-      <PackageLicenseFile>license.txt</PackageLicenseFile>
+        <AssemblyName>RevolutionaryStuff.Azure</AssemblyName>
+        <PackageId>RevolutionaryStuff.Azure</PackageId>
+        <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+        <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
+        <Authors>jason@jasonthomas.com</Authors>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageLicenseUrl></PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
+        <RepositoryType>GIT</RepositoryType>
+        <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
+        <Copyright>Copyright © 2023</Copyright>
+        <FileVersion>4.15.80.0</FileVersion>
+        <AssemblyVersion>4.15.80.0</AssemblyVersion>
+        <Version>4.16.80</Version>
+        <FileVersion>4.16.80.0</FileVersion>
+        <AssemblyVersion>4.16.80.0</AssemblyVersion>
+        <PackageIcon>icon.png</PackageIcon>
+        <PackageLicenseFile>license.txt</PackageLicenseFile>
 
-  </PropertyGroup>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <None Include="..\..\package\icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="..\..\package\license.txt">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+    <ItemGroup>
+        <None Include="..\..\package\icon.png">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+        <None Include="..\..\package\license.txt">
+            <Pack>True</Pack>
+            <PackagePath>\</PackagePath>
+        </None>
+    </ItemGroup>
 
     <ItemGroup>
         <!-- This is in the .csproj file instead of a .cs file so that VS Code Cleanup cannot remove these before they are used -->
@@ -54,14 +56,14 @@
     </ItemGroup>
 
     <ItemGroup>
-    <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
-  </ItemGroup>
+        <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
+    </ItemGroup>
 
     <ItemGroup>
 
         <PackageReference Include="Azure.Identity" Version="1.10.4" />
 
-        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.3" />
+        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.4" />
 
         <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
 

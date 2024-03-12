@@ -6,10 +6,17 @@ using RevolutionaryStuff.Core.Diagnostics;
 namespace RevolutionaryStuff.Azure.Workers;
 public abstract class BaseWorker : BackgroundService
 {
-    protected BaseWorker(ILogger logger)
+    protected IServiceProvider ServiceProvider { get; private set; }
+
+    public sealed record BaseWorkerConstructorArgs(IServiceProvider ServiceProvider)
+    { }
+
+    protected BaseWorker(BaseWorkerConstructorArgs constructorArgs, ILogger logger)
     {
+        ArgumentNullException.ThrowIfNull(constructorArgs);
         ArgumentNullException.ThrowIfNull(logger);
 
+        ServiceProvider = constructorArgs.ServiceProvider;
         Logger = logger;
     }
 

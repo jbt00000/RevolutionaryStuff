@@ -9,11 +9,10 @@ using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
 using RevolutionaryStuff.Core.Threading;
 
-namespace RevolutionaryStuff.Azure.Workers.ServiceBus;
+namespace RevolutionaryStuff.Azure.Workers;
 
 public class ServiceBusWorker : BaseWorker
 {
-    private readonly IServiceProvider ServiceProvider;
     private readonly IConnectionStringProvider ConnectionStringProvider;
     private readonly IOptions<Config> ConfigOptions;
 
@@ -56,15 +55,12 @@ public class ServiceBusWorker : BaseWorker
         public ServiceBusReceivedMessage Message { get; init; }
     }
 
-    public ServiceBusWorker(IServiceProvider serviceProvider, IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, ILogger<ServiceBusWorker> logger)
-        : base(logger)
+    public ServiceBusWorker(IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, BaseWorkerConstructorArgs baseConstructorArgs, ILogger<ServiceBusWorker> logger)
+        : base(baseConstructorArgs, logger)
     {
-        ArgumentNullException.ThrowIfNull(serviceProvider);
         ArgumentNullException.ThrowIfNull(connectionStringProvider);
         ArgumentNullException.ThrowIfNull(configOptions);
-        ArgumentNullException.ThrowIfNull(logger);
 
-        ServiceProvider = serviceProvider;
         ConnectionStringProvider = connectionStringProvider;
         ConfigOptions = configOptions;
     }
@@ -243,9 +239,7 @@ public class ServiceBusWorker : BaseWorker
             }
             var message = await listener.ReceiveMessageAsync(ListenerTimeout, stoppingToken);
             if (message == null)
-            {
                 continue;
-            }
             _ = executeMessageAsync(message);
         }
 

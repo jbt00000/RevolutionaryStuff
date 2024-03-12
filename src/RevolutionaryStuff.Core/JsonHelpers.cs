@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.IO;
+using System.Reflection;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Core;
@@ -13,6 +14,13 @@ public static partial class JsonHelpers
 
     public static T FromJson<T>(string json)
         => IJsonSerializer.Default.FromJson<T>(json);
+
+    public static T FromJsonStream<T>(this Stream st)
+    {
+        Requires.ReadableStreamArg(st);
+        var json = st.ReadToEnd();
+        return FromJson<T>(json);
+    }
 
     public static bool HasJsonIgnoreAttribute(this PropertyInfo pi)
         => pi.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>() != null

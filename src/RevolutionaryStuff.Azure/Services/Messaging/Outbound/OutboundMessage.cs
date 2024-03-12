@@ -30,6 +30,9 @@ public class OutboundMessage : BaseDisposable, IValidate
         };
     }
 
+    public static OutboundMessage Create(IJsonSerializable js)
+        => Create(js.ToJson(), MimeType.Application.Json.PrimaryContentType);
+
     public static OutboundMessage Create(string text, string contentType)
         => new()
         {
