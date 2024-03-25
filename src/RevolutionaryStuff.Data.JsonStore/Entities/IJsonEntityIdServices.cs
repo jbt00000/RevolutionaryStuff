@@ -2,7 +2,7 @@
 
 public interface IJsonEntityIdServices
 {
-    string CreateId(Type entityDataType, string? name = null);
+    string CreateId(Type entityDataType, string? name = null, bool includeRandomCode = true);
     void ThrowIfInvalid(Type entityDataType, string id);
 
     #region Default Implementation

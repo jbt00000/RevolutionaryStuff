@@ -35,7 +35,7 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
         if (!entityDataType.IsA<JsonEntity>()) throw new ArgumentOutOfRangeException(nameof(entityDataType), $"Must be a subclass of {nameof(JsonEntity)}");
     }
 
-    string IJsonEntityIdServices.CreateId(Type entityDataType, string? name)
+    string IJsonEntityIdServices.CreateId(Type entityDataType, string? name, bool includeRandomCode)
     {
         CheckTypeIsJsonEntity(entityDataType);
 
@@ -44,12 +44,16 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
         name = name.TrimOrNull();
         if (name == null)
         {
-            id = $"{abbreviation}-{CreateCode()}";
+            id = $"{abbreviation}";
         }
         else
         {
             var safeName = NonIdFriendlyCharacterExpr().Replace(name.RemoveDiacritics(), "");
-            id = $"{abbreviation}-{safeName}-{CreateCode()}";
+            id = $"{abbreviation}-{safeName}";
+        }
+        if (includeRandomCode)
+        { 
+            id = $"{id}-{CreateCode()}";
         }
         return id.ToLower();
     }

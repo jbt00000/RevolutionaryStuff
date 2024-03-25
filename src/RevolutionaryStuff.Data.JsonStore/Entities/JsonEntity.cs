@@ -51,6 +51,9 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonPropertyName(JsonEntityPropertyNames.SoftDeletedAt), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.SoftDeletedAt)]
     public DateTimeOffset? SoftDeletedAt { get; set; }
 
+    [JsonIgnore]
+    public bool IsSoftDeleted => SoftDeletedAt != null;
+
     [JsonPropertyName(JsonEntityPropertyNames.DataType), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 
@@ -64,8 +67,8 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
         Id = CreateId();
     }
 
-    protected string CreateId(string? name = null)
-        => JsonEntityIdServices.CreateId(GetType(), name);
+    protected string CreateId(string? name = null, bool includeRandomCode=true)
+        => JsonEntityIdServices.CreateId(GetType(), name, includeRandomCode);
 
     public override string ToString()
         => $"id=[{Id}] dt=[{DataType}] type=[{GetType().Name}]";
