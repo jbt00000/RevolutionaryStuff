@@ -11,4 +11,6 @@ public static class CosmosEntityPropertyNames
     public const string Self = "_self";
 
     public const string Rid = "_rid";
+
+    public const string Ttl = "ttl";
 }
