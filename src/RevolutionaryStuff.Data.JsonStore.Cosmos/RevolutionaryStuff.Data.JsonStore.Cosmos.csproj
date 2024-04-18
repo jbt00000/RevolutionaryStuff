@@ -7,7 +7,7 @@
         <Nullable>enable</Nullable>
         -->
         <RootNamespace>RevolutionaryStuff.Data.JsonStore.Cosmos</RootNamespace>
-        <PackageId>RevolutionaryStuff.DataJsonStoreCosmos</PackageId>
+        <PackageId>RevolutionaryStuff.Data.JsonStore.Cosmos</PackageId>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
         <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
@@ -21,9 +21,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.15.80.0</FileVersion>
-        <AssemblyVersion>4.15.80.0</AssemblyVersion>
-        <Version>4.15.80</Version>
+        <FileVersion>4.25.80.0</FileVersion>
+        <AssemblyVersion>4.25.80.0</AssemblyVersion>
+        <Version>4.25.80</Version>
     </PropertyGroup>
 
     <ItemGroup>

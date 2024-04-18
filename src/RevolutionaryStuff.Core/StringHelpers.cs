@@ -159,6 +159,9 @@ public static class StringHelpers
         return s;
     }
 
+    public static bool NullSafeHasData(this string s)
+        => s != null && s.Length > 0;
+
     public static string TrimOrNull(this string s, int? maxLength = null)
     {
         if (s != null)

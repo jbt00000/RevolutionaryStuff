@@ -25,11 +25,9 @@
         <RepositoryType>GIT</RepositoryType>
         <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.15.80.0</FileVersion>
-        <AssemblyVersion>4.15.80.0</AssemblyVersion>
-        <Version>4.16.80</Version>
-        <FileVersion>4.16.80.0</FileVersion>
-        <AssemblyVersion>4.16.80.0</AssemblyVersion>
+        <FileVersion>4.25.80.0</FileVersion>
+        <AssemblyVersion>4.25.80.0</AssemblyVersion>
+        <Version>4.25.80</Version>
         <PackageIcon>icon.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
 

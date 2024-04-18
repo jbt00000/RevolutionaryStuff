@@ -98,6 +98,16 @@ public static class Requires
         }
     }
 
+    public static void HasNoData(IEnumerable arg, [CallerArgumentExpression("arg")] string argName = null)
+    {
+        if (arg == null) return;
+        var e = arg.GetEnumerator();
+        if (e.MoveNext())
+        {
+            throw new ArgumentOutOfRangeException(argName, "This enumerable has values but must not");
+        }
+    }
+
     public static void False(bool arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (arg) throw new ArgumentOutOfRangeException(argName, "Must be false");
