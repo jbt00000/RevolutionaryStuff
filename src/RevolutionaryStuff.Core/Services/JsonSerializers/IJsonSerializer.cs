@@ -1,14 +1,16 @@
 ﻿using System.IO;
+using System.Reflection;
 using RevolutionaryStuff.Core;
 
 namespace RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 public interface IJsonSerializer
 {
-    public static IJsonSerializer Default { get; set; } = RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft.DefaultJsonSerializer.Instance;
+    public static IJsonSerializer Default { get; set; } = RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft.SystemTextJsonSerializer.Instance;
 
     object? FromJson(string json, Type t);
     string ToJson(object o);
+    string GetMemberName(MemberInfo mi);
 
     #region Default Implementation
 

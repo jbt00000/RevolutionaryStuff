@@ -10,10 +10,10 @@ public static partial class JsonHelpers
         => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.GetInt32() : missing;
 
     public static string ToMicrosoftJson(object o)
-        => Services.JsonSerializers.Microsoft.DefaultJsonSerializer.Instance.ToJson(o);
+        => Services.JsonSerializers.Microsoft.SystemTextJsonSerializer.Instance.ToJson(o);
 
     public static T FromMicrosoftJson<T>(string json)
-        => Services.JsonSerializers.Microsoft.DefaultJsonSerializer.Instance.FromJson<T>(json);
+        => Services.JsonSerializers.Microsoft.SystemTextJsonSerializer.Instance.FromJson<T>(json);
 
     public static JsonElement ToJsonElement(object o)
         => JsonDocument.Parse(ToMicrosoftJson(o)).RootElement;

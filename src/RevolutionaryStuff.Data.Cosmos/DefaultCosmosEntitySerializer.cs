@@ -6,7 +6,7 @@ namespace RevolutionaryStuff.Data.Cosmos;
 public class DefaultCosmosEntitySerializer : JsonSerializer2CosmosSerializerAdaptor
 {
     public DefaultCosmosEntitySerializer(IJsonSerializer? jsonSerializer = null)
-        : base(jsonSerializer ?? DefaultJsonSerializer.Instance)
+        : base(jsonSerializer ?? SystemTextJsonSerializer.Instance)
     { }
 }
 

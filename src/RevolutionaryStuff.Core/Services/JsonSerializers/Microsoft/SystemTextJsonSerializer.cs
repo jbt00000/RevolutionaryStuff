@@ -1,23 +1,24 @@
-﻿using System.Text.Json;
+﻿using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft.Converters;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
 
-public class DefaultJsonSerializer : IJsonSerializer
+public class SystemTextJsonSerializer : IJsonSerializer
 {
-    public static readonly IEnumerable<JsonConverter> DefaultConverters = new JsonConverter[]
-    {
+    public static readonly IEnumerable<JsonConverter> DefaultConverters =
+    [
         EnumMemberConverterFactory.Instance,
         NullableEnumMemberConverterFactory.Instance,
-    };
+    ];
 
-    public static readonly IJsonSerializer Instance = new DefaultJsonSerializer();
+    public static readonly IJsonSerializer Instance = new SystemTextJsonSerializer();
 
     private readonly JsonSerializerOptions MyJsonSerializationSettings;
 
-    private DefaultJsonSerializer()
+    private SystemTextJsonSerializer()
     {
         MyJsonSerializationSettings = new()
         {
@@ -34,4 +35,7 @@ public class DefaultJsonSerializer : IJsonSerializer
 
     object IJsonSerializer.FromJson(string json, Type t)
         => JsonSerializer.Deserialize(json, t, MyJsonSerializationSettings);
+
+    string IJsonSerializer.GetMemberName(MemberInfo mi)
+        => mi.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? mi.Name;
 }

@@ -5,7 +5,7 @@ namespace RevolutionaryStuff.Core.ApplicationParts;
 
 public abstract class JsonSerializable : IJsonSerializable
 {
-    public static IJsonSerializer Serializer { get; set; } = DefaultJsonSerializer.Instance;
+    public static IJsonSerializer Serializer { get; set; } = SystemTextJsonSerializer.Instance;
 
     public string ToJson()
         => Serializer.ToJson(this);

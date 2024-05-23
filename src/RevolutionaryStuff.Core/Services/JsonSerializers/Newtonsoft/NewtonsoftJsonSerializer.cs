@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Reflection;
 using System.Text;
 using Newtonsoft.Json;
 using RevolutionaryStuff.Core.ApplicationParts;
@@ -7,9 +8,9 @@ using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Core.Services.JsonSerializers.Newtonsoft;
 
-internal class DefaultJsonSerializer : IJsonSerializer
+internal class NewtonsoftJsonSerializer : IJsonSerializer
 {
-    public static readonly IJsonSerializer Instance = new DefaultJsonSerializer();
+    public static readonly IJsonSerializer Instance = new NewtonsoftJsonSerializer();
 
     private readonly JsonSerializer Serializer;
 
@@ -23,7 +24,7 @@ internal class DefaultJsonSerializer : IJsonSerializer
         sw.Flush();
     }
 
-    private DefaultJsonSerializer()
+    private NewtonsoftJsonSerializer()
     {
         var converters = new List<JsonConverter>(JsonConverterTypeAttribute.JsonConverters).FluentAdd(EnumMemberJsonConverter.Instance);
 
@@ -49,4 +50,7 @@ internal class DefaultJsonSerializer : IJsonSerializer
 
     object IJsonSerializer.FromJson(string json, Type t)
         => JsonConvert.DeserializeObject(json, t);
+
+    string IJsonSerializer.GetMemberName(MemberInfo mi)
+        => mi.GetCustomAttribute<JsonPropertyAttribute>()?.PropertyName ?? mi.Name;
 }

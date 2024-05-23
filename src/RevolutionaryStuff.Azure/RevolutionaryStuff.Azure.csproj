@@ -25,9 +25,9 @@
         <RepositoryType>GIT</RepositoryType>
         <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.25.80.0</FileVersion>
-        <AssemblyVersion>4.25.80.0</AssemblyVersion>
-        <Version>4.25.80</Version>
+        <FileVersion>4.26.80.0</FileVersion>
+        <AssemblyVersion>4.26.80.0</AssemblyVersion>
+        <Version>4.26.80</Version>
         <PackageIcon>icon.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
 
@@ -59,9 +59,9 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Azure.Identity" Version="1.10.4" />
+        <PackageReference Include="Azure.Identity" Version="1.11.1" />
 
-        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.4" />
+        <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.17.5" />
 
         <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
 

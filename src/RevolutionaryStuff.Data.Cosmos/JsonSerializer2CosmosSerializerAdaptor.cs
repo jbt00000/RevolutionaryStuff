@@ -1,10 +1,11 @@
 ﻿using System.IO;
+using System.Reflection;
 using System.Text;
 using Microsoft.Azure.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Data.Cosmos;
-public class JsonSerializer2CosmosSerializerAdaptor : CosmosSerializer
+public class JsonSerializer2CosmosSerializerAdaptor : CosmosLinqSerializer
 {
     private readonly IJsonSerializer JsonSerializer;
 
@@ -35,4 +36,6 @@ public class JsonSerializer2CosmosSerializerAdaptor : CosmosSerializer
         }
     }
 
+    public override string SerializeMemberName(MemberInfo memberInfo)
+        => JsonSerializer.GetMemberName(memberInfo);
 }

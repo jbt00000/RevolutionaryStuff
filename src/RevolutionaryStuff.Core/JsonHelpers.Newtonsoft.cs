@@ -27,10 +27,10 @@ public static partial class JsonHelpers
         => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.Value<int>() : missing;
 
     public static string ToNewtonsoftJson(object o)
-        => Services.JsonSerializers.Newtonsoft.DefaultJsonSerializer.Instance.ToJson(o);
+        => Services.JsonSerializers.Newtonsoft.NewtonsoftJsonSerializer.Instance.ToJson(o);
 
     public static T FromNewtonsoftJson<T>(string json)
-        => Services.JsonSerializers.Newtonsoft.DefaultJsonSerializer.Instance.FromJson<T>(json);
+        => Services.JsonSerializers.Newtonsoft.NewtonsoftJsonSerializer.Instance.FromJson<T>(json);
 
     public enum PathFormats
     {
