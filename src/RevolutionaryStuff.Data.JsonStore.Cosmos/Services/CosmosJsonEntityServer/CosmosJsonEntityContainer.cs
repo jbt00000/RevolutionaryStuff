@@ -320,6 +320,38 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
             cancellationToken);
     }
 
+    async Task<TItem> IJsonEntityContainer.ReplaceItemAsync<TItem>(TItem item, Func<TItem, Task<TItem>> amendAsync, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(item);
+        ArgumentNullException.ThrowIfNull(amendAsync);
+        EnsureCorrectContainer<TItem>();
+
+        item = string.IsNullOrWhiteSpace(item.ETag) ? await ReloadItemAsync(item, cancellationToken) : item;
+        Requires.Text(item.ETag);
+
+        return await CosmosRetryItemRefreshFunctionAsync(
+            item,
+            async (z, token) =>
+            {
+                var replacement = await amendAsync(z);
+                Requires.AreEqual(item.Id, replacement.Id);
+                Requires.AreEqual(item.PartitionKey, replacement.PartitionKey);
+                await Container.ReplaceItemAsync<TItem>(
+                    replacement,
+                    replacement.Id,
+                    CreatePartitionKey(replacement.PartitionKey),
+                    new ItemRequestOptions
+                    {
+                        EnableContentResponseOnWrite = false,
+                        IfMatchEtag = z.ETag
+                    },
+                    token);
+            },
+            (z, token) => ReloadItemAsync(z, token),
+            ServerConfigOptions.Value.PreconditionFailedRetryInfo,
+            cancellationToken);
+    }
+
     private static async Task<TItem> CosmosRetryItemRefreshFunctionAsync<TItem>(
         TItem item,
         Func<TItem, CancellationToken, Task> executeAsync,

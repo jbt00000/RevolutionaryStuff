@@ -9,6 +9,7 @@ public static class Use
 {
     public class Settings
     {
+        public string ServiceBusWorkerConfigSectionName { get; set; }
         public string ServiceBusMessageSenderConfigSectionName { get; set; }
     }
 
@@ -20,6 +21,7 @@ public static class Use
         services.UseRevolutionaryStuffCore();
 
         services.AddSingleton<BaseWorker.BaseWorkerConstructorArgs>();
+        services.ConfigureOptions<ServiceBusWorker.Config>(settings?.ServiceBusWorkerConfigSectionName ?? ServiceBusWorker.Config.ConfigSectionName);
         services.ConfigureOptions<ServiceBusMessageSender.ServiceBusMessageSenderConfig>(settings?.ServiceBusMessageSenderConfigSectionName ?? ServiceBusMessageSender.ServiceBusMessageSenderConfig.ConfigSectionName);
         services.AddScoped<ServiceBusMessageSender.ServiceBusMessageSenderConstructorArgs>();
         services.AddScoped<IServiceBusMessageSender, DefaultServiceBusMessageSender>();

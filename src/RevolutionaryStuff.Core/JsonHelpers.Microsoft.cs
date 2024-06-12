@@ -15,9 +15,26 @@ public static partial class JsonHelpers
     public static T FromMicrosoftJson<T>(string json)
         => Services.JsonSerializers.Microsoft.SystemTextJsonSerializer.Instance.FromJson<T>(json);
 
+
+    private static readonly JsonDocumentOptions DefaultJsonDocumentOptions = new()
+    {
+        CommentHandling = JsonCommentHandling.Skip
+    };
+
+    public static JsonElement ToJsonElement(string json)
+        => ToJsonElement(json, DefaultJsonDocumentOptions);
+
+    public static JsonElement ToJsonElement(string json, JsonDocumentOptions options)
+        => JsonDocument.Parse(json, new() { CommentHandling = JsonCommentHandling.Skip }).RootElement;
+
     public static JsonElement ToJsonElement(object o)
         => JsonDocument.Parse(ToMicrosoftJson(o)).RootElement;
 
     public static T FromJsonElement<T>(this JsonElement jsonElement)
         => FromMicrosoftJson<T>(jsonElement.GetRawText());
+
+    public static string NullSafeGetJsonPropertyAsString(this IDictionary<string, JsonElement> additionalData, string key, string fallback = default)
+    {
+        return additionalData == null || additionalData.TryGetValue(key, out var je) == false ? fallback : je.GetString();
+    }
 }

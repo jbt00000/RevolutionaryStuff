@@ -118,6 +118,14 @@ public static class Requires
         if (!arg) throw new ArgumentOutOfRangeException(argName, "Must be true");
     }
 
+    public static void AreEqual<T>(T expected, T actual, [CallerArgumentExpression("arg1")] string arg1Name = null, [CallerArgumentExpression("arg2")] string arg2Name = null)
+    {
+        if (!object.Equals(expected, actual))
+        {
+            throw new ArgumentOutOfRangeException(arg1Name, $"[{expected}] != [{actual}]");
+        }
+    }
+
     public static void Null(object arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         if (null != arg) throw new ArgumentOutOfRangeException(argName, "Must be null");

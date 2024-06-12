@@ -36,6 +36,9 @@ public interface IJsonEntityContainer
 
     Task<TItem> UpdateItemAsync<TItem>(TItem item, Func<TItem, Task<bool>> amendAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
+    Task<TItem> ReplaceItemAsync<TItem>(TItem item, Func<TItem, Task<TItem>> amendAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+
+
     #region Default Implementations
 
     Task DeleteItemAsync<TItem>(TItem item, DeleteOptions? options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity

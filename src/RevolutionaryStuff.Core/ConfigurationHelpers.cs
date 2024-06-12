@@ -1,5 +1,7 @@
 ﻿using System.IO;
+using System.Runtime.Serialization;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Core;
@@ -23,6 +25,26 @@ public static class ConfigurationHelpers
         var buf = Raw.ToUTF8(json);
         var st = new MemoryStream(buf, false);
         builder.AddJsonStream(st);
+    }
+
+    public static void AddObject(this IConfigurationBuilder builder, object o, string objectName = null, bool excludeNullMembers = false)
+    {
+        if (o != null)
+        {
+            string json = JsonHelpers.ToJson(o);
+
+            if (excludeNullMembers)
+            {
+                json = RegexHelpers.Common.NullJsonMember.Replace(json, "");
+            }
+
+            if (objectName != null)
+            {
+                json = $"{{\"{objectName}\": {json} }}";
+            }
+
+            builder.AddJsonString(json);
+        }
     }
 
     public static T Get<T>(this IConfiguration configuration, string sectionName) where T : new()

@@ -117,6 +117,23 @@ public class PermanentException : Exception
     { }
 
     #endregion
+
+    public static void TryAndRethrow(Action a, string message = default)
+    {
+        try
+        {
+            a();
+        }
+        catch (PermanentException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw message == default ? throw new PermanentException(ex) : throw new PermanentException(message, ex);
+        }
+    }
+
 }
 
 public class NotNowException : Exception
