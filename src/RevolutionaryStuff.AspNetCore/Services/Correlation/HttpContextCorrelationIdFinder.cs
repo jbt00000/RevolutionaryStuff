@@ -32,13 +32,12 @@ public class HttpContextCorrelationIdFinder : ICorrelationIdFinder
         {
             var req = HttpContextAccessor?.HttpContext?.Request;
             if (req == null) return null;
-            List<string> ret = null;
+            List<string> ret = [];
             foreach (var headerName in ConfigOptions.Value.HttpHeaderNames.NullSafeEnumerable().Select(z => z.TrimOrNull()).WhereNotNull())
             {
                 var vals = req.Headers[headerName];
                 if (vals.Count > 0)
                 {
-                    ret ??= [];
                     ret.AddRange(vals);
                 }
             }

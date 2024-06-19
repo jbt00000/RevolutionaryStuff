@@ -202,7 +202,7 @@ public static class DataTableHelpers
     public static string ToCsv(this DataTable dt)
     {
         var sb = new StringBuilder();
-        CSV.FormatLine(sb, dt.Columns.OfType<DataColumn>().ConvertAll(z => z.ColumnName));
+        CSV.FormatLine(sb, dt.Columns.OfType<DataColumn>().ConvertAll(z => z.ColumnName), true);
         foreach (DataRow r in dt.Rows)
         {
             sb.Append(r.ToCsv());

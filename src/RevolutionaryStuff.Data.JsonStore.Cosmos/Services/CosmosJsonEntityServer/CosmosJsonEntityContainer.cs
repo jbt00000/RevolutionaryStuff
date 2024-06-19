@@ -68,7 +68,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
         if (containerId != I.ContainerId) throw new($"Entity ({typeof(TItem)}) lives container {containerId} but we are trying to operate on container {I.ContainerId}");
     }
 
-    private TItem PrepareItem<TItem>(TItem item)
+    protected virtual TItem PrepareItem<TItem>(TItem item)
         where TItem : JsonEntity
     {
         try

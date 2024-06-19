@@ -37,6 +37,15 @@ public static class DependencyInjectionHelpers
         }
     }
 
+    public static void AddIndirect<TInt, TImp>(this IServiceCollection services)
+    {
+        var tTImp = typeof(TImp);
+        Requires.True(tTImp.IsInterface);
+        var impDescriptor = services.Where(s => s.ServiceType.IsA<TImp>()).Single();
+        var newServiceDescriptor = new ServiceDescriptor(typeof(TInt), sp => sp.GetRequiredService<TImp>(), impDescriptor.Lifetime);
+        services.Add(newServiceDescriptor);
+    }
+
     public static void Substitute<TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
         => services.Substitute<TImp, TImp>(newServiceLifetime, existingServiceLifetime);
 

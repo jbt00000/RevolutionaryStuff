@@ -38,17 +38,17 @@ public static class CSV
         return s.IndexOfAny(escapeTriggers) >= 0 ? '"' + s.Replace("\"", "\"\"") + '"' : s;
     }
 
-    public static string ToCsv(this IEnumerable<string> l, bool eol = true)
+    public static string ToCsv(this IEnumerable<string> l, bool eol = false)
     {
         return FormatLine(l, eol);
     }
 
     public static string FormatLine(DictionaryEntry de)
     {
-        return FormatLine(new[] { de.Key, de.Value });
+        return FormatLine(new[] { de.Key, de.Value }, true);
     }
 
-    public static string FormatLine(IEnumerable l, bool eol = true)
+    public static string FormatLine(IEnumerable l, bool eol)
     {
         var sb = new StringBuilder();
         FormatLine(sb, l, eol);
@@ -60,7 +60,7 @@ public static class CSV
         FormatLine(sb, l, true);
     }
 
-    public static void FormatLine(StringBuilder sb, IEnumerable l, bool eol = true, char fieldDelim = FieldDelimComma)
+    public static void FormatLine(StringBuilder sb, IEnumerable l, bool eol, char fieldDelim = FieldDelimComma)
     {
         var n = 0;
 
