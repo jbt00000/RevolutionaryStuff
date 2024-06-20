@@ -6,6 +6,18 @@ namespace RevolutionaryStuff.Core;
 
 public static class TaskHelpers
 {
+    private static Task AwaitCancellation(CancellationToken cancellationToken)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+
+        cancellationToken.Register(() => tcs.TrySetCanceled(), useSynchronizationContext: false);
+
+        return tcs.Task;
+    }
+
+    public static Task UntilCancelledAsync(this CancellationToken cancellationToken)
+        => AwaitCancellation(cancellationToken);
+
     public static TResult ExecuteSynchronously<TResult>(this Task<TResult> task)
     {
         if (task.IsCompleted)

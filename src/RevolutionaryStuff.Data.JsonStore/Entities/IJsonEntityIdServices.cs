@@ -4,6 +4,7 @@ public interface IJsonEntityIdServices
 {
     string CreateId(Type entityDataType, string? name = null, bool includeRandomCode = true);
     void ThrowIfInvalid(Type entityDataType, string id);
+    bool IsValid(Type entityDataType, string id);
 
     #region Default Implementation
 
@@ -27,6 +28,10 @@ public interface IJsonEntityIdServices
             ThrowIfInvalid(typeof(T), id);
         }
     }
+
+    bool IsValid<T>(string? id)
+        where T : JsonEntity
+        => IsValid(typeof(T), id);
 
     #endregion
 }

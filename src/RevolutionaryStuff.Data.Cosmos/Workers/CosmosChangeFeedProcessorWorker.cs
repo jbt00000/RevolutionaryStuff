@@ -110,8 +110,8 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
 
         var processor = builder.Build();
 
-        var tStart = processor.StartAsync();
-        stoppingToken.WaitHandle.WaitOne();
+        await processor.StartAsync();
+        await stoppingToken.UntilCancelledAsync();
         await processor.StopAsync();
 
         async Task HandleChangesAsync(ChangeFeedProcessorContext context, Stream changes, CancellationToken cancellationToken)

@@ -7,6 +7,8 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
 {
     public static readonly IJsonEntityIdServices Instance = new DefaultJsonEntityServices();
 
+    private IJsonEntityIdServices I => this;
+
     [GeneratedRegex(@"^[a-zA-Z0-9\-_\.@]+$")]
     private static partial Regex IdRegex();
 
@@ -56,6 +58,19 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
             id = $"{id}-{CreateCode()}";
         }
         return id.ToLower();
+    }
+
+    bool IJsonEntityIdServices.IsValid(Type entityDataType, string id)
+    {
+        try
+        {
+            I.ThrowIfInvalid(entityDataType, id);
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
     }
 
     void IJsonEntityIdServices.ThrowIfInvalid(Type entityDataType, string id)

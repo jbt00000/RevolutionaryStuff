@@ -31,7 +31,7 @@ public class HttpContextCorrelationIdFinder : ICorrelationIdFinder
         get
         {
             var req = HttpContextAccessor?.HttpContext?.Request;
-            if (req == null) return null;
+            if (req == null) return Empty.StringArray;
             List<string> ret = [];
             foreach (var headerName in ConfigOptions.Value.HttpHeaderNames.NullSafeEnumerable().Select(z => z.TrimOrNull()).WhereNotNull())
             {
