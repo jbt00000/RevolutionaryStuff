@@ -15,6 +15,14 @@ public static partial class JsonHelpers
     public static T FromJson<T>(string json)
         => IJsonSerializer.Default.FromJson<T>(json);
 
+    public static async Task<T> FromJsonStreamAsync<T>(this Stream st)
+    {
+        Requires.ReadableStreamArg(st);
+        var json = await st.ReadToEndAsync();
+        return FromJson<T>(json);
+    }
+
+    [Obsolete("Use FromJsonStreamAsync instead when possible", false)]
     public static T FromJsonStream<T>(this Stream st)
     {
         Requires.ReadableStreamArg(st);

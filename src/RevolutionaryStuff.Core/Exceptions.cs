@@ -118,6 +118,22 @@ public class PermanentException : Exception
 
     #endregion
 
+    public static T TryAndRethrow<T>(Func<T> f, string message = default)
+    {
+        try
+        {
+            return f();
+        }
+        catch (PermanentException)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            throw message == default ? throw new PermanentException(ex) : throw new PermanentException(message, ex);
+        }
+    }
+
     public static void TryAndRethrow(Action a, string message = default)
     {
         try
@@ -133,7 +149,6 @@ public class PermanentException : Exception
             throw message == default ? throw new PermanentException(ex) : throw new PermanentException(message, ex);
         }
     }
-
 }
 
 public class NotNowException : Exception

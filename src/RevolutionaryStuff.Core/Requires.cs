@@ -118,7 +118,7 @@ public static class Requires
         if (!arg) throw new ArgumentOutOfRangeException(argName, "Must be true");
     }
 
-    public static void AreEqual<T>(T expected, T actual, [CallerArgumentExpression("arg1")] string arg1Name = null, [CallerArgumentExpression("arg2")] string arg2Name = null)
+    public static void AreEqual<T>(T expected, T actual, [CallerArgumentExpression(nameof(expected))] string arg1Name = null, [CallerArgumentExpression(nameof(actual))] string arg2Name = null)
     {
         if (!object.Equals(expected, actual))
         {
@@ -220,7 +220,7 @@ public static class Requires
 
     public static void EmailAddress(string arg, [CallerArgumentExpression("arg")] string argName = null)
     {
-        Match(RegexHelpers.Common.EmailAddress, arg, argName);
+        Match(RegexHelpers.Common.EmailAddress(), arg, argName);
     }
 
     public static void StreamArg(Stream stream, string argName, bool mustBeReadable, bool mustBeWriteable,

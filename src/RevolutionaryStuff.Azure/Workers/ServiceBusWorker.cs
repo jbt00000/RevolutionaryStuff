@@ -179,14 +179,13 @@ public class ServiceBusWorker : BaseWorker
 
         async Task executeMessageAsync(ServiceBusReceivedMessage m)
         {
-            MessageSupervisorStateBySequenceNumber.Add(
-                m.SequenceNumber,
+            MessageSupervisorStateBySequenceNumber[m.SequenceNumber] = 
                 new MessageSupervisorState
                 {
                     Listener = listener,
                     Message = m,
                     Execution = execution
-                });
+                };
 
             using var scope = ServiceProvider.CreateScope();
             using var loggerScope = CreateLogRegion(LogLevel.Information, $"Processing service bus message on {execution.TopicName}.{execution.SubscriptionName}.{m.SequenceNumber}");

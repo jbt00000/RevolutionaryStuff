@@ -35,7 +35,7 @@ public static class ConfigurationHelpers
 
             if (excludeNullMembers)
             {
-                json = RegexHelpers.Common.NullJsonMember.Replace(json, "");
+                json = RegexHelpers.Common.NullJsonMember().Replace(json, "");
             }
 
             if (objectName != null)

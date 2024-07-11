@@ -1,6 +1,8 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
+using Microsoft.Extensions.Primitives;
+using System.Web;
 using RevolutionaryStuff.Core.Collections;
 
 namespace RevolutionaryStuff.Core;
@@ -53,6 +55,32 @@ public static partial class WebHelpers
         var content = new StreamContent(StreamHelpers.Create(postData, e ?? StreamHelpers.UTF8EncodingWithoutPreamble));
         content.Headers.ContentType = MediaTypeHeaderValue.Parse("application/x-www-form-urlencoded");
         return content;
+    }
+
+    public static StringValues GetQueryStringParam(this Uri uri, string parameterName, bool caseSensitive = false)
+    {
+        if (uri == null)
+            throw new ArgumentNullException(nameof(uri));
+        if (string.IsNullOrEmpty(parameterName))
+            throw new ArgumentException("Parameter name cannot be null or empty.", nameof(parameterName));
+
+        var queryParameters = HttpUtility.ParseQueryString(uri.Query);
+        if (caseSensitive)
+        {
+            return new StringValues(queryParameters.Get(parameterName));
+        }
+        else
+        {
+            foreach (string key in queryParameters.AllKeys)
+            {
+                if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase))
+                {
+                    return new StringValues(queryParameters.Get(key));
+                }
+            }
+        }
+
+        return StringValues.Empty;
     }
 
     public static MultipleValueDictionary<string, string> ParseQueryParams(string queryString)

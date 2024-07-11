@@ -108,7 +108,7 @@ public static class StringHelpers
     {
         if (string.IsNullOrEmpty(s)) return "";
         s = s.ToLower().ToTitleCase();
-        s = RegexHelpers.Common.Whitespace.Replace(s, "");
+        s = RegexHelpers.Common.Whitespace().Replace(s, "");
         return s;
     }
 

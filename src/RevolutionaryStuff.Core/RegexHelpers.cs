@@ -4,7 +4,7 @@ using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Core;
 
-public static class RegexHelpers
+public static partial class RegexHelpers
 {
     public const RegexOptions IgnoreCaseSingleLineCompiled = RegexOptions.IgnoreCase | RegexOptions.Singleline | RegexOptions.Compiled;
 
@@ -13,26 +13,47 @@ public static class RegexHelpers
             pattern, options | RegexOptions.Compiled,
             () => new Regex(pattern, options | RegexOptions.Compiled));
 
-    public static class Common
+    public static partial class Common
     {
-        public static readonly Regex CSharpIdentifier = new(@"^[_a-z][a-z0-9_]*$", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        [GeneratedRegex(@"^[_a-z][a-z0-9_]*$", RegexOptions.IgnoreCase)]
+        public static partial Regex CSharpIdentifier();
 
         /// <remarks>
         /// Conforms to RCF 2822 
         /// http://dubinko.info/writing/xforms/book.html#id2848057
         /// </remarks>
-        public static readonly Regex EmailAddress = new(@"[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+(\.[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+)*@[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+(\.[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+)*", RegexOptions.Compiled);
+        [GeneratedRegex(@"[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+(\.[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+)*@[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+(\.[A-Za-z0-9!#-'\*\+\-/=\?\^_`\{-~]+)*")]
+        public static partial Regex EmailAddress();
 
-        public static readonly Regex Space = new(" ", RegexOptions.Compiled);
+        [GeneratedRegex(" ")]
+        public static partial Regex Space();
 
-        public static readonly Regex NonDigits = new(@"\D", RegexOptions.Compiled);
-        public static readonly Regex Digits = new(@"\d", RegexOptions.Compiled);
-        public static readonly Regex WordChars = new(@"\w", RegexOptions.Compiled);
-        public static readonly Regex NonWordChars = new(@"\W", RegexOptions.Compiled);
-        public static readonly Regex Whitespace = new(@"\s", RegexOptions.Compiled);
-        public static readonly Regex N = new("\n", RegexOptions.Compiled);
-        public static readonly Regex NN = new("\n\n", RegexOptions.Compiled);
-        public static readonly Regex NullJsonMember = new(@"(""\w+""\s*:\s*null\s*,?)|(,?\s*""\w+""\s*:\s*null\s*)", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+        [GeneratedRegex(@"\D")]
+        public static partial Regex NonDigits();
+
+        [GeneratedRegex(@"\d")]
+        public static partial Regex Digits();
+
+        [GeneratedRegex(@"\w")]
+        public static partial Regex WordChars();
+
+        [GeneratedRegex(@"\W")]
+        public static partial Regex NonWordChars();
+
+        [GeneratedRegex(@"\s")]
+        public static partial Regex Whitespace();
+
+        [GeneratedRegex(@"\n")]
+        public static partial Regex N();
+
+        [GeneratedRegex(@"\n\n")]
+        public static partial Regex NN();
+
+        [GeneratedRegex(@"(""\w+""\s*:\s*null\s*,?)|(,?\s*""\w+""\s*:\s*null\s*)", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+        public static partial Regex NullJsonMember();
+
+        [GeneratedRegex("\\s\\s+")]
+        public static partial Regex MultipleWhitespace();
 
         public static readonly Regex InvalidPathChars =
             new(

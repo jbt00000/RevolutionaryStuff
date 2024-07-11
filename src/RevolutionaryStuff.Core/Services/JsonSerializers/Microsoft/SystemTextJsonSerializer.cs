@@ -12,6 +12,7 @@ public class SystemTextJsonSerializer : IJsonSerializer
     [
         EnumMemberConverterFactory.Instance,
         NullableEnumMemberConverterFactory.Instance,
+        UndefinedJsonElementConverter.Instance
     ];
 
     public static readonly IJsonSerializer Instance = new SystemTextJsonSerializer();
@@ -25,7 +26,7 @@ public class SystemTextJsonSerializer : IJsonSerializer
             WriteIndented = true,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             ReadCommentHandling = JsonCommentHandling.Skip,
-            AllowTrailingCommas = true,
+            AllowTrailingCommas = true
         };
         MyJsonSerializationSettings.Converters.FluentAddRange(DefaultConverters);
     }

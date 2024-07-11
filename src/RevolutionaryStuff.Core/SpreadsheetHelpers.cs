@@ -84,7 +84,7 @@ public static class SpreadsheetHelpers
             _ = new List<Item>();
             foreach (DataTable dt in ds.Tables)
             {
-                var fn = RegexHelpers.Common.NonWordChars.Replace(dt.TableName, " ").ToUpperCamelCase();
+                var fn = RegexHelpers.Common.NonWordChars().Replace(dt.TableName, " ").ToUpperCamelCase();
                 var sheetRelPath = Path.Combine("xl", "worksheets", $"{fn}.xml");
                 var sheetPath = Path.Combine(workDir, sheetRelPath);
                 SaveSheet(sheetPath, indexBySharedString, dt);

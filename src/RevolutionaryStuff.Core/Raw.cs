@@ -442,7 +442,7 @@ public static class Raw
 
     public static byte[] NetmonText2Buf(string sText)
     {
-        var sLines = RegexHelpers.Common.N.Split(sText.ToLower());
+        var sLines = RegexHelpers.Common.N().Split(sText.ToLower());
         string sLine;
         int x, y;
         byte ba, bb;
