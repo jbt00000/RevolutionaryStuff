@@ -3,6 +3,8 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
 
@@ -30,7 +32,7 @@ public class ConfigStackSettings
             => $"assembly=>{AssemblyName} baseConfig=>{BaseConfigFileName}";
     }
 
-    public static ConfigStackSettings Discover(ConfigStackSettingsConfig config, Assembly a)
+    public static ConfigStackSettings Discover(ConfigStackSettingsConfig config, Assembly a, ILogger logger)
     {
         List<(HashSet<string> PredecessorNames, ResourceInfo RI)> nodes = new();
         var ignoreExpr = new Regex(config.AutoDiscoveryIgnoreAssemblyNamePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
@@ -98,21 +100,22 @@ public class ConfigStackSettings
     public sealed record ConfigStackSettingsConfig(Assembly ConfigSettingsAssembly = null, string ConfigSettingsResourceName = null, bool AutoDiscover = false, string AutoDiscoveryIgnoreAssemblyNamePattern = "^(Microsoft|System)\\.")
     { }
 
-    public static void AutoDiscover(IConfigurationBuilder builder, string environmentName, Assembly configSettingsAssembly = null)
-        => Add(builder, environmentName, new ConfigStackSettingsConfig(configSettingsAssembly, null, true));
+    public static void AutoDiscover(IConfigurationBuilder builder, string environmentName, Assembly configSettingsAssembly = null, ILogger logger = null)
+        => Add(builder, environmentName, new ConfigStackSettingsConfig(configSettingsAssembly, null, true), logger);
 
-    public static void Add(IConfigurationBuilder builder, string environmentName, Assembly configSettingsAssembly = null, string configSettingsResourceName = null)
-        => Add(builder, environmentName, new ConfigStackSettingsConfig(configSettingsAssembly, configSettingsResourceName));
+    public static void Add(IConfigurationBuilder builder, string environmentName, Assembly configSettingsAssembly = null, string configSettingsResourceName = null, ILogger logger = null)
+        => Add(builder, environmentName, new ConfigStackSettingsConfig(configSettingsAssembly, configSettingsResourceName), logger);
 
-    public static void Add(IConfigurationBuilder builder, string environmentName, ConfigStackSettingsConfig config=null)
+    public static void Add(IConfigurationBuilder builder, string environmentName, ConfigStackSettingsConfig config=null, ILogger logger = null)
     {
+        logger ??= new TraceLoggerProvider().CreateLogger(nameof(ConfigStackSettings));
         config ??= new();
         var a = config.ConfigSettingsAssembly ?? Assembly.GetEntryAssembly();
         ArgumentNullException.ThrowIfNull(a, $"You must either pass in a {nameof(config.ConfigSettingsAssembly)} OR be on a platform where Assembly.GetEntryAssembly() functions");
         ConfigStackSettings css;
         if (config.AutoDiscover)
         {
-            css = Discover(config, a);
+            css = Discover(config, a, logger);
         }
         else
         {
@@ -124,10 +127,10 @@ public class ConfigStackSettings
             var c = builder.Build();
             css = c.Get<ConfigStackSettings>(ConfigSectionName);
         }
-        css.Add(builder, environmentName);
+        css.Add(builder, environmentName, logger);
     }
 
-    private void Add(IConfigurationBuilder builder, string environmentName)
+    private void Add(IConfigurationBuilder builder, string environmentName, ILogger logger)
     {
         Requires.Text(environmentName);
 
@@ -139,23 +142,27 @@ public class ConfigStackSettings
             if (st != null)
             {
                 builder.AddJsonStream(st);
-                Trace.WriteLine($"{nameof(ConfigStackSettings)}: Stacking json from assembly {a.GetName().Name} of resource {name}");
+                logger.LogInformation($"Stacking json from assembly {a.GetName().Name} of resource {name}");
             }
             else if (required)
             {
-                throw new Exception($"{nameof(ConfigStackSettings)}: Required json config resource [{name}] not found");
+                throw new Exception($"Required json config resource [{name}] not found");
             }
         }
+
+        logger.LogInformation($"AssemblyNames: {assemblyByName.Keys.Format(",", "[{0}]")}");
+        logger.LogInformation($"Resources: {Resources.Format(", ")}");
 
         foreach (var info in Resources)
         {
             var a = assemblyByName.GetValue(info.AssemblyName);
+            logger.LogInformation($"Processing {info.AssemblyName} with {info.BaseConfigFileName}");
             if (a == null)
             {
                 a = Assembly.Load(info.AssemblyName);
                 if (a == null)
                 {
-                    throw new Exception($"{nameof(ConfigStackSettings)}: cannot find assembly {info.AssemblyName}");
+                    throw new Exception($"Cannot find assembly {info.AssemblyName}");
                 }
             }
             var baseName = info.BaseConfigFileName ?? "appsettings";

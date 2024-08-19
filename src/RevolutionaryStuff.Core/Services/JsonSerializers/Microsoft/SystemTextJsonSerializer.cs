@@ -15,11 +15,9 @@ public class SystemTextJsonSerializer : IJsonSerializer
         UndefinedJsonElementConverter.Instance
     ];
 
-    public static readonly IJsonSerializer Instance = new SystemTextJsonSerializer();
+    public static readonly JsonSerializerOptions MyJsonSerializationSettings;
 
-    private readonly JsonSerializerOptions MyJsonSerializationSettings;
-
-    private SystemTextJsonSerializer()
+    static SystemTextJsonSerializer()
     {
         MyJsonSerializationSettings = new()
         {
@@ -30,6 +28,8 @@ public class SystemTextJsonSerializer : IJsonSerializer
         };
         MyJsonSerializationSettings.Converters.FluentAddRange(DefaultConverters);
     }
+
+    public static readonly IJsonSerializer Instance = new SystemTextJsonSerializer();
 
     string IJsonSerializer.ToJson(object o)
         => JsonSerializer.Serialize(o, MyJsonSerializationSettings);
