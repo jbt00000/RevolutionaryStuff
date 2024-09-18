@@ -54,7 +54,7 @@ dotnet_style_parentheses_in_other_binary_operators = always_for_clarity:silent
 dotnet_style_parentheses_in_arithmetic_binary_operators = always_for_clarity:silent
 dotnet_style_parentheses_in_relational_binary_operators = always_for_clarity:silent
 dotnet_style_parentheses_in_other_operators = never_if_unnecessary:silent
-dotnet_style_namespace_match_folder = false
+dotnet_style_namespace_match_folder = false:suggestion
 dotnet_style_prefer_simplified_interpolation = true:suggestion
 dotnet_style_prefer_compound_assignment = true:suggestion
 dotnet_style_prefer_inferred_anonymous_type_member_names = true:suggestion
@@ -70,6 +70,7 @@ dotnet_style_readonly_field = true:suggestion
 dotnet_diagnostic.CA1040.severity = silent
 dotnet_diagnostic.CA1827.severity = error
 dotnet_diagnostic.CA1829.severity = error
+dotnet_style_prefer_collection_expression = when_types_loosely_match:suggestion
 
 # CSharp code style settings:
 [*.cs]
@@ -146,4 +147,5 @@ csharp_style_deconstructed_variable_declaration = true:suggestion
 csharp_style_prefer_readonly_struct = true:suggestion
 csharp_style_unused_value_assignment_preference = discard_variable:silent
 csharp_style_unused_value_expression_statement_preference = false
+csharp_style_prefer_primary_constructors = true:suggestion
 

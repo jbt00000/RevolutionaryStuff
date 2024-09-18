@@ -1,4 +1,6 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Text.RegularExpressions;
+using RevolutionaryStuff.Core.Caching;
 using RevolutionaryStuff.Core.Services.CodeStringGenerator;
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
@@ -37,11 +39,23 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
         if (!entityDataType.IsA<JsonEntity>()) throw new ArgumentOutOfRangeException(nameof(entityDataType), $"Must be a subclass of {nameof(JsonEntity)}");
     }
 
+    private static string GetEntityDataTypeFromType(Type entityDataType)
+        => PermaCache.FindOrCreate(nameof(GetEntityDataTypeFromType), entityDataType, () => {
+            var je = (JsonEntity)TypeHelpers.Construct(entityDataType);
+
+            //TODO: Just use JsonEntity.EntityDataType, which is protected right now, but we can cheat and make an internal accessor!
+
+            var dataType = je.DataType;
+            var pos = dataType.LastIndexOf(JsonEntityPrefixAttribute.Separator);
+            var abbreviation = dataType[(pos + 1)..];
+            return abbreviation;
+        });
+
     string IJsonEntityIdServices.CreateId(Type entityDataType, string? name, bool includeRandomCode)
     {
         CheckTypeIsJsonEntity(entityDataType);
 
-        var abbreviation = GetAbbreviationFromDataType(entityDataType.FullName!);
+        var abbreviation = GetEntityDataTypeFromType(entityDataType);
         string id;
         name = name.TrimOrNull();
         if (name == null)
@@ -93,12 +107,5 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
         {
             throw new ArgumentOutOfRangeException(nameof(id), id, "Id must match regex " + IdRegex());
         }
-    }
-
-    private static string GetAbbreviationFromDataType(string dataType)
-    {
-        var pos = dataType.LastIndexOf(JsonEntityPrefixAttribute.Separator);
-        var abbreviation = dataType[(pos + 1)..];
-        return abbreviation;
     }
 }

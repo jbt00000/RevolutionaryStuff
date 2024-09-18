@@ -7,6 +7,9 @@ namespace RevolutionaryStuff.Core;
 
 public static class StringHelpers
 {
+    public static string CondenseWhitespace(string s)
+        => s==null ? null : RegexHelpers.Common.MultipleWhitespace().Replace(s, " ");
+
     public static string DecodeBase64String(this string base64)
     {
         base64 = TrimOrNull(base64);

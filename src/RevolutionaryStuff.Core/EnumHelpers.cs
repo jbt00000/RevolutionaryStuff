@@ -4,6 +4,10 @@ namespace RevolutionaryStuff.Core;
 
 public static class EnumHelpers
 {
+    public static bool In<TEnum>(this TEnum o, params TEnum[] vals)
+        where TEnum : Enum
+        => vals != null && vals.Contains(o);
+
     public static T Random<T>(Random r = null) where T : Enum
     {
         var a = Enum.GetValues(typeof(T));

@@ -101,10 +101,11 @@ public class MimeType
     public static class Text
     {
         public static readonly MimeType Any = new("text/*");
+        public static readonly MimeType Csv = new("text/csv", ".csv");
         public static readonly MimeType Html = new("text/html", ".html", ".htm");
         public static readonly MimeType Plain = new("text/plain", ".txt", ".text");
         public static readonly MimeType Markdown = new("text/markdown", ".md");
-        internal static readonly IList<MimeType> All = new[] { Any, Html, Plain, Markdown }.ToList().AsReadOnly();
+        internal static readonly IList<MimeType> All = new[] { Any, Csv, Html, Plain, Markdown }.ToList().AsReadOnly();
     }
 
     public static class Audio
