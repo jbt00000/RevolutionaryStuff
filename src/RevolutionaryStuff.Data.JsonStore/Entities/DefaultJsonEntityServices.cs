@@ -32,30 +32,11 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
     private string CreateCode()
         => CodeStringGenerator.CreateRomanLowerCharactersCode(10);
 
-
-    private void CheckTypeIsJsonEntity(Type entityDataType)
-    {
-        ArgumentNullException.ThrowIfNull(entityDataType);
-        if (!entityDataType.IsA<JsonEntity>()) throw new ArgumentOutOfRangeException(nameof(entityDataType), $"Must be a subclass of {nameof(JsonEntity)}");
-    }
-
-    private static string GetEntityDataTypeFromType(Type entityDataType)
-        => PermaCache.FindOrCreate(nameof(GetEntityDataTypeFromType), entityDataType, () => {
-            var je = (JsonEntity)TypeHelpers.Construct(entityDataType);
-
-            //TODO: Just use JsonEntity.EntityDataType, which is protected right now, but we can cheat and make an internal accessor!
-
-            var dataType = je.DataType;
-            var pos = dataType.LastIndexOf(JsonEntityPrefixAttribute.Separator);
-            var abbreviation = dataType[(pos + 1)..];
-            return abbreviation;
-        });
-
     string IJsonEntityIdServices.CreateId(Type entityDataType, string? name, bool includeRandomCode)
     {
-        CheckTypeIsJsonEntity(entityDataType);
+        JsonEntity.ThrowIfNotJsonEntity(entityDataType);
 
-        var abbreviation = GetEntityDataTypeFromType(entityDataType);
+        var abbreviation = JsonEntityAbbreviationAttribute.GetAbbreviation(entityDataType);
         string id;
         name = name.TrimOrNull();
         if (name == null)
@@ -89,7 +70,7 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
 
     void IJsonEntityIdServices.ThrowIfInvalid(Type entityDataType, string id)
     {
-        CheckTypeIsJsonEntity(entityDataType);
+        JsonEntity.ThrowIfNotJsonEntity(entityDataType);
 
         if (id is null)
         {

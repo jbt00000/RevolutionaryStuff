@@ -13,7 +13,8 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
 {
     public static IJsonEntityIdServices JsonEntityIdServices { get; internal set; } = DefaultJsonEntityServices.Instance;
 
-    protected abstract string EntityDataType { get; }
+    protected virtual string EntityDataTypeSuffix
+        => JsonEntityAbbreviationAttribute.GetAbbreviation(GetType());
 
     protected virtual string? OnGetETag()
         => null;
@@ -63,8 +64,17 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     protected JsonEntity()
     {
         var t = GetType();
-        DataType = JsonEntityPrefixAttribute.GetPrefix(t) + JsonEntityPrefixAttribute.Separator + EntityDataType;
+        DataType = JsonEntityPrefixAttribute.GetPrefix(t) + JsonEntityPrefixAttribute.Separator + EntityDataTypeSuffix;
         Id = CreateId();
+    }
+
+    public static void ThrowIfNotJsonEntity(Type t)
+    {
+        ArgumentNullException.ThrowIfNull(t);
+        if (!t.IsA<JsonEntity>())
+        {
+            throw new ArgumentOutOfRangeException(nameof(t), $"Type {t.Name} is not a subclass of {nameof(JsonEntity)}");
+        }
     }
 
     protected string CreateId(string? name = null, bool includeRandomCode=true)
