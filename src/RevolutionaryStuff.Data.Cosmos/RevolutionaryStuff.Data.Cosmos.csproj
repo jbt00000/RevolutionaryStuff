@@ -19,9 +19,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.45.80.0</FileVersion>
-        <AssemblyVersion>4.45.80.0</AssemblyVersion>
-        <Version>4.45.80</Version>
+        <FileVersion>4.50.80.0</FileVersion>
+        <AssemblyVersion>4.50.80.0</AssemblyVersion>
+        <Version>4.50.80</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -39,10 +39,10 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Azure.Identity" Version="1.12.0" />
+        <PackageReference Include="Azure.Identity" Version="1.13.0" />
         <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.6.0" />
         <!-- can't upgrade Microsoft.Azure.Cosmos past 3.35.2 while Microsoft.Azure.Cosmos.Encryption is at 2.0.3 -->
-        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.43.0">
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.44.1">
           <TreatAsUsed>true</TreatAsUsed>
         </PackageReference>
         <PackageReference Include="Microsoft.Azure.Cosmos.Encryption" Version="2.1.0-preview4" />
