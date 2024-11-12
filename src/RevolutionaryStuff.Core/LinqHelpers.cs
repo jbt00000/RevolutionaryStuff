@@ -427,6 +427,20 @@ Again:
         return Expression.Lambda<Func<T, bool>>(Expression.OrElse(left.Body, right.WithParametersOf(left).Body), left.Parameters);
     }
 
+    public static Expression<Func<T, bool>> Or<T>(IList<Expression<Func<T, bool>>> conditions)
+    {
+        if (conditions == null || conditions.Count == 0)
+        {
+            return x => false;
+        }
+        if (conditions.Count == 1)
+        {
+            return conditions[0];
+        }
+
+        return Or(conditions[0], Or(conditions.Skip(1).ToList()));
+    }
+
     /// <remarks>https://www.c-sharpcorner.com/UploadFile/04fe4a/predicate-combinators-in-linq/#listing13</remarks>
     private static Expression<Func<TResult>> WithParametersOf<T, TResult>(this Expression<Func<T, TResult>> left, Expression<Func<T, TResult>> right)
     {

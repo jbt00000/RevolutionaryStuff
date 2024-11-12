@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using RevolutionaryStuff.Core.Caching;
@@ -132,7 +131,7 @@ public static class Stuff
     public static string ObjectToString(object o, string fallback = null)
         => o?.ToString() ?? fallback;
 
-    private static readonly IList<string> FilesToDeleteOnExit = new List<string>();
+    private static readonly IList<string> FilesToDeleteOnExit = [];
 
     public static void MarkFileForCleanup(string filePath, bool setAttributesAsTempFile = true)
     {

@@ -77,7 +77,7 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
         }
     }
 
-    protected string CreateId(string? name = null, bool includeRandomCode=true)
+    protected string CreateId(string? name = null, bool includeRandomCode = true)
         => JsonEntityIdServices.CreateId(GetType(), name, includeRandomCode);
 
     public override string ToString()

@@ -35,7 +35,7 @@ internal class CosmosReceivedMessage(string Id, JsonElement El, string DatabaseN
     string IInboundMessage.BodyAsString
         => BodyAsString ??= El.ToString();
 
-    Stream IInboundMessage.BodyAsStream 
+    Stream IInboundMessage.BodyAsStream
         => StreamHelpers.Create(BodyAsString);
 
     string IInboundMessage.Subject

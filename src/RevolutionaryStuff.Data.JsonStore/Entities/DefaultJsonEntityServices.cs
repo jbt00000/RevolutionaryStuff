@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using System.Text.RegularExpressions;
-using RevolutionaryStuff.Core.Caching;
+﻿using System.Text.RegularExpressions;
 using RevolutionaryStuff.Core.Services.CodeStringGenerator;
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
@@ -49,7 +47,7 @@ internal partial class DefaultJsonEntityServices : IJsonEntityIdServices
             id = $"{abbreviation}-{safeName}";
         }
         if (includeRandomCode)
-        { 
+        {
             id = $"{id}-{CreateCode()}";
         }
         return id.ToLower();

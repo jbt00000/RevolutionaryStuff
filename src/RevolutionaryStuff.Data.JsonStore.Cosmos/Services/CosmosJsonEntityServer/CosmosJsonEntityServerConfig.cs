@@ -41,7 +41,7 @@ public class CosmosJsonEntityServerConfig : IPostConfigure
     public string ConnectionStringName { get; set; } = null!;
 
     public class DatabaseConfig
-    { 
+    {
         public string DatabaseId { get; internal set; }
     }
 
@@ -69,8 +69,8 @@ public class CosmosJsonEntityServerConfig : IPostConfigure
 
     void IPostConfigure.PostConfigure()
     {
-        ContainerConfigByContainerKey ??= new();
-        DatabaseConfigByDatabaseKey ??= new();
+        ContainerConfigByContainerKey ??= [];
+        DatabaseConfigByDatabaseKey ??= [];
         foreach (var kvp in DatabaseConfigByDatabaseKey)
         {
             var dc = kvp.Value;

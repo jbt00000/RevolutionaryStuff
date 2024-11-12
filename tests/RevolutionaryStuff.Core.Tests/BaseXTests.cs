@@ -33,10 +33,10 @@ public class BaseXTests
     [TestMethod]
     public void Base16EncodeDecodeTests()
     {
-        var charset = new[] {'0','1','2','3','4','5','6','7','8','9','A','B','C','D','E','F' };
+        var charset = new[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
         for (var z = 0; z < 100; ++z)
         {
-            var len = Stuff.RandomWithRandomSeed.Next(10) * 2 + 2;
+            var len = (Stuff.RandomWithRandomSeed.Next(10) * 2) + 2;
             var s = "";
             for (var l = 0; l < len; ++l)
             {

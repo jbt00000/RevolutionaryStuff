@@ -23,7 +23,7 @@ public partial class JsonHelpers
     public class PathSegment
     {
         public override string ToString()
-            => $"{Name??Index.ToString()} is {SegmentType}";
+            => $"{Name ?? Index.ToString()} is {SegmentType}";
 
         public enum SegmentTypes
         {

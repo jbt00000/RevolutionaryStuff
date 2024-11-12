@@ -29,12 +29,12 @@ public class RequiresTests
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
     public void TextTooShort()
-        => Requires.Text("tooshort", "z", minLen:20);
+        => Requires.Text("tooshort", "z", minLen: 20);
 
     [TestMethod]
     [ExpectedException(typeof(ArgumentException))]
     public void TextTooLong()
-        => Requires.Text("toolong", "z", maxLen:3);
+        => Requires.Text("toolong", "z", maxLen: 3);
 
     [TestMethod]
     [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
@@ -73,7 +73,7 @@ public class RequiresTests
             Assert.Fail($"Expected {nameof(ArgumentNullException)} instead of {ex.GetType().Name}");
         }
     }
-    
+
     [TestMethod]
     [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     public void XmlWithNonXmlData()

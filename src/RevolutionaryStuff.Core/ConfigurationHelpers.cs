@@ -1,7 +1,5 @@
 ﻿using System.IO;
-using System.Runtime.Serialization;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Core;
@@ -31,7 +29,7 @@ public static class ConfigurationHelpers
     {
         if (o != null)
         {
-            string json = JsonHelpers.ToJson(o);
+            var json = JsonHelpers.ToJson(o);
 
             if (excludeNullMembers)
             {
@@ -55,6 +53,7 @@ public static class ConfigurationHelpers
         var ret = new T();
         configuration.Bind(sectionName, ret);
         (ret as IPostConfigure)?.PostConfigure();
+        (ret as IValidate)?.Validate();
         return ret;
     }
 }

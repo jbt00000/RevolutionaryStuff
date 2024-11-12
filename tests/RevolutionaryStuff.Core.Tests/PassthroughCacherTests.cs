@@ -3,28 +3,28 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RevolutionaryStuff.Core.Caching;
 
-namespace RevolutionaryStuff.Core.Tests
+namespace RevolutionaryStuff.Core.Tests;
+
+[TestClass]
+public class PassthroughCacherTests
 {
-    [TestClass]
-    public class PassthroughCacherTests
+    [TestMethod]
+    public async Task WorksAsync()
     {
-        [TestMethod]
-        public async Task WorksAsync()
+        var cacher = Cache.Passthrough;
+        for (var z = 0; z < 10; ++z)
         {
-            var cacher = Cache.Passthrough;
-            for (var z = 0; z < 10; ++z)
-            {
-                var cacheKey = Cache.CreateKey(z);
-                var res = await cacher.FindEntryOrCreateValueAsync(
-                    cacheKey,
-                    k => {
-                        Assert.AreEqual(cacheKey, k);
-                        return Task.FromResult(new CacheCreationResult(z, new CacheEntryRetentionPolicy(TimeSpan.FromMinutes(10))));
-                    });
-                Assert.IsNotNull(res);
-                Assert.IsFalse(res.IsExpired);
-                Assert.AreEqual(z, res.GetValue<int>());
-            }
+            var cacheKey = Cache.CreateKey(z);
+            var res = await cacher.FindEntryOrCreateValueAsync(
+                cacheKey,
+                k =>
+                {
+                    Assert.AreEqual(cacheKey, k);
+                    return Task.FromResult(new CacheCreationResult(z, new CacheEntryRetentionPolicy(TimeSpan.FromMinutes(10))));
+                });
+            Assert.IsNotNull(res);
+            Assert.IsFalse(res.IsExpired);
+            Assert.AreEqual(z, res.GetValue<int>());
         }
     }
 }

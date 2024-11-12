@@ -274,7 +274,7 @@ public static class CollectionHelpers
     }
 
     public static V GetValue<K, V>(this IDictionary<K, V> d, K key, V fallback = default)
-        => key!=null && d.TryGetValue(key, out var ret) ? ret : fallback;
+        => key != null && d.TryGetValue(key, out var ret) ? ret : fallback;
 
     public static IEnumerable<T> ForEach<T>(this IEnumerable<T> items, Action<T> action)
     {

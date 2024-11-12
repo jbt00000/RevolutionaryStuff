@@ -27,9 +27,9 @@
         <Copyright>Copyright © 2023</Copyright>
         <PackageIcon>icon.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
-        <FileVersion>4.50.80.0</FileVersion>
-        <AssemblyVersion>4.50.80.0</AssemblyVersion>
-        <Version>4.50.80</Version>
+        <FileVersion>4.54.80.0</FileVersion>
+        <AssemblyVersion>4.54.80.0</AssemblyVersion>
+        <Version>4.54.80</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -58,11 +58,11 @@
 
     <ItemGroup>
 
-        <PackageReference Include="Azure.Identity" Version="1.13.0" />
+        <PackageReference Include="Azure.Identity" Version="1.13.1" />
 
         <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.2" />
 
-        <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.6.0" />
+        <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.7.0" />
 
     </ItemGroup>
 

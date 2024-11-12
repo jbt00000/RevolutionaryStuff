@@ -24,7 +24,7 @@ public class PermaCacheTests
     {
         const int expected = 1;
 
-        for (int z = 0; z < 10; ++z)
+        for (var z = 0; z < 10; ++z)
         {
             var created = false;
             var ret = PermaCache.FindOrCreate("a", () => { created = true; return expected; });

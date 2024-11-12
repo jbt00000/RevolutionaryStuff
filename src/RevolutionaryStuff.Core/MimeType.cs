@@ -173,9 +173,9 @@ public class MimeType
     public static IList<MimeType> FindByContentType(string contentType, bool caseSensitive = false)
         => AllMimeTypes.Where(m => m.DoesContentTypeMatch(contentType, caseSensitive)).ToList();
 
-    public readonly IList<string> ContentTypes = new List<string>();
+    public readonly IList<string> ContentTypes = [];
 
-    public readonly IList<string> FileExtensions = new List<string>();
+    public readonly IList<string> FileExtensions = [];
 
     public string PrimaryFileExtension
         => FileExtensions.FirstOrDefault();

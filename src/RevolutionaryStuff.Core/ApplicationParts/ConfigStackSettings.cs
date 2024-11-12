@@ -13,7 +13,7 @@ public sealed class ConfigStackSettingsAppSettingsAttribute : Attribute
 {
     public readonly string BaseConfigFileName;
 
-    public ConfigStackSettingsAppSettingsAttribute(string baseConfigFileName=null)
+    public ConfigStackSettingsAppSettingsAttribute(string baseConfigFileName = null)
     {
         BaseConfigFileName = baseConfigFileName;
     }
@@ -34,11 +34,11 @@ public class ConfigStackSettings
 
     public static ConfigStackSettings Discover(ConfigStackSettingsConfig config, Assembly a, ILogger logger)
     {
-        List<(HashSet<string> PredecessorNames, ResourceInfo RI)> nodes = new();
+        List<(HashSet<string> PredecessorNames, ResourceInfo RI)> nodes = [];
         var ignoreExpr = new Regex(config.AutoDiscoveryIgnoreAssemblyNamePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
-        HashSet<string> testedAssemblyNames = new();
+        HashSet<string> testedAssemblyNames = [];
         TestAssembly(a.GetName());
-        List<ResourceInfo> ret = new();
+        List<ResourceInfo> ret = [];
         HashSet<string> remainingPreds = new(Comparers.CaseInsensitiveStringComparer);
         while (nodes.Count > 0)
         {
@@ -69,7 +69,7 @@ public class ConfigStackSettings
             testedAssemblyNames.Add(aname);
             Assembly a;
             try
-            {                 
+            {
                 a = Assembly.Load(an);
             }
             catch (System.IO.FileNotFoundException)
@@ -106,7 +106,7 @@ public class ConfigStackSettings
     public static void Add(IConfigurationBuilder builder, string environmentName, Assembly configSettingsAssembly = null, string configSettingsResourceName = null, ILogger logger = null)
         => Add(builder, environmentName, new ConfigStackSettingsConfig(configSettingsAssembly, configSettingsResourceName), logger);
 
-    public static void Add(IConfigurationBuilder builder, string environmentName, ConfigStackSettingsConfig config=null, ILogger logger = null)
+    public static void Add(IConfigurationBuilder builder, string environmentName, ConfigStackSettingsConfig config = null, ILogger logger = null)
     {
         logger ??= new TraceLoggerProvider().CreateLogger(nameof(ConfigStackSettings));
         config ??= new();

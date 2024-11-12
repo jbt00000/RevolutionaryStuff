@@ -6,7 +6,7 @@ public class TreeNode<TData>
 
     public TreeNode<TData> Parent { get; set; }
 
-    public IList<TreeNode<TData>> Children { get; } = new List<TreeNode<TData>>();
+    public IList<TreeNode<TData>> Children { get; } = [];
 
     public bool HasChildren => Children.Count > 0;
 

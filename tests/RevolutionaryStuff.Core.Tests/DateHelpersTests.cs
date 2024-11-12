@@ -21,7 +21,7 @@ public class DateHelpersTests
         Assert.AreEqual(expected, dt45.AddMonths(-1).Age());
         Assert.AreEqual(expected - 1, dt45.AddDays(1).Age());
         Assert.AreEqual(expected - 1, dt45.AddMonths(1).Age());
-        Assert.AreEqual(expected - 1, dt45.AddMonths(1).AddDays(1+today.Day).Age());
+        Assert.AreEqual(expected - 1, dt45.AddMonths(1).AddDays(1 + today.Day).Age());
     }
 
     [TestMethod]
@@ -66,7 +66,7 @@ public class DateHelpersTests
             Assert.AreEqual(dto, dtoViaDotNetParse);
         }
         catch (System.FormatException fex)
-        { 
+        {
             //because this was BUSTED to add in the "Z"
         }
     }

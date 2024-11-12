@@ -119,7 +119,7 @@ public static class Raw
     /// </summary>
     /// <param name="s">The string</param>
     /// <returns>A buffer with the string</returns>
-    public static byte[] String2Buf(string s, Encoding e=null)
+    public static byte[] String2Buf(string s, Encoding e = null)
         => (e ?? Encoding.UTF8).GetBytes(s);
 
     public static byte[] ToUTF8(this string s)

@@ -55,7 +55,7 @@ public static class AttributeStuff
     {
         ArgumentNullException.ThrowIfNull(assembly);
         ArgumentNullException.ThrowIfNull(typeAttributeTypes);
-        var attributesByPublicType = new MultipleValueDictionary<Type, Attribute>(null, () => new HashSet<Attribute>());
+        var attributesByPublicType = new MultipleValueDictionary<Type, Attribute>(null, () => []);
         foreach (var t in assembly.GetExportedTypes())
         {
             var ti = t.GetTypeInfo();
@@ -129,7 +129,7 @@ public static class AttributeStuff
         }
 
         var attributesByPublicType = new MultipleValueDictionary<Type, Attribute>();
-        ms.ForEach(m => attributesByPublicType.Add(m));
+        ms.ForEach(attributesByPublicType.Add);
         return attributesByPublicType;
     }
 }

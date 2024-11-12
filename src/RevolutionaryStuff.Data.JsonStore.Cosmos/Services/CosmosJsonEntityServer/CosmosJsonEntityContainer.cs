@@ -305,6 +305,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
             {
                 var update = await amendAsync(z);
                 if (!update) return;
+                PrepareItem(z);
                 await Container.UpsertItemAsync<TItem>(
                     z,
                     CreatePartitionKey(z.PartitionKey),

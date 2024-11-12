@@ -16,11 +16,16 @@ public class ServiceBusWorker : BaseWorker
     private readonly IConnectionStringProvider ConnectionStringProvider;
     private readonly IOptions<Config> ConfigOptions;
 
-    public class Config
+    public class Config : IValidate, IPostConfigure
     {
         public const string ConfigSectionName = "ServiceBusWorkerConfig";
+
+        [Obsolete("Use Executions instead", false)]
         public IList<string> ExecutionNames { get; set; }
+
+        [Obsolete("Use Executions instead", false)]
         public IDictionary<string, Execution> ExecutionByName { get; set; }
+        public IList<Execution> Executions { get; set; }
         public string ConnectionStringName { get; set; }
         public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
         public TimeSpan MessageLockRenewalTimeout { get; set; } = TimeSpan.FromSeconds(15);
@@ -29,8 +34,23 @@ public class ServiceBusWorker : BaseWorker
         public int MessagePrefetch { get; set; } = 1;
         public int ConcurrentExecutors { get; set; } = 1;
 
-        public class Execution
+        public void Validate()
+            => ExceptionHelpers.AggregateExceptionsAndReThrow(
+                () => Requires.Null(ExecutionByName, $"{nameof(ExecutionByName)} is no longer supported, use the Executions list"),
+                () => Requires.Null(ExecutionNames, $"{nameof(ExecutionNames)} is no longer supported, use the Executions list"),
+                () => Executions.ForEach(z => z.Validate())
+                );
+
+        void IPostConfigure.PostConfigure()
         {
+            Executions ??= [];
+            Executions.ForEach(z => z.PostConfigure());
+        }
+
+        public class Execution : IValidate, IPostConfigure
+        {
+            public string Name { get; set; }
+            public bool Enabled { get; set; } = true;
             public int? MessagePrefetch { get; set; }
             public int? ConcurrentExecutors { get; set; }
             public string ConnectionStringName { get; set; }
@@ -39,6 +59,14 @@ public class ServiceBusWorker : BaseWorker
             public string TopicName { get; set; }
             public string SubscriptionName { get; set; }
             public string MessageWorkerTypeName { get; set; }
+
+            public void Validate()
+                => ExceptionHelpers.AggregateExceptionsAndReThrow(
+                () => { if (Enabled) Requires.ExactlyOneNonNull(QueueName, TopicName); }
+                );
+
+            public void PostConfigure()
+                => Name ??= $"{MessageWorkerTypeName} on {QueueName ?? $"{TopicName}.{SubscriptionName}"}";
         }
     }
 
@@ -110,16 +138,9 @@ public class ServiceBusWorker : BaseWorker
         }, SupervisorTimeout, SupervisorTimeout);
         try
         {
-            var executorNames = config
-                .ExecutionNames
-                .NullSafeEnumerable()
-                .Select(name => name.TrimOrNull())
-                .WhereNotNull()
-                .ToList();
+            LogWarning("Will execute the following packages: {executorNames}", config.Executions.Where(z => z.Enabled).Select(z => z.Name));
 
-            LogWarning("Will execute the following packages: {executorNames}", executorNames);
-
-            await Task.WhenAll(executorNames.Select(name => ExecuteAsync(name, config.ExecutionByName[name], stoppingToken)));
+            await Task.WhenAll(config.Executions.Where(z=>z.Enabled).Select(z => ExecuteAsync(z.Name, z, stoppingToken)));
         }
         catch (Exception ex)
         {
@@ -179,7 +200,7 @@ public class ServiceBusWorker : BaseWorker
 
         async Task executeMessageAsync(ServiceBusReceivedMessage m)
         {
-            MessageSupervisorStateBySequenceNumber[m.SequenceNumber] = 
+            MessageSupervisorStateBySequenceNumber[m.SequenceNumber] =
                 new MessageSupervisorState
                 {
                     Listener = listener,

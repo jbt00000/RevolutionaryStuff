@@ -62,7 +62,7 @@ public abstract class BaseDisposable : IDisposable
     protected void RegisterDisposeAction(Action a)
     {
         if (a == null) return;
-        DisposeActions ??= new List<Action>();
+        DisposeActions ??= [];
         DisposeActions.Add(a);
     }
 

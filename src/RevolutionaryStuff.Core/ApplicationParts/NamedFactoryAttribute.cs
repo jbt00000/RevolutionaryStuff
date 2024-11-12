@@ -73,7 +73,7 @@ public class NamedFactoryAttribute : Attribute
     public static ICollection<I> InstantiateFactories<I>(IEnumerable<string> factoryNames) where I : class
     {
         var filter = (factoryNames ?? Empty.StringArray).ToSet();
-        return InstantiateFactories<I>(name => filter.Contains(name));
+        return InstantiateFactories<I>(filter.Contains);
     }
 
     public static ICollection<I> InstantiateFactories<I>(Predicate<string> factoryNameFilter = null) where I : class

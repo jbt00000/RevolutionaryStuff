@@ -7,7 +7,7 @@ public sealed class JsonConverterTypeAttribute : Attribute
 {
     public Type JsonConverterType;
 
-    public static readonly IList<JsonConverter> JsonConverters = new List<JsonConverter>();
+    public static readonly IList<JsonConverter> JsonConverters = [];
 
     public JsonConverterTypeAttribute(Type t)
     {

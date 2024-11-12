@@ -1,9 +1,9 @@
 ﻿using System.Diagnostics;
 using System.IO;
+using System.IO.Hashing;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
 using RevolutionaryStuff.Core.EncoderDecoders;
-using System.IO.Hashing;
 
 namespace RevolutionaryStuff.Core.Crypto;
 
@@ -101,10 +101,8 @@ public sealed class Hash
         //Not all hash algorithms are supported on all platforms
         try
         {
-            using (var z = creator())
-            {
-                hType = z.GetType();
-            }
+            using var z = creator();
+            hType = z.GetType();
         }
         catch (CryptographicException)
         {

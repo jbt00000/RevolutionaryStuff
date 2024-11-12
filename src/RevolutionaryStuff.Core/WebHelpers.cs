@@ -1,8 +1,8 @@
 ﻿using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
-using Microsoft.Extensions.Primitives;
 using System.Web;
+using Microsoft.Extensions.Primitives;
 using RevolutionaryStuff.Core.Collections;
 
 namespace RevolutionaryStuff.Core;
@@ -71,7 +71,7 @@ public static partial class WebHelpers
         }
         else
         {
-            foreach (string key in queryParameters.AllKeys)
+            foreach (var key in queryParameters.AllKeys)
             {
                 if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase))
                 {

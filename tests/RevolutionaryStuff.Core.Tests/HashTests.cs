@@ -13,21 +13,21 @@ public class HashTests
     {
         const int iterations = 100;
         var sw = new Stopwatch();
-        for (int z = 0; z < 32; ++z)
+        for (var z = 0; z < 32; ++z)
         {
-            var buf = new byte[Stuff.RandomWithFixedSeed.Next(1024*8)+128];
+            var buf = new byte[Stuff.RandomWithFixedSeed.Next(1024 * 8) + 128];
             foreach (var hashAlgName in Hash.CommonHashAlgorithmNames.All)
             {
                 try
                 {
                     Hash h = null;
                     sw.Restart();
-                    for (int i = 0; i < iterations; ++i)
+                    for (var i = 0; i < iterations; ++i)
                     {
                         h = Hash.Compute(buf, hashAlgName);
                     }
                     sw.Stop();
-                    Debug.WriteLine($"{h.NameColonBase16} took {sw.Elapsed/iterations}");
+                    Debug.WriteLine($"{h.NameColonBase16} took {sw.Elapsed / iterations}");
                 }
                 catch (NotSupportedException)
                 {

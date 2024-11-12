@@ -18,21 +18,47 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
     private readonly IConnectionStringProvider ConnectionStringProvider;
     private readonly IOptions<Config> ConfigOptions;
 
-    public sealed class Config
+    public sealed class Config : IValidate, IPostConfigure
     {
         public const string ConfigSectionName = "CosmosChangeFeedProcessorWorkerConfig";
+
         public string ConnectionStringName { get; set; }
+
         public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
+
+        [Obsolete("Use Executions instead", false)]
         public IList<string> ExecutionNames { get; set; }
+
+        [Obsolete("Use Executions instead", false)]
         public IDictionary<string, Execution> ExecutionByName { get; set; }
+        public IList<Execution> Executions { get; set; }
+
         public string LeaseContainerName { get; set; }
+
         public string DatabaseName { get; set; }
+
         public IDictionary<string, string> DocumentJsonPathToPropertyName { get; set; }
 
         public string MessageIdFormat { get; set; } = "{0}/{3}";
 
-        public class Execution
+        public void Validate()
+            => ExceptionHelpers.AggregateExceptionsAndReThrow(
+            () => Requires.Null(ExecutionByName, $"{nameof(ExecutionByName)} is no longer supported, use the Executions list"),
+            () => Requires.Null(ExecutionNames, $"{nameof(ExecutionNames)} is no longer supported, use the Executions list"),
+            () => Executions.ForEach(z => z.Validate())
+            );
+
+        void IPostConfigure.PostConfigure()
         {
+            Executions ??= [];
+            Executions.ForEach(z => z.PostConfigure());
+        }
+
+
+        public class Execution : IValidate, IPostConfigure
+        {
+            public string Name { get; set; }
+            public bool Enabled { get; set; } = true;
             public DateTime? StartTime { get; set; }
             public string MessageWorkerTypeName { get; set; }
             public string ConnectionStringName { get; set; }
@@ -40,6 +66,15 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
             public string ContainerName { get; set; }
             public string LeaseContainerName { get; set; }
             public IDictionary<string, string> DocumentJsonPathToPropertyName { get; set; }
+            public void Validate()
+                => ExceptionHelpers.AggregateExceptionsAndReThrow(
+                () => { if (Enabled) Requires.Text(MessageWorkerTypeName); },
+                () => { if (Enabled) Requires.Text(ContainerName); }
+                );
+
+            public void PostConfigure()
+                => Name ??= $"{MessageWorkerTypeName} on {ContainerName}";
+
         }
     }
 
@@ -65,9 +100,9 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
                 .WhereNotNull()
                 .ToList();
 
-            LogWarning("Will execute the following packages: {executorNames}", executorNames);
+            LogWarning("Will execute the following packages: {executorNames}", config.Executions.Where(z => z.Enabled).Select(z => z.Name));
 
-            await Task.WhenAll(executorNames.Select(name => ExecuteAsync(name, config.ExecutionByName[name], stoppingToken)));
+            await Task.WhenAll(config.Executions.Where(z => z.Enabled).Select(z => ExecuteAsync(z.Name, z, stoppingToken)));
         }
         catch (Exception ex)
         {
@@ -100,11 +135,11 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
 
         var anf = ServiceProvider.GetService<IApplicationNameFinder>();
         if (anf != null)
-        { 
+        {
             builder = builder.WithInstanceName(anf.ApplicationName);
         }
         if (execution.StartTime.HasValue)
-        { 
+        {
             builder = builder.WithStartTime(execution.StartTime.Value);
         }
 
@@ -118,7 +153,7 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
         {
             static string GetStringVal(JsonElement jel, string name)
             {
-                if (jel.TryGetProperty(name, out JsonElement el))
+                if (jel.TryGetProperty(name, out var el))
                 {
                     return el.GetString();
                 }
@@ -126,36 +161,36 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
             }
             using var sr = new StreamReader(changes);
             using var jsonDocument = JsonDocument.Parse(sr.ReadToEnd());
-            int positionInBatch = 0;
-            foreach (JsonElement element in jsonDocument.RootElement.GetProperty("Documents").EnumerateArray())
+            var positionInBatch = 0;
+            foreach (var element in jsonDocument.RootElement.GetProperty("Documents").EnumerateArray())
             {
                 ++docsSeen;
                 try
                 {
-                    string id = GetStringVal(element, CosmosEntityPropertyNames.Id);
-                    string rid = GetStringVal(element, CosmosEntityPropertyNames.Rid);
-                    string self = GetStringVal(element, CosmosEntityPropertyNames.Self);
-                    string etag = GetStringVal(element, CosmosEntityPropertyNames.ETag);
-                    DateTimeOffset touchedAt = DateTimeOffset.UtcNow;
-                    if (element.TryGetProperty(CosmosEntityPropertyNames.Timestamp, out JsonElement tsElement))
+                    var id = GetStringVal(element, CosmosEntityPropertyNames.Id);
+                    var rid = GetStringVal(element, CosmosEntityPropertyNames.Rid);
+                    var self = GetStringVal(element, CosmosEntityPropertyNames.Self);
+                    var etag = GetStringVal(element, CosmosEntityPropertyNames.ETag);
+                    var touchedAt = DateTimeOffset.UtcNow;
+                    if (element.TryGetProperty(CosmosEntityPropertyNames.Timestamp, out var tsElement))
                     {
-                        int unixTimestamp = tsElement.GetInt32();
+                        var unixTimestamp = tsElement.GetInt32();
                         touchedAt = DateTimeOffset.FromUnixTimeSeconds(unixTimestamp);
                     }
                     Dictionary<string, object> properties = null;
                     foreach (var kvp in config.DocumentJsonPathToPropertyName.NullSafeEnumerable().Union(execution.DocumentJsonPathToPropertyName.NullSafeEnumerable()))
                     {
-                        if (element.TryGetProperty(kvp.Key, out JsonElement propElement))
+                        if (element.TryGetProperty(kvp.Key, out var propElement))
                         {
-                            properties ??= new();
+                            properties ??= [];
                             properties[kvp.Value] = propElement.GetString();
                         }
                     }
                     id = string.Format(config.MessageIdFormat, id, rid, self, etag);
-                    var m = (IInboundMessage) new CosmosReceivedMessage(id, element, databaseName, execution.ContainerName, docsSeen, touchedAt, properties);
+                    var m = (IInboundMessage)new CosmosReceivedMessage(id, element, databaseName, execution.ContainerName, docsSeen, touchedAt, properties);
 
                     using var scope = ServiceProvider.CreateScope();
-//                    using var loggerScope = CreateLogRegion(LogLevel.Information, $"Processing service bus message on {execution.TopicName}.{execution.SubscriptionName}.{m.SequenceNumber}");
+                    //                    using var loggerScope = CreateLogRegion(LogLevel.Information, $"Processing service bus message on {execution.TopicName}.{execution.SubscriptionName}.{m.SequenceNumber}");
                     var sp = scope.ServiceProvider;
                     var executor = sp.GetRequiredService<IInboundMessageExecutor>();
                     var namedFactory = sp.GetRequiredService<INamedFactory>();
@@ -168,7 +203,7 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
                     LogError(ex);
                     ++errorCount;
                 }
-                LogInformation("{executionName} {successCount}/{errorCount}/{docsSeen} {positionInBatch}", executionName,  successCount, errorCount, docsSeen, positionInBatch);
+                LogInformation("{executionName} {successCount}/{errorCount}/{docsSeen} {positionInBatch}", executionName, successCount, errorCount, docsSeen, positionInBatch);
                 ++positionInBatch;
                 if (cancellationToken.IsCancellationRequested)
                 {
