@@ -144,17 +144,16 @@ public class MimeType
     {
         get
         {
-            if (AllMimeTypes_p == null)
+            if (field == null)
             {
                 lock (typeof(MimeType))
                 {
-                    AllMimeTypes_p ??= Audio.All.Union(Video.All).Union(Text.All).Union(Image.All).Union(Application.All).ToList();
+                    field ??= Audio.All.Union(Video.All).Union(Text.All).Union(Image.All).Union(Application.All).ToList();
                 }
             }
-            return AllMimeTypes_p;
+            return field;
         }
     }
-    private static IList<MimeType> AllMimeTypes_p = null;
 
     public static MimeType FindByExtension(string extension)
     {

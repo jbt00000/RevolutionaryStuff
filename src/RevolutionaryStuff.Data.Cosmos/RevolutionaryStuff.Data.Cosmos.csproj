@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
+        <LangVersion>Preview</LangVersion>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
@@ -43,7 +44,7 @@
         <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.7.0" />
         <!-- can't upgrade Microsoft.Azure.Cosmos past 3.35.2 while Microsoft.Azure.Cosmos.Encryption is at 2.0.3 -->
         <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.45.1">
-          <TreatAsUsed>true</TreatAsUsed>
+            <TreatAsUsed>true</TreatAsUsed>
         </PackageReference>
         <PackageReference Include="Microsoft.Azure.Cosmos.Encryption" Version="2.1.0-preview4" />
     </ItemGroup>
