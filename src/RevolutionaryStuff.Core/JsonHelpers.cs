@@ -31,11 +31,9 @@ public static partial class JsonHelpers
     }
 
     public static bool HasJsonIgnoreAttribute(this PropertyInfo pi)
-        => pi.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>() != null
-        || pi.GetCustomAttribute<Newtonsoft.Json.JsonIgnoreAttribute>() != null;
+        => pi.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>() != null;
 
     public static string GetJsonPropertyName(this MemberInfo mi)
         => mi.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()?.Name
-        ?? mi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>()?.PropertyName
         ?? mi.Name;
 }

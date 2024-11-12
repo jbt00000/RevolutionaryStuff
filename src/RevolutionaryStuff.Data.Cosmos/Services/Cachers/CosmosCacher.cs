@@ -103,22 +103,22 @@ public class CosmosCacher : BaseCacher, ICosmosCacher
 
     private class CosmosCacheEntity : CosmosEntity<string>
     {
-        [JsonPropertyName(CosmosEntityPropertyNames.Ttl), Newtonsoft.Json.JsonProperty(CosmosEntityPropertyNames.Ttl)]
+        [JsonPropertyName(CosmosEntityPropertyNames.Ttl)]
         public int Ttl { get; set; }
 
-        [JsonPropertyName("clrTypeName"), Newtonsoft.Json.JsonProperty("clrTypeName")]
+        [JsonPropertyName("clrTypeName")]
         public string ClrTypeName { get; set; }
 
-        [JsonPropertyName("value"), Newtonsoft.Json.JsonProperty("value")]
+        [JsonPropertyName("value")]
         public JsonElement Value { get; set; }
 
-        [JsonPropertyName("createdAt"), Newtonsoft.Json.JsonProperty("createdAt")]
+        [JsonPropertyName("createdAt")]
         public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
 
-        [JsonPropertyName("expiresAt"), Newtonsoft.Json.JsonProperty("expiresAt")]
+        [JsonPropertyName("expiresAt")]
         public DateTimeOffset ExpiresAt { get; set; } = DateTimeOffset.UtcNow;
 
-        [JsonPropertyName("createdOn"), Newtonsoft.Json.JsonProperty("createdOn")]
+        [JsonPropertyName("createdOn")]
         public string CreatedOn { get; set; } = Environment.MachineName;
     }
 }

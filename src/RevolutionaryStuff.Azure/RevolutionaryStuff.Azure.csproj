@@ -27,9 +27,9 @@
         <Copyright>Copyright © 2023</Copyright>
         <PackageIcon>icon.png</PackageIcon>
         <PackageLicenseFile>license.txt</PackageLicenseFile>
-        <FileVersion>4.54.80.0</FileVersion>
-        <AssemblyVersion>4.54.80.0</AssemblyVersion>
-        <Version>4.54.80</Version>
+        <FileVersion>4.55.80.0</FileVersion>
+        <AssemblyVersion>4.55.80.0</AssemblyVersion>
+        <Version>4.55.80</Version>
     </PropertyGroup>
 
     <ItemGroup>

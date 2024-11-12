@@ -25,9 +25,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.54.80.0</FileVersion>
-        <AssemblyVersion>4.54.80.0</AssemblyVersion>
-        <Version>4.54.80</Version>
+        <FileVersion>4.55.80.0</FileVersion>
+        <AssemblyVersion>4.55.80.0</AssemblyVersion>
+        <Version>4.55.80</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -69,15 +69,11 @@
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="8.0.1" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="8.0.1" />
-        <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
         <PackageReference Include="System.IO.Hashing" Version="8.0.0" />
     </ItemGroup>
 
     <ItemGroup>
         <Compile Update="JsonHelpers.Microsoft.cs">
-            <DependentUpon>JsonHelpers.cs</DependentUpon>
-        </Compile>
-        <Compile Update="JsonHelpers.Newtonsoft.cs">
             <DependentUpon>JsonHelpers.cs</DependentUpon>
         </Compile>
         <Compile Update="JsonHelpers.PathSegment.cs">

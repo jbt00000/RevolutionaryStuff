@@ -9,7 +9,7 @@ public static class LinqHelpers
 {
     public delegate PropertyInfo PropertyAliasToPropertyInfoLookup(Type t, string name);
 
-    private static PropertyInfo PropertyAliasToPropertyInfoLookupImp(Type t, string name, bool ignoreCase, bool useSystemTextJson, bool useNewtonsoft, bool useClr)
+    private static PropertyInfo PropertyAliasToPropertyInfoLookupImp(Type t, string name, bool ignoreCase, bool useSystemTextJson, bool useClr)
     {
         if (useSystemTextJson)
         {
@@ -17,17 +17,6 @@ public static class LinqHelpers
             {
                 var jpn = pi.GetCustomAttribute<JsonPropertyNameAttribute>();
                 if (0 == string.Compare(jpn?.Name, name, ignoreCase))
-                {
-                    return pi;
-                }
-            }
-        }
-        if (useNewtonsoft)
-        {
-            foreach (var pi in t.GetPropertiesPublicInstanceRead())
-            {
-                var jpn = pi.GetCustomAttribute<Newtonsoft.Json.JsonPropertyAttribute>();
-                if (0 == string.Compare(jpn?.PropertyName, name, ignoreCase))
                 {
                     return pi;
                 }
@@ -47,10 +36,7 @@ public static class LinqHelpers
     }
 
     public static readonly PropertyAliasToPropertyInfoLookup ClrCaseInsensitivePropertyNameToPropertyInfoLookup
-        = (Type t, string name) => PropertyAliasToPropertyInfoLookupImp(t, name, true, false, false, true);
-
-    public static readonly PropertyAliasToPropertyInfoLookup JsonCaseInsensitivePropertyNameToPropertyInfoLookup
-        = (Type t, string name) => PropertyAliasToPropertyInfoLookupImp(t, name, true, true, true, true);
+        = (Type t, string name) => PropertyAliasToPropertyInfoLookupImp(t, name, true, false, true);
 
     public static class StandardMethodNames
     {

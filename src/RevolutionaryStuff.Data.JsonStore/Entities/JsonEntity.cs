@@ -46,19 +46,19 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     }
 
     [Key] //This is required by ODataSources
-    [JsonPropertyName(JsonEntityPropertyNames.Id), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.Id)]
+    [JsonPropertyName(JsonEntityPropertyNames.Id)]
     public string Id { get; set; }
 
-    [JsonPropertyName(JsonEntityPropertyNames.SoftDeletedAt), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.SoftDeletedAt)]
+    [JsonPropertyName(JsonEntityPropertyNames.SoftDeletedAt)]
     public DateTimeOffset? SoftDeletedAt { get; set; }
 
     [JsonIgnore]
     public bool IsSoftDeleted => SoftDeletedAt != null;
 
-    [JsonPropertyName(JsonEntityPropertyNames.DataType), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.DataType)]
+    [JsonPropertyName(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 
-    [JsonPropertyName(JsonEntityPropertyNames.PartitionKey), Newtonsoft.Json.JsonProperty(JsonEntityPropertyNames.PartitionKey)]
+    [JsonPropertyName(JsonEntityPropertyNames.PartitionKey)]
     public string? PartitionKey { get; set; }
 
     protected JsonEntity()
