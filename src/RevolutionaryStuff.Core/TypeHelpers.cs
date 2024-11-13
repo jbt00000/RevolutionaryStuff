@@ -337,7 +337,7 @@ Again:
             }
             goto Again;
         }
-        return new List<Assembly>(d.Values);
+        return [.. d.Values];
     }
 
     public static ConstructorInfo GetConstructorNoParameters(this Type test)

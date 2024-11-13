@@ -21,7 +21,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
         return string.Format("MultipleValueDictionary keyCount={1} itemCount={2}", GetType(), ValuesByKey.Count, AtomEnumerable.Count());
     }
 
-    public IDictionary<K, IList<V>> ToDictionaryOfCollection() => ToDictionary<IList<V>>(vals => new List<V>(vals));
+    public IDictionary<K, IList<V>> ToDictionaryOfCollection() => ToDictionary<IList<V>>(vals => [.. vals]);
 
     public IDictionary<K, VPrime> ToDictionary<VPrime>(Func<ICollection<V>, VPrime> elementsMapper)
     {
@@ -145,7 +145,7 @@ public class MultipleValueDictionary<K, V> : BaseModifyable, IEnumerable<KeyValu
         {
             if (c is V[])
             {
-                c = CollectionCreator == null ? new List<V>(c) : CollectionCreator();
+                c = CollectionCreator == null ? [.. c] : CollectionCreator();
                 ValuesByKey[k] = c;
             }
             if (!unique || !c.Contains(v))

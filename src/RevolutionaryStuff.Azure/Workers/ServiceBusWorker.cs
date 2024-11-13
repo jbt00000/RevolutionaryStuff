@@ -140,7 +140,7 @@ public class ServiceBusWorker : BaseWorker
         {
             LogWarning("Will execute the following packages: {executorNames}", config.Executions.Where(z => z.Enabled).Select(z => z.Name));
 
-            await Task.WhenAll(config.Executions.Where(z=>z.Enabled).Select(z => ExecuteAsync(z.Name, z, stoppingToken)));
+            await Task.WhenAll(config.Executions.Where(z => z.Enabled).Select(z => ExecuteAsync(z.Name, z, stoppingToken)));
         }
         catch (Exception ex)
         {
