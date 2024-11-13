@@ -1,39 +1,31 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
-      <TargetFramework>net8.0</TargetFramework>
-      <AssemblyName>RevolutionaryStuff.Core.Tests</AssemblyName>
+    <TargetFramework>net9.0</TargetFramework>
+    <AssemblyName>RevolutionaryStuff.Core.Tests</AssemblyName>
     <PackageId>RevolutionaryStuff.Core.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
-
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
-
   <ItemGroup>
     <None Remove="CustomerOrders.xsd" />
     <None Remove="CustomersOrdersInNamespace.xml" />
   </ItemGroup>
-
   <ItemGroup>
     <EmbeddedResource Include="CustomerOrders.xsd" />
     <EmbeddedResource Include="CustomersOrdersInNamespace.xml" />
   </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\..\src\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
   </ItemGroup>
-
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.11.1" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.6.3" />
     <PackageReference Include="MSTest.TestFramework" Version="3.6.3" />
   </ItemGroup>
-
   <ItemGroup>
     <Service Include="{82a7f48d-3b50-4b1e-b82e-3ada8210c358}" />
   </ItemGroup>
-
 </Project>
