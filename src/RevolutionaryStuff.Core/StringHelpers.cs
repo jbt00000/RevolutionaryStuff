@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 
 namespace RevolutionaryStuff.Core;
 
-public static class StringHelpers
+public static partial class StringHelpers
 {
     public static string CondenseWhitespace(string s)
         => s == null ? null : RegexHelpers.Common.MultipleWhitespace().Replace(s, " ");
@@ -318,10 +318,11 @@ public static class StringHelpers
         return sb.ToString();
     }
 
-    private static readonly Regex NameArgExpr = new("(?<!{){\\s*(?'term'\\w+)(?'modifiers'|[:,][^}]+)}", RegexOptions.Compiled);
+    [GeneratedRegex("(?<!{){\\s*(?'term'\\w+)(?'modifiers'|[:,][^}]+)}")]
+    private static partial Regex NameArgExpr { get; }
 
     public static string FormatWithNamedArgs(string format, string k0, object v0, object missingVal = null)
-        => FormatWithNamedArgs(format, new[] { new KeyValuePair<string, object>(k0, v0) }, missingVal);
+        => FormatWithNamedArgs(format, [new KeyValuePair<string, object>(k0, v0)], missingVal);
 
     public static string FormatWithNamedArgs(string format, IEnumerable<KeyValuePair<string, object>> args, object missingVal = null)
     {

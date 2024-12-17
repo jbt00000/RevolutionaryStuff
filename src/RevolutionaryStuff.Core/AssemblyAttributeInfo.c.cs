@@ -7,9 +7,10 @@ namespace RevolutionaryStuff.Core;
 /// <summary>
 /// Class to represent common Attribute values that are attached to an assembly typically from the AssemblyInfo.cs file
 /// </summary>
-public class AssemblyAttributeInfo
+public partial class AssemblyAttributeInfo
 {
-    private static readonly Regex ParseVersionExpr = new(@"Version=(\d+\.\d+\.\d+\.\d+)", RegexHelpers.IgnoreCaseSingleLineCompiled);
+    [GeneratedRegex(@"Version=(\d+\.\d+\.\d+\.\d+)", RegexHelpers.IgnoreCaseSingleLineCompiled)]
+    private static partial Regex ParseVersionExpr { get; }
 
     public readonly Assembly Assembly;
     public readonly string FullName;

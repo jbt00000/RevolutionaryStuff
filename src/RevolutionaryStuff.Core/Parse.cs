@@ -5,7 +5,7 @@ using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Core;
 
-public static class Parse
+public static partial class Parse
 {
     public static TEnum? ParseNullableEnumWithEnumMemberValues<TEnum>(string val, bool caseSensitive = false, TEnum? missing = null) where TEnum : struct
     {
@@ -136,8 +136,11 @@ public static class Parse
         return fallback;
     }
 
-    private static readonly Regex BoolTrueExpr = new("^\\s*(true|1)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
-    private static readonly Regex BoolFalseExpr = new("^\\s*(false|0)\\s*$", RegexOptions.Compiled | RegexOptions.IgnoreCase | RegexOptions.Singleline);
+    [GeneratedRegex("^\\s*(true|1)\\s*$", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+    private static partial Regex BoolTrueExpr { get; }
+
+    [GeneratedRegex("^\\s*(false|0)\\s*$", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+    private static partial Regex BoolFalseExpr { get; }
 
     public static bool? ParseNullableBool(string sv, bool? fallback = null)
     {

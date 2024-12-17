@@ -6,7 +6,7 @@ public static partial class WebHelpers
     /// <summary>
     /// A class that defines constant strings for commonly used HTTP methods and utility methods for working with them.
     /// </summary>
-    public static class Methods
+    public static partial class Methods
     {
         /// <summary>
         /// Represents the 'GET' HTTP method.

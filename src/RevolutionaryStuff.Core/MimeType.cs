@@ -7,10 +7,13 @@ namespace RevolutionaryStuff.Core;
 /// <remarks>
 /// https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types/Common_types
 /// </remarks>
-public class MimeType
+public sealed partial class MimeType
 {
-    private static readonly Regex ContentTypeExpr = new(@"[^\s/]+/[^\s/]+", RegexOptions.Compiled);
-    private static readonly Regex FileExtensionExpr = new(@"\.\w+", RegexOptions.Compiled);
+    [GeneratedRegex(@"[^\s/]+/[^\s/]+")]
+    private static partial Regex ContentTypeExpr { get; }
+
+    [GeneratedRegex(@"\.\w+")]
+    private static partial Regex FileExtensionExpr { get; }
 
     public static string GetContentTypeType(string contentType)
         => contentType.LeftOf("/");

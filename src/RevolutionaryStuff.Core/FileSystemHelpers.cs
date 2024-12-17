@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace RevolutionaryStuff.Core;
 
-public static class FileSystemHelpers
+public static partial class FileSystemHelpers
 {
     public const int MAX_PATH = 255;
 
@@ -52,7 +52,8 @@ public static class FileSystemHelpers
         return fn;
     }
 
-    private static readonly Regex NumberInParenExpr = new(@" (\d*)$", RegexOptions.Compiled);
+    [GeneratedRegex(@"(\d*)$")]
+    private static partial Regex NumberInParenExpr { get; }
 
     /// <summary>
     /// Returns a filename similar to the given one if the given one already exists.

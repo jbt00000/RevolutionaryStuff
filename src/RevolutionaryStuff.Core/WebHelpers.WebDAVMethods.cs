@@ -67,8 +67,6 @@ public static partial class WebHelpers
         /// <param name="s">The WebDAV method as a string.</param>
         /// <returns><c>true</c> if the string is a standard WebDAV verb; otherwise, <c>false</c>.</returns>
         public static bool IsStandardVerb(string s)
-        {
-            return s != null && VerbExpr.IsMatch(s);
-        }
+            => s != null && VerbExpr.IsMatch(s);
     }
 }

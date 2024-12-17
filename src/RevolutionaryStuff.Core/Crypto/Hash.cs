@@ -7,7 +7,7 @@ using RevolutionaryStuff.Core.EncoderDecoders;
 
 namespace RevolutionaryStuff.Core.Crypto;
 
-public sealed class Hash
+public sealed partial class Hash
 {
     public delegate byte[] HasherDelegate(Stream st);
 
@@ -184,8 +184,11 @@ public sealed class Hash
 
     public static readonly Hash[] NoHashes = [];
 
-    private static readonly Regex UrnTypeExpression = new("[^:]+:([^:]+):.+", RegexOptions.Compiled);
-    private static readonly Regex UrnExpr = new(@"urn:(.*):(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+    [GeneratedRegex("[^:]+:([^:]+):.+")]
+    private static partial Regex UrnTypeExpr { get; }
+
+    [GeneratedRegex(@"urn:(.*):(.*)", RegexOptions.Compiled | RegexOptions.IgnoreCase)]
+    private static partial Regex UrnExpr { get; }
 
     public byte[] Data;
 
@@ -250,7 +253,7 @@ public sealed class Hash
     }
 
     public static string GetUrnType(string urn)
-        => UrnTypeExpression.GetGroupValue(urn);
+        => UrnTypeExpr.GetGroupValue(urn);
 
     public static string GetBitprint(string[] urns)
     {
