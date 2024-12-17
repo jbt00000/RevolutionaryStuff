@@ -1,41 +1,40 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <LangVersion>Preview</LangVersion>
-    <TargetFramework>net9.0</TargetFramework>
-    <AssemblyName>RevolutionaryStuff.Data.SqlServer</AssemblyName>
-    <PackageId>RevolutionaryStuff.SqlServer</PackageId>
-    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>This is now a .NET 9 library</PackageReleaseNotes>
-    <Authors>jason@jasonthomas.com</Authors>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageLicenseUrl>
-    </PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
-    <RepositoryType>GIT</RepositoryType>
-    <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
-    <PackageIcon>package\icon.png</PackageIcon>
-    <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-    <Copyright>Copyright © 2023</Copyright>
-    <FileVersion>4.62.90.0</FileVersion>
-    <AssemblyVersion>4.62.90.0</AssemblyVersion>
-    <Version>4.62.90</Version>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
-    <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <LangVersion>Preview</LangVersion>
+        <TargetFramework>net9.0</TargetFramework>
+        <AssemblyName>RevolutionaryStuff.Data.SqlServer</AssemblyName>
+        <PackageId>RevolutionaryStuff.SqlServer</PackageId>
+        <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+        <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
+        <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
+        <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+        <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+        <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageReleaseNotes>This is now a .NET 9 library</PackageReleaseNotes>
+        <Authors>jason@jasonthomas.com</Authors>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
+        <RepositoryType>GIT</RepositoryType>
+        <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
+        <PackageIcon>package\icon.png</PackageIcon>
+        <PackageLicenseFile>package\license.txt</PackageLicenseFile>
+        <Copyright>Copyright © 2024</Copyright>
+        <FileVersion>4.62.90.0</FileVersion>
+        <AssemblyVersion>4.62.90.0</AssemblyVersion>
+        <Version>4.62.90</Version>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
+        <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
+        <None Include="README.md" Pack="true" PackagePath="\"/>
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
+    </ItemGroup>
 </Project>
