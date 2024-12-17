@@ -6,7 +6,6 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Encryption;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Cosmos.Scripts;
-using Newtonsoft.Json;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Data.Cosmos;
@@ -36,19 +35,15 @@ public static class CosmosHelpers
 
     public class TestItem
     {
-        [JsonProperty("sk")]
         [JsonPropertyName("sk")]
         public string PartitionKey { get; set; }
 
-        [JsonProperty("id")]
         [JsonPropertyName("id")]
         public string Id { get; set; }
 
-        [JsonProperty("secd")]
         [JsonPropertyName("secd")]
         public string SecureDeterministic { get; set; }
 
-        [JsonProperty("secr")]
         [JsonPropertyName("secr")]
         public string SecureRandom { get; set; }
     }

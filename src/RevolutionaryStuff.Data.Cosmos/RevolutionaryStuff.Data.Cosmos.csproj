@@ -1,52 +1,53 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup>
-    <LangVersion>Preview</LangVersion>
-    <TargetFramework>net9.0</TargetFramework>
-    <ImplicitUsings>disable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-    <RootNamespace>RevolutionaryStuff.Data.Cosmos</RootNamespace>
-    <PackageId>RevolutionaryStuff.Data.Cosmos</PackageId>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
-    <Authors>jason@jasonthomas.com</Authors>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <PackageLicenseUrl>
-    </PackageLicenseUrl>
-    <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
-    <RepositoryType>GIT</RepositoryType>
-    <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
-    <PackageIcon>package\icon.png</PackageIcon>
-    <PackageLicenseFile>package\license.txt</PackageLicenseFile>
-    <Copyright>Copyright © 2023</Copyright>
-    <FileVersion>4.60.90.0</FileVersion>
-    <AssemblyVersion>4.60.90.0</AssemblyVersion>
-    <Version>4.60.90</Version>
-  </PropertyGroup>
-  <ItemGroup>
-    <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
-    <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
-  </ItemGroup>
-  <ItemGroup>
-    <!-- This is in the .csproj file instead of a .cs file so that VS Code Cleanup cannot remove these before they are used -->
-    <Using Include="System" />
-    <Using Include="System.Collections.Generic" />
-    <Using Include="System.Linq" />
-    <Using Include="System.Threading.Tasks" />
-    <Using Include="RevolutionaryStuff.Core" />
-  </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="Azure.Identity" Version="1.13.1" />
-    <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.7.0" />
-    <!-- can't upgrade Microsoft.Azure.Cosmos past 3.35.2 while Microsoft.Azure.Cosmos.Encryption is at 2.0.3 -->
-    <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.45.1">
-      <TreatAsUsed>true</TreatAsUsed>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Azure.Cosmos.Encryption" Version="2.1.0-preview4" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\RevolutionaryStuff.Azure\RevolutionaryStuff.Azure.csproj" />
-    <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
-  </ItemGroup>
+    <PropertyGroup>
+        <LangVersion>Preview</LangVersion>
+        <TargetFramework>net9.0</TargetFramework>
+        <ImplicitUsings>disable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <RootNamespace>RevolutionaryStuff.Data.Cosmos</RootNamespace>
+        <PackageId>RevolutionaryStuff.Data.Cosmos</PackageId>
+        <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
+        <Authors>jason@jasonthomas.com</Authors>
+        <IncludeSymbols>true</IncludeSymbols>
+        <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+        <PackageLicenseUrl>
+        </PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/jbt00000/RevolutionaryStuff</PackageProjectUrl>
+        <RepositoryType>GIT</RepositoryType>
+        <RepositoryUrl>https://github.com/jbt00000/RevolutionaryStuff.git</RepositoryUrl>
+        <PackageIcon>package\icon.png</PackageIcon>
+        <PackageLicenseFile>package\license.txt</PackageLicenseFile>
+        <Copyright>Copyright © 2023</Copyright>
+        <FileVersion>4.60.90.0</FileVersion>
+        <AssemblyVersion>4.60.90.0</AssemblyVersion>
+        <Version>4.60.90</Version>
+        <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
+        <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
+    </ItemGroup>
+    <ItemGroup>
+        <!-- This is in the .csproj file instead of a .cs file so that VS Code Cleanup cannot remove these before they are used -->
+        <Using Include="System" />
+        <Using Include="System.Collections.Generic" />
+        <Using Include="System.Linq" />
+        <Using Include="System.Threading.Tasks" />
+        <Using Include="RevolutionaryStuff.Core" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="Azure.Identity" Version="1.13.1" />
+        <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.7.0" />
+        <!-- can't upgrade Microsoft.Azure.Cosmos past 3.35.2 while Microsoft.Azure.Cosmos.Encryption is at 2.0.3 -->
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.46.0">
+            <TreatAsUsed>true</TreatAsUsed>
+        </PackageReference>
+        <PackageReference Include="Microsoft.Azure.Cosmos.Encryption" Version="2.1.0-preview4" />
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="..\RevolutionaryStuff.Azure\RevolutionaryStuff.Azure.csproj" />
+        <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
+    </ItemGroup>
 </Project>
