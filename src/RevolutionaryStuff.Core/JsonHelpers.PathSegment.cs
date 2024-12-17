@@ -19,7 +19,6 @@ public partial class JsonHelpers
             _ => throw new UnexpectedSwitchValueException(pathFormat),
         };
     }
-
     public class PathSegment
     {
         public override string ToString()
@@ -60,6 +59,22 @@ public partial class JsonHelpers
             }
             return segments;
         }
-    }
 
+        public static string CreateJsonPointerPath(IList<PathSegment> segments)
+        {
+            List<string> parts = [];
+            foreach (var segment in segments)
+            {
+                if (segment.SegmentType == JsonHelpers.PathSegment.SegmentTypes.ArrayIndex)
+                {
+                    parts.Add(segment.Index.ToString());
+                }
+                else
+                {
+                    parts.Add(segment.Name);
+                }
+            }
+            return "/" + parts.WhereNotNull().Join("/");
+        }
+    }
 }

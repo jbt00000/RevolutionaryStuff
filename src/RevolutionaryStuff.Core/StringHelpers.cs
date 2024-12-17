@@ -25,6 +25,22 @@ public static partial class StringHelpers
         return Convert.ToBase64String(buf);
     }
 
+    public static string AppendFormatIfValNotNull(this string baseString, string format, object val)
+    {
+        if (val != null)
+        {
+            if (baseString == null)
+            {
+                baseString = string.Format(format, val);
+            }
+            else
+            {
+                baseString += string.Format(format, val);
+            }
+        }
+        return baseString;
+    }
+
     public static string AppendWithConditionalAppendPrefix(this string baseString, string conditionalAppendPrefix, string baseAppend)
     {
         baseString ??= "";
