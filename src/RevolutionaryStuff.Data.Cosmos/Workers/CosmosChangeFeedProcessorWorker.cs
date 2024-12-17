@@ -5,6 +5,7 @@ using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 using RevolutionaryStuff.Azure.Workers;
 using RevolutionaryStuff.Core.ApplicationParts;
@@ -15,6 +16,7 @@ namespace RevolutionaryStuff.Data.Cosmos.Workers;
 
 public class CosmosChangeFeedProcessorWorker : BaseWorker
 {
+    private readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
     private readonly IConnectionStringProvider ConnectionStringProvider;
     private readonly IOptions<Config> ConfigOptions;
 
@@ -26,11 +28,6 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
 
         public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
 
-        [Obsolete("Use Executions instead", false)]
-        public IList<string> ExecutionNames { get; set; }
-
-        [Obsolete("Use Executions instead", false)]
-        public IDictionary<string, Execution> ExecutionByName { get; set; }
         public IList<Execution> Executions { get; set; }
 
         public string LeaseContainerName { get; set; }
@@ -43,8 +40,6 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
 
         public void Validate()
             => ExceptionHelpers.AggregateExceptionsAndReThrow(
-            () => Requires.Null(ExecutionByName, $"{nameof(ExecutionByName)} is no longer supported, use the Executions list"),
-            () => Requires.Null(ExecutionNames, $"{nameof(ExecutionNames)} is no longer supported, use the Executions list"),
             () => Executions.ForEach(z => z.Validate())
             );
 
@@ -78,12 +73,13 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
         }
     }
 
-    public CosmosChangeFeedProcessorWorker(IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, BaseWorkerConstructorArgs baseConstructorArgs, ILogger<CosmosChangeFeedProcessorWorker> logger)
+    public CosmosChangeFeedProcessorWorker(IAzureTokenCredentialProvider azureTokenCredentialProvider, IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, BaseWorkerConstructorArgs baseConstructorArgs, ILogger<CosmosChangeFeedProcessorWorker> logger)
     : base(baseConstructorArgs, logger)
     {
         ArgumentNullException.ThrowIfNull(connectionStringProvider);
         ArgumentNullException.ThrowIfNull(configOptions);
 
+        AzureTokenCredentialProvider = azureTokenCredentialProvider;
         ConnectionStringProvider = connectionStringProvider;
         ConfigOptions = configOptions;
     }
@@ -94,9 +90,9 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
         try
         {
             var executorNames = config
-                .ExecutionNames
+                .Executions
                 .NullSafeEnumerable()
-                .Select(name => name.TrimOrNull())
+                .Select(z => z.Name.TrimOrNull())
                 .WhereNotNull()
                 .ToList();
 
@@ -115,7 +111,7 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
         var config = ConfigOptions.Value;
 
         var connectionString = ConnectionStringProvider.GetConnectionString(execution.ConnectionStringName ?? config.ConnectionStringName);
-        var cosmosClient = CosmosHelpers.ConstructCosmosClient(new(connectionString, config.AuthenticateWithWithDefaultAzureCredentials), new() { });
+        var cosmosClient = CosmosHelpers.ConstructCosmosClient(new(connectionString, AzureTokenCredentialProvider, config.AuthenticateWithWithDefaultAzureCredentials), new() { });
 
         using var _ScopeProperty0 = LogScopedProperty("executionName", executionName);
         using var _ScopeProperty1 = LogScopedProperty("cosmosChangeFeedExecution", execution, true);

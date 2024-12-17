@@ -1,11 +1,11 @@
 ﻿using System.Text.Json.Serialization;
 using System.Threading;
-using Azure.Identity;
 using Azure.Security.KeyVault.Keys.Cryptography;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Encryption;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Cosmos.Scripts;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Data.Cosmos;
@@ -15,20 +15,23 @@ public static class CosmosHelpers
     public class CosmosClientAuthenticationSettings : IValidate
     {
         public string CosmosClientConnectionStringOrEndpoint { get; }
+        public IAzureTokenCredentialProvider AzureTokenCredentialProvider { get; set; }
         public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
         public bool WithEncryption { get; set; } = false;
 
-        public CosmosClientAuthenticationSettings(string cosmosClientConnectionStringOrEndpoint, bool authenticateWithWithDefaultAzureCredentials = true, bool withEncryption = false)
+        public CosmosClientAuthenticationSettings(string cosmosClientConnectionStringOrEndpoint, IAzureTokenCredentialProvider azureTokenCredentialProvider, bool? authenticateWithWithDefaultAzureCredentials = null, bool withEncryption = false)
         {
             Requires.Text(cosmosClientConnectionStringOrEndpoint);
             CosmosClientConnectionStringOrEndpoint = cosmosClientConnectionStringOrEndpoint;
-            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials;
+            AzureTokenCredentialProvider = azureTokenCredentialProvider;
+            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials ?? AzureTokenCredentialProvider != null;
             WithEncryption = withEncryption;
         }
 
         public void Validate()
             => ExceptionHelpers.AggregateExceptionsAndReThrow(
                 () => Requires.Text(CosmosClientConnectionStringOrEndpoint),
+                () => Requires.True(!AuthenticateWithWithDefaultAzureCredentials || AzureTokenCredentialProvider != null),
                 () => { if (WithEncryption) Requires.True(AuthenticateWithWithDefaultAzureCredentials); }
                 );
     }
@@ -136,7 +139,7 @@ public static class CosmosHelpers
 
         if (authenticationSettings.AuthenticateWithWithDefaultAzureCredentials)
         {
-            var creds = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
+            var creds = authenticationSettings.AzureTokenCredentialProvider.GetTokenCredential();
             client = new CosmosClient(authenticationSettings.CosmosClientConnectionStringOrEndpoint, creds, cosmosClientOptions);
             //client = new CosmosClient("<real connection string with account keys....>", cosmosClientOptions);
             if (authenticationSettings.WithEncryption)

@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Data.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Store;
@@ -14,6 +15,7 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     where TTenantFinder : ITenantFinder<string>
 {
     private static readonly IDictionary<string, CosmosClient> CosmosClientByTenantId = new ConcurrentDictionary<string, CosmosClient>();
+    private readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
     protected readonly IServiceProvider ServiceProvider;
     protected readonly TTenantFinder TenantFinder;
     protected readonly IOptions<CosmosJsonEntityServerConfig> ConfigOptions;
@@ -28,6 +30,7 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
         ArgumentNullException.ThrowIfNull(constructorArgs);
 
         TenantFinder = tenantFinder;
+        AzureTokenCredentialProvider = constructorArgs.AzureTokenCredentialProvider;
         ServiceProvider = constructorArgs.ServiceProvider;
         ConfigOptions = constructorArgs.ConfigOptions;
     }
@@ -86,7 +89,7 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
 
     protected virtual CosmosClient ConstructCosmosClient(string connectionString, CosmosClientOptions cosmosClientOptions)
         => CosmosHelpers.ConstructCosmosClient(
-            new CosmosHelpers.CosmosClientAuthenticationSettings(connectionString, ConfigOptions.Value.AuthenticateWithWithDefaultAzureCredentials, true),
+            new CosmosHelpers.CosmosClientAuthenticationSettings(connectionString, AzureTokenCredentialProvider, ConfigOptions.Value.AuthenticateWithWithDefaultAzureCredentials, true),
             cosmosClientOptions);
 
     /// <summary>

@@ -1,5 +1,5 @@
-﻿using Azure.Identity;
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure;
@@ -8,22 +8,24 @@ public class ServiceBusHelpers
     public class ServiceBusClientAuthenticationSettings : IValidate
     {
         public string ServiceBusConnectionStringOrFullyQualifiedName { get; }
-        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
+        public IAzureTokenCredentialProvider AzureTokenCredentialProvider { get; set; }
+        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; }
 
         public void Validate()
             => ExceptionHelpers.AggregateExceptionsAndReThrow(
                 () => Requires.Text(ServiceBusConnectionStringOrFullyQualifiedName),
-                () => Requires.True(AuthenticateWithWithDefaultAzureCredentials)
+                () => Requires.True(!AuthenticateWithWithDefaultAzureCredentials || AzureTokenCredentialProvider != null)
                 );
 
         public ServiceBusClientAuthenticationSettings() { }
 
-        public ServiceBusClientAuthenticationSettings(string serviceBusConnectionStringOrFullyQualifiedName, bool authenticateWithWithDefaultAzureCredentials = true)
+        public ServiceBusClientAuthenticationSettings(string serviceBusConnectionStringOrFullyQualifiedName, IAzureTokenCredentialProvider azureTokenCredentialProvider, bool? authenticateWithWithDefaultAzureCredentials = null)
         {
             Requires.Text(serviceBusConnectionStringOrFullyQualifiedName);
 
             ServiceBusConnectionStringOrFullyQualifiedName = serviceBusConnectionStringOrFullyQualifiedName;
-            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials;
+            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials ?? AzureTokenCredentialProvider != null;
+            AzureTokenCredentialProvider = azureTokenCredentialProvider;
         }
     }
 
@@ -35,7 +37,7 @@ public class ServiceBusHelpers
         ServiceBusClient client;
         if (authenticationSettings.AuthenticateWithWithDefaultAzureCredentials)
         {
-            var creds = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
+            var creds = authenticationSettings.AzureTokenCredentialProvider.GetTokenCredential();
             client = new ServiceBusClient(authenticationSettings.ServiceBusConnectionStringOrFullyQualifiedName, creds, options);
         }
         else

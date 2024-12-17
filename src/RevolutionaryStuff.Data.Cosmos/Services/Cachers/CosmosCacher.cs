@@ -2,16 +2,14 @@
 using System.Text.Json.Serialization;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Data.Cosmos.Services.Cachers;
 
-public class CosmosCacher : BaseCacher, ICosmosCacher
+public class CosmosCacher(IAzureTokenCredentialProvider AzureTokenCredentialProvider, IConnectionStringProvider ConnectionStringProvider, IOptions<CosmosCacher.Config> ConfigOptions) : BaseCacher, ICosmosCacher
 {
-    private readonly IConnectionStringProvider ConnectionStringProvider;
-    private readonly IOptions<Config> ConfigOptions;
-
     public class Config
     {
         public const string ConfigSectionName = "CosmosCacher";
@@ -20,18 +18,11 @@ public class CosmosCacher : BaseCacher, ICosmosCacher
 
         public string ConnectionStringName { get; set; }
 
-        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; }
+        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
 
         public string DatabaseName { get; set; }
 
         public string ContainerName { get; set; }
-    }
-
-    public CosmosCacher(IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions)
-    {
-        ArgumentNullException.ThrowIfNull(configOptions);
-        ConnectionStringProvider = connectionStringProvider;
-        ConfigOptions = configOptions;
     }
 
     private Container Container
@@ -44,7 +35,7 @@ public class CosmosCacher : BaseCacher, ICosmosCacher
                 () =>
                 {
                     var connectionString = ConnectionStringProvider.GetConnectionString(config.ConnectionStringName);
-                    var client = CosmosHelpers.ConstructCosmosClient(new(connectionString, config.AuthenticateWithWithDefaultAzureCredentials), new() { Serializer = new DefaultCosmosEntitySerializer() });
+                    var client = CosmosHelpers.ConstructCosmosClient(new(connectionString, AzureTokenCredentialProvider, config.AuthenticateWithWithDefaultAzureCredentials), new() { Serializer = new DefaultCosmosEntitySerializer() });
                     return client.GetDatabase(config.DatabaseName).GetContainer(config.ContainerName);
                 });
         }

@@ -2,6 +2,7 @@
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Caching;
 
@@ -9,6 +10,7 @@ namespace RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus;
 
 public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceBusMessageSender
 {
+    private readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
     private readonly IConnectionStringProvider ConnectionStringProvider;
     private readonly IOptions<ServiceBusMessageSenderConfig> ConfigOptions;
 
@@ -23,14 +25,15 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
 
     public sealed class ServiceBusMessageSenderConstructorArgs
     {
+        internal readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
         internal readonly IConnectionStringProvider ConnectionStringProvider;
         internal readonly IOptions<ServiceBusMessageSenderConfig> ConfigOptions;
 
-        public ServiceBusMessageSenderConstructorArgs(IConnectionStringProvider connectionStringProvider, IOptions<ServiceBusMessageSenderConfig> configOptions)
+        public ServiceBusMessageSenderConstructorArgs(IAzureTokenCredentialProvider azureTokenCredentialProvider, IConnectionStringProvider connectionStringProvider, IOptions<ServiceBusMessageSenderConfig> configOptions)
         {
             ArgumentNullException.ThrowIfNull(connectionStringProvider);
             ArgumentNullException.ThrowIfNull(configOptions);
-
+            AzureTokenCredentialProvider = azureTokenCredentialProvider;
             ConnectionStringProvider = connectionStringProvider;
             ConfigOptions = configOptions;
         }
@@ -41,6 +44,7 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
     {
         ArgumentNullException.ThrowIfNull(constructorArgs);
 
+        AzureTokenCredentialProvider = constructorArgs.AzureTokenCredentialProvider;
         ConnectionStringProvider = constructorArgs.ConnectionStringProvider;
         ConfigOptions = constructorArgs.ConfigOptions;
     }
@@ -58,7 +62,7 @@ public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceB
         {
             return ClientByKey.FindOrCreate(
                 cacheKey,
-                () => ServiceBusHelpers.ConstructServiceBusClient(new(connectionString, config.AuthenticateWithWithDefaultAzureCredentials)).CreateSender(messageContainerName));
+                () => ServiceBusHelpers.ConstructServiceBusClient(new(connectionString, AzureTokenCredentialProvider, config.AuthenticateWithWithDefaultAzureCredentials)).CreateSender(messageContainerName));
         }
     }
 

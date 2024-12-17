@@ -22,7 +22,10 @@ public static class Use
         services.UseRevolutionaryStuffCore();
 
         services.AddSingleton<BaseWorker.BaseWorkerConstructorArgs>();
+
+        services.ConfigureOptions<DefaultAzureTokenCredentialProvider.Config>(DefaultAzureTokenCredentialProvider.Config.ConfigSectionName);
         services.AddSingleton<IAzureTokenCredentialProvider, DefaultAzureTokenCredentialProvider>();
+
         services.ConfigureOptions<ServiceBusWorker.Config>(settings?.ServiceBusWorkerConfigSectionName ?? ServiceBusWorker.Config.ConfigSectionName);
         services.ConfigureOptions<ServiceBusMessageSender.ServiceBusMessageSenderConfig>(settings?.ServiceBusMessageSenderConfigSectionName ?? ServiceBusMessageSender.ServiceBusMessageSenderConfig.ConfigSectionName);
         services.AddScoped<ServiceBusMessageSender.ServiceBusMessageSenderConstructorArgs>();

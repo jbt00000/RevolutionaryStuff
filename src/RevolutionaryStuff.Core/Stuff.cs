@@ -59,10 +59,6 @@ public static class Stuff
     public static string ToString(object o)
         => o?.ToString();
 
-    [Obsolete("Use StringHelpers.Coalesce", false)]
-    public static string CoalesceStrings(params string[] vals)
-        => StringHelpers.Coalesce(vals);
-
     public static void Swap<T>(ref T a, ref T b)
         => (b, a) = (a, b);
 

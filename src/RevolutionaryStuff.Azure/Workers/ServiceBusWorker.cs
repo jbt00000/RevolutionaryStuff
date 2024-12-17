@@ -4,6 +4,7 @@ using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
@@ -13,18 +14,13 @@ namespace RevolutionaryStuff.Azure.Workers;
 
 public class ServiceBusWorker : BaseWorker
 {
+    private readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
     private readonly IConnectionStringProvider ConnectionStringProvider;
     private readonly IOptions<Config> ConfigOptions;
 
     public class Config : IValidate, IPostConfigure
     {
         public const string ConfigSectionName = "ServiceBusWorkerConfig";
-
-        [Obsolete("Use Executions instead", false)]
-        public IList<string> ExecutionNames { get; set; }
-
-        [Obsolete("Use Executions instead", false)]
-        public IDictionary<string, Execution> ExecutionByName { get; set; }
         public IList<Execution> Executions { get; set; }
         public string ConnectionStringName { get; set; }
         public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
@@ -36,8 +32,6 @@ public class ServiceBusWorker : BaseWorker
 
         public void Validate()
             => ExceptionHelpers.AggregateExceptionsAndReThrow(
-                () => Requires.Null(ExecutionByName, $"{nameof(ExecutionByName)} is no longer supported, use the Executions list"),
-                () => Requires.Null(ExecutionNames, $"{nameof(ExecutionNames)} is no longer supported, use the Executions list"),
                 () => Executions.ForEach(z => z.Validate())
                 );
 
@@ -83,12 +77,13 @@ public class ServiceBusWorker : BaseWorker
         public ServiceBusReceivedMessage Message { get; init; }
     }
 
-    public ServiceBusWorker(IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, BaseWorkerConstructorArgs baseConstructorArgs, ILogger<ServiceBusWorker> logger)
+    public ServiceBusWorker(IAzureTokenCredentialProvider azureTokenCredentialProvider, IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, BaseWorkerConstructorArgs baseConstructorArgs, ILogger<ServiceBusWorker> logger)
         : base(baseConstructorArgs, logger)
     {
         ArgumentNullException.ThrowIfNull(connectionStringProvider);
         ArgumentNullException.ThrowIfNull(configOptions);
 
+        AzureTokenCredentialProvider = azureTokenCredentialProvider;
         ConnectionStringProvider = connectionStringProvider;
         ConfigOptions = configOptions;
     }
@@ -154,7 +149,7 @@ public class ServiceBusWorker : BaseWorker
         var concurrentExecutors = execution.ConcurrentExecutors ?? config.ConcurrentExecutors;
 
         var connectionString = ConnectionStringProvider.GetConnectionString(execution.ConnectionStringName ?? config.ConnectionStringName);
-        var serviceBusClient = ServiceBusHelpers.ConstructServiceBusClient(new(connectionString, config.AuthenticateWithWithDefaultAzureCredentials));
+        var serviceBusClient = ServiceBusHelpers.ConstructServiceBusClient(new(connectionString, AzureTokenCredentialProvider, config.AuthenticateWithWithDefaultAzureCredentials));
 
         using var _ScopeProperty0 = LogScopedProperty("executionName", executionName);
         using var _ScopeProperty1 = LogScopedProperty("serviceBusExecution", execution, true);

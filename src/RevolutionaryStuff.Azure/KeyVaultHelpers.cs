@@ -1,5 +1,5 @@
-﻿using Azure.Identity;
-using Azure.Security.KeyVault.Secrets;
+﻿using Azure.Security.KeyVault.Secrets;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure;
@@ -7,23 +7,23 @@ public static class KeyVaultHelpers
 {
     public class SecretClientAuthenticationSettings : IValidate
     {
-        public string KeyVaultConnectionString { get; }
-        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
+        public string KeyVaultUrl { get; }
+        public IAzureTokenCredentialProvider AzureTokenCredentialProvider { get; set; }
 
         public void Validate()
             => ExceptionHelpers.AggregateExceptionsAndReThrow(
-                () => Requires.Text(KeyVaultConnectionString),
-                () => Requires.True(AuthenticateWithWithDefaultAzureCredentials)
+                () => Requires.Text(KeyVaultUrl)
                 );
 
         public SecretClientAuthenticationSettings() { }
 
-        public SecretClientAuthenticationSettings(string keyVaultConnectionString, bool authenticateWithWithDefaultAzureCredentials = true)
+        public SecretClientAuthenticationSettings(string keyVaultUrl, IAzureTokenCredentialProvider azureTokenCredentialProvider)
         {
-            Requires.Text(keyVaultConnectionString);
+            Requires.Text(keyVaultUrl);
+            ArgumentNullException.ThrowIfNull(azureTokenCredentialProvider);
 
-            KeyVaultConnectionString = keyVaultConnectionString;
-            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials;
+            KeyVaultUrl = keyVaultUrl;
+            AzureTokenCredentialProvider = azureTokenCredentialProvider;
         }
     }
 
@@ -31,7 +31,7 @@ public static class KeyVaultHelpers
     {
         Requires.Valid(authenticationSettings);
 
-        var creds = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
-        return new SecretClient(new(authenticationSettings.KeyVaultConnectionString), creds);
+        var creds = authenticationSettings.AzureTokenCredentialProvider.GetTokenCredential();
+        return new SecretClient(new(authenticationSettings.KeyVaultUrl), creds);
     }
 }

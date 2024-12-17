@@ -14,7 +14,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
+    <PackageReleaseNotes>This is now a .NET 9 library</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -26,10 +26,28 @@
     <Copyright>Copyright © 2023</Copyright>
     <PackageIcon>icon.png</PackageIcon>
     <PackageLicenseFile>license.txt</PackageLicenseFile>
-    <FileVersion>4.61.90.0</FileVersion>
-    <AssemblyVersion>4.61.90.0</AssemblyVersion>
-    <Version>4.61.90</Version>
+    <FileVersion>4.62.90.0</FileVersion>
+    <AssemblyVersion>4.62.90.0</AssemblyVersion>
+    <Version>4.62.90</Version>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="appsettings.Development.json" />
+    <None Remove="appsettings.json" />
+    <None Remove="appsettings.Production.json" />
+    <None Remove="appsettings.Staging.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="appsettings.Development.json">
+      <DependentUpon>appsettings.json</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="appsettings.json" />
+    <EmbeddedResource Include="appsettings.Production.json">
+      <DependentUpon>appsettings.json</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="appsettings.Staging.json">
+      <DependentUpon>appsettings.json</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <None Include="..\..\package\icon.png">
       <Pack>True</Pack>
