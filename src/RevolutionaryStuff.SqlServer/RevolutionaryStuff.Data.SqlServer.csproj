@@ -24,9 +24,9 @@
     <PackageIcon>package\icon.png</PackageIcon>
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
     <Copyright>Copyright © 2023</Copyright>
-    <FileVersion>4.60.90.0</FileVersion>
-    <AssemblyVersion>4.60.90.0</AssemblyVersion>
-    <Version>4.60.90</Version>
+    <FileVersion>4.61.90.0</FileVersion>
+    <AssemblyVersion>4.61.90.0</AssemblyVersion>
+    <Version>4.61.90</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
