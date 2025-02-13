@@ -17,22 +17,28 @@ public sealed class AssemblySettingsResourceAutoDiscoveryAttribute : Attribute
     }
 }
 
-public static class AssemblySettingsResourceStacker
+public static class AssemblySettingsResourceStacking
 {
     private const string DefaultBaseResourceName = "appsettings";
+
     public record ResourceInfo(Assembly Assembly, string BaseResourceName = null)
     {
         public override string ToString()
             => $"assembly=>{Assembly.GetName()} baseResourceName=>{BaseResourceName}";
     }
+
     private static readonly ApplyOptions DefaultApplyOptions = new(null);
-    public record AutoDiscoverOptions(string IgnoreAssemblyNamePattern) { }
-    public static IEnumerable<ResourceInfo> AutoDiscover(Assembly a, AutoDiscoverOptions config = null, ILogger logger = null)
+
+    private const string DefaultIgnoreAssemblyNamePattern = "^(Azure|Microsoft|System)\\.";
+
+    public record DiscoverOptions(string IgnoreAssemblyNamePattern) { }
+
+    public static IEnumerable<ResourceInfo> Discover(Assembly a, DiscoverOptions discoverOptions = null, ILogger logger = null)
     {
         ArgumentNullException.ThrowIfNull(a);
         logger ??= Stuff.LoggerOfLastResort;
         List<(HashSet<string> PredecessorNames, ResourceInfo RI)> nodes = [];
-        var ignoreExpr = new Regex(config.IgnoreAssemblyNamePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        var ignoreExpr = new Regex(discoverOptions?.IgnoreAssemblyNamePattern ?? DefaultIgnoreAssemblyNamePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         HashSet<string> testedAssemblyNames = [];
         TestAssembly(a.GetName());
         List<ResourceInfo> ret = [];
@@ -92,9 +98,13 @@ public static class AssemblySettingsResourceStacker
         }
     }
     public record ApplyOptions(string DefaultBaseResourceName) { }
-    public static void Apply(this IConfigurationBuilder builder, string environmentName, IEnumerable<ResourceInfo> resourceInfos, ILogger logger = null, ApplyOptions options = null)
+
+    public static void DiscoverThenStack(this IConfigurationBuilder builder, string environmentName, Assembly a, DiscoverOptions discoverOptions = null, ILogger logger = null, ApplyOptions applyOptions = null)
+        => builder.Stack(environmentName, Discover(a, discoverOptions, logger), logger, applyOptions);
+
+    public static void Stack(this IConfigurationBuilder builder, string environmentName, IEnumerable<ResourceInfo> resourceInfos, ILogger logger = null, ApplyOptions applyOptions = null)
     {
-        const string LoggingPrefix = $"{nameof(AssemblySettingsResourceStacker)}.{nameof(Apply)}: ";
+        const string LoggingPrefix = $"{nameof(AssemblySettingsResourceStacking)}.{nameof(Stack)}: ";
         ArgumentNullException.ThrowIfNull(builder);
         Requires.Text(environmentName);
         logger ??= Stuff.LoggerOfLastResort;
@@ -103,8 +113,8 @@ public static class AssemblySettingsResourceStacker
             logger.LogWarning($"{LoggingPrefix} No resourceInfos were received. Resource stacking will not take place");
             return;
         }
-        options ??= DefaultApplyOptions;
-        var baseResourceName = options.DefaultBaseResourceName ?? DefaultBaseResourceName;
+        applyOptions ??= DefaultApplyOptions;
+        var baseResourceName = applyOptions.DefaultBaseResourceName ?? DefaultBaseResourceName;
         logger.LogDebug($"{LoggingPrefix} Will use a baseResourceName=[{baseResourceName}] with environment={environmentName}");
         foreach (var ri in resourceInfos)
         {

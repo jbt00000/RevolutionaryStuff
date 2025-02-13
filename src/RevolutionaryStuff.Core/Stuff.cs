@@ -30,6 +30,9 @@ public static class Stuff
         ApplicationFamily = StringHelpers.Coalesce(info?.Product, info?.Company, ApplicationName);
     }
 
+    /// <summary>
+    /// In case we need to cuss someone out in a polite fashion!
+    /// </summary>
     public const string Qbert = "@!#?@!";
 
     public const string BaseRsllcUrn = "urn:www.revolutionarystuff.com";
