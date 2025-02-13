@@ -87,12 +87,12 @@ public static class DependencyInjectionHelpers
                 if (o == null) goto NextConstructor;
                 args.Add(o);
 NextParam:
-                Stuff.Noop();
+                Stuff.NoOp();
             }
             var co = ci.Invoke(args.ToArray());
             return co;
 NextConstructor:
-            Stuff.Noop();
+            Stuff.NoOp();
         }
         throw new TypeLoadException($"Could not find a workable constructor to instantiate {t}");
     }

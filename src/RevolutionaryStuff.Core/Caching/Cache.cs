@@ -51,7 +51,7 @@ public static partial class Cache
             var o = a;
             if (o is null or string)
             {
-                Stuff.Noop();
+                Stuff.NoOp();
             }
             else
             {
@@ -82,7 +82,7 @@ public static partial class Cache
                 }
                 else if (ot.IsNumber())
                 {
-                    Stuff.Noop();
+                    Stuff.NoOp();
                 }
                 else if (ot.Name.StartsWith("Func`"))
                 {

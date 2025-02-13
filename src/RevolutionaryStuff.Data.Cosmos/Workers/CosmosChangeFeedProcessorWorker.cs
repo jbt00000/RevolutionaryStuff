@@ -149,11 +149,7 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
         {
             static string GetStringVal(JsonElement jel, string name)
             {
-                if (jel.TryGetProperty(name, out var el))
-                {
-                    return el.GetString();
-                }
-                return null;
+                return jel.TryGetProperty(name, out var el) ? el.GetString() : null;
             }
             using var sr = new StreamReader(changes);
             using var jsonDocument = JsonDocument.Parse(sr.ReadToEnd());

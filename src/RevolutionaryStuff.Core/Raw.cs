@@ -148,7 +148,7 @@ public static class Raw
 #if DEBUG
         if (cbuf.Length != length)
         {
-            Stuff.Noop();
+            Stuff.NoOp();
         }
 #endif
         d.GetChars(buf, offset, length, cbuf, 0);
@@ -162,7 +162,7 @@ public static class Raw
 #if DEBUG
         if (cbuf.Length != length)
         {
-            Stuff.Noop();
+            Stuff.NoOp();
         }
 #endif
         d.GetChars(buf, offset, length, cbuf, 0);

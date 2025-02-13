@@ -6,7 +6,7 @@ namespace RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 public interface IJsonSerializer
 {
-    public static IJsonSerializer Default { get; set; } = RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft.SystemTextJsonSerializer.Instance;
+    static IJsonSerializer Default { get; set; } = RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft.SystemTextJsonSerializer.Instance;
 
     object? FromJson(string json, Type t);
     string ToJson(object o);
@@ -14,7 +14,7 @@ public interface IJsonSerializer
 
     #region Default Implementation
 
-    public void Serialize(object o, Stream st)
+    void Serialize(object o, Stream st)
         => st.Write(ToJson(o));
 
     T FromJson<T>(string json)

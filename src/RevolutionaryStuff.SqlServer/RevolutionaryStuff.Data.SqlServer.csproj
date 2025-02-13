@@ -22,17 +22,17 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.62.90.0</FileVersion>
-        <AssemblyVersion>4.62.90.0</AssemblyVersion>
-        <Version>4.62.90</Version>
+        <FileVersion>4.64.90.0</FileVersion>
+        <AssemblyVersion>4.64.90.0</AssemblyVersion>
+        <Version>4.64.90</Version>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
         <None Include="..\..\package\license.txt" Pack="true" PackagePath="\package" />
-        <None Include="README.md" Pack="true" PackagePath="\"/>
+        <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.2" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />

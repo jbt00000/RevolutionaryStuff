@@ -4,8 +4,15 @@ using System.Xml.Serialization;
 
 namespace RevolutionaryStuff.Core;
 
-public static partial class XmlHelpers
+internal static class XmlHelpers
 {
+    public static XmlAttribute CreateAttributeWithValue(this XmlDocument doc, string name, string ns, string val, string prefix = null)
+    {
+        var attr = prefix == null ? doc.CreateAttribute(name, ns) : doc.CreateAttribute(prefix, name, ns);
+        attr.Value = val;
+        return attr;
+    }
+
     public static void WriteElement(this XmlWriter writer, string localName, string ns, string value, object attrs = null)
     {
         writer.WriteStartElement(localName, ns);

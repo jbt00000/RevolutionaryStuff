@@ -22,7 +22,7 @@ internal class NullableEnumMemberConverter<TEnum> : JsonConverter<TEnum?> where 
         }
         else if (reader.TokenType == JsonTokenType.Null)
         {
-            Stuff.Noop();
+            Stuff.NoOp();
         }
         return ret;
     }

@@ -98,7 +98,7 @@ public static class SpreadsheetHelpers
             Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
             FileSystemHelpers.FileTryDelete(outputPath);
             ZipFile.CreateFromDirectory(workDir, outputPath);
-            Stuff.Noop(outputPath);
+            Stuff.NoOp(outputPath);
         }
         finally
         {
@@ -112,7 +112,7 @@ public static class SpreadsheetHelpers
         doc.Load(relsPath);
         var mgr = new XmlNamespaceManager(doc.NameTable);
         var r = doc.GetPrefixOfNamespace(CommonNamespaces.WorkbookRelationships);
-        Stuff.Noop(r);
+        Stuff.NoOp(r);
         mgr.AddNamespace("z", CommonNamespaces.SpreadsheetMain);
         mgr.AddNamespace("r", CommonNamespaces.WorkbookRelationships);
         var sheetsNode = (XmlElement)doc.DocumentElement.SelectSingleNode($"//z:{NodeNames.WorkbookNodes.Sheets}", mgr);

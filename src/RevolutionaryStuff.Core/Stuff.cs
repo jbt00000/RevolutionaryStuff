@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Core;
@@ -8,6 +10,16 @@ namespace RevolutionaryStuff.Core;
 public static class Stuff
 {
     public static readonly Assembly ThisAssembly;
+
+    /// <summary>
+    /// A default logger you can set that will be used primary by static functions.  
+    /// Setting this to null will instead set to the NullLogger.Instance
+    /// </summary>
+    public static ILogger LoggerOfLastResort
+    {
+        get;
+        set => field = value ?? NullLogger.Instance;
+    } = NullLogger.Instance;
 
     static Stuff()
     {
@@ -52,9 +64,8 @@ public static class Stuff
     /// </summary>
     /// <param name="args">Pass in parameters if you don't want them compiled out</param>
     [Conditional("DEBUG")]
-    public static void Noop(params object[] args)
-    {
-    }
+    public static void NoOp(params object[] args)
+    { }
 
     public static string ToString(object o)
         => o?.ToString();
@@ -124,7 +135,7 @@ public static class Stuff
         }
     }
 
-    public static string ObjectToString(object o, string fallback = null)
+    internal static string ObjectToString(object o, string fallback = null)
         => o?.ToString() ?? fallback;
 
     private static readonly IList<string> FilesToDeleteOnExit = [];

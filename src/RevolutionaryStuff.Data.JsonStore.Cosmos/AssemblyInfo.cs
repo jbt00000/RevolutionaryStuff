@@ -2,4 +2,4 @@
 using RevolutionaryStuff.Core.ApplicationParts;
 
 [assembly: InternalsVisibleTo("RevolutionaryStuff.Data.JsonStore.Cosmos.Tests")]
-[assembly: ConfigStackSettingsAppSettings]
+[assembly: AssemblySettingsResourceAutoDiscovery]

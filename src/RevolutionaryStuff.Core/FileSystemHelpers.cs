@@ -69,7 +69,7 @@ public static partial class FileSystemHelpers
 #if DEBUG
         if (RegexHelpers.Common.InvalidPathChars.IsMatch(path))
         {
-            Stuff.Noop();
+            Stuff.NoOp();
         }
 #endif
         path = RegexHelpers.Common.InvalidPathChars.Replace(path, " ");

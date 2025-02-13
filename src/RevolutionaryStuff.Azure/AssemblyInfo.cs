@@ -1,5 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
 using RevolutionaryStuff.Core.ApplicationParts;
 
-[assembly: ConfigStackSettingsAppSettings]
+[assembly: AssemblySettingsResourceAutoDiscovery]
 [assembly: InternalsVisibleTo("RevolutionaryStuff.Azure.Tests")]

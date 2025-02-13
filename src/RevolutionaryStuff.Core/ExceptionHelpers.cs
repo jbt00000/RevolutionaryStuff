@@ -22,7 +22,6 @@ public static class ExceptionHelpers
             {
                 throw exceptions[0];
             }
-
             throw new AggregateException(exceptions);
         }
     }

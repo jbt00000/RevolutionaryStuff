@@ -247,7 +247,7 @@ public static class CosmosHelpers
             }
             catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.NotFound)
             {
-                Stuff.Noop();
+                Stuff.NoOp();
                 // This is expected and suppressed
             }
             catch (System.ArgumentOutOfRangeException ex) when (ex.ParamName == "linqQuery") //yep... through decompilation

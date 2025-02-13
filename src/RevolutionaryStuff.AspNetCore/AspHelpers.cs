@@ -110,7 +110,7 @@ public static class AspHelpers
         {
             foreach (var sv in selectedValues)
             {
-                vals.Add(Stuff.ObjectToString(sv));
+                vals.Add(sv?.ToString());
             }
         }
         foreach (var item in items)

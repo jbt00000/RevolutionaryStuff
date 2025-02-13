@@ -132,7 +132,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
             var resp = await Container.PatchItemAsync<TItem>(
                 id,
                 CreatePartitionKey(partitionKey),
-                new[] { MAC.PatchOperation.Set("/" + JsonEntity.JsonEntityPropertyNames.SoftDeletedAt, DateTimeOffset.Now.ToIsoString()) },
+                [MAC.PatchOperation.Set("/" + JsonEntity.JsonEntityPropertyNames.SoftDeletedAt, DateTimeOffset.Now.ToIsoString())],
                 SoftDeletePatchItemRequestOptions,
                 cancellationToken);
             LogOperationRequestCharge(CosmosOperationEnum.DeleteSoft, resp.RequestCharge);

@@ -1,41 +1,38 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Text.RegularExpressions;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
-using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
 
 [AttributeUsage(AttributeTargets.Assembly, AllowMultiple = false)]
-public sealed class ConfigStackSettingsAppSettingsAttribute : Attribute
+public sealed class AssemblySettingsResourceAutoDiscoveryAttribute : Attribute
 {
-    public readonly string BaseConfigFileName;
+    public readonly string BaseResourceName;
 
-    public ConfigStackSettingsAppSettingsAttribute(string baseConfigFileName = null)
+    public AssemblySettingsResourceAutoDiscoveryAttribute(string baseResourceName = null)
     {
-        BaseConfigFileName = baseConfigFileName;
+        BaseResourceName = baseResourceName;
     }
 }
 
-public class ConfigStackSettings
+public static class AssemblySettingsResourceStacker
 {
-    private const string ConfigSettingsJsonFileName = "configsettings.json";
-    public const string ConfigSectionName = "ConfigStackSettings";
-
-    public class ResourceInfo
+    private const string DefaultBaseResourceName = "appsettings";
+    public record ResourceInfo(Assembly Assembly, string BaseResourceName = null)
     {
-        public string AssemblyName { get; set; }
-        public string BaseConfigFileName { get; set; }
         public override string ToString()
-            => $"assembly=>{AssemblyName} baseConfig=>{BaseConfigFileName}";
+            => $"assembly=>{Assembly.GetName()} baseResourceName=>{BaseResourceName}";
     }
-
-    public static ConfigStackSettings Discover(ConfigStackSettingsConfig config, Assembly a, ILogger logger)
+    private static readonly ApplyOptions DefaultApplyOptions = new(null);
+    public record AutoDiscoverOptions(string IgnoreAssemblyNamePattern) { }
+    public static IEnumerable<ResourceInfo> AutoDiscover(Assembly a, AutoDiscoverOptions config = null, ILogger logger = null)
     {
+        ArgumentNullException.ThrowIfNull(a);
+        logger ??= Stuff.LoggerOfLastResort;
         List<(HashSet<string> PredecessorNames, ResourceInfo RI)> nodes = [];
-        var ignoreExpr = new Regex(config.AutoDiscoveryIgnoreAssemblyNamePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+        var ignoreExpr = new Regex(config.IgnoreAssemblyNamePattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         HashSet<string> testedAssemblyNames = [];
         TestAssembly(a.GetName());
         List<ResourceInfo> ret = [];
@@ -43,17 +40,17 @@ public class ConfigStackSettings
         while (nodes.Count > 0)
         {
             remainingPreds.Clear();
-            nodes.ForEach(n => remainingPreds.Add(n.RI.AssemblyName));
+            nodes.ForEach(n => remainingPreds.Add(n.RI.Assembly.GetName().Name));
             var nopreds = nodes.Where(n => !n.PredecessorNames.Any(an => remainingPreds.Contains(an))).ToList();
             Debug.Assert(nopreds.Count > 0);
             foreach (var np in nopreds)
             {
                 ret.Add(np.RI);
-                nodes.Remove(n => n.RI.AssemblyName == np.RI.AssemblyName);
+                nodes.Remove(n => n.RI.Assembly == np.RI.Assembly);
             }
             continue;
         }
-        return new ConfigStackSettings { Resources = ret };
+        return ret;
 
         HashSet<string> TestAssembly(AssemblyName an)
         {
@@ -85,56 +82,38 @@ public class ConfigStackSettings
                     predecessors.AddRange(preds);
                 }
             }
-            var csasa = a.GetCustomAttribute<ConfigStackSettingsAppSettingsAttribute>();
+            var csasa = a.GetCustomAttribute<AssemblySettingsResourceAutoDiscoveryAttribute>();
             if (csasa != null)
             {
-                nodes.Add(new(predecessors.ToHashSet(), new() { AssemblyName = aname, BaseConfigFileName = csasa.BaseConfigFileName }));
+                nodes.Add(new(predecessors.ToHashSet(), new(a, csasa.BaseResourceName)));
                 predecessors.Add(aname);
             }
             return predecessors;
         }
     }
-
-    public List<ResourceInfo> Resources { get; set; }
-
-    public sealed record ConfigStackSettingsConfig(Assembly ConfigSettingsAssembly = null, string ConfigSettingsResourceName = null, bool AutoDiscover = false, string AutoDiscoveryIgnoreAssemblyNamePattern = "^(Microsoft|System)\\.")
-    { }
-
-    public static void AutoDiscover(IConfigurationBuilder builder, string environmentName, Assembly configSettingsAssembly = null, ILogger logger = null)
-        => Add(builder, environmentName, new ConfigStackSettingsConfig(configSettingsAssembly, null, true), logger);
-
-    public static void Add(IConfigurationBuilder builder, string environmentName, Assembly configSettingsAssembly = null, string configSettingsResourceName = null, ILogger logger = null)
-        => Add(builder, environmentName, new ConfigStackSettingsConfig(configSettingsAssembly, configSettingsResourceName), logger);
-
-    public static void Add(IConfigurationBuilder builder, string environmentName, ConfigStackSettingsConfig config = null, ILogger logger = null)
+    public record ApplyOptions(string DefaultBaseResourceName) { }
+    public static void Apply(this IConfigurationBuilder builder, string environmentName, IEnumerable<ResourceInfo> resourceInfos, ILogger logger = null, ApplyOptions options = null)
     {
-        logger ??= new TraceLoggerProvider().CreateLogger(nameof(ConfigStackSettings));
-        config ??= new();
-        var a = config.ConfigSettingsAssembly ?? Assembly.GetEntryAssembly();
-        ArgumentNullException.ThrowIfNull(a, $"You must either pass in a {nameof(config.ConfigSettingsAssembly)} OR be on a platform where Assembly.GetEntryAssembly() functions");
-        ConfigStackSettings css;
-        if (config.AutoDiscover)
-        {
-            css = Discover(config, a, logger);
-        }
-        else
-        {
-            var st = a.GetEmbeddedResourceAsStream(config.ConfigSettingsResourceName ?? ConfigSettingsJsonFileName);
-            if (st != null)
-            {
-                builder.AddJsonStream(st);
-            }
-            var c = builder.Build();
-            css = c.Get<ConfigStackSettings>(ConfigSectionName);
-        }
-        css.Add(builder, environmentName, logger);
-    }
-
-    private void Add(IConfigurationBuilder builder, string environmentName, ILogger logger)
-    {
+        const string LoggingPrefix = $"{nameof(AssemblySettingsResourceStacker)}.{nameof(Apply)}: ";
+        ArgumentNullException.ThrowIfNull(builder);
         Requires.Text(environmentName);
-
-        var assemblyByName = AssemblyLoadContext.Default.Assemblies.ToDictionary(a => a.GetName().Name, Comparers.CaseInsensitiveStringComparer);
+        logger ??= Stuff.LoggerOfLastResort;
+        if (!resourceInfos.NullSafeAny())
+        {
+            logger.LogWarning($"{LoggingPrefix} No resourceInfos were received. Resource stacking will not take place");
+            return;
+        }
+        options ??= DefaultApplyOptions;
+        var baseResourceName = options.DefaultBaseResourceName ?? DefaultBaseResourceName;
+        logger.LogDebug($"{LoggingPrefix} Will use a baseResourceName=[{baseResourceName}] with environment={environmentName}");
+        foreach (var ri in resourceInfos)
+        {
+            var baseName = ri.BaseResourceName ?? baseResourceName;
+            logger.LogDebug($"{LoggingPrefix} stacking {ri} with {baseName}");
+            AddJsonStream(ri.Assembly, $"{baseName}.json", true);
+            AddJsonStream(ri.Assembly, $"{baseName}.{environmentName}.json", false);
+            AddJsonStream(ri.Assembly, $"{baseName}.builder.json", false);
+        }
 
         void AddJsonStream(Assembly a, string name, bool required)
         {
@@ -142,36 +121,12 @@ public class ConfigStackSettings
             if (st != null)
             {
                 builder.AddJsonStream(st);
-                logger.LogInformation($"Stacking json from assembly {a.GetName().Name} of resource {name}");
+                logger.LogInformation($"{LoggingPrefix} Stacking json from assembly {a.GetName().Name} of resource {name}");
             }
             else if (required)
             {
-                throw new Exception($"Required json config resource [{name}] not found");
+                throw new Exception($"{LoggingPrefix} Required json config resource [{name}] not found");
             }
-        }
-
-        logger.LogInformation($"AssemblyNames: {assemblyByName.Keys.Format(",", "[{0}]")}");
-        logger.LogInformation($"Resources: {Resources.Format(", ")}");
-
-        foreach (var info in Resources)
-        {
-            var a = assemblyByName.GetValue(info.AssemblyName);
-            logger.LogInformation($"Processing {info.AssemblyName} with {info.BaseConfigFileName}");
-            if (a == null)
-            {
-                a = Assembly.Load(info.AssemblyName);
-                if (a == null)
-                {
-                    throw new Exception($"Cannot find assembly {info.AssemblyName}");
-                }
-            }
-            var baseName = info.BaseConfigFileName ?? "appsettings";
-            AddJsonStream(a, $"{baseName}.json", true);
-            AddJsonStream(a, $"{baseName}.{environmentName}.json", false);
-            AddJsonStream(a, $"{baseName}.builder.json", false);
-#if DEBUG
-            AddJsonStream(a, $"{baseName}.local.json", false);
-#endif
         }
     }
 }

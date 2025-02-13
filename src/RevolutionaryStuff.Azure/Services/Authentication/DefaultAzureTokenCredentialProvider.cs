@@ -10,14 +10,18 @@ internal class DefaultAzureTokenCredentialProvider(IOptions<DefaultAzureTokenCre
     public class Config
     {
         public const string ConfigSectionName = "DefaultAzureTokenCredentialProvider";
-
+        public int MaxApplicationNameLength { get; set; } = 24;
         public bool EnableLogging { get; set; }
     }
 
     TokenCredential IAzureTokenCredentialProvider.GetTokenCredential()
     {
-        var name = ApplicationNameFinder?.ApplicationName.TrimOrNull();
         var config = ConfigOptions.Value;
+        var name = ApplicationNameFinder?.ApplicationName.TrimOrNull();
+        if (name != null && name.Length > config.MaxApplicationNameLength)
+        {
+            name = StringHelpers.TruncateWithMidlineEllipsis(name, config.MaxApplicationNameLength);
+        }
         var options = new DefaultAzureCredentialOptions
         {
             Diagnostics =

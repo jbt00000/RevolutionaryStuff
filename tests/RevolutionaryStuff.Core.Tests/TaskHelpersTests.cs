@@ -48,7 +48,7 @@ public class TaskHelpersTests
         }
         catch (Exception ex)
         {
-            Stuff.Noop(ex);
+            Stuff.NoOp(ex);
         }
     }
 
@@ -62,7 +62,7 @@ public class TaskHelpersTests
         }
         catch (Exception ex)
         {
-            Stuff.Noop(ex);
+            Stuff.NoOp(ex);
         }
     }
 }

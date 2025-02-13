@@ -17,10 +17,8 @@ public sealed class JsonEntityAbbreviationAttribute : Attribute
     {
         JsonEntity.ThrowIfNotJsonEntity(tEntity);
         var abbr = tEntity.GetCustomAttribute<JsonEntityAbbreviationAttribute>()?.Abbreviation;
-        if (string.IsNullOrEmpty(abbr))
-        {
-            throw new Exception($"The type {tEntity.Name} does not have a {nameof(JsonEntityAbbreviationAttribute)}.");
-        }
-        return abbr;
+        return string.IsNullOrEmpty(abbr)
+            ? throw new Exception($"The type {tEntity.Name} does not have a {nameof(JsonEntityAbbreviationAttribute)}.")
+            : abbr;
     }
 }

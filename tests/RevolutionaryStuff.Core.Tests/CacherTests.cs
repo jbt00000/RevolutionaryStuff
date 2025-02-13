@@ -121,12 +121,7 @@ public class CacherTests
                 async () =>
                 {
                     await Task.Delay(callWait);
-                    if (z % 2 == 0)
-                    {
-                        return Interlocked.Increment(ref calls1);
-                    }
-
-                    return Interlocked.Increment(ref calls2);
+                    return z % 2 == 0 ? Interlocked.Increment(ref calls1) : Interlocked.Increment(ref calls2);
                 }
                 )));
 

@@ -110,7 +110,7 @@ public abstract class BasePageController : Controller
             sortCol = m.FindOrMissing(sortCol, sortCol);
             q = sortColEnumType == null
                 ? q.OrderByField(sortCol, orderedValues, isAscending)
-                : (IQueryable<T>)q.OrderByField(sortCol, sortColEnumType, isAscending);
+                : q.OrderByField(sortCol, sortColEnumType, isAscending);
         }
         return q;
     }

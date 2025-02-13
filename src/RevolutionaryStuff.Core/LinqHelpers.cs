@@ -84,7 +84,7 @@ public static class LinqHelpers
         var leftNameExp = Expression.Property(arg, left);
         var leftExp = Expression.NotEqual(leftNameExp, Expression.Constant(null));
         var rightExp = NullCheckNestedProperty(leftNameExp, right, lookup);
-        return rightExp == null ? leftExp : (Expression)Expression.AndAlso(leftExp, rightExp);
+        return rightExp == null ? leftExp : Expression.AndAlso(leftExp, rightExp);
     }
 
     public static IQueryable<TSource> ApplyFilters<TSource>(this IQueryable<TSource> q, IEnumerable<KeyValuePair<string, string>> filters, PropertyAliasToPropertyInfoLookup lookup = null)
@@ -415,16 +415,9 @@ Again:
 
     public static Expression<Func<T, bool>> Or<T>(IList<Expression<Func<T, bool>>> conditions)
     {
-        if (conditions == null || conditions.Count == 0)
-        {
-            return x => false;
-        }
-        if (conditions.Count == 1)
-        {
-            return conditions[0];
-        }
-
-        return Or(conditions[0], Or(conditions.Skip(1).ToList()));
+        return conditions == null || conditions.Count == 0
+            ? (x => false)
+            : conditions.Count == 1 ? conditions[0] : Or(conditions[0], Or(conditions.Skip(1).ToList()));
     }
 
     /// <remarks>https://www.c-sharpcorner.com/UploadFile/04fe4a/predicate-combinators-in-linq/#listing13</remarks>

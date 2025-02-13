@@ -5,5 +5,5 @@ namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServ
 
 public interface ICosmosJsonEntityContainer : IJsonEntityContainer
 {
-    public Container Container { get; }
+    Container Container { get; }
 }
