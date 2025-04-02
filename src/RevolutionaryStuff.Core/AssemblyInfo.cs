@@ -1,6 +1,7 @@
 ﻿using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using RevolutionaryStuff.Core.ApplicationParts;
 
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
@@ -10,7 +11,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Revolutionary Stuff, LLC")]
 [assembly: AssemblyProduct("RevolutionaryStuff.Core")]
-[assembly: AssemblyCopyright("Copyright ©  2020")]
+[assembly: AssemblyCopyright("Copyright ©  2025")]
 [assembly: AssemblyTrademark("")]
 
 // Setting ComVisible to false makes the types in this assembly not visible
@@ -23,6 +24,8 @@ using System.Runtime.InteropServices;
 
 //This assembly contains plugins and is eligible for dynamic exploration
 [assembly: RevolutionaryStuff.Core.ApplicationParts.PluginDomain()]
+
+[assembly: AssemblySettingsResourceAutoDiscovery]
 
 //For the unit tests
 [assembly: InternalsVisibleTo("RevolutionaryStuff.Core.Tests")]

@@ -49,6 +49,8 @@ public static class Use
 
         services.AddSingleton(IJsonSerializer.Default);
 
+        services.ConfigureOptions<BuilderConfig>(BuilderConfig.ConfigSectionName);
+
         #region Services
         services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
         #endregion
