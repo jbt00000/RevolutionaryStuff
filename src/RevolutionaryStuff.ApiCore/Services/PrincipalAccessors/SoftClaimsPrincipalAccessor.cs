@@ -2,10 +2,11 @@
 
 namespace RevolutionaryStuff.ApiCore.Services.PrincipalAccessors;
 
-public class SoftClaimsPrincipalAccessor : IClaimsPrincipalAccessor
-{
-    public SoftClaimsPrincipalAccessor()
-    { }
 
-    public ClaimsPrincipal? ClaimsPrincipal { get; set; }
+internal class SoftClaimsPrincipalAccessor : ISoftClaimsPrincipalAccessor
+{
+    private ClaimsPrincipal? ClaimsPrincipal { get; set; }
+    ClaimsPrincipal? ISoftClaimsPrincipalAccessor.ClaimsPrincipal { get => ClaimsPrincipal; set => ClaimsPrincipal = value; }
+
+    ClaimsPrincipal? IClaimsPrincipalAccessor.ClaimsPrincipal => ClaimsPrincipal;
 }

@@ -57,7 +57,6 @@ public abstract class ApiProgram
 
     protected virtual void SetupLogging(ILoggingBuilder loggingBuilder)
     {
-        loggingBuilder.ClearProviders();
         loggingBuilder.AddConsole();
         loggingBuilder.AddTraceSource(new SourceSwitch("TraceSource", "All"), new ConsoleTraceListener());
         //loggingBuilder.AddOpenTelemetry(options =>

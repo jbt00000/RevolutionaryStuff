@@ -131,4 +131,7 @@ Again:
         return ts.Count == 0 ? Task.FromResult(new TRet[0]) : Task.WhenAll(ts);
     }
     */
+
+    public static Task TaskWhenAllThatAreNotNull(params Task[] tasks)
+        => Task.WhenAll(tasks.WhereNotNull());
 }
