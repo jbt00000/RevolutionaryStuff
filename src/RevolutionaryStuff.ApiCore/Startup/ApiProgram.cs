@@ -3,6 +3,7 @@ using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -10,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.ApiCore.Json;
 using RevolutionaryStuff.ApiCore.Middleware;
+using RevolutionaryStuff.ApiCore.OpenApi;
 using RevolutionaryStuff.ApiCore.Services.ServerInfoFinders;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.ApplicationNameFinders;
@@ -87,10 +89,22 @@ public abstract class ApiProgram
         services.AddAuthorization();
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-        services.AddOpenApi();
+
+        Config c = new();
+        Configuration?.Bind(Config.ConfigSectionName, c);
+        if (c.EnableOpenApi)
+        {
+            services.AddOpenApi();
+            services.Configure<OpenApiOptions>(null, OnConfigureOpenApiOptions);
+        }
 
         // Add services to the container.
         services.AddProblemDetails();
+    }
+
+    protected virtual void OnConfigureOpenApiOptions(OpenApiOptions options)
+    {
+        options.AddOperationTransformer(new OpenApiOperationTransformer());
     }
 
     protected virtual void ConfigureBuilder(WebApplicationBuilder builder)
