@@ -123,19 +123,43 @@ public abstract class ApiProgram
         Config c = new();
         Configuration?.Bind(Config.ConfigSectionName, c);
         if (c.EnableIndexRoute)
+        {
             app.MapGet("/", (IApplicationNameFinder app) => $"Hi from {app.ApplicationName} at {DateTimeOffset.Now}.");
+        }
         if (c.EnableMgmtBuilderConfigRoute)
+        {
             app.MapGet("/mgmt/builder", (IOptions<BuilderConfig> configOptions) => configOptions.Value).ManagementApi("BuilderConfig");
+        }
         if (c.EnableServerInfoRoute)
+        {
             app.MapGet("/mgmt/server", ([FromServices] IServerInfoFinder serverInfoFinder) => serverInfoFinder.GetServerInfo(new() { PopulateConfigs = c.ServerInfoPopulateConfigs, PopulateEnvironmentVariables = c.ServerInfoPopulateEnvironmentVariables })).ManagementApi("ServerInfo");
+        }
         if (c.EnableMgmtEchoRoute)
+        {
             app.MapGet("/mgmt/echo/{message}", (string message) => $"{message} {message} {message}...").ManagementApi("Echo");
+            app.MapPost("/mgmt/echo/{message}", async (HttpContext context) => {
+                var message = await context.Request.Body.ReadToEndAsync();
+                return $"{message} {message} {message}...";
+            }).ManagementApi("EchoPost");
+        }
         if (c.EnableMgmtLogRoute)
-            app.MapPost("/mgmt/log", ([FromBody] string message, ILogger<ApiProgram> logger, HttpContext context) => { logger.LogWarning(message); context.Response.StatusCode = StatusCodes.Status201Created; }).ManagementApi("LogTrace");
+        {
+            app.MapGet("/mgmt/log/{message}", (string message, ILogger<ApiProgram> logger, HttpContext context) => { logger.LogWarning(message); context.Response.StatusCode = StatusCodes.Status201Created; }).ManagementApi("LogTrace");
+            app.MapPost("/mgmt/log", async (ILogger<ApiProgram> logger, HttpContext context) =>
+            {
+                var message = await context.Request.Body.ReadToEndAsync();
+                logger.LogWarning(message);
+                context.Response.StatusCode = StatusCodes.Status201Created;
+            }).ManagementApi("LogTracePost");
+        }
         if (c.EnableMicrosoftServiceDefaultEndpoints)
+        {
             app.MapMicrosoftDefaultEndpoints();
+        }
         if (c.EnableOpenApi)
+        {
             app.MapOpenApi();
+        }
     }
 
     protected virtual void UseHttpsRedirection(WebApplication app)

@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Data.JsonStore.Entities;
+using RevolutionaryStuff.Data.JsonStore.Repos;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Data.JsonStore;
@@ -27,5 +28,8 @@ public static class Use
                 {
                     JsonEntity.JsonEntityIdServices = settings.JsonEntityIdServices;
                 }
+
+                services.AddScoped<JsonEntityRepoConstructorArgs>();
+                services.ConfigureOptions<JsonEntityRepoBaseConfig>(JsonEntityRepoBaseConfig.ConfigSectionName);
             });
 }

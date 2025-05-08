@@ -174,6 +174,9 @@ public static class Stuff
         }
     }
 
+    public static string CreateRandomCode(int numChars = 6)
+        => Services.CodeStringGenerator.DefaultCodeStringGenerator.Instance.CreateCaptchaCharactersCode(numChars);
+
     public static string GetPathFromSerializedPath(Type t, string serializedPath)
         => PermaCache.FindOrCreate(
             t, serializedPath,

@@ -34,6 +34,8 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
         public const string DataType = "dataType";
 
         public const string PartitionKey = "sk";
+
+        public const string TouchedAt = "touchedAt";
     }
 
     [JsonExtensionData]

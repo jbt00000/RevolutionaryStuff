@@ -16,7 +16,7 @@ public interface ICodeStringGenerator
         }
     }
 
-    string CreateCaptcharCharactersCode(int numChars)
+    string CreateCaptchaCharactersCode(int numChars)
         => CreateCode(CommonCharacterSets.Roman.CaptchaCharset, numChars);
 
     string CreateRomanLowerCharactersCode(int numChars)

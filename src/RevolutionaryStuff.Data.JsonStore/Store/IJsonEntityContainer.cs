@@ -32,6 +32,8 @@ public interface IJsonEntityContainer
 
     Task<IReadOnlyList<TItem>> GetItemsAsync<TItem>(Expression<Func<TItem, bool>>? predicate = null, QueryOptions? options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
+    Task<bool> PatchItemAsync<TItem>(string id, string partitionKey, IList<PatchOperation> patches, string? eTag=null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+
     Task PatchItemAsync<TItem>(TItem item, Func<TItem, CancellationToken, Task<IList<PatchOperation>>> getPatchesAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
     Task<TItem> UpdateItemAsync<TItem>(TItem item, Func<TItem, Task<bool>> amendAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
@@ -45,7 +47,7 @@ public interface IJsonEntityContainer
         => DeleteItemAsync<TItem>(item.Id, item.PartitionKey, options, cancellationToken);
 
     Task PatchItemAsync<TEntity>(TEntity entity, Expression<Func<TEntity, object>> property, object updatedValue, PatchOperationTypeEnum op = PatchOperationTypeEnum.Add) where TEntity : JsonEntity
-        => PatchItemAsync(entity, new[] { PatchOperation.Create(property, updatedValue, op) });
+        => PatchItemAsync(entity, [PatchOperation.Create(property, updatedValue, op)]);
 
     Task PatchItemAsync<TEntity>(TEntity entity, IList<PatchOperation> patchOperations) where TEntity : JsonEntity
         => PatchItemAsync(entity, (z, pos) => Task.FromResult(patchOperations));

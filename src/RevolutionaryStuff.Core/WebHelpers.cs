@@ -1,4 +1,5 @@
-﻿using System.Net.Http;
+﻿using System.Net;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Web;
@@ -23,6 +24,9 @@ public static partial class WebHelpers
         public static bool IsInsecure(string scheme)
             => !IsSecure(scheme);
     }
+
+    public static bool Is200Level(this HttpStatusCode code)
+        => code >= HttpStatusCode.OK && code < HttpStatusCode.Ambiguous;
 
     public static string CreateBasicAuthorizationHeaderValueParameter(string username, string password)
         => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));

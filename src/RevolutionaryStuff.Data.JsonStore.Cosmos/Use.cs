@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Data.JsonStore.Cosmos.Repos;
 using RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos;
@@ -21,5 +22,7 @@ public static class Use
                 services.AddScoped<CosmosJsonEntityServerConstructorArgs>();
 
                 #endregion
+
+                services.AddScoped<CosmosRepoConstructorArgs>();
             });
 }

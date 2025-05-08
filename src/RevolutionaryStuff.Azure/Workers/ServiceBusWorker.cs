@@ -94,6 +94,7 @@ public class ServiceBusWorker : BaseWorker
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var config = ConfigOptions.Value;
+        Requires.Valid(config);
         using var pa = new PeriodicAction(async () =>
         {
             if (MessageSupervisorStateBySequenceNumber.Count == 0) return;
@@ -252,10 +253,21 @@ public class ServiceBusWorker : BaseWorker
                 await Task.Delay(100);
                 continue;
             }
-            var message = await listener.ReceiveMessageAsync(ListenerTimeout, stoppingToken);
-            if (message == null)
+            ServiceBusReceivedMessage message;
+            try
+            {
+                message = await listener.ReceiveMessageAsync(ListenerTimeout, stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                LogError(ex, "Problem receiving message");
+                await Task.Delay(1000);
                 continue;
-            _ = executeMessageAsync(message);
+            }
+            if (message != null)
+            {
+                _ = executeMessageAsync(message);
+            }
         }
 
         while (currentlyRunning > 0)

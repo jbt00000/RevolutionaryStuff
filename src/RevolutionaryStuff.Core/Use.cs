@@ -14,6 +14,8 @@ public static class Use
 {
     public class Settings
     {
+        public string BuilderConfigConfigSectionName { get; set; }
+
         public string RevolutionaryStuffCoreConfigSectionName { get; set; }
 
         public string TemporaryStreamFactoryConfigSectionName { get; set; }
@@ -49,7 +51,7 @@ public static class Use
 
         services.AddSingleton(IJsonSerializer.Default);
 
-        services.ConfigureOptions<BuilderConfig>(BuilderConfig.ConfigSectionName);
+        services.ConfigureOptions<BuilderConfig>(settings?.BuilderConfigConfigSectionName ?? BuilderConfig.ConfigSectionName);
 
         #region Services
         services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();

@@ -267,6 +267,22 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
             _ => throw new UnexpectedSwitchValueException(po.PatchOperationType)
         };
 
+    async Task<bool> IJsonEntityContainer.PatchItemAsync<TItem>(string id, string partitionKey, IList<Store.PatchOperation> patches, string eTag, CancellationToken cancellationToken)
+    {
+        EnsureCorrectContainer<TItem>();
+        var ret = await Container.PatchItemAsync<TItem>(
+            id,
+            CreatePartitionKey(partitionKey),
+            patches.Select(CreatePatchOperation).ToList().AsReadOnly(),
+            new PatchItemRequestOptions
+            {
+                IfMatchEtag = eTag,
+                EnableContentResponseOnWrite = false
+            },
+            cancellationToken);
+        return ret.StatusCode.Is200Level();
+    }
+
     async Task IJsonEntityContainer.PatchItemAsync<TItem>(TItem item, Func<TItem, CancellationToken, Task<IList<Store.PatchOperation>>> getPatchesAsync, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(item);

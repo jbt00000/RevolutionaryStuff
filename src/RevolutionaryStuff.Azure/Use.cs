@@ -12,6 +12,7 @@ public static class Use
     {
         public string ServiceBusWorkerConfigSectionName { get; set; }
         public string ServiceBusMessageSenderConfigSectionName { get; set; }
+        public RevolutionaryStuff.Core.Use.Settings RevolutionaryStuffCoreUseSettings { get; set; }
     }
 
     public static void UseRevolutionaryStuffAzure(this IServiceCollection services, Settings settings = null)
@@ -19,7 +20,7 @@ public static class Use
             settings,
             () =>
     {
-        services.UseRevolutionaryStuffCore();
+        services.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreUseSettings);
 
         services.AddSingleton<BaseWorker.BaseWorkerConstructorArgs>();
 
