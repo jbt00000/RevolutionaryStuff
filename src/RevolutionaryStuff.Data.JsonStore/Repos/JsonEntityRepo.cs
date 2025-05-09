@@ -178,6 +178,7 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
             var genericMethod = methodInfo.MakeGenericMethod(typeof(TItem));
             q = (IQueryable<TItem>)genericMethod.Invoke(this, [q]);
         }
+        //TODO: NEED TO ADD :: q = q.Where(z => z.SoftDeletedAt == null);
         return q;
     }
 
