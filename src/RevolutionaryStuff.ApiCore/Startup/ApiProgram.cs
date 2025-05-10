@@ -24,6 +24,7 @@ public abstract class ApiProgram
     {
         public const string ConfigSectionName = "ApiProgram";
 
+        public bool ConfigureForRazorWebsite { get; set; }
         public bool EnableOpenApi { get; set; }
         public bool EnableIndexRoute { get; set; }
         public bool EnableServerInfoRoute { get; set; }
@@ -90,9 +91,12 @@ public abstract class ApiProgram
 
         // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 
-        Config c = new();
-        Configuration?.Bind(Config.ConfigSectionName, c);
-        if (c.EnableOpenApi)
+        var c = MyConfig;
+        if (c.ConfigureForRazorWebsite)
+        {
+            services.AddRazorPages();
+        }
+        else if (c.EnableOpenApi)
         {
             services.AddOpenApi();
             services.Configure<OpenApiOptions>(null, OnConfigureOpenApiOptions);
@@ -118,14 +122,23 @@ public abstract class ApiProgram
         app.UseMiddleware<WebApiExceptionMiddleware>();
     }
 
+    private Config MyConfig
+    {
+        get
+        {
+            if (field == null)
+            {
+                Config c = new();
+                Configuration?.Bind(Config.ConfigSectionName, c);
+                field = c;
+            }
+            return field;
+        }
+    }
+
     protected virtual void MapWebEndpoints(WebApplication app)
     {
-        Config c = new();
-        Configuration?.Bind(Config.ConfigSectionName, c);
-        if (c.EnableIndexRoute)
-        {
-            app.MapGet("/", (IApplicationNameFinder app) => $"Hi from {app.ApplicationName} at {DateTimeOffset.Now}.");
-        }
+        var c = MyConfig;
         if (c.EnableMgmtBuilderConfigRoute)
         {
             app.MapGet("/mgmt/builder", (IOptions<BuilderConfig> configOptions) => configOptions.Value).ManagementApi("BuilderConfig");
@@ -157,9 +170,22 @@ public abstract class ApiProgram
         {
             app.MapMicrosoftDefaultEndpoints();
         }
-        if (c.EnableOpenApi)
+        if (c.ConfigureForRazorWebsite)
         {
-            app.MapOpenApi();
+            app.MapStaticAssets();
+            app.MapRazorPages()
+               .WithStaticAssets();
+        }
+        else
+        {
+            if (c.EnableIndexRoute)
+            {
+                app.MapGet("/", (IApplicationNameFinder app) => $"Hi from {app.ApplicationName} at {DateTimeOffset.Now}.");
+            }
+            if (c.EnableOpenApi)
+            {
+                app.MapOpenApi();
+            }
         }
     }
 
