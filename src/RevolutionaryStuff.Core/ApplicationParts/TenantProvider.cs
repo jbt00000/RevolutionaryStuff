@@ -15,38 +15,47 @@ public class TenantProvider<TTenantId> : ITenantProvider<TTenantId>
 
     public bool HasTenantId
     {
-        get 
+        get
         {
-            if (!field)
-            { 
-                field = !EqualityComparer<TTenantId>.Default.Equals(TenantId, default);
+            if (HasTenantIdField == null)
+            {
+                var tid = ConfigOptions.Value.TenantId;
+                HasTenantIdField = !EqualityComparer<TTenantId>.Default.Equals(tid, default);
+                if (HasTenantIdField == true)
+                {
+                    TenantIdField = tid;
+                }
             }
-            return field;
+            return HasTenantIdField.Value;
         }
-        private set;
     }
+    private bool? HasTenantIdField;
 
-    public TTenantId TenantId 
+    public TTenantId TenantId
     {
         get
         {
-            if (!HasTenantId && !EqualityComparer<TTenantId>.Default.Equals(ConfigOptions.Value.TenantId, default))
-            {
-                field = ConfigOptions.Value.TenantId;
-                HasTenantId = true;
-            }
-            return field;
+            _ = HasTenantId;
+            return TenantIdField;
         }
         set
         {
-            if (HasTenantId && !EqualityComparer<TTenantId>.Default.Equals(field, default) && !EqualityComparer<TTenantId>.Default.Equals(field, value))
+            if (HasTenantIdField == true)
             {
-                throw new NotNowException($"TenantId has already been set to {field}, cannot set it to {value}");
+                if (TenantIdField.Equals(value))
+                {
+                    return;
+                }
+                else
+                {
+                    throw new NotNowException($"TenantId has already been set to {TenantIdField}, cannot set it to {value}");
+                }
             }
-            field = value;
-            HasTenantId = true;
+            TenantIdField = value;
+            HasTenantIdField = true;
         }
     }
+    private TTenantId TenantIdField;
 
     Task<TTenantId> ITenantFinder<TTenantId>.GetTenantIdAsync()
         => Task.FromResult(TenantId);

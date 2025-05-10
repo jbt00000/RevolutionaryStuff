@@ -3,10 +3,6 @@ using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Data.Cosmos;
 
-public class DefaultCosmosEntitySerializer : JsonSerializer2CosmosSerializerAdaptor
-{
-    public DefaultCosmosEntitySerializer(IJsonSerializer? jsonSerializer = null)
-        : base(jsonSerializer ?? SystemTextJsonSerializer.Instance)
-    { }
-}
-
+public class DefaultCosmosEntitySerializer(IJsonSerializer? jsonSerializer = null)
+    : JsonSerializer2CosmosSerializerAdaptor(jsonSerializer ?? SystemTextJsonSerializer.Instance)
+{ }

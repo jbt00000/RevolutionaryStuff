@@ -1,5 +1,4 @@
-﻿using System.ComponentModel;
-using System.Linq.Expressions;
+﻿using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using Microsoft.Extensions.Logging;
@@ -182,7 +181,7 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
         return q;
     }
 
-    IQueryable<TItem> AppendTenantedQueryableConstraint<TItem>(IQueryable<TItem> q)
+    private IQueryable<TItem> AppendTenantedQueryableConstraint<TItem>(IQueryable<TItem> q)
         where TItem : TBaseEntity, ITenanted<string>
     {
         var tid = TenantId;
@@ -240,7 +239,7 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
         => JsonEntity.JsonEntityIdServices.ThrowIfInvalid<TItem>(id);
 
     Task IJsonEntityRepo<TBaseEntity>.TouchItemAsync<TItem>(string id, string partitionKey, string? propertyName)
-        =>  GetContainer<TItem>().PatchItemAsync<TItem>(id, partitionKey, [PatchOperation.Add("/"+(propertyName??JsonEntity.JsonEntityPropertyNames.TouchedAt), DateTimeOffset.UtcNow.ToIsoString())], null);
+        => GetContainer<TItem>().PatchItemAsync<TItem>(id, partitionKey, [PatchOperation.Add("/" + (propertyName ?? JsonEntity.JsonEntityPropertyNames.TouchedAt), DateTimeOffset.UtcNow.ToIsoString())], null);
 
     Task<bool> IJsonEntityRepo<TBaseEntity>.PatchItemAsync<TItem>(string id, string partitionKey, Expression<Func<TItem, object>> property, object updatedValue, PatchOperationTypeEnum op, string eTag)
         => GetContainer<TItem>().PatchItemAsync<TItem>(id, partitionKey, [PatchOperation.Create(property, updatedValue, op)], eTag);

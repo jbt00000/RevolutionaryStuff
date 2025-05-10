@@ -32,7 +32,7 @@ public interface IJsonEntityContainer
 
     Task<IReadOnlyList<TItem>> GetItemsAsync<TItem>(Expression<Func<TItem, bool>>? predicate = null, QueryOptions? options = null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
-    Task<bool> PatchItemAsync<TItem>(string id, string partitionKey, IList<PatchOperation> patches, string? eTag=null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+    Task<bool> PatchItemAsync<TItem>(string id, string partitionKey, IList<PatchOperation> patches, string? eTag = null, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
     Task PatchItemAsync<TItem>(TItem item, Func<TItem, CancellationToken, Task<IList<PatchOperation>>> getPatchesAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
