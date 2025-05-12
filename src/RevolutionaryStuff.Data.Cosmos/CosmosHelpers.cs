@@ -1,8 +1,8 @@
 ﻿using System.Text.Json.Serialization;
 using System.Threading;
-using Azure.Security.KeyVault.Keys.Cryptography;
+//using Azure.Security.KeyVault.Keys.Cryptography;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Azure.Cosmos.Encryption;
+//using Microsoft.Azure.Cosmos.Encryption;
 using Microsoft.Azure.Cosmos.Linq;
 using Microsoft.Azure.Cosmos.Scripts;
 using RevolutionaryStuff.Azure.Services.Authentication;
@@ -76,6 +76,7 @@ public static class CosmosHelpers
         }
     }
 
+#if false
     private static async Task SetupEncryptedDatabaseAsync(CosmosClient client, string dbName)
     {
         try
@@ -129,6 +130,7 @@ public static class CosmosHelpers
             throw;
         }
     }
+#endif
 
     public static CosmosClient ConstructCosmosClient(CosmosClientAuthenticationSettings authenticationSettings, CosmosClientOptions cosmosClientOptions)
     {
