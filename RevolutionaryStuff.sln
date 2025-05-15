@@ -82,6 +82,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.ApiCore"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.Dapr", "src\RevolutionaryStuff.Dapr\RevolutionaryStuff.Dapr.csproj", "{4EEA9BCE-FD77-4C21-A7E9-99D614CE4CC6}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RevolutionaryStuff.Data.SqlAzure", "src\RevolutionaryStuff.Data.SqlAzure\RevolutionaryStuff.Data.SqlAzure.csproj", "{72B979F1-066C-4664-83BB-A0F0564A04E3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -344,6 +346,18 @@ Global
 		{4EEA9BCE-FD77-4C21-A7E9-99D614CE4CC6}.VSTS-CI|Any CPU.Build.0 = Release|Any CPU
 		{4EEA9BCE-FD77-4C21-A7E9-99D614CE4CC6}.VSTS-CI|x64.ActiveCfg = Release|Any CPU
 		{4EEA9BCE-FD77-4C21-A7E9-99D614CE4CC6}.VSTS-CI|x64.Build.0 = Release|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.Debug|x64.Build.0 = Debug|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.Release|x64.ActiveCfg = Release|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.Release|x64.Build.0 = Release|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.VSTS-CI|Any CPU.ActiveCfg = Release|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.VSTS-CI|Any CPU.Build.0 = Release|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.VSTS-CI|x64.ActiveCfg = Release|Any CPU
+		{72B979F1-066C-4664-83BB-A0F0564A04E3}.VSTS-CI|x64.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
