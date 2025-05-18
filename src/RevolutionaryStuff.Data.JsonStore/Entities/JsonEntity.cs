@@ -31,7 +31,7 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
 
         public const string TenantId = "tenantId";
 
-        public const string DataType = "dataType";
+        public const string DataType = "$type";
 
         public const string PartitionKey = "sk";
 
@@ -57,6 +57,8 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonIgnore]
     public bool IsSoftDeleted => SoftDeletedAt != null;
 
+    /// <remarks>Should be the first property to speed deserialization when using JsonPolymorphic</remarks>
+    [JsonPropertyOrder(int.MinValue)]
     [JsonPropertyName(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 

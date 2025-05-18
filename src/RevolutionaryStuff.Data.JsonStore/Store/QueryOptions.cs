@@ -11,7 +11,7 @@ public class QueryOptions : IValidate
     public void Validate()
     { }
 
-    public static QueryOptions CreateWithParitionKey(string partitionKey)
+    public static QueryOptions CreateWithPartitionKey(string partitionKey)
         => new()
         {
             PartitionKey = partitionKey

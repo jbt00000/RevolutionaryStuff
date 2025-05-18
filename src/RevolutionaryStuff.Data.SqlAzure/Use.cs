@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
-using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Azure;
+using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Dapr;
 

@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Text.Json.Serialization;
 using System.Threading;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Azure.Cosmos.Linq;
@@ -168,7 +169,7 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
 
         if (string.IsNullOrEmpty(partitionKey))
         {
-            var q = I.GetQueryable<TItem>(partitionKey == null ? null : QueryOptions.CreateWithParitionKey(partitionKey));
+            var q = I.GetQueryable<TItem>(partitionKey == null ? null : QueryOptions.CreateWithPartitionKey(partitionKey));
             return await q.Where(z => z.Id == id).GetFirstOrDefaultAsync(cancellationToken);
         }
         else
@@ -221,8 +222,24 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
 
         if (!queryOptions.IgnoreEntityDataType)
         {
-            var dt = JsonEntity.GetDataType<TItem>();
-            q = q.Where(z => z.DataType == dt);
+            var t = typeof(TItem);
+            if (t.HasCustomAttribute<JsonPolymorphicAttribute>(false))
+            {
+                IList<string> dataTypes = [];
+                foreach (var a in t.GetCustomAttributes<JsonDerivedTypeAttribute>())
+                {
+                    dataTypes.Add(JsonEntity.GetDataType(a.DerivedType));
+                }
+                if (dataTypes.Count > 0)
+                {
+                    q = q.Where(z => dataTypes.Contains(z.DataType));
+                }
+            }
+            else
+            {
+                var dt = JsonEntity.GetDataType<TItem>();
+                q = q.Where(z => z.DataType == dt);
+            }
         }
 
         if (queryOptions?.PartitionKey != null)

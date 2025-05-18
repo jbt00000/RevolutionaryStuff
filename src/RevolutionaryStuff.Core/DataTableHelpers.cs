@@ -71,6 +71,12 @@ public static class DataTableHelpers
         return dt;
     }
 
+    public static string GetString(this DataRow dataRow, string columnName, Func<object, string> converter = null)
+    {
+        var o = dataRow[columnName];
+        return o == DBNull.Value ? null : o is string sv ? sv : converter != null ? converter(o) : o.ToString();
+    }
+
     public static void RemoveWhere(this DataRowCollection rows, Predicate<DataRow> removeQualifier)
     {
         var removes = new List<DataRow>();
