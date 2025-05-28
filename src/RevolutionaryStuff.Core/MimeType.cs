@@ -21,6 +21,26 @@ public sealed partial class MimeType
     public static string GetContentTypeSubType(string contentType)
         => contentType.RightOf("/");
 
+    private static bool HasMatch(string contentTypeOrExtension, IList<MimeType> items)
+    {
+        contentTypeOrExtension = contentTypeOrExtension.TrimOrNull();
+        if (contentTypeOrExtension == null) return false;
+        if (!items.NullSafeAny()) return false;
+        var ext = Path.GetExtension(contentTypeOrExtension);
+        if (ext!=null && ext.Length > 0 && !ext.StartsWith("."))
+        {
+            ext = null;
+        }
+        foreach (var item in items)
+        {
+            if (item.DoesContentTypeMatch(contentTypeOrExtension) || (ext!=null && item.DoesExtensionMatch(ext))) return true;
+        }
+        return false;
+    }
+
+    public static bool IsImage(string contentTypeOrExtension)
+        => Image.HasMatch(contentTypeOrExtension);
+
     public static class Application
     {
         public static readonly MimeType Any = "application/*";
@@ -99,6 +119,8 @@ public sealed partial class MimeType
         public static readonly MimeType Tiff = new("image/tiff", ".tif", ".tiff");
         public static readonly MimeType WebP = new("image/webp", ".webp");
         internal static readonly IList<MimeType> All = new[] { Any, Bmp, Gif, Jpg, Png, Svg, Tiff, WebP }.ToList().AsReadOnly();
+        public static bool HasMatch(string contentTypeOrExtension)
+            => MimeType.HasMatch(contentTypeOrExtension, All);
     }
 
     public static class Text
@@ -109,6 +131,8 @@ public sealed partial class MimeType
         public static readonly MimeType Plain = new("text/plain", ".txt", ".text");
         public static readonly MimeType Markdown = new("text/markdown", ".md");
         internal static readonly IList<MimeType> All = new[] { Any, Csv, Html, Plain, Markdown }.ToList().AsReadOnly();
+        public static bool HasMatch(string contentTypeOrExtension)
+            => MimeType.HasMatch(contentTypeOrExtension, All);
     }
 
     public static class Audio
@@ -123,6 +147,8 @@ public sealed partial class MimeType
         public static readonly MimeType Waveform = new("audio/wav", ".wav");
         public static readonly MimeType WebmAudio = new("audio/webm", ".weba");
         internal static readonly IList<MimeType> All = new[] { Any, Aac, Mp3, Midi, CompactDiskAudio, OggAudio, OpusAudio, Waveform, WebmAudio }.ToList().AsReadOnly();
+        public static bool HasMatch(string contentTypeOrExtension)
+            => MimeType.HasMatch(contentTypeOrExtension, All);
     }
 
     public static class Video
@@ -141,6 +167,8 @@ public sealed partial class MimeType
         public static readonly MimeType Quicktime = new("video/quicktime", ".mov", ".qt");
         public static readonly MimeType Wmv = new("video/x-ms-wmv", "video/wmv", ".wmv");
         internal static readonly IList<MimeType> All = new[] { Any, _3gp, Avi, Flv, H264, Quicktime, Wmv, Mp4Video, MpegVideo, OggVideo, MpegTransportStream, WebmVideo, _3gp2 }.ToList().AsReadOnly();
+        public static bool HasMatch(string contentTypeOrExtension)
+            => MimeType.HasMatch(contentTypeOrExtension, All);
     }
 
     public static IList<MimeType> AllMimeTypes

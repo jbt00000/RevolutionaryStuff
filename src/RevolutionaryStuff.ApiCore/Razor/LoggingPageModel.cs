@@ -1,17 +1,17 @@
 ﻿using System.Runtime.CompilerServices;
+using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.Diagnostics;
 
-namespace RevolutionaryStuff.Core;
-
-public abstract class BaseLoggingDisposable : BaseDisposable
+namespace RevolutionaryStuff.ApiCore.Razor;
+public abstract class LoggingPageModel : PageModel
 {
-    protected BaseLoggingDisposable(ILogger logger)
+    protected LoggingPageModel(ILogger Logger)
     {
-        ArgumentNullException.ThrowIfNull(logger);
-
-        Logger = logger;
+        ArgumentNullException.ThrowIfNull(Logger);
+        this.Logger = Logger;
     }
+
     #region Logging
 
     protected readonly ILogger Logger;
@@ -62,21 +62,4 @@ public abstract class BaseLoggingDisposable : BaseDisposable
         => Logger.LogScopedProperty(propertyName, propertyValue, decomposeValue);
 
     #endregion
-
-
-    protected async Task ActAsync(Func<Task> executeAsync, [CallerMemberName] string caller = null)
-    {
-        try
-        {
-            LogInformation("{caller} function started processing", caller);
-            ArgumentNullException.ThrowIfNull(executeAsync);
-            await executeAsync();
-            LogInformation("{caller} function completed", caller);
-        }
-        catch (Exception ex)
-        {
-            LogException(ex);
-            throw;
-        }
-    }
 }

@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
@@ -41,10 +42,11 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonExtensionData]
     public IDictionary<string, JsonElement>? AdditionalData { get; set; }
 
-    public void AddAdditionalData(string name, object val)
+    public void SetAdditionalData(string name, object val)
     {
         AdditionalData ??= new Dictionary<string, JsonElement>();
-        AdditionalData[name] = val is JsonElement jel ? jel : JsonHelpers.ToJsonElement(val);
+        var jel = val is JsonElement ? (JsonElement)val : SystemTextJsonSerializer.Instance.ToJsonElement(val);
+        AdditionalData[name] = jel;
     }
 
     [Key] //This is required by ODataSources

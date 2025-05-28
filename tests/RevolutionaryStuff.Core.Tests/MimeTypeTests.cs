@@ -67,4 +67,43 @@ public class MimeTypeTests
         Assert.IsTrue(MimeType.Application.Json.DoesContentTypeMatch("application/json ; charset=utf-8"));
         Assert.IsFalse(MimeType.Application.Json.DoesContentTypeMatch("application/jNONONOson"));
     }
+
+    [DataTestMethod]
+    [DataRow("image/jpeg")]
+    [DataRow("image/png")]
+    [DataRow("image/gif")]
+    [DataRow("image/bmp")]
+    [DataRow("image/svg+xml")]
+    [DataRow("image/tiff")]
+    [DataRow("image/webp")]
+    [DataRow(".jpg")]
+    [DataRow(".jpeg")]
+    [DataRow(".jpe")]
+    [DataRow(".png")]
+    [DataRow(".gif")]
+    [DataRow(".bmp")]
+    [DataRow(".svg")]
+    [DataRow(".tif")]
+    [DataRow(".tiff")]
+    [DataRow(".webp")]
+    public void IsImage_PositiveCases(string input)
+    {
+        Assert.IsTrue(MimeType.IsImage(input));
+    }
+
+    [DataTestMethod]
+    [DataRow("application/json")]
+    [DataRow("text/plain")]
+    [DataRow("video/mp4")]
+    [DataRow("audio/mp3")]
+    [DataRow(".txt")]
+    [DataRow(".json")]
+    [DataRow(".mp4")]
+    [DataRow(".mp3")]
+    [DataRow("")]
+    [DataRow(null)]
+    public void IsImage_NegativeCases(string input)
+    {
+        Assert.IsFalse(MimeType.IsImage(input));
+    }
 }
