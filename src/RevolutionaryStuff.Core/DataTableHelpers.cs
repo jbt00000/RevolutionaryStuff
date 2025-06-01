@@ -71,6 +71,29 @@ public static class DataTableHelpers
         return dt;
     }
 
+    public static int GetInt(this DataRow dataRow, string columnName, int fallback=default, Func<object, int> converter = null)
+    {
+        try
+        {
+            var o = dataRow[columnName];
+            if (o != DBNull.Value && o != null)
+            {
+                if (TypeHelpers.IsNumber(o.GetType()))
+                {
+                    return Convert.ToInt32(o);
+                }
+                if (converter != null)
+                {
+                    return converter(o);
+                }
+                return Parse.ParseInt32(o.ToString(), fallback);
+            }
+        }
+        catch (Exception)
+        { }
+        return fallback;
+    }
+
     public static string GetString(this DataRow dataRow, string columnName, Func<object, string> converter = null)
     {
         var o = dataRow[columnName];

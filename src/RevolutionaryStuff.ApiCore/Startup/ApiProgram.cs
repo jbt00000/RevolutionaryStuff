@@ -150,7 +150,7 @@ public abstract class ApiProgram
         if (c.EnableMgmtEchoRoute)
         {
             app.MapGet("/mgmt/echo/{message}", (string message) => $"{message} {message} {message}...").ManagementApi("Echo");
-            app.MapPost("/mgmt/echo/{message}", async (HttpContext context) =>
+            app.MapPost("/mgmt/echo", async (HttpContext context) =>
             {
                 var message = await context.Request.Body.ReadToEndAsync();
                 return $"{message} {message} {message}...";

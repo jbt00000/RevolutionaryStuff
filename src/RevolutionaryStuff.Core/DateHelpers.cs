@@ -30,6 +30,15 @@ public static class DateHelpers
         return !dt.IsWeekday();
     }
 
+    public static string ToMilitaryTime(this TimeOnly dt, bool includeSeconds = true)
+        => dt.ToString(includeSeconds ? "HH:mm:ss" : "HH:mm");
+
+    public static string ToMilitaryTime(this DateTime dt, bool includeSeconds=true)
+        => dt.ToString(includeSeconds ? "HH:mm:ss" : "HH:mm");
+
+    public static string ToMilitaryTime(this DateTimeOffset dt, bool includeSeconds = true)
+        => dt.ToString(includeSeconds ? "HH:mm:ss" : "HH:mm");
+
     public static string ToYYYY_MM_DD(this DateTime dt)
         => dt.ToString("yyyy-MM-dd");
 
