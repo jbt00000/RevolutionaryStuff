@@ -27,13 +27,13 @@ public sealed partial class MimeType
         if (contentTypeOrExtension == null) return false;
         if (!items.NullSafeAny()) return false;
         var ext = Path.GetExtension(contentTypeOrExtension);
-        if (ext!=null && ext.Length > 0 && !ext.StartsWith("."))
+        if (ext != null && ext.Length > 0 && !ext.StartsWith("."))
         {
             ext = null;
         }
         foreach (var item in items)
         {
-            if (item.DoesContentTypeMatch(contentTypeOrExtension) || (ext!=null && item.DoesExtensionMatch(ext))) return true;
+            if (item.DoesContentTypeMatch(contentTypeOrExtension) || (ext != null && item.DoesExtensionMatch(ext))) return true;
         }
         return false;
     }

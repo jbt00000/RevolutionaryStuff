@@ -71,22 +71,16 @@ public static class DataTableHelpers
         return dt;
     }
 
-    public static int GetInt(this DataRow dataRow, string columnName, int fallback=default, Func<object, int> converter = null)
+    public static int GetInt(this DataRow dataRow, string columnName, int fallback = default, Func<object, int> converter = null)
     {
         try
         {
             var o = dataRow[columnName];
             if (o != DBNull.Value && o != null)
             {
-                if (TypeHelpers.IsNumber(o.GetType()))
-                {
-                    return Convert.ToInt32(o);
-                }
-                if (converter != null)
-                {
-                    return converter(o);
-                }
-                return Parse.ParseInt32(o.ToString(), fallback);
+                return TypeHelpers.IsNumber(o.GetType())
+                    ? Convert.ToInt32(o)
+                    : converter != null ? converter(o) : Parse.ParseInt32(o.ToString(), fallback);
             }
         }
         catch (Exception)

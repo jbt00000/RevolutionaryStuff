@@ -39,7 +39,7 @@ public interface IHttpMessageSender
         return new(await resp.Content.ReadAsStreamAsync(), resp);
     }
 
-    public record GetDataResult(Stream Stream, HttpResponseMessage Message)
+    record GetDataResult(Stream Stream, HttpResponseMessage Message)
     {
         public string ContentType => Message.Content.Headers.ContentType?.ToString() ?? MimeType.Application.OctetStream.PrimaryContentType;
         public long? ContentLength => Message.Content.Headers.ContentLength;

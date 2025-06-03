@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Azure.Services.Authentication;
+using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 using RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus;
 using RevolutionaryStuff.Azure.Workers;
 using RevolutionaryStuff.Core.ApplicationParts;
@@ -26,6 +27,9 @@ public static class Use
 
         services.ConfigureOptions<DefaultAzureTokenCredentialProvider.Config>(DefaultAzureTokenCredentialProvider.Config.ConfigSectionName);
         services.AddSingleton<IAzureTokenCredentialProvider, DefaultAzureTokenCredentialProvider>();
+
+        services.ConfigureOptions<DefaultMessageExecutor.Config>(DefaultMessageExecutor.Config.ConfigSectionName);
+        services.AddScoped<IDefaultMessageExecutor, DefaultMessageExecutor>();
 
         services.ConfigureOptions<ServiceBusWorker.Config>(settings?.ServiceBusWorkerConfigSectionName ?? ServiceBusWorker.Config.ConfigSectionName);
         services.ConfigureOptions<ServiceBusMessageSender.ServiceBusMessageSenderConfig>(settings?.ServiceBusMessageSenderConfigSectionName ?? ServiceBusMessageSender.ServiceBusMessageSenderConfig.ConfigSectionName);

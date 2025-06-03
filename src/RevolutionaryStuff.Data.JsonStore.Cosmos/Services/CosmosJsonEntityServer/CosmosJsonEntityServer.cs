@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
@@ -70,17 +71,22 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     {
         get
         {
-            if (CosmosClientField == null && !CosmosClientByTenantId.TryGetValue(TenantId, out CosmosClientField))
+            if (CosmosClientField == null)
             {
-                var config = ConfigOptions.Value;
-                var connectionString = GetConnectionString(config.ConnectionStringName);
-                _ = TenantId; //store locally before the lock as this may execute synchronously
-                lock (CosmosClientByTenantId)
+                var tid = TenantId;
+                TenantIdMissingException.ThrowIfMissing(tid);
+                if (!CosmosClientByTenantId.TryGetValue(tid, out CosmosClientField))
                 {
-                    CosmosClientField = CosmosClientByTenantId.FindOrCreate(
-                        TenantId,
-                        () => ConstructCosmosClient(connectionString, CreateCosmosClientOptions())
-                        );
+                    var config = ConfigOptions.Value;
+                    var connectionString = GetConnectionString(config.ConnectionStringName);
+                    _ = TenantId; //store locally before the lock as this may execute synchronously
+                    lock (CosmosClientByTenantId)
+                    {
+                        CosmosClientField = CosmosClientByTenantId.FindOrCreate(
+                            TenantId,
+                            () => ConstructCosmosClient(connectionString, CreateCosmosClientOptions())
+                            );
+                    }
                 }
             }
             return CosmosClientField;
