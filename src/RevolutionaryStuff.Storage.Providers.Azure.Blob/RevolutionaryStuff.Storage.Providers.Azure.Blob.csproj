@@ -37,19 +37,18 @@
         <EmbeddedResource Include="appsettings.Production.json">
             <DependentUpon>appsettings.json</DependentUpon>
         </EmbeddedResource>
+        <EmbeddedResource Include="appsettings.Staging.json">
+            <DependentUpon>appsettings.json</DependentUpon>
+        </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\RevolutionaryStuff.ApiCore\RevolutionaryStuff.ApiCore.csproj" />
+        <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.22.0" />
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
-        <!--
-		<PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.2" />
-		-->
-        <PackageReference Include="Refit" Version="8.0.0" />
-        <PackageReference Include="Refit.HttpClientFactory" Version="8.0.0" />
+      <ProjectReference Include="..\RevolutionaryStuff.Azure\RevolutionaryStuff.Azure.csproj" />
+      <ProjectReference Include="..\RevolutionaryStuff.Storage\RevolutionaryStuff.Storage.csproj" />
     </ItemGroup>
 
     <ItemGroup>
