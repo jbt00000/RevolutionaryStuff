@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using RevolutionaryStuff.Storage.Implementation;
 
 namespace RevolutionaryStuff.Storage;
 
@@ -85,6 +86,20 @@ public interface IFolderEntry : IEntry
     {
         var f = await OpenFolderAsync(name) ?? await CreateFolderAsync(name);
         return f;
+    }
+
+    async Task<IList<IEntry>> GetAllEntriesAsync(bool recurse = false)
+    {
+        var items = new List<IEntry>();
+        var res = await FindAsync(recurse ? FindCriteria.AllItemsAllFolderFindCriteria : FindCriteria.AllItemsCurrentFolderFindCriteria);
+Again:
+        if (res != null && res.Entries != null && res.Entries.Count > 0)
+        {
+            items.AddRange(res.Entries);
+            res = await res.NextAsync();
+            goto Again;
+        }
+        return items;
     }
 
     #endregion

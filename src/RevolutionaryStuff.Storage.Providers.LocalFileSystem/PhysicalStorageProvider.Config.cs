@@ -1,4 +1,4 @@
-namespace Traffk.StorageProviders.Providers.PhysicalStorage;
+﻿namespace RevolutionaryStuff.Storage.Providers.LocalFileSystem;
 
 public partial class PhysicalStorageProvider
 {

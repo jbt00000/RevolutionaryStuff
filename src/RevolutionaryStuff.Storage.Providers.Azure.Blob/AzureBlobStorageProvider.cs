@@ -11,7 +11,7 @@ using RevolutionaryStuff.Storage.Implementation;
 using RevolutionaryStuff.Storage.Implementation.Base;
 using RevolutionaryStuff.Storage.Providers.Azure.Blob;
 
-namespace Traffk.StorageProviders.Providers.AzureBlobStorageProvider;
+namespace RevolutionaryStuff.Storage.Providers.Azure.Blob;
 
 public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobStorageProvider
 {
@@ -29,11 +29,11 @@ public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobS
     internal readonly BlobContainerClient ContainerClient;
 
 
-    private Azure.Storage.Blobs.Models.UserDelegationKey UserDelegationKey;
+    private global::Azure.Storage.Blobs.Models.UserDelegationKey UserDelegationKey;
     private DateTimeOffset UserDelegationKeyExpiration;
     private TimeSpan UserDelegationKeyMaxExpiration = TimeSpan.FromDays(7);
 
-    internal async Task<Azure.Storage.Blobs.Models.UserDelegationKey> GetUserDelegationKeyAsync(DateTimeOffset expiresOn)
+    internal async Task<global::Azure.Storage.Blobs.Models.UserDelegationKey> GetUserDelegationKeyAsync(DateTimeOffset expiresOn)
     {
         if (UserDelegationKey == null || expiresOn > UserDelegationKeyExpiration)
         {

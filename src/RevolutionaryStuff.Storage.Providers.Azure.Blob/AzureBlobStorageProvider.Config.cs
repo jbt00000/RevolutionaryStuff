@@ -1,6 +1,6 @@
 ﻿using RevolutionaryStuff.Core.ApplicationParts;
 
-namespace Traffk.StorageProviders.Providers.AzureBlobStorageProvider;
+namespace RevolutionaryStuff.Storage.Providers.Azure.Blob;
 
 public partial class AzureBlobStorageProvider
 {

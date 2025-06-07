@@ -1,11 +1,9 @@
 ﻿using System.IO;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using RevolutionaryStuff.Storage;
 using RevolutionaryStuff.Storage.Implementation.Base;
-using RevolutionaryStuff.Storage.Providers.LocalFileSystem;
 
-namespace Traffk.StorageProviders.Providers.PhysicalStorage;
+namespace RevolutionaryStuff.Storage.Providers.LocalFileSystem;
 public partial class PhysicalStorageProvider : BaseStorageProvider, IPhysicalStorageProvider
 {
     private readonly IOptions<Config> ConfigOptions;
