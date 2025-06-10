@@ -6,10 +6,8 @@ using Azure.Storage.Files.DataLake;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.ApplicationParts;
-using RevolutionaryStuff.Storage;
 using RevolutionaryStuff.Storage.Implementation;
 using RevolutionaryStuff.Storage.Implementation.Base;
-using RevolutionaryStuff.Storage.Providers.Azure.Blob;
 
 namespace RevolutionaryStuff.Storage.Providers.Azure.Blob;
 

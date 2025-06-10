@@ -60,7 +60,7 @@ public static class DependencyInjectionHelpers
             implementationType = sd.ImplementationType;
         }
         return implementationType == null
-            ? throw new TypeLoadException($"Could not find a seervice description for {typeof(SERVICE_TYPE)}")
+            ? throw new TypeLoadException($"Could not find a service description for {typeof(SERVICE_TYPE)}")
             : (SERVICE_TYPE)serviceProvider.Construct(implementationType, overriddenLoadedDependencies);
     }
 

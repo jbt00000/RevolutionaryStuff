@@ -6,6 +6,7 @@ using RevolutionaryStuff.Core.Services.Correlation;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
 using RevolutionaryStuff.Core.Services.Http;
 using RevolutionaryStuff.Core.Services.TemporaryStreamFactory;
+using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Core;
@@ -19,6 +20,8 @@ public static class Use
         public string RevolutionaryStuffCoreConfigSectionName { get; set; }
 
         public string TemporaryStreamFactoryConfigSectionName { get; set; }
+
+        public string ConfiguredTenantIdProviderConfigSectionName { get; set; }
     }
 
     public static void UseRevolutionaryStuffCore(this IServiceCollection services, Settings settings = null)
@@ -52,6 +55,12 @@ public static class Use
         services.AddSingleton(IJsonSerializer.Default);
 
         services.ConfigureOptions<BuilderConfig>(settings?.BuilderConfigConfigSectionName ?? BuilderConfig.ConfigSectionName);
+
+        #region Tenant
+        services.ConfigureOptions<ConfiguredTenantIdProvider.Config>(settings?.ConfiguredTenantIdProviderConfigSectionName ?? ConfiguredTenantIdProvider.Config.ConfigSectionName);
+        services.AddScoped<IConfiguredTenantIdProvider, ConfiguredTenantIdProvider>();
+        services.AddScoped<ISoftTenantIdProvider, SoftTenantIdProvider>();
+        #endregion
 
         #region Services
         services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
