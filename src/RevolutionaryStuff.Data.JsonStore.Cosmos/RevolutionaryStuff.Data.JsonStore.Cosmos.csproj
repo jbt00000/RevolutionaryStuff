@@ -21,9 +21,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.92.90.0</FileVersion>
-        <AssemblyVersion>4.92.90.0</AssemblyVersion>
-        <Version>4.92.90</Version>
+        <FileVersion>4.95.90.0</FileVersion>
+        <AssemblyVersion>4.95.90.0</AssemblyVersion>
+        <Version>4.95.90</Version>
         <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
     </PropertyGroup>
     <ItemGroup>
@@ -40,7 +40,7 @@
         <Using Include="RevolutionaryStuff.Core" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Polly" Version="8.5.2" />
+        <PackageReference Include="Polly" Version="8.6.0" />
         <PackageReference Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
     </ItemGroup>
     <ItemGroup>

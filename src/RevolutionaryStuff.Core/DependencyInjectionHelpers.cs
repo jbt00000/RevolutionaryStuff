@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Collections;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
+using RevolutionaryStuff.Core.Services.Tenant;
 
 namespace RevolutionaryStuff.Core;
 
@@ -97,32 +98,32 @@ NextConstructor:
         throw new TypeLoadException($"Could not find a workable constructor to instantiate {t}");
     }
 
-    public static void ConfigureTenantedOptions<TTenantFinder, TTenantIdType, TOptions>(this IServiceCollection services, string sectionName)
-        where TTenantFinder : ITenantFinder<TTenantIdType>
+    public static void ConfigureTenantedOptions<TTenantFinder, TOptions>(this IServiceCollection services, string sectionName)
+        where TTenantFinder : ITenantIdProvider
         where TOptions : class, new()
     {
-        services.ConfigureOptions<TenantedConfig<TTenantIdType, TOptions>>(sectionName);
-        services.AddScoped<IOptions<TOptions>, TenantedOptionsWrapper<TTenantFinder, TTenantIdType, TOptions>>();
+        services.ConfigureOptions<TenantedConfig<TOptions>>(sectionName);
+        services.AddScoped<IOptions<TOptions>, TenantedOptionsWrapper<TTenantFinder, TOptions>>();
     }
 
-    private class TenantedConfig<TTenantIdType, TConfig>
+    private class TenantedConfig<TConfig>
     {
-        public Dictionary<TTenantIdType, TConfig> Tenants { get; } = [];
+        public Dictionary<string, TConfig> Tenants { get; } = [];
     }
 
-    private class TenantedOptionsWrapper<TTenantFinder, TTenantIdType, TOptions> : IOptions<TOptions>
-        where TTenantFinder : ITenantFinder<TTenantIdType>
+    private class TenantedOptionsWrapper<TTenantFinder, TOptions> : IOptions<TOptions>
+        where TTenantFinder : ITenantIdProvider
         where TOptions : class, new()
     {
-        private readonly TTenantFinder TenantFinder;
-        private readonly IOptions<TenantedConfig<TTenantIdType, TOptions>> TenantedConfigOptions;
+        private readonly ITenantIdProvider TenantProvider;
+        private readonly IOptions<TenantedConfig<TOptions>> TenantedConfigOptions;
 
-        public TenantedOptionsWrapper(TTenantFinder tenantFinder, IOptions<TenantedConfig<TTenantIdType, TOptions>> tenantedConfigOptions)
+        public TenantedOptionsWrapper(TTenantFinder tenantFinder, IOptions<TenantedConfig<TOptions>> tenantedConfigOptions)
         {
             ArgumentNullException.ThrowIfNull(tenantFinder);
             ArgumentNullException.ThrowIfNull(tenantedConfigOptions);
 
-            TenantFinder = tenantFinder;
+            TenantProvider = tenantFinder;
             TenantedConfigOptions = tenantedConfigOptions;
         }
 
@@ -130,7 +131,7 @@ NextConstructor:
         {
             get
             {
-                var tid = TenantFinder.GetTenantIdAsync().ExecuteSynchronously();
+                var tid = TenantProvider.GetTenantId();
                 var tenantedConfig = TenantedConfigOptions.Value;
 
                 TOptions c;
@@ -138,11 +139,11 @@ NextConstructor:
                 {
                     if (!tenantedConfig.Tenants.TryGetValue(tid, out c))
                     {
-                        var dtid = (TTenantIdType)(typeof(TTenantIdType) == typeof(string) ? "" : typeof(TTenantIdType).GetDefaultValue());
-                        if (!tenantedConfig.Tenants.TryGetValue(dtid, out c))
+                        const string defaultTenantId = "";
+                        if (!tenantedConfig.Tenants.TryGetValue(defaultTenantId, out c))
                         {
                             c = new();
-                            tenantedConfig.Tenants[dtid] = c;
+                            tenantedConfig.Tenants[defaultTenantId] = c;
                         }
                     }
                 }

@@ -15,11 +15,10 @@ using MAC = Microsoft.Azure.Cosmos;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
-public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntityContainer, ITenanted<string>
+public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntityContainer
 {
     private readonly ICosmosJsonEntityContainer I;
     protected readonly Container Container;
-    protected readonly string TenantId;
     private readonly IOptions<CosmosJsonEntityServerConfig> ServerConfigOptions;
 
     public override string ToString()
@@ -31,24 +30,16 @@ public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntit
     Container ICosmosJsonEntityContainer.Container
         => Container;
 
-    string ITenanted<string>.TenantId
-    {
-        get => TenantId;
-        set => throw new NotSupportedException();
-    }
-
     protected CosmosJsonEntityServerConfig.ContainerConfig ContainerConfig
         => ServerConfigOptions.Value.ContainerConfigByContainerKey.GetValueOrDefault(ContainerId);
 
-    public CosmosJsonEntityContainer(Container container, string tenantId, IOptions<CosmosJsonEntityServerConfig> serverConfigOptions, ILogger logger)
+    public CosmosJsonEntityContainer(Container container, IOptions<CosmosJsonEntityServerConfig> serverConfigOptions, ILogger logger)
         : base(logger)
     {
         ArgumentNullException.ThrowIfNull(container);
-        Requires.Text(tenantId);
 
         I = this;
         Container = container;
-        TenantId = tenantId;
         ServerConfigOptions = serverConfigOptions;
     }
 

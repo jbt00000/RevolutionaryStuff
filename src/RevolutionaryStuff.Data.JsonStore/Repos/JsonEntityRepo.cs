@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Caching;
+using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.JsonStore.Entities;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
@@ -16,7 +17,8 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
     protected readonly IJsonEntityRepo<TBaseEntity> I;
     private bool CacherIsScoped;
 
-    private string? TenantId => (this as ITenanted<string>)?.TenantId;
+    private string? TenantId
+        => field ??= (this as ITenantIdHolder)?.TenantId;
 
     /// <summary>
     /// This is a cacher that is scoped to the current TenantId
@@ -171,7 +173,7 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
     IQueryable<TItem> IJsonEntityRepo<TBaseEntity>.GetQueryable<TItem>(QueryOptions requestOptions)
     {
         var q = GetContainer<TItem>().GetQueryable<TItem>(requestOptions);
-        if (typeof(TItem) is ITenanted<string>)
+        if (typeof(TItem) is ITenantIdHolder)
         {
             var methodInfo = GetType().GetMethod(nameof(AppendTenantedQueryableConstraint), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             var genericMethod = methodInfo.MakeGenericMethod(typeof(TItem));
@@ -182,7 +184,7 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
     }
 
     private IQueryable<TItem> AppendTenantedQueryableConstraint<TItem>(IQueryable<TItem> q)
-        where TItem : TBaseEntity, ITenanted<string>
+        where TItem : TBaseEntity, ITenantIdHolder
     {
         var tid = TenantId;
         if (tid != null)
@@ -191,7 +193,6 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
         }
         return q;
     }
-
     Task IJsonEntityRepo<TBaseEntity>.CreateItemsAsync<TItem>(IList<TItem> entities)
     {
         if (!entities.NullSafeAny())

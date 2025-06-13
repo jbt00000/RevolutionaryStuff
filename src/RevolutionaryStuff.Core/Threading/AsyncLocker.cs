@@ -22,4 +22,17 @@ public sealed class AsyncLocker : BaseDisposable
             Semaphore.Release();
         }
     }
+
+    public async Task<T> GoAsync<T>(Func<Task<T>> a)
+    {
+        await Semaphore.WaitAsync();
+        try
+        {
+            return await a();
+        }
+        finally
+        {
+            Semaphore.Release();
+        }
+    }
 }

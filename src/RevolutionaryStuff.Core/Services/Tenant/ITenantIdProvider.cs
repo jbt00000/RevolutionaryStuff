@@ -2,7 +2,5 @@
 
 public interface ITenantIdProvider
 {
-    Task<string> GetTenantIdAsync();
+    string GetTenantId();
 }
-
-

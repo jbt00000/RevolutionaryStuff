@@ -12,32 +12,23 @@ using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
-public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposable, IJsonEntityServer
-    where TTenantFinder : ITenantFinder<string>
+public abstract class CosmosJsonEntityServer : BaseLoggingDisposable, IJsonEntityServer
 {
-    private static readonly IDictionary<string, CosmosClient> CosmosClientByTenantId = new ConcurrentDictionary<string, CosmosClient>();
+    private static readonly IDictionary<string, CosmosClient> CosmosClientByConnectionString = new ConcurrentDictionary<string, CosmosClient>();
     private readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
     protected readonly IServiceProvider ServiceProvider;
-    protected readonly TTenantFinder TenantFinder;
     protected readonly IOptions<CosmosJsonEntityServerConfig> ConfigOptions;
-    private CosmosClient? CosmosClientField;
-    private string? TenantIdField;
     private readonly IDictionary<string, IJsonEntityContainer> JsonEntityContainerByRepositoryId = new ConcurrentDictionary<string, IJsonEntityContainer>();
 
-    protected CosmosJsonEntityServer(TTenantFinder tenantFinder, CosmosJsonEntityServerConstructorArgs constructorArgs, ILogger logger)
+    protected CosmosJsonEntityServer(CosmosJsonEntityServerConstructorArgs constructorArgs, ILogger logger)
         : base(logger)
     {
-        ArgumentNullException.ThrowIfNull(tenantFinder);
         ArgumentNullException.ThrowIfNull(constructorArgs);
 
-        TenantFinder = tenantFinder;
         AzureTokenCredentialProvider = constructorArgs.AzureTokenCredentialProvider;
         ServiceProvider = constructorArgs.ServiceProvider;
         ConfigOptions = constructorArgs.ConfigOptions;
     }
-
-    protected string TenantId
-        => TenantIdField ??= TenantFinder.GetTenantIdAsync().ExecuteSynchronously();
 
     /// <summary>
     /// This should take into account the current TenantId
@@ -64,32 +55,28 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
         cosmosClientOptions.ApplicationName = config.ApplicationName ?? RevolutionaryStuffCoreConfig.GetApplicationName(ServiceProvider.GetRequiredService<IConfiguration>());
     }
 
-    protected virtual IJsonEntityContainer CreateJsonEntityContainer(Container container)
-        => new CosmosJsonEntityContainer(container, TenantId, ConfigOptions, ServiceProvider.GetRequiredService<ILogger<CosmosJsonEntityContainer>>());
+    protected abstract IJsonEntityContainer CreateJsonEntityContainer(Container container);
 
     private CosmosClient CosmosClient
     {
         get
         {
-            if (CosmosClientField == null)
+            if (field == null)
             {
-                var tid = TenantId;
-                TenantIdMissingException.ThrowIfMissing(tid);
-                if (!CosmosClientByTenantId.TryGetValue(tid, out CosmosClientField))
+                var config = ConfigOptions.Value;
+                var connectionString = GetConnectionString(config.ConnectionStringName);
+                if (!CosmosClientByConnectionString.TryGetValue(connectionString, out field))
                 {
-                    var config = ConfigOptions.Value;
-                    var connectionString = GetConnectionString(config.ConnectionStringName);
-                    _ = TenantId; //store locally before the lock as this may execute synchronously
-                    lock (CosmosClientByTenantId)
+                    lock (CosmosClientByConnectionString)
                     {
-                        CosmosClientField = CosmosClientByTenantId.FindOrCreate(
-                            TenantId,
+                        field = CosmosClientByConnectionString.FindOrCreate(
+                            connectionString,
                             () => ConstructCosmosClient(connectionString, CreateCosmosClientOptions())
                             );
                     }
                 }
             }
-            return CosmosClientField;
+            return field;
         }
     }
 
@@ -109,13 +96,18 @@ public abstract class CosmosJsonEntityServer<TTenantFinder> : BaseLoggingDisposa
     IJsonEntityContainer IJsonEntityServer.GetContainer(string containerId)
     {
         Requires.Text(containerId);
-
         return JsonEntityContainerByRepositoryId.FindOrCreate(containerId, () =>
         {
+
             var containerInfo = GetContainerConfig(containerId);
             ArgumentNullException.ThrowIfNull(containerInfo, $"Cannot find containerInfo for containerKey=[{containerId}]");
             var container = CosmosClient.GetContainer(containerInfo.DatabaseConfig.DatabaseId, containerInfo.ContainerId);
-            return CreateJsonEntityContainer(container);
+            var jec = CreateJsonEntityContainer(container);
+            if (this is ITenantIdProvider tenantIdProvider && jec is ITenantIdHolder tenantIdHolder)
+            {
+                tenantIdHolder.TenantId = tenantIdProvider.GetTenantId();
+            }
+            return jec;
         });
     }
 }

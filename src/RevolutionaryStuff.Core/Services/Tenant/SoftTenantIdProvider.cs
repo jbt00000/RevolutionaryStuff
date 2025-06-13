@@ -5,9 +5,9 @@ internal class SoftTenantIdProvider : ISoftTenantIdProvider
     public SoftTenantIdProvider()
     { }
 
-    public string TenantId 
-    { 
-        get => field; 
+    public string TenantId
+    {
+        get => field;
         set
         {
             if (field != null && field != value)
@@ -18,6 +18,6 @@ internal class SoftTenantIdProvider : ISoftTenantIdProvider
         }
     }
 
-    Task<string> ITenantIdProvider.GetTenantIdAsync()
-        => Task.FromResult(TenantId);
+    string ITenantIdProvider.GetTenantId()
+        => TenantId;
 }

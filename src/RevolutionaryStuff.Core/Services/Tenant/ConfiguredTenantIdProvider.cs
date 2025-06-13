@@ -10,8 +10,8 @@ internal class ConfiguredTenantIdProvider(IOptions<ConfiguredTenantIdProvider.Co
         public string TenantId { get; set; }
     }
 
-    Task<string> ITenantIdProvider.GetTenantIdAsync()
-        => Task.FromResult(ConfigOptions.Value.TenantId);
+    string ITenantIdProvider.GetTenantId()
+        => ConfigOptions.Value.TenantId;
 }
 
 

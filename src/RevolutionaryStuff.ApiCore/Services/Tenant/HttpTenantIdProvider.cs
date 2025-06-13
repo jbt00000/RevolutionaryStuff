@@ -51,7 +51,7 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
 
     private bool TenantIdFetched;
 
-    Task<string?> ITenantIdProvider.GetTenantIdAsync()
+    string? ITenantIdProvider.GetTenantId()
     {
         if (!TenantIdFetched)
         {
@@ -92,7 +92,7 @@ SetTheTenantId:
             TenantId = val;
             TenantIdFetched = true;
         }
-        return Task.FromResult(TenantId);
+        return TenantId;
     }
 }
 
