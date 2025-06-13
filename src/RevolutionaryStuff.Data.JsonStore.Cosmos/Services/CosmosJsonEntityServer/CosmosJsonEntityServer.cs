@@ -93,6 +93,9 @@ public abstract class CosmosJsonEntityServer : BaseLoggingDisposable, IJsonEntit
     protected virtual CosmosJsonEntityServerConfig.ContainerConfig GetContainerConfig(string containerKey)
         => ConfigOptions.Value.ContainerConfigByContainerKey?.GetValue(containerKey);
 
+    protected virtual string GetTenantId()
+        => null;
+
     IJsonEntityContainer IJsonEntityServer.GetContainer(string containerId)
     {
         Requires.Text(containerId);
@@ -103,9 +106,13 @@ public abstract class CosmosJsonEntityServer : BaseLoggingDisposable, IJsonEntit
             ArgumentNullException.ThrowIfNull(containerInfo, $"Cannot find containerInfo for containerKey=[{containerId}]");
             var container = CosmosClient.GetContainer(containerInfo.DatabaseConfig.DatabaseId, containerInfo.ContainerId);
             var jec = CreateJsonEntityContainer(container);
-            if (this is ITenantIdProvider tenantIdProvider && jec is ITenantIdHolder tenantIdHolder)
+            if (jec is ITenantIdHolder tenantIdHolder)
             {
-                tenantIdHolder.TenantId = tenantIdProvider.GetTenantId();
+                var tenantId = GetTenantId();
+                if (tenantId != null)
+                {
+                    tenantIdHolder.TenantId = tenantId;
+                }
             }
             return jec;
         });

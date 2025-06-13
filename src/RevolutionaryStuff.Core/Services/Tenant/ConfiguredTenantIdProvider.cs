@@ -13,5 +13,3 @@ internal class ConfiguredTenantIdProvider(IOptions<ConfiguredTenantIdProvider.Co
     string ITenantIdProvider.GetTenantId()
         => ConfigOptions.Value.TenantId;
 }
-
-

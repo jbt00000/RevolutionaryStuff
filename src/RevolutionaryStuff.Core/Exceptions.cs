@@ -273,21 +273,6 @@ public static class ExceptionExtensions
     }
 }
 
-public class CrossTenantException : Exception
-{
-    public readonly object ExpectedTenantId;
-    public readonly object ActualTenantId;
-    public readonly object O;
-
-    public CrossTenantException(object expectedTenantId, object newTenantId, object o)
-        : base($"expectedTenantId={expectedTenantId} actualTenantId={newTenantId} o.Type={o?.GetType()}")
-    {
-        ExpectedTenantId = expectedTenantId;
-        ActualTenantId = newTenantId;
-        O = o;
-    }
-}
-
 public class HttpStatusCodeException : CodedException<System.Net.HttpStatusCode>
 {
     #region Constructors

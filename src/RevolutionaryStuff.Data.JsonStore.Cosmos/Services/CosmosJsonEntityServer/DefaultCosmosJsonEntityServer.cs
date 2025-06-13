@@ -2,21 +2,31 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
-public abstract class DefaultCosmosJsonEntityServer<TTenantFinder> : CosmosJsonEntityServer
+public abstract class DefaultCosmosJsonEntityServer : CosmosJsonEntityServer
 {
+    public record DefaultCosmosJsonEntityServerConstructorArgs(
+        IConnectionStringProvider ConnectionStringProvider, ITenantIdProvider TenantIdProvider, CosmosJsonEntityServerConstructorArgs BaseConstructorArgs)
+    { }
+
     private readonly IConnectionStringProvider ConnectionStringProvider;
+    private readonly ITenantIdProvider TenantIdProvider;
 
-    protected DefaultCosmosJsonEntityServer(IConnectionStringProvider connectionStringProvider, TTenantFinder tenantFinder, CosmosJsonEntityServerConstructorArgs constructorArgs, ILogger logger)
-        : base(constructorArgs, logger)
+    protected DefaultCosmosJsonEntityServer(DefaultCosmosJsonEntityServerConstructorArgs constructorArgs, ILogger logger)
+        : base(constructorArgs.BaseConstructorArgs, logger)
     {
-        ArgumentNullException.ThrowIfNull(connectionStringProvider);
+        ArgumentNullException.ThrowIfNull(constructorArgs.ConnectionStringProvider);
 
-        ConnectionStringProvider = connectionStringProvider;
+        ConnectionStringProvider = constructorArgs.ConnectionStringProvider;
+        TenantIdProvider = constructorArgs.TenantIdProvider;
     }
+
+    protected override string GetTenantId() 
+        => TenantIdProvider.GetTenantId();
 
     protected override string GetConnectionString(string connectionStringName)
         => ConnectionStringProvider.GetConnectionString(connectionStringName);

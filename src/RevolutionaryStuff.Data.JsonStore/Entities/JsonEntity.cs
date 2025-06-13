@@ -6,6 +6,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
+using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
@@ -147,10 +148,18 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     }
 
     public void PreSave(IJsonEntityContainer container)
-        => OnPreSave(container);
+    {
+        ArgumentNullException.ThrowIfNull(container);
+        OnPreSave(container);
+    }
 
     protected virtual void OnPreSave(IJsonEntityContainer container)
-    { }
+    {
+        if (container is ITenantIdHolder containerTenantIdHolder && this is ITenantIdHolder myTenantIdHolder)
+        {
+            CrossTenantException.ThrowIfCrossTenant(containerTenantIdHolder, myTenantIdHolder);
+        }
+    }
 
 
     #region IValidate
