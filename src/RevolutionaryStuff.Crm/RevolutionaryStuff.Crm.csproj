@@ -42,6 +42,7 @@
         <Using Include="System.Collections.Generic" />
         <Using Include="System.Linq" />
         <Using Include="System.Threading.Tasks" />
+        <Using Include="Microsoft.Extensions.Logging" />
         <Using Include="RevolutionaryStuff.Core" />
     </ItemGroup>
     <ItemGroup>

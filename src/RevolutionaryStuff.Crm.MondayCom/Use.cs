@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Crm.MondayCom.Implementation;
 
 namespace RevolutionaryStuff.Crm.MondayCom;
 public static class Use
@@ -15,5 +16,9 @@ public static class Use
             () =>
             {
                 services.UseRevolutionaryStuffCrm(settings?.RevolutionaryStuffCrmSettings);
+                services.ConfigureOptions<MondayComApiService.Config>(MondayComApiService.Config.ConfigSectionName);
+                services.AddScoped<IMondayComApi, Implementation.MondayComApiService>();
+                services.ConfigureOptions<MondayComCrm.Config>(MondayComCrm.Config.ConfigSectionName);
+                services.AddScoped<IMondayComCrm, Implementation.MondayComCrm>();
             });
 }

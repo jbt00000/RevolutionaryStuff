@@ -15,5 +15,7 @@ public static class Use
             () =>
             {
                 services.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreSettings);
+
+                services.AddScoped<Implementation.Crm.CrmConstructorArgs>();
             });
 }
