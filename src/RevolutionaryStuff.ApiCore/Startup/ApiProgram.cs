@@ -45,7 +45,7 @@ public abstract class ApiProgram
     protected virtual void SetupConfiguration(WebApplicationBuilder builder, string[] args)
     {
         var configuration = builder.Configuration;
-        AssemblySettingsResourceStacking.DiscoverThenStack(configuration, builder.Environment.EnvironmentName, GetType().Assembly);
+        AssemblySettingsResourceStacking.DiscoverThenStack(configuration, builder.Environment.EnvironmentName, GetType().Assembly, null, Logger);
         SetupConfigurationForRemoteConfigs(builder);
         SetupConfigurationForRemoteSecrets(builder);
         configuration.AddEnvironmentVariables();
@@ -189,6 +189,19 @@ public abstract class ApiProgram
         }
     }
 
+    private static ILogger CreateStartupLogger()
+    {
+        using var earlyLoggerFactory = LoggerFactory.Create(builder =>
+        {
+            builder
+                // Write to System.Diagnostics.Debug — shows up in VS Output → Debug
+                .AddDebug()
+                // (optional) capture everything ≥ Trace
+                .SetMinimumLevel(LogLevel.Trace);
+        });
+        return earlyLoggerFactory.CreateLogger<ApiProgram>();
+    }
+
     protected virtual void UseHttpsRedirection(WebApplication app)
         => app.UseHttpsRedirection();
 
@@ -196,6 +209,9 @@ public abstract class ApiProgram
     {
         ArgumentNullException.ThrowIfNull(args);
         Requires.SingleCall(ref GoCalled);
+
+        Stuff.LoggerOfLastResort = Logger = CreateStartupLogger();
+        Logger.LogInformation("Starting up - pre app");
 
         var builder = WebApplication.CreateBuilder(args);
 
@@ -211,6 +227,8 @@ public abstract class ApiProgram
         var app = builder.Build();
 
         Stuff.LoggerOfLastResort = Logger = (ILogger)app.Services.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
+
+        Logger.LogInformation("Starting up - app created");
 
         app.UseExceptionHandler();
 

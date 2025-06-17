@@ -242,8 +242,13 @@ public static partial class StringHelpers
     public static string TruncateWithEllipsis(this string s, int len, string ellipsis = "...")
     {
         if (s == null) return null;
+        if (len <= 0) return string.Empty;
         if (s.Length > len)
         {
+            if (ellipsis.Length >= len)
+            {
+                return ellipsis[..len]; // Return truncated ellipsis if it's longer than allowed length
+            }
             s = s[..(len - ellipsis.Length)] + ellipsis;
             Debug.Assert(s.Length == len);
         }
@@ -253,8 +258,14 @@ public static partial class StringHelpers
     public static string TruncateWithMidlineEllipsis(this string s, int len, string ellipsis = "---")
     {
         if (s == null) return null;
+        if (len <= 0) return string.Empty;
         if (s.Length > len)
         {
+            if (ellipsis.Length >= len)
+            {
+                return ellipsis[..len]; // Return truncated ellipsis if it's longer than allowed length
+            }
+            
             var pivot = len * 2 / 3;
             var left = s[..(pivot - ellipsis.Length)];
             var right = s[^(len - pivot)..];

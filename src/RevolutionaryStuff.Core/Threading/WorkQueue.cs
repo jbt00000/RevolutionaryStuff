@@ -38,6 +38,7 @@ public class WorkQueue : BaseDisposable
 
     public void Enqueue(Action a)
     {
+        CheckNotDisposed();
         Queue.Enqueue(a);
         IsBored.Set();
     }
@@ -58,6 +59,7 @@ public class WorkQueue : BaseDisposable
 
     public void WaitTillDone()
     {
+        CheckNotDisposed();
         for (; ; )
         {
             IsBored.WaitOne();
@@ -98,14 +100,37 @@ public class WorkQueue : BaseDisposable
 
     public void Flush()
     {
+        CheckNotDisposed();
         while (Queue.TryDequeue(out var a)) ;
     }
 
     protected override void OnDispose(bool disposing)
     {
-        PleaseStop.Set();
-        while (IsBusy) Thread.Sleep(100);
-        IsBored.Set();
+        if (disposing)
+        {
+            PleaseStop.Set();
+            
+            // Give threads time to finish
+            const int maxWaitTime = 5000; // 5 seconds max wait time
+            const int waitInterval = 100;
+            int totalWaited = 0;
+            
+            while (IsBusy && totalWaited < maxWaitTime)
+            {
+                Thread.Sleep(waitInterval);
+                totalWaited += waitInterval;
+            }
+            
+            IsBored.Set();
+            
+            // Dispose WaitHandles
+            PleaseStop.Dispose();
+            IsBored.Dispose();
+            
+            // Clear the queue
+            Flush();
+        }
+        
         base.OnDispose(disposing);
     }
 }

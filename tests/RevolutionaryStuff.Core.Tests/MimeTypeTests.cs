@@ -106,4 +106,44 @@ public class MimeTypeTests
     {
         Assert.IsFalse(MimeType.IsImage(input));
     }
+    
+    [TestMethod]
+    public void Image_Svg_PropertiesTest()
+    {
+        Assert.AreEqual("image/svg+xml", MimeType.Image.Svg.PrimaryContentType);
+        Assert.AreEqual(".svg", MimeType.Image.Svg.PrimaryFileExtension);
+        Assert.IsTrue(MimeType.Image.Svg.DoesContentTypeMatch("image/svg+xml"));
+        Assert.IsTrue(MimeType.Image.Svg.DoesExtensionMatch(".svg"));
+        Assert.IsTrue(MimeType.Image.Svg.DoesExtensionMatch("test.svg"));
+    }
+    
+    [TestMethod]
+    public void IsA_Image_Tests()
+    {
+        // Test specific image type is an image/*
+        Assert.IsTrue(MimeType.IsA("image/svg+xml", "image/*"));
+        Assert.IsTrue(MimeType.IsA("image/jpeg", "image/*"));
+        
+        // Test exact matches
+        Assert.IsTrue(MimeType.IsA("image/svg+xml", "image/svg+xml"));
+        
+        // Test case insensitivity 
+        Assert.IsTrue(MimeType.IsA("IMAGE/SVG+XML", "image/svg+xml"));
+        Assert.IsTrue(MimeType.IsA("image/svg+xml", "IMAGE/SVG+XML"));
+        
+        // Test with parameters
+        Assert.IsTrue(MimeType.IsA("image/svg+xml; charset=utf-8", "image/svg+xml"));
+    }
+    
+    [TestMethod]
+    public void IsA_Image_Negative_Tests()
+    {
+        // Test non-images aren't images
+        Assert.IsFalse(MimeType.IsA("text/plain", "image/*"));
+        Assert.IsFalse(MimeType.IsA("application/json", "image/*"));
+        
+        // Test specific type mismatches
+        Assert.IsFalse(MimeType.IsA("image/png", "image/svg+xml"));
+        Assert.IsFalse(MimeType.IsA("image/svg+xml", "image/png"));
+    }
 }

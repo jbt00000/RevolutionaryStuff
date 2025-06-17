@@ -19,9 +19,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.97.90.0</FileVersion>
-        <AssemblyVersion>4.97.90.0</AssemblyVersion>
-        <Version>4.97.90</Version>
+        <FileVersion>4.98.90.0</FileVersion>
+        <AssemblyVersion>4.98.90.0</AssemblyVersion>
+        <Version>4.98.90</Version>
         <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
     </PropertyGroup>
     <ItemGroup>
@@ -41,7 +41,7 @@
         <PackageReference Include="Azure.Identity" Version="1.14.0" />
         <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.7.0" />
         <!-- can't upgrade Microsoft.Azure.Cosmos past 3.35.2 while Microsoft.Azure.Cosmos.Encryption is at 2.0.3 -->
-        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.51.0">
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.52.0">
             <TreatAsUsed>true</TreatAsUsed>
         </PackageReference>
     </ItemGroup>

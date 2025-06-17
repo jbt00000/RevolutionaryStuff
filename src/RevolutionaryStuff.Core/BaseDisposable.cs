@@ -67,8 +67,10 @@ public abstract class BaseDisposable : IDisposable
     }
 
     protected void RegisterDisposableObject(IDisposable d)
-        => RegisterDisposeAction(() => Stuff.Dispose(d));
-
+    {
+        if (d == null) return;
+        RegisterDisposeAction(() => Stuff.Dispose(d));
+    }
 
     /// <summary>
     /// Override this function to handle calls to dispose.

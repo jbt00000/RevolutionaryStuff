@@ -12,6 +12,7 @@ public sealed class AsyncLocker : BaseDisposable
 
     public async Task GoAsync(Func<Task> a)
     {
+        CheckNotDisposed();
         await Semaphore.WaitAsync();
         try
         {
@@ -25,6 +26,7 @@ public sealed class AsyncLocker : BaseDisposable
 
     public async Task<T> GoAsync<T>(Func<Task<T>> a)
     {
+        CheckNotDisposed();
         await Semaphore.WaitAsync();
         try
         {
@@ -34,5 +36,14 @@ public sealed class AsyncLocker : BaseDisposable
         {
             Semaphore.Release();
         }
+    }
+    
+    protected override void OnDispose(bool disposing)
+    {
+        if (disposing)
+        {
+            Semaphore.Dispose();
+        }
+        base.OnDispose(disposing);
     }
 }

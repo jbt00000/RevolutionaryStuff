@@ -100,7 +100,10 @@ public static class AssemblySettingsResourceStacking
     public record ApplyOptions(string DefaultBaseResourceName) { }
 
     public static void DiscoverThenStack(this IConfigurationBuilder builder, string environmentName, Assembly a, DiscoverOptions discoverOptions = null, ILogger logger = null, ApplyOptions applyOptions = null)
-        => builder.Stack(environmentName, Discover(a, discoverOptions, logger), logger, applyOptions);
+    {
+        var items = Discover(a, discoverOptions, logger);
+        builder.Stack(environmentName, items, logger, applyOptions);
+    }
 
     public static void Stack(this IConfigurationBuilder builder, string environmentName, IEnumerable<ResourceInfo> resourceInfos, ILogger logger = null, ApplyOptions applyOptions = null)
     {
