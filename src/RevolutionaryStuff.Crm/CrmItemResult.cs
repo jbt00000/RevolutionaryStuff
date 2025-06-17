@@ -1,6 +1,6 @@
 ﻿namespace RevolutionaryStuff.Crm;
 
-public abstract record CrmItemResult
+public abstract record CrmItemResult : ICrmItemResult
 {
     public string? Id { get; init; }
 
