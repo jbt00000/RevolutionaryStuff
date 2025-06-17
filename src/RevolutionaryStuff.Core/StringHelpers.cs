@@ -265,7 +265,7 @@ public static partial class StringHelpers
             {
                 return ellipsis[..len]; // Return truncated ellipsis if it's longer than allowed length
             }
-            
+
             var pivot = len * 2 / 3;
             var left = s[..(pivot - ellipsis.Length)];
             var right = s[^(len - pivot)..];

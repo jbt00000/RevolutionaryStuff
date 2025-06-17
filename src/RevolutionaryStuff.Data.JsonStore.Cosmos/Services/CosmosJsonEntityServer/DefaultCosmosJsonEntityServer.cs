@@ -25,7 +25,7 @@ public abstract class DefaultCosmosJsonEntityServer : CosmosJsonEntityServer
         TenantIdProvider = constructorArgs.TenantIdProvider;
     }
 
-    protected override string GetTenantId() 
+    protected override string GetTenantId()
         => TenantIdProvider.GetTenantId();
 
     protected override string GetConnectionString(string connectionStringName)

@@ -37,7 +37,7 @@ public sealed class AsyncLocker : BaseDisposable
             Semaphore.Release();
         }
     }
-    
+
     protected override void OnDispose(bool disposing)
     {
         if (disposing)

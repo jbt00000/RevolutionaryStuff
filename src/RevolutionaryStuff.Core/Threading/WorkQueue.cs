@@ -109,28 +109,28 @@ public class WorkQueue : BaseDisposable
         if (disposing)
         {
             PleaseStop.Set();
-            
+
             // Give threads time to finish
             const int maxWaitTime = 5000; // 5 seconds max wait time
             const int waitInterval = 100;
-            int totalWaited = 0;
-            
+            var totalWaited = 0;
+
             while (IsBusy && totalWaited < maxWaitTime)
             {
                 Thread.Sleep(waitInterval);
                 totalWaited += waitInterval;
             }
-            
+
             IsBored.Set();
-            
+
             // Dispose WaitHandles
             PleaseStop.Dispose();
             IsBored.Dispose();
-            
+
             // Clear the queue
             Flush();
         }
-        
+
         base.OnDispose(disposing);
     }
 }
