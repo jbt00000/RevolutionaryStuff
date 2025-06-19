@@ -103,14 +103,14 @@ internal class MondayComCrm(IMondayComApi Api, IOptions<MondayComCrm.Config> Con
     protected override async Task<CreateCrmItemResult> OnCreateContactAsync(ICrmContact contact, CreateCrmItemSettings settings)
     {
         var m = await GetMondayBoardAsync(CrmRecordTypeEnum.Contact);
-        var res = await Api.CreateItemAsync(m.Board.Id, contact.Name, m.MapFieldVals(contact.ToDictionary(), ContactFieldsToIgnoreOnCreate));
+        var res = await Api.CreateItemAsync(m.Board.Id, contact.Name, m.MapFieldVals(contact.ToDictionary(), ContactFieldsToIgnoreOnCreate), settings?.GroupName);
         return new CreateCrmItemResult(res.ItemId);
     }
 
     protected override async Task<CreateCrmItemResult> OnCreateLeadAsync(ICrmContact contact, CreateCrmItemSettings settings)
     {
         var m = await GetMondayBoardAsync(CrmRecordTypeEnum.Lead);
-        var res = await Api.CreateItemAsync(m.Board.Id, contact.Name, m.MapFieldVals(contact.ToDictionary(), [CrmLeadFieldEnum.Name.EnumWithEnumMemberValuesToString()]));
+        var res = await Api.CreateItemAsync(m.Board.Id, contact.Name, m.MapFieldVals(contact.ToDictionary(), [CrmLeadFieldEnum.Name.EnumWithEnumMemberValuesToString()]), settings?.GroupName);
         return new CreateCrmItemResult(res.ItemId);
     }
 
@@ -124,7 +124,7 @@ internal class MondayComCrm(IMondayComApi Api, IOptions<MondayComCrm.Config> Con
     {
         var m = await GetMondayBoardAsync(tableName);
         ItemNotFoundException.ThrowIfNull(m, tableName);
-        var res = await Api.CreateItemAsync(m.Board.Id, name, m.MapFieldVals(fieldByName, null));
+        var res = await Api.CreateItemAsync(m.Board.Id, name, m.MapFieldVals(fieldByName, null), settings?.GroupName);
         return new CreateCrmItemResult(res?.ItemId);
     }
 }

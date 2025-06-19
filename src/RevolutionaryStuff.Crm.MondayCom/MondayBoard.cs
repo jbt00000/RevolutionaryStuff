@@ -55,6 +55,9 @@ public class MondayBoard
     public override string ToString()
         => $"[{Name}] - {Id}";
 
-    public MondayColumn? GetColumnByName(string name)
+    public MondayGroup? GetGroupByName(string? name)
+        => Groups.NullSafeEnumerable().FirstOrDefault(z => 0 == StringHelpers.CompareIgnoreCase(z.Title, name));
+
+    public MondayColumn? GetColumnByName(string? name)
         => Columns.NullSafeEnumerable().FirstOrDefault(z => 0 == StringHelpers.CompareIgnoreCase(z.Title, name));
 }

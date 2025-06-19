@@ -44,7 +44,7 @@ internal class MondayComApiService : BaseLoggingDisposable, IMondayComApi
             GetBoardsLocker.Dispose();
     }
 
-    private async Task<string> SendGraphQLAsync(string query, object variables = null)
+    private async Task<string> SendGraphQLAsync(string query, object? variables = null)
     {
         var config = ConfigOptions.Value;
         var requestBody = JsonSerializer.Serialize(new { query, variables });
@@ -59,15 +59,15 @@ internal class MondayComApiService : BaseLoggingDisposable, IMondayComApi
         return await response.Content.ReadAsStringAsync();
     }
 
-    private IList<MondayBoard> Boards;
+    private IList<MondayBoard>? Boards;
 
-    async Task<MondayBoard> IMondayComApi.GetBoardByNameAsync(string name)
+    async Task<MondayBoard?> IMondayComApi.GetBoardByNameAsync(string name)
     {
         var boards = await I.GetBoardsAsync();
-        return boards.FirstOrDefault(b => b.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        return boards.FirstOrDefault(b => 0 == StringHelpers.CompareIgnoreCase(b.Name, name));
     }
 
-    async Task<IList<MondayBoard>> IMondayComApi.GetBoardsAsync(IList<string> boardIds)
+    async Task<IList<MondayBoard>> IMondayComApi.GetBoardsAsync(IList<string>? boardIds)
     {
         if (Boards == null)
         {
@@ -120,7 +120,7 @@ internal class MondayComApiService : BaseLoggingDisposable, IMondayComApi
     }
 
     // Find item by column value
-    async Task<IList<MondayBoardAndItemId>> IMondayComApi.FindItemsByFieldAsync(string boardId, string columnNameOrId, string value, int? maxItems)
+    async Task<IList<MondayBoardAndItemId>> IMondayComApi.FindItemsByFieldAsync(string boardId, string columnNameOrId, string? value, int? maxItems)
     {
         Requires.Text(columnNameOrId);
 
@@ -171,7 +171,8 @@ internal class MondayComApiService : BaseLoggingDisposable, IMondayComApi
     async Task<MondayBoardAndItemId> IMondayComApi.CreateItemAsync(
         string boardId,
         string itemName,
-        IDictionary<string, object?>? columnNameValues)
+        IDictionary<string, object?>? columnNameValues,
+        string? groupName)
     {
         // Get the board and its columns
         var board = (await I.GetBoardsAsync([boardId])).NullSafeEnumerable().FirstOrDefault();
@@ -292,7 +293,8 @@ internal class MondayComApiService : BaseLoggingDisposable, IMondayComApi
                 name
             }
         }";
-        var variables = new { boardId = long.Parse(boardId), itemName, groupId = board.TopGroup.Id, columnValues = JsonSerializer.Serialize(columnValues) };
+        var group = board.GetGroupByName(groupName) ?? board.TopGroup;
+        var variables = new { boardId = long.Parse(boardId), itemName, groupId = group?.Id, columnValues = JsonSerializer.Serialize(columnValues) };
         var json = await SendGraphQLAsync(query, variables);
         var createItemResponse = JsonSerializer.Deserialize<MondayCreateItemResponse>(json, new JsonSerializerOptions
         {
