@@ -158,6 +158,7 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
         if (container is ITenantIdHolder containerTenantIdHolder && this is ITenantIdHolder myTenantIdHolder)
         {
             CrossTenantException.ThrowIfCrossTenant(containerTenantIdHolder, myTenantIdHolder);
+            myTenantIdHolder.TenantId = containerTenantIdHolder.TenantId;
         }
     }
 
