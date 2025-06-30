@@ -68,7 +68,6 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
                             try
                             {
                                 val = context.Request.Headers[s.KeyName!].SingleOrDefault().TrimOrNull();
-                                goto SetTheTenantId;
                             }
                             catch (InvalidOperationException)
                             { }
@@ -77,7 +76,6 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
                             try
                             {
                                 val = context.Request.Query[s.KeyName!].SingleOrDefault().TrimOrNull();
-                                goto SetTheTenantId;
                             }
                             catch (InvalidOperationException)
                             { }
@@ -85,10 +83,14 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
                         default:
                             throw new UnexpectedSwitchValueException(s.SourceLocation);
                     }
+                    val = val?.TrimOrNull();
+                    if (val != null)
+                    {
+                        break;
+                    }
                 }
             }
             val ??= config.FallbackTenantId;
-SetTheTenantId:
             TenantId = val;
             TenantIdFetched = true;
         }

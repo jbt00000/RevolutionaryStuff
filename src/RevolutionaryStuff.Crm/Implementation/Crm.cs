@@ -19,7 +19,7 @@ public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
     private ICrm I => this;
 
 
-    Task<FindCrmItemResult> ICrm.FindRecordByFieldValueAsync(string tableName, string fieldName, object fieldVal, FindCrmItemSettings settings)
+    Task<FindCrmItemResult> ICrm.FindRecordByFieldValueAsync(string tableName, string fieldName, object fieldVal, FindCrmItemSettings? settings)
     {
         Requires.Text(tableName);
         Requires.Text(fieldName);
@@ -29,7 +29,7 @@ public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
     protected abstract Task<FindCrmItemResult> OnFindRecordByFieldValueAsync(string tableName, string fieldName, object fieldVal, FindCrmItemSettings settings);
 
 
-    Task<CreateCrmItemResult> ICrm.CreateContactAsync(ICrmContact contact, CreateCrmItemSettings settings)
+    Task<CreateCrmItemResult> ICrm.CreateContactAsync(ICrmContact contact, CreateCrmItemSettings? settings)
     {
         ArgumentNullException.ThrowIfNull(contact);
         return OnCreateContactAsync(contact, settings ?? DefaultCreateCrmItemSettings);
@@ -37,7 +37,7 @@ public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
 
     protected abstract Task<CreateCrmItemResult> OnCreateContactAsync(ICrmContact contact, CreateCrmItemSettings settings);
 
-    Task<CreateCrmItemResult> ICrm.CreateLeadAsync(ICrmContact contact, CreateCrmItemSettings settings)
+    Task<CreateCrmItemResult> ICrm.CreateLeadAsync(ICrmContact contact, CreateCrmItemSettings? settings)
     {
         ArgumentNullException.ThrowIfNull(contact);
         return OnCreateLeadAsync(contact, settings ?? DefaultCreateCrmItemSettings);
@@ -51,7 +51,7 @@ public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
     private CrmLeadFieldEnum GetCrmLeadFieldEnum(CrmLeadContactJointFieldEnum e)
         => Parse.ParseEnumWithEnumMemberValues<CrmLeadFieldEnum>(e.EnumWithEnumMemberValuesToString());
 
-    async Task<FindCrmItemResult> ICrm.FindContactOrLeadByFieldValueAsync(CrmLeadContactJointFieldEnum fieldName, object fieldVal, FindCrmItemSettings settings)
+    async Task<FindCrmItemResult> ICrm.FindContactOrLeadByFieldValueAsync(CrmLeadContactJointFieldEnum fieldName, object fieldVal, FindCrmItemSettings? settings)
     {
         var tLead = I.FindLeadByFieldValueAsync(GetCrmLeadFieldEnum(fieldName), fieldVal, settings);
         var tContact = I.FindContactByFieldValueAsync(GetCrmContactFieldEnum(fieldName), fieldVal, settings);
@@ -60,7 +60,7 @@ public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
     }
 
 
-    async Task<FindOrCreateCrmItemResult> ICrm.FindCreateContactOrLeadOnMissingCreateLeadAsync(CrmLeadContactJointFieldEnum fieldName, object fieldVal, ICrmContact contact, FindOrCreateCrmItemSettings settings)
+    async Task<FindOrCreateCrmItemResult> ICrm.FindCreateContactOrLeadOnMissingCreateLeadAsync(CrmLeadContactJointFieldEnum fieldName, object fieldVal, ICrmContact contact, FindOrCreateCrmItemSettings? settings)
     {
         var findSettings = settings?.FindCrmItemSettings ?? DefaultFindOrCreateCrmItemSettings.FindCrmItemSettings;
         var createSettings = settings?.CreateCrmItemSettings ?? DefaultFindOrCreateCrmItemSettings.CreateCrmItemSettings;
@@ -82,7 +82,7 @@ public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
         return OnCheckHasTableAsync(tableName);
     }
 
-    async Task<CreateCrmItemResult> ICrm.CreateItemAsync(string tableName, string name, IDictionary<string, object> fieldByName, CreateCrmItemSettings settings)
+    async Task<CreateCrmItemResult> ICrm.CreateItemAsync(string tableName, string name, IDictionary<string, object> fieldByName, CreateCrmItemSettings? settings)
     {
         await CheckHasTableAsync(tableName);
         return await OnCreateItemAsync(tableName, name, fieldByName, settings ?? DefaultCreateCrmItemSettings);

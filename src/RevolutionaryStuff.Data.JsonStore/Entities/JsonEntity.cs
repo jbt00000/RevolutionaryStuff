@@ -50,6 +50,16 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
         AdditionalData[name] = jel;
     }
 
+    public bool TryGetAdditionalDataPoco<TPoco>(string key, out TPoco? poco)
+        where TPoco : class
+    {
+        poco = default;
+        if (key == null || AdditionalData == null || !AdditionalData.ContainsKey(key)) return false;
+        var jel = AdditionalData[key];
+        poco = JsonHelpers.FromJsonElement<TPoco>(jel);
+        return true;
+    }
+
     [Key] //This is required by ODataSources
     [JsonPropertyName(JsonEntityPropertyNames.Id)]
     public string Id { get; set; }
