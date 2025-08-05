@@ -173,7 +173,7 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
     IQueryable<TItem> IJsonEntityRepo<TBaseEntity>.GetQueryable<TItem>(QueryOptions requestOptions)
     {
         var q = GetContainer<TItem>().GetQueryable<TItem>(requestOptions);
-        if (typeof(TItem) is ITenantIdHolder)
+        if (typeof(TItem).IsA<ITenantIdHolder>())
         {
             var methodInfo = GetType().GetMethod(nameof(AppendTenantedQueryableConstraint), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
             var genericMethod = methodInfo.MakeGenericMethod(typeof(TItem));
