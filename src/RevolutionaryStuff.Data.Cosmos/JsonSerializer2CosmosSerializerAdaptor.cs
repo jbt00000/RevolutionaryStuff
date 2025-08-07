@@ -93,7 +93,9 @@ public class JsonSerializer2CosmosSerializerAdaptor(IJsonSerializer JsonSerializ
 
                         // If it's a duplicate $type inside an object, skip the entire value
                         if (propName == propertyName
+                            && contextStack.Count > 0
                             && contextStack.Peek() == Context.Object
+                            && seenTypeStack.Count > 0
                             && seenTypeStack.Peek())
                         {
                             SkipValue(ref reader);
@@ -101,7 +103,7 @@ public class JsonSerializer2CosmosSerializerAdaptor(IJsonSerializer JsonSerializ
                         }
 
                         // Otherwise write the name (and mark first $type as seen)
-                        if (propName == propertyName && contextStack.Peek() == Context.Object)
+                        if (propName == propertyName && contextStack.Count>0 && contextStack.Peek() == Context.Object)
                         {
                             seenTypeStack.Pop();
                             seenTypeStack.Push(true);
@@ -118,8 +120,10 @@ public class JsonSerializer2CosmosSerializerAdaptor(IJsonSerializer JsonSerializ
                     case JsonTokenType.True:
                     case JsonTokenType.False:
                     case JsonTokenType.Null:
-                        if (contextStack.Peek() == Context.Array)
+                        if (contextStack.Count > 0 && contextStack.Peek() == Context.Array)
+                        {
                             WritePrimitive(ref reader, writer);
+                        }
                         break;
                 }
             }
