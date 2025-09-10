@@ -64,6 +64,9 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonPropertyName(JsonEntityPropertyNames.Id)]
     public string Id { get; set; }
 
+    [JsonPropertyName(JsonEntityPropertyNames.TenantId)]
+    public string TenantId { get; set; }
+
     [JsonPropertyName(JsonEntityPropertyNames.SoftDeletedAt)]
     public DateTimeOffset? SoftDeletedAt { get; set; }
 

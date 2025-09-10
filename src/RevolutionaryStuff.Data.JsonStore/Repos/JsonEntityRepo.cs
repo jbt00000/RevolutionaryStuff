@@ -175,24 +175,16 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
         var q = GetContainer<TItem>().GetQueryable<TItem>(requestOptions);
         if (typeof(TItem).IsA<ITenantIdHolder>())
         {
-            var methodInfo = GetType().GetMethod(nameof(AppendTenantedQueryableConstraint), System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic);
-            var genericMethod = methodInfo.MakeGenericMethod(typeof(TItem));
-            q = (IQueryable<TItem>)genericMethod.Invoke(this, [q]);
+            var tid = TenantId;
+            if (tid != null)
+            {
+                q = q.Where(z => z.TenantId == tid);
+            }
         }
         //TODO: NEED TO ADD :: q = q.Where(z => z.SoftDeletedAt == null);
         return q;
     }
 
-    private IQueryable<TItem> AppendTenantedQueryableConstraint<TItem>(IQueryable<TItem> q)
-        where TItem : TBaseEntity, ITenantIdHolder
-    {
-        var tid = TenantId;
-        if (tid != null)
-        {
-            q = q.Where(z => z.TenantId == tid);
-        }
-        return q;
-    }
     Task IJsonEntityRepo<TBaseEntity>.CreateItemsAsync<TItem>(IList<TItem> entities)
     {
         if (!entities.NullSafeAny())
