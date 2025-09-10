@@ -121,7 +121,7 @@ public sealed partial class MimeType
         public static readonly MimeType Svg = new("image/svg+xml", ".svg");
         public static readonly MimeType Tiff = new("image/tiff", ".tif", ".tiff");
         public static readonly MimeType WebP = new("image/webp", ".webp");
-        
+
         // Modern and missing image formats
         public static readonly MimeType Avif = new("image/avif", ".avif");
         public static readonly MimeType Heic = new("image/heic", ".heic");
@@ -136,7 +136,7 @@ public sealed partial class MimeType
         public static readonly MimeType Tga = new("image/x-targa", ".tga");
         public static readonly MimeType Xbm = new("image/x-xbitmap", ".xbm");
         public static readonly MimeType Xpm = new("image/x-xpixmap", ".xpm");
-        
+
         internal static readonly IList<MimeType> All = new[] { Any, Bmp, Gif, Jpg, Png, Svg, Tiff, WebP, Avif, Heic, Heif, Jxl, Icon, Apng, Jfif, Psd, Raw, Pcx, Tga, Xbm, Xpm }.ToList().AsReadOnly();
         public static bool HasMatch(string contentTypeOrExtension)
             => MimeType.HasMatch(contentTypeOrExtension, All);
@@ -165,7 +165,7 @@ public sealed partial class MimeType
         public static readonly MimeType OpusAudio = new("audio/opus", ".opus");
         public static readonly MimeType Waveform = new("audio/wav", ".wav");
         public static readonly MimeType WebmAudio = new("audio/webm", ".weba");
-        
+
         // Modern and missing audio formats
         public static readonly MimeType Flac = new("audio/flac", ".flac");
         public static readonly MimeType Mp4Audio = new("audio/mp4", ".m4a", ".mp4a");
@@ -182,7 +182,7 @@ public sealed partial class MimeType
         public static readonly MimeType Ra = new("audio/vnd.rn-realaudio", ".ra", ".ram");
         public static readonly MimeType Ac3 = new("audio/ac3", ".ac3");
         public static readonly MimeType Dts = new("audio/vnd.dts", ".dts");
-        
+
         internal static readonly IList<MimeType> All = new[] { Any, Aac, Mp3, Midi, CompactDiskAudio, OggAudio, OpusAudio, Waveform, WebmAudio, Flac, Mp4Audio, AlacAudio, Wma, Aiff, Au, Amr, _3gppAudio, _3gpp2Audio, Dsd, Ape, Mka, Ra, Ac3, Dts }.ToList().AsReadOnly();
         public static bool HasMatch(string contentTypeOrExtension)
             => MimeType.HasMatch(contentTypeOrExtension, All);
@@ -203,7 +203,7 @@ public sealed partial class MimeType
         public static readonly MimeType H264 = new("video/h264", ".h264");
         public static readonly MimeType Quicktime = new("video/quicktime", ".mov", ".qt");
         public static readonly MimeType Wmv = new("video/x-ms-wmv", ".wmv");
-        
+
         // Modern and missing video formats
         public static readonly MimeType Mkv = new("video/x-matroska", ".mkv");
         public static readonly MimeType Asf = new("video/x-ms-asf", ".asf");

@@ -103,7 +103,7 @@ public class JsonSerializer2CosmosSerializerAdaptor(IJsonSerializer JsonSerializ
                         }
 
                         // Otherwise write the name (and mark first $type as seen)
-                        if (propName == propertyName && contextStack.Count>0 && contextStack.Peek() == Context.Object)
+                        if (propName == propertyName && contextStack.Count > 0 && contextStack.Peek() == Context.Object)
                         {
                             seenTypeStack.Pop();
                             seenTypeStack.Push(true);

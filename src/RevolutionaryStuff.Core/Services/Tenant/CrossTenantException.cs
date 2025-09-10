@@ -8,7 +8,7 @@ public class CrossTenantException : InvalidOperationException
     public static void ThrowIfCrossTenant(ITenantIdHolder expectedTenantIdHolder, ITenantIdHolder actualTenantIdHolder, bool permitNullActualTenantId = true)
         => ThrowIfCrossTenant(expectedTenantIdHolder?.TenantId, actualTenantIdHolder?.TenantId, permitNullActualTenantId);
 
-    public static void ThrowIfCrossTenant(object expectedTenantId, object actualTenantId, bool permitNullActualTenantId=true)
+    public static void ThrowIfCrossTenant(object expectedTenantId, object actualTenantId, bool permitNullActualTenantId = true)
     {
         if (!Equals(expectedTenantId, actualTenantId))
         {
