@@ -6,6 +6,7 @@
         <Nullable>disable</Nullable>
         <AssemblyName>RevolutionaryStuff.Azure</AssemblyName>
         <PackageId>RevolutionaryStuff.Azure</PackageId>
+        <IsTrimmable>false</IsTrimmable>
         <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -25,9 +26,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
-        <FileVersion>4.106.90.0</FileVersion>
-        <AssemblyVersion>4.106.90.0</AssemblyVersion>
-        <Version>4.106.90</Version>
+        <FileVersion>4.107.90.0</FileVersion>
+        <AssemblyVersion>4.107.90.0</AssemblyVersion>
+        <Version>4.107.90</Version>
     </PropertyGroup>
     <ItemGroup>
         <None Remove="appsettings.Development.json" />
@@ -64,7 +65,7 @@
         <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Azure.Identity" Version="1.14.2" />
+        <PackageReference Include="Azure.Identity" Version="1.16.0" />
         <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
         <PackageReference Include="Azure.Security.KeyVault.Secrets" Version="4.8.0" />
     </ItemGroup>

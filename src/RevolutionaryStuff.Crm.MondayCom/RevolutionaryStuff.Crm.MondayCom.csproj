@@ -5,6 +5,7 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>RevolutionaryStuff.Crm.MondayCom</PackageId>
+        <IsTrimmable>false</IsTrimmable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
         <PackageReleaseNotes>This is now a .NET 9 library</PackageReleaseNotes>
@@ -18,9 +19,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.106.90.0</FileVersion>
-        <AssemblyVersion>4.106.90.0</AssemblyVersion>
-        <Version>4.106.90</Version>
+        <FileVersion>4.107.90.0</FileVersion>
+        <AssemblyVersion>4.107.90.0</AssemblyVersion>
+        <Version>4.107.90</Version>
     </PropertyGroup>
     <ItemGroup>
         <EmbeddedResource Include="appsettings.Development.json">

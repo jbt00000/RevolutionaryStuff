@@ -5,6 +5,7 @@
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <PackageId>RevolutionaryStuff.Crm.OpenPhone</PackageId>
+        <IsTrimmable>false</IsTrimmable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
         <PackageReleaseNotes>This is now a .NET 9 library</PackageReleaseNotes>

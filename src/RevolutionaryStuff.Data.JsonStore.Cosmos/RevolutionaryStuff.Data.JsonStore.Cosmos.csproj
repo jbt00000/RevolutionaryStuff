@@ -8,6 +8,7 @@
         -->
         <RootNamespace>RevolutionaryStuff.Data.JsonStore.Cosmos</RootNamespace>
         <PackageId>RevolutionaryStuff.Data.JsonStore.Cosmos</PackageId>
+        <IsTrimmable>false</IsTrimmable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
         <PackageReleaseNotes>This is now a .NET 9 library</PackageReleaseNotes>
@@ -21,9 +22,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.106.90.0</FileVersion>
-        <AssemblyVersion>4.106.90.0</AssemblyVersion>
-        <Version>4.106.90</Version>
+        <FileVersion>4.107.90.0</FileVersion>
+        <AssemblyVersion>4.107.90.0</AssemblyVersion>
+        <Version>4.107.90</Version>
         <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
     </PropertyGroup>
     <ItemGroup>
@@ -40,7 +41,7 @@
         <Using Include="RevolutionaryStuff.Core" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Polly" Version="8.6.2" />
+        <PackageReference Include="Polly" Version="8.6.3" />
         <PackageReference Include="Polly.Contrib.WaitAndRetry" Version="1.1.1" />
     </ItemGroup>
     <ItemGroup>

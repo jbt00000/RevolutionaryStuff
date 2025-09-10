@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>RevolutionaryStuff.Data.Cosmos</RootNamespace>
         <PackageId>RevolutionaryStuff.Data.Cosmos</PackageId>
+        <IsTrimmable>false</IsTrimmable>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
         <PackageReleaseNotes>This is now a .NET 9 library</PackageReleaseNotes>
@@ -19,9 +20,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.106.90.0</FileVersion>
-        <AssemblyVersion>4.106.90.0</AssemblyVersion>
-        <Version>4.106.90</Version>
+        <FileVersion>4.108.90.0</FileVersion>
+        <AssemblyVersion>4.108.90.0</AssemblyVersion>
+        <Version>4.108.90</Version>
         <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
     </PropertyGroup>
     <ItemGroup>
@@ -38,10 +39,10 @@
         <Using Include="RevolutionaryStuff.Core" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Azure.Identity" Version="1.14.2" />
+        <PackageReference Include="Azure.Identity" Version="1.16.0" />
         <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.8.0" />
         <!-- can't upgrade Microsoft.Azure.Cosmos past 3.35.2 while Microsoft.Azure.Cosmos.Encryption is at 2.0.3 -->
-        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.52.1">
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.53.1">
             <TreatAsUsed>true</TreatAsUsed>
         </PackageReference>
     </ItemGroup>

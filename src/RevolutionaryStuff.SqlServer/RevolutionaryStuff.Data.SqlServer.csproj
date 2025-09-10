@@ -4,6 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <AssemblyName>RevolutionaryStuff.Data.SqlServer</AssemblyName>
         <PackageId>RevolutionaryStuff.SqlServer</PackageId>
+        <IsTrimmable>false</IsTrimmable>
         <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
         <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
         <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
@@ -22,9 +23,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.106.90.0</FileVersion>
-        <AssemblyVersion>4.106.90.0</AssemblyVersion>
-        <Version>4.106.90</Version>
+        <FileVersion>4.107.90.0</FileVersion>
+        <AssemblyVersion>4.107.90.0</AssemblyVersion>
+        <Version>4.107.90</Version>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
@@ -32,7 +33,7 @@
         <None Include="README.md" Pack="true" PackagePath="\" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.2" />
+        <PackageReference Include="Microsoft.Data.SqlClient" Version="6.1.1" />
     </ItemGroup>
     <ItemGroup>
         <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
