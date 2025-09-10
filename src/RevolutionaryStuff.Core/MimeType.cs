@@ -41,6 +41,9 @@ public sealed partial class MimeType
     public static bool IsImage(string contentTypeOrExtension)
         => Image.HasMatch(contentTypeOrExtension);
 
+    public static bool IsVideo(string contentTypeOrExtension)
+        => Video.HasMatch(contentTypeOrExtension);
+
     public static class Application
     {
         public static readonly MimeType Any = "application/*";
@@ -118,7 +121,23 @@ public sealed partial class MimeType
         public static readonly MimeType Svg = new("image/svg+xml", ".svg");
         public static readonly MimeType Tiff = new("image/tiff", ".tif", ".tiff");
         public static readonly MimeType WebP = new("image/webp", ".webp");
-        internal static readonly IList<MimeType> All = new[] { Any, Bmp, Gif, Jpg, Png, Svg, Tiff, WebP }.ToList().AsReadOnly();
+        
+        // Modern and missing image formats
+        public static readonly MimeType Avif = new("image/avif", ".avif");
+        public static readonly MimeType Heic = new("image/heic", ".heic");
+        public static readonly MimeType Heif = new("image/heif", ".heif");
+        public static readonly MimeType Jxl = new("image/jxl", ".jxl");
+        public static readonly MimeType Icon = new("image/x-icon", ".ico");
+        public static readonly MimeType Apng = new("image/apng", ".apng");
+        public static readonly MimeType Jfif = new("image/jpeg", ".jfif");
+        public static readonly MimeType Psd = new("image/vnd.adobe.photoshop", ".psd");
+        public static readonly MimeType Raw = new("image/x-canon-cr2", ".cr2", ".nef", ".arw", ".dng");
+        public static readonly MimeType Pcx = new("image/x-pcx", ".pcx");
+        public static readonly MimeType Tga = new("image/x-targa", ".tga");
+        public static readonly MimeType Xbm = new("image/x-xbitmap", ".xbm");
+        public static readonly MimeType Xpm = new("image/x-xpixmap", ".xpm");
+        
+        internal static readonly IList<MimeType> All = new[] { Any, Bmp, Gif, Jpg, Png, Svg, Tiff, WebP, Avif, Heic, Heif, Jxl, Icon, Apng, Jfif, Psd, Raw, Pcx, Tga, Xbm, Xpm }.ToList().AsReadOnly();
         public static bool HasMatch(string contentTypeOrExtension)
             => MimeType.HasMatch(contentTypeOrExtension, All);
     }
@@ -146,7 +165,25 @@ public sealed partial class MimeType
         public static readonly MimeType OpusAudio = new("audio/opus", ".opus");
         public static readonly MimeType Waveform = new("audio/wav", ".wav");
         public static readonly MimeType WebmAudio = new("audio/webm", ".weba");
-        internal static readonly IList<MimeType> All = new[] { Any, Aac, Mp3, Midi, CompactDiskAudio, OggAudio, OpusAudio, Waveform, WebmAudio }.ToList().AsReadOnly();
+        
+        // Modern and missing audio formats
+        public static readonly MimeType Flac = new("audio/flac", ".flac");
+        public static readonly MimeType Mp4Audio = new("audio/mp4", ".m4a", ".mp4a");
+        public static readonly MimeType AlacAudio = new("audio/x-m4a", ".m4a");
+        public static readonly MimeType Wma = new("audio/x-ms-wma", ".wma");
+        public static readonly MimeType Aiff = new("audio/x-aiff", ".aif", ".aiff", ".aifc");
+        public static readonly MimeType Au = new("audio/basic", ".au", ".snd");
+        public static readonly MimeType Amr = new("audio/amr", ".amr");
+        public static readonly MimeType _3gppAudio = new("audio/3gpp", ".3gp");
+        public static readonly MimeType _3gpp2Audio = new("audio/3gpp2", ".3g2");
+        public static readonly MimeType Dsd = new("audio/dsd", ".dsf", ".dff");
+        public static readonly MimeType Ape = new("audio/x-ape", ".ape");
+        public static readonly MimeType Mka = new("audio/x-matroska", ".mka");
+        public static readonly MimeType Ra = new("audio/vnd.rn-realaudio", ".ra", ".ram");
+        public static readonly MimeType Ac3 = new("audio/ac3", ".ac3");
+        public static readonly MimeType Dts = new("audio/vnd.dts", ".dts");
+        
+        internal static readonly IList<MimeType> All = new[] { Any, Aac, Mp3, Midi, CompactDiskAudio, OggAudio, OpusAudio, Waveform, WebmAudio, Flac, Mp4Audio, AlacAudio, Wma, Aiff, Au, Amr, _3gppAudio, _3gpp2Audio, Dsd, Ape, Mka, Ra, Ac3, Dts }.ToList().AsReadOnly();
         public static bool HasMatch(string contentTypeOrExtension)
             => MimeType.HasMatch(contentTypeOrExtension, All);
     }
@@ -154,19 +191,41 @@ public sealed partial class MimeType
     public static class Video
     {
         public static readonly MimeType Any = new("video/*");
-        public static readonly MimeType _3gp = new("video/3gp");
-        public static readonly MimeType Avi = new("video/avi", ".avi", "video/x-msvideo");
+        public static readonly MimeType _3gp = new("video/3gpp", "video/3gp", ".3gp");
+        public static readonly MimeType Avi = new("video/x-msvideo", "video/avi", ".avi");
         public static readonly MimeType Mp4Video = new("video/mp4", ".mp4");
-        public static readonly MimeType MpegVideo = new("video/mpeg", ".mpeg");
+        public static readonly MimeType MpegVideo = new("video/mpeg", ".mpeg", ".mpg");
         public static readonly MimeType OggVideo = new("video/ogg", ".ogv");
         public static readonly MimeType MpegTransportStream = new("video/mp2t", ".ts");
         public static readonly MimeType WebmVideo = new("video/webm", ".webm");
         public static readonly MimeType _3gp2 = new("video/3gpp2", ".3g2");
-        public static readonly MimeType Flv = new("video/x-flv", "video/flv", ".flv");
-        public static readonly MimeType H264 = new("video/h264");
+        public static readonly MimeType Flv = new("video/x-flv", ".flv");
+        public static readonly MimeType H264 = new("video/h264", ".h264");
         public static readonly MimeType Quicktime = new("video/quicktime", ".mov", ".qt");
-        public static readonly MimeType Wmv = new("video/x-ms-wmv", "video/wmv", ".wmv");
-        internal static readonly IList<MimeType> All = new[] { Any, _3gp, Avi, Flv, H264, Quicktime, Wmv, Mp4Video, MpegVideo, OggVideo, MpegTransportStream, WebmVideo, _3gp2 }.ToList().AsReadOnly();
+        public static readonly MimeType Wmv = new("video/x-ms-wmv", ".wmv");
+        
+        // Modern and missing video formats
+        public static readonly MimeType Mkv = new("video/x-matroska", ".mkv");
+        public static readonly MimeType Asf = new("video/x-ms-asf", ".asf");
+        public static readonly MimeType Vob = new("video/dvd", ".vob");
+        public static readonly MimeType M4v = new("video/x-m4v", ".m4v");
+        public static readonly MimeType Rm = new("application/vnd.rn-realmedia", ".rm");
+        public static readonly MimeType Rmvb = new("application/vnd.rn-realmedia-vbr", ".rmvb");
+        public static readonly MimeType Mxf = new("application/mxf", ".mxf");
+        public static readonly MimeType F4v = new("video/x-f4v", ".f4v");
+        public static readonly MimeType Divx = new("video/divx", ".divx");
+        public static readonly MimeType Xvid = new("video/x-msvideo", ".xvid");
+        public static readonly MimeType H265 = new("video/h265", ".h265");
+        public static readonly MimeType Hevc = new("video/hevc", ".hevc");
+        public static readonly MimeType Av1 = new("video/av01", ".av01");
+        public static readonly MimeType Vp8 = new("video/vp8", ".vp8");
+        public static readonly MimeType Vp9 = new("video/vp9", ".vp9");
+        public static readonly MimeType M2ts = new("video/mp2t", ".m2ts", ".mts");
+        public static readonly MimeType Dv = new("video/dv", ".dv");
+        public static readonly MimeType Mpg2 = new("video/mpeg2", ".mpg2");
+        public static readonly MimeType Mpg4 = new("video/mp4v-es", ".mp4v");
+
+        internal static readonly IList<MimeType> All = new[] { Any, _3gp, Avi, Flv, H264, Quicktime, Wmv, Mp4Video, MpegVideo, OggVideo, MpegTransportStream, WebmVideo, _3gp2, Mkv, Asf, Vob, M4v, Rm, Rmvb, Mxf, F4v, Divx, Xvid, H265, Hevc, Av1, Vp8, Vp9, M2ts, Dv, Mpg2, Mpg4 }.ToList().AsReadOnly();
         public static bool HasMatch(string contentTypeOrExtension)
             => MimeType.HasMatch(contentTypeOrExtension, All);
     }
