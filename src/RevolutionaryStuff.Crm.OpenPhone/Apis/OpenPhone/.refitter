@@ -1,0 +1,22 @@
+﻿{
+  "namespace": "RevolutionaryStuff.Crm.OpenPhone.Apis.OpenPhone",
+  "additionalNamespaces": [
+    "System.IO",
+    "RevolutionaryStuff.Core.ApplicationParts"
+  ],
+  "outputFilename": "OpenPhonePublicApi.cs",
+  "openApiPath": "openphone-public-api-v1-prod.nullfix.json",
+  "skipValidation": true,
+  "operationNameTemplate": "{operationName}Async",
+  //  "operationNameGenerator": "MultipleClientsFromFirstTagAndOperationName",
+  "operationNameGenerator": "SingleClientFromOperationId",
+  "optionalParameters": true,
+  //"multipleInterfaces": "ByTag",
+  "codeGeneratorSettings": {
+    "arrayType": "System.Collections.Generic.IList",
+    "excludedTypeNames": [
+      "BuilderConfig",
+      "ExceptionError"
+    ]
+  }
+}

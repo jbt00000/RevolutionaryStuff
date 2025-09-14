@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using System.Net.Http;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.ApplicationParts;
@@ -191,5 +192,71 @@ NextConstructor:
         }
 
         return service;
+    }
+
+
+    public static IHttpClientBuilder ConfigureHttpClientWithApiConfig<TApiConfig>(this IHttpClientBuilder builder, string configSectionName, Action<IServiceProvider, HttpClient, TApiConfig> configureClient = null)
+    where TApiConfig : ApiConfig
+    {
+        builder.Services.ConfigureOptions<TApiConfig>(configSectionName);
+        return builder.ConfigureHttpClient((sp, hc) =>
+        {
+            var config = sp.GetRequiredService<IOptions<TApiConfig>>().Value;
+            hc.BaseAddress = new Uri(config.BaseAddress);
+            switch (config.AuthorizationType)
+            {
+                case ApiConfig.AuthorizationTypeEnum.Basic:
+                    Requires.Text(config.AuthorizationBasicUsername);
+                    Requires.Text(config.AuthorizationBasicPassword);
+                    hc.DefaultRequestHeaders.AddBasicAuthorization(config.AuthorizationBasicUsername, config.AuthorizationBasicPassword);
+                    break;
+                case ApiConfig.AuthorizationTypeEnum.Bearer:
+                    throw new NotImplementedException("Bearer not yet supported");
+                case ApiConfig.AuthorizationTypeEnum.ApiKey:
+                    Requires.Text(config.ApiKey);
+                    hc.DefaultRequestHeaders.Authorization = new(config.ApiKey);
+                    break;
+                case ApiConfig.AuthorizationTypeEnum.None:
+                    break;
+                default:
+                    if (config.CustomAuthorizationHeaderName != null && config.CustomAuthorizationHeaderValue != null)
+                    {
+                        hc.DefaultRequestHeaders.Add(config.CustomAuthorizationHeaderName, config.CustomAuthorizationHeaderValue);
+                    }
+                    break;
+            }
+            configureClient?.Invoke(sp, hc, config);
+        });
+    }
+
+    public static IHttpClientBuilder ConfigureHttpClientWithApiConfig(this IHttpClientBuilder builder, string configSectionName)
+        => builder.ConfigureHttpClientWithApiConfig<ApiConfig>(configSectionName);
+
+    public class ApiConfig : IValidate
+    {
+        public string BaseAddress { get; set; }
+
+        public enum AuthorizationTypeEnum
+        {
+            None,
+            Basic,
+            Bearer,
+            ApiKey
+        }
+
+        public AuthorizationTypeEnum AuthorizationType { get; set; } = AuthorizationTypeEnum.None;
+
+        public string CustomAuthorizationHeaderName { get; set; }
+        public string CustomAuthorizationHeaderValue { get; set; }
+
+        public string ApiKey { get; set; }
+
+        public string AuthorizationBasicUsername { get; set; }
+        public string AuthorizationBasicPassword { get; set; }
+
+        public virtual void Validate()
+        {
+            Requires.Url(BaseAddress);
+        }
     }
 }

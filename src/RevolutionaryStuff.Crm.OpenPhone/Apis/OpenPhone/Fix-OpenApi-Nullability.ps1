@@ -69,6 +69,131 @@ function Fix-Node {
             Write-Host "✓ Converted $keyword to nullable $schemaType" -ForegroundColor Green
           }
         }
+
+        # Handle anyOf with multiple string types that only differ by pattern/constraints
+        if ($schemaArray.Count -ge 2) {
+          $allStringsWithPatterns = $true
+          $allArraysWithStringItems = $true
+          $hasDescription = $false
+          $bestDescription = $null
+          $hasExamples = $false
+          $bestExamples = $null
+          
+          # Check if all items are strings with different patterns/constraints
+          foreach ($schema in $schemaArray) {
+            if (-not ($schema -is [PSCustomObject] -and 
+                      $schema.PSObject.Properties['type'] -and 
+                      $schema.type -eq 'string')) {
+              $allStringsWithPatterns = $false
+            }
+            
+            if (-not ($schema -is [PSCustomObject] -and 
+                      $schema.PSObject.Properties['type'] -and 
+                      $schema.type -eq 'array' -and
+                      $schema.PSObject.Properties['items'] -and
+                      $schema.items -is [PSCustomObject] -and
+                      $schema.items.PSObject.Properties['type'] -and
+                      $schema.items.type -eq 'string')) {
+              $allArraysWithStringItems = $false
+            }
+            
+            # Capture description and examples from the most descriptive schema
+            if ($schema.PSObject.Properties['description'] -and $schema.description) {
+              $hasDescription = $true
+              if (-not $bestDescription -or $schema.description.Length -gt $bestDescription.Length) {
+                $bestDescription = $schema.description
+              }
+            }
+            
+            if ($schema.PSObject.Properties['examples'] -and $schema.examples) {
+              $hasExamples = $true
+              if (-not $bestExamples) {
+                $bestExamples = $schema.examples
+              }
+            }
+          }
+          
+          # If all are strings with patterns/constraints, simplify to just a string
+          if ($allStringsWithPatterns) {
+            # Remove the anyOf/oneOf
+            $node.PSObject.Properties.Remove($keyword)
+            
+            # Set as simple string type
+            Add-Member -InputObject $node -MemberType NoteProperty -Name 'type' -Value 'string' -Force
+            
+            # Add description if we found one
+            if ($hasDescription) {
+              Add-Member -InputObject $node -MemberType NoteProperty -Name 'description' -Value $bestDescription -Force
+            }
+            
+            # Add examples if we found them
+            if ($hasExamples) {
+              Add-Member -InputObject $node -MemberType NoteProperty -Name 'examples' -Value $bestExamples -Force
+            }
+            
+            # Remove any existing pattern property since we're making it generic
+            if ($nodeProperties['pattern']) {
+              $node.PSObject.Properties.Remove('pattern')
+            }
+            
+            Write-Host "✓ Converted $keyword with $($schemaArray.Count) string patterns to generic string" -ForegroundColor Cyan
+          }
+          # If all are arrays with string items that only differ by constraints, simplify to generic array
+          elseif ($allArraysWithStringItems) {
+            # Remove the anyOf/oneOf
+            $node.PSObject.Properties.Remove($keyword)
+            
+            # Set as simple array of strings
+            Add-Member -InputObject $node -MemberType NoteProperty -Name 'type' -Value 'array' -Force
+            
+            # Create a simple string items schema without constraints
+            $genericItems = [PSCustomObject]@{
+              type = 'string'
+            }
+            
+            # Add description to items if we found one from any of the original items
+            $hasItemDescription = $false
+            $bestItemDescription = $null
+            $hasItemExamples = $false
+            $bestItemExamples = $null
+            
+            foreach ($schema in $schemaArray) {
+              if ($schema.items.PSObject.Properties['description'] -and $schema.items.description) {
+                $hasItemDescription = $true
+                if (-not $bestItemDescription -or $schema.items.description.Length -gt $bestItemDescription.Length) {
+                  $bestItemDescription = $schema.items.description
+                }
+              }
+              if ($schema.items.PSObject.Properties['examples'] -and $schema.items.examples) {
+                $hasItemExamples = $true
+                if (-not $bestItemExamples) {
+                  $bestItemExamples = $schema.items.examples
+                }
+              }
+            }
+            
+            if ($hasItemDescription) {
+              Add-Member -InputObject $genericItems -MemberType NoteProperty -Name 'description' -Value $bestItemDescription -Force
+            }
+            if ($hasItemExamples) {
+              Add-Member -InputObject $genericItems -MemberType NoteProperty -Name 'examples' -Value $bestItemExamples -Force
+            }
+            
+            Add-Member -InputObject $node -MemberType NoteProperty -Name 'items' -Value $genericItems -Force
+            
+            # Add description to the array itself if we found one
+            if ($hasDescription) {
+              Add-Member -InputObject $node -MemberType NoteProperty -Name 'description' -Value $bestDescription -Force
+            }
+            
+            # Add examples to the array if we found them
+            if ($hasExamples) {
+              Add-Member -InputObject $node -MemberType NoteProperty -Name 'examples' -Value $bestExamples -Force
+            }
+            
+            Write-Host "✓ Converted $keyword with $($schemaArray.Count) array constraints to generic string array" -ForegroundColor Magenta
+          }
+        }
       }
     }
 
@@ -135,9 +260,9 @@ try {
   Write-Host "  • Remaining patterns: $finalAnyOfCount" -ForegroundColor $(if ($finalAnyOfCount -eq 0) { 'Green' } else { 'Yellow' })
   
   if ($finalAnyOfCount -eq 0) {
-    Write-Host "`n🎉 SUCCESS: All nullable anyOf patterns have been converted!" -ForegroundColor Green
+    Write-Host "`n🎉 SUCCESS: All anyOf patterns have been converted!" -ForegroundColor Green
   } else {
-    Write-Host "`n⚠️  WARNING: $finalAnyOfCount anyOf patterns remain - these may need manual review" -ForegroundColor Yellow
+    Write-Host "`n⚠️  Note: $finalAnyOfCount anyOf patterns remain - these may be complex non-nullable unions" -ForegroundColor Yellow
   }
   
   Write-Host "`n✅ Successfully wrote OpenAPI 3.0 spec to: $Out" -ForegroundColor Green
