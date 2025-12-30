@@ -42,7 +42,7 @@ internal class ServerInfoFinder(IApplicationNameFinder _applicationNameFinder, I
             EntryPointAssembly = Assembly.GetEntryAssembly()?.FullName,
             ApplicationName = _applicationNameFinder.ApplicationName,
             EnvironmentName = _hostEnvironment.EnvironmentName,
-            EnvironmentVariables = environmentVariables.AsReadOnlyDictionary(),
+            EnvironmentVariables = environmentVariables?.AsReadOnlyDictionary(),
             Configs = configs?.AsReadOnlyDictionary(),
             TargetFramework = AppDomain.CurrentDomain?.SetupInformation?.TargetFrameworkName
         };
