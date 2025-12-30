@@ -45,7 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapr.AspNetCore" Version="1.15.4" />
+        <PackageReference Include="Dapr.AspNetCore" Version="1.16.1" />
         <!--
 		<PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.2" />
 		-->
