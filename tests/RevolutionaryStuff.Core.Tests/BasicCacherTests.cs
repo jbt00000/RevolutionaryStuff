@@ -45,9 +45,9 @@ public class BasicCacherTests
         var cacheVal = "thomas";
         var entry = await cacher.FindEntryOrCreateValueAsync(cacheKey, k => Task.FromResult(new CacheCreationResult(cacheVal)));
         Assert.AreEqual(cacheVal, entry.GetValue<string>());
-        Assert.AreEqual(1, basicCacher.CacheEntryByCacheKey.Count);
+        Assert.HasCount(1, basicCacher.CacheEntryByCacheKey);
         await cacher.RemoveAsync(cacheKey);
-        Assert.AreEqual(0, basicCacher.CacheEntryByCacheKey.Count);
+        Assert.HasCount(0, basicCacher.CacheEntryByCacheKey);
     }
 
     [TestMethod]

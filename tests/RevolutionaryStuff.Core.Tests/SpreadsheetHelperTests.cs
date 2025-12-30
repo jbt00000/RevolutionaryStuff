@@ -31,7 +31,7 @@ public class SpreadsheetHelperTests
         SpreadsheetHelpers.SaveSharedStrings(st);
         st.Position = 0;
         var d = SpreadsheetHelpers.LoadSharedStrings(st);
-        Assert.AreEqual(0, d.Count);
+        Assert.HasCount(0, d);
     }
 
     [TestMethod]
@@ -53,7 +53,7 @@ public class SpreadsheetHelperTests
         SpreadsheetHelpers.SaveSharedStrings(st, sharedStrings);
         st.Position = 0;
         var d = SpreadsheetHelpers.LoadSharedStrings(st);
-        Assert.AreEqual(sharedStrings.Count, d.Count);
+        Assert.HasCount(sharedStrings.Count, d);
         foreach (var kvp in sharedStrings)
         {
             Assert.AreEqual(kvp.Value, d.FindOrCreateSharedString(kvp.Key));

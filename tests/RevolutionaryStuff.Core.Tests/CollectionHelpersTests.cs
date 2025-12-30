@@ -8,13 +8,15 @@ namespace RevolutionaryStuff.Core.Tests;
 [TestClass]
 public class CollectionHelpersTests
 {
-    [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     [TestMethod]
     public void EnumerateNullList()
     {
         IList<int> l = null;
-        foreach (var e in l)
-        { }
+        Assert.Throws<Exception>(() =>
+        {
+            foreach (var e in l)
+            { }
+        });
     }
 
     [TestMethod]
@@ -46,7 +48,7 @@ public class CollectionHelpersTests
     {
         var items = Enumerable.Range(0, 100).ToList();
         items.Remove(z => false);
-        Assert.AreEqual(100, items.Count);
+        Assert.HasCount(100, items);
     }
 
     [TestMethod]
@@ -54,7 +56,7 @@ public class CollectionHelpersTests
     {
         var items = Enumerable.Range(0, 100).ToList();
         items.Remove(z => true);
-        Assert.AreEqual(0, items.Count);
+        Assert.HasCount(0, items);
     }
 
     [TestMethod]
@@ -62,7 +64,7 @@ public class CollectionHelpersTests
     {
         var items = Enumerable.Range(0, 100).ToList();
         items.Remove(z => z.IsOdd());
-        Assert.AreEqual(50, items.Count);
+        Assert.HasCount(50, items);
     }
 
     private static IList<int> CreateInOrderList(int elementCount = 100)
@@ -71,7 +73,7 @@ public class CollectionHelpersTests
     private void ValidateAllElementsExactlyOnce(IList<int> l, int start = 0, int count = 100)
     {
         var d = l.ToDictionary(a => a);
-        Assert.AreEqual(count, d.Count);
+        Assert.HasCount(count, d);
         var orderedKeys = d.Keys.OrderBy().ToList();
         Assert.AreEqual(start, orderedKeys[0]);
     }
@@ -86,7 +88,7 @@ public class CollectionHelpersTests
             new("c", null)
         };
         var outs = ins.ToStringStringKeyValuePairs();
-        Assert.AreEqual(ins.Count, outs.Count);
+        Assert.HasCount(ins.Count, outs);
         for (var z = 0; z < ins.Count; ++z)
         {
             var i = ins[z];
@@ -139,11 +141,11 @@ public class CollectionHelpersTests
     {
         var d = new Dictionary<int, object>();
         d.SetIfValNotNull(0, 1);
-        Assert.AreEqual(1, d.Count);
+        Assert.HasCount(1, d);
         d.SetIfValNotNull(1, new object());
-        Assert.AreEqual(2, d.Count);
+        Assert.HasCount(2, d);
         d.SetIfValNotNull(1, "hello");
-        Assert.AreEqual(2, d.Count);
+        Assert.HasCount(2, d);
     }
 
     [TestMethod]
@@ -151,7 +153,7 @@ public class CollectionHelpersTests
     {
         var d = new Dictionary<int, object>();
         d.SetIfValNotNull(0, null);
-        Assert.AreEqual(0, d.Count);
+        Assert.HasCount(0, d);
     }
 
     [TestMethod]
@@ -161,7 +163,7 @@ public class CollectionHelpersTests
         d.SetIfKeyNotFound(1, "a");
         d.SetIfKeyNotFound(2, "b");
         d.SetIfKeyNotFound(3, "c");
-        Assert.AreEqual(3, d.Count);
+        Assert.HasCount(3, d);
     }
 
     [TestMethod]
@@ -171,7 +173,7 @@ public class CollectionHelpersTests
         d.SetIfKeyNotFound(1, "a");
         d.SetIfKeyNotFound(2, "b");
         d.SetIfKeyNotFound(3, "c");
-        Assert.AreEqual(3, d.Count);
+        Assert.HasCount(3, d);
         d.SetIfKeyNotFound(1, 2);
         Assert.AreEqual("a", d[1]);
     }

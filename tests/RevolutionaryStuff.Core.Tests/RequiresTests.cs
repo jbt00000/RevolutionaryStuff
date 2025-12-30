@@ -14,12 +14,11 @@ public class RequiresTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     public void SingleCallMultiple()
     {
         var called = false;
         Requires.SingleCall(ref called);
-        Requires.SingleCall(ref called);
+        Assert.Throws<Exception>(() => Requires.SingleCall(ref called));
     }
 
     [TestMethod]
@@ -27,33 +26,28 @@ public class RequiresTests
         => Requires.Text("jason", "z");
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void TextTooShort()
-        => Requires.Text("tooshort", "z", minLen: 20);
+        => Assert.ThrowsExactly<ArgumentException>(() => Requires.Text("tooshort", "z", minLen: 20));
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException))]
     public void TextTooLong()
-        => Requires.Text("toolong", "z", maxLen: 3);
+        => Assert.ThrowsExactly<ArgumentException>(() => Requires.Text("toolong", "z", maxLen: 3));
 
     [TestMethod]
-    [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     public void TextEmpty()
-        => Requires.Text("", "z");
+        => Assert.Throws<Exception>(() => Requires.Text("", "z"));
 
     [TestMethod]
-    [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     public void TextNull()
-        => Requires.Text(null, "z");
+        => Assert.Throws<Exception>(() => Requires.Text(null, "z"));
 
     [TestMethod]
     public void NullValid()
         => Requires.Null(null, "hasnodata");
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentException), AllowDerivedTypes = true)]
     public void NullInvalid()
-        => Requires.Null("I'm supposed to be null", "hasdata");
+        => Assert.Throws<ArgumentException>(() => Requires.Null("I'm supposed to be null", "hasdata"));
 
     [TestMethod]
     public void NonNullInvalidCheckingCallerArgumentExpression()
@@ -75,9 +69,8 @@ public class RequiresTests
     }
 
     [TestMethod]
-    [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
     public void XmlWithNonXmlData()
-        => Requires.Xml("honey, I don't think this is xml!", "nonxml");
+        => Assert.Throws<Exception>(() => Requires.Xml("honey, I don't think this is xml!", "nonxml"));
 
     [TestMethod]
     public void XmlWithBoringXmlData()

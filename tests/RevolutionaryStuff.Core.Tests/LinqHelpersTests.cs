@@ -38,7 +38,7 @@ public class LinqHelpersTests
         { }.AsQueryable();
 
         var sorted = items.OrderByField(nameof(Zaff.EnumVal), typeof(Letters), true).ToList();
-        Assert.AreEqual(0, sorted.Count);
+        Assert.HasCount(0, sorted);
     }
 
     [TestMethod]
@@ -50,7 +50,7 @@ public class LinqHelpersTests
         }.AsQueryable();
 
         var sorted = items.OrderByField(nameof(Zaff.EnumVal), typeof(Letters), true).ToList();
-        Assert.AreEqual(1, sorted.Count);
+        Assert.HasCount(1, sorted);
         Assert.AreEqual(Letters.A, (Letters)sorted.First().EnumVal);
     }
 
