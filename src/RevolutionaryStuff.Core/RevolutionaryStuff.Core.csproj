@@ -26,9 +26,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.112.90.0</FileVersion>
-        <AssemblyVersion>4.112.90.0</AssemblyVersion>
-        <Version>4.112.90</Version>
+        <FileVersion>4.113.90.0</FileVersion>
+        <AssemblyVersion>4.113.90.0</AssemblyVersion>
+        <Version>4.113.90</Version>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
@@ -74,7 +74,7 @@
         <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.9" />
         <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
         <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
-        <PackageReference Include="System.IO.Hashing" Version="10.0.1" />
+        <PackageReference Include="System.IO.Hashing" Version="9.0.11" />
     </ItemGroup>
     <ItemGroup>
         <Compile Update="JsonHelpers.Microsoft.cs">
