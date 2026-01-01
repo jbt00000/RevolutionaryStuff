@@ -56,7 +56,7 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
 
     private readonly IOptions<JsonEntityRepoBaseConfig> ConfigOptions;
     protected readonly IJsonEntityServer Jes;
-    private readonly IReadOnlyList<string> ContainerIds;
+    protected readonly IReadOnlyList<string> ContainerIds;
 
     public IJsonEntityContainer GetContainer<TItem>()
         where TItem : TBaseEntity

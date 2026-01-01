@@ -134,4 +134,13 @@ Again:
 
     public static Task TaskWhenAllThatAreNotNull(params Task[] tasks)
         => Task.WhenAll(tasks.WhereNotNull());
+
+    public static async Task<IList<T>> ContinueWithToIList<T>(this Task<IReadOnlyList<T>> task)
+    {
+        var items = await task;
+        return ToIList<T>(items);
+    }
+    
+    private static IList<T> ToIList<T>(IReadOnlyList<T> l)
+        => [.. l];
 }

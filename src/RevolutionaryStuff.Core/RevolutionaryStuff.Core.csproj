@@ -26,9 +26,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.114.90.0</FileVersion>
-        <AssemblyVersion>4.114.90.0</AssemblyVersion>
-        <Version>4.114.90</Version>
+        <FileVersion>4.115.90.0</FileVersion>
+        <AssemblyVersion>4.115.90.0</AssemblyVersion>
+        <Version>4.115.90</Version>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
