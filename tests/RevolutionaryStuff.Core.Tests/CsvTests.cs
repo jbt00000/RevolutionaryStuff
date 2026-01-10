@@ -315,7 +315,7 @@ public class CsvTests
     {
         var csv = "a,b,c\r\nd,e,f\r\ng,h,i";
         var enumerable = CSV.ParseTextEnumerable(csv);
-        
+
         var count = 0;
         foreach (var row in enumerable)
         {
@@ -330,10 +330,10 @@ public class CsvTests
     {
         var csv = "a,b\r\nc,d";
         var enumerable = CSV.ParseTextEnumerable(csv);
-        
+
         var firstPass = enumerable.ToList();
         var secondPass = enumerable.ToList();
-        
+
         Assert.HasCount(2, firstPass);
         Assert.HasCount(2, secondPass);
     }
@@ -418,7 +418,7 @@ public class CsvTests
         var csv = "a,b,c\r\nd,e,f";
         using var stream = new MemoryStream(Encoding.UTF8.GetBytes(csv));
         using var reader = new StreamReader(stream);
-        
+
         var result = CSV.ParseText(reader);
         Assert.HasCount(2, result);
         CollectionAssert.AreEqual(new[] { "a", "b", "c" }, result[0]);
@@ -433,16 +433,16 @@ public class CsvTests
     public void RoundTrip_SimpleData()
     {
         var original = new[] { new[] { "a", "b", "c" }, new[] { "d", "e", "f" } };
-        
+
         // Format
         var lines = original.Select(row => CSV.FormatLine(row, eol: true)).ToArray();
         var csv = string.Join("", lines);
-        
+
         // Parse
         var parsed = CSV.ParseText(csv);
-        
+
         Assert.HasCount(original.Length, parsed);
-        for (int i = 0; i < original.Length; i++)
+        for (var i = 0; i < original.Length; i++)
         {
             CollectionAssert.AreEqual(original[i], parsed[i]);
         }
@@ -455,16 +455,16 @@ public class CsvTests
             new[] { "simple", "has,comma", "has\"quote", "has\nnewline" },
             new[] { "123", "", "empty value", "end" }
         };
-        
+
         // Format
         var lines = original.Select(row => CSV.FormatLine(row, eol: true)).ToArray();
         var csv = string.Join("", lines);
-        
+
         // Parse
         var parsed = CSV.ParseText(csv);
-        
+
         Assert.HasCount(original.Length, parsed);
-        for (int i = 0; i < original.Length; i++)
+        for (var i = 0; i < original.Length; i++)
         {
             CollectionAssert.AreEqual(original[i], parsed[i]);
         }
@@ -474,15 +474,15 @@ public class CsvTests
     public void RoundTrip_PipeDelimiter()
     {
         var original = new[] { "a", "b|c", "d" };
-        
+
         // Format with pipe delimiter
         var sb = new StringBuilder();
         CSV.FormatLine(sb, original, eol: true, fieldDelim: CSV.FieldDelimPipe);
         var csv = sb.ToString();
-        
+
         // Parse with pipe delimiter
         var parsed = CSV.ParseLine(csv.TrimEnd('\r', '\n'), CSV.FieldDelimPipe);
-        
+
         CollectionAssert.AreEqual(original, parsed);
     }
 
@@ -528,12 +528,12 @@ public class CsvTests
     {
         var rowCount = 1000;
         var rows = new List<string>();
-        for (int i = 0; i < rowCount; i++)
+        for (var i = 0; i < rowCount; i++)
         {
             rows.Add($"{i},value{i},data{i}");
         }
         var csv = string.Join("\r\n", rows);
-        
+
         var result = CSV.ParseText(csv);
         Assert.AreEqual(rowCount, result.Length);
     }
@@ -544,7 +544,7 @@ public class CsvTests
         var columnCount = 100;
         var values = Enumerable.Range(1, columnCount).Select(i => $"col{i}");
         var line = CSV.FormatLine(values, eol: false);
-        
+
         var parsed = CSV.ParseLine(line);
         Assert.AreEqual(columnCount, parsed.Length);
     }

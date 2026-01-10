@@ -672,7 +672,7 @@ public class RequiresTests
     [TestMethod]
     public void CallerArgumentExpression_CapturesVariableName()
     {
-        int myNumber = -1;
+        var myNumber = -1;
         try
         {
             Requires.Positive(myNumber);

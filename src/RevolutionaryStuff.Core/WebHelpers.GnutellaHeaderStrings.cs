@@ -1,4 +1,5 @@
 ﻿namespace RevolutionaryStuff.Core;
+
 public static partial class WebHelpers
 {
     public static class GnutellaHeaderStrings

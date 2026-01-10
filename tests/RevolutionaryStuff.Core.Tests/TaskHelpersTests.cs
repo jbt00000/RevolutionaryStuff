@@ -78,11 +78,11 @@ public class TaskHelpersTests
     {
         var cts = new CancellationTokenSource();
         var task = cts.Token.UntilCancelledAsync();
-        
+
         Assert.IsFalse(task.IsCompleted);
-        
+
         cts.Cancel();
-        
+
         await Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
     }
 
@@ -91,9 +91,9 @@ public class TaskHelpersTests
     {
         var cts = new CancellationTokenSource();
         cts.Cancel();
-        
+
         var task = cts.Token.UntilCancelledAsync();
-        
+
         await Assert.ThrowsAsync<TaskCanceledException>(async () => await task);
     }
 
@@ -117,7 +117,7 @@ public class TaskHelpersTests
             await Task.Delay(100);
             return "hello";
         });
-        
+
         var result = task.ExecuteSynchronously();
         Assert.AreEqual("hello", result);
     }
@@ -127,7 +127,7 @@ public class TaskHelpersTests
     {
         Func<int> throwingFunc = () => throw new InvalidOperationException("Test exception");
         var task = Task.Run(throwingFunc);
-        
+
         Assert.Throws<InvalidOperationException>(() => task.ExecuteSynchronously());
     }
 
@@ -140,7 +140,7 @@ public class TaskHelpersTests
             await Task.Delay(100);
             completed = true;
         });
-        
+
         task.ExecuteSynchronously();
         Assert.IsTrue(completed);
     }
@@ -149,7 +149,7 @@ public class TaskHelpersTests
     public void ExecuteSynchronously_NonGeneric_FaultedTask_ThrowsException()
     {
         var task = Task.Run(() => throw new InvalidOperationException("Test exception"));
-        
+
         Assert.Throws<InvalidOperationException>(() => task.ExecuteSynchronously());
     }
 
@@ -191,13 +191,13 @@ public class TaskHelpersTests
     {
         var items = new List<int>();
         var processed = new List<int>();
-        
+
         var tasks = await TaskHelpers.TaskWhenAllForEachAsync(items, async item =>
         {
             await Task.Delay(10);
             processed.Add(item);
         });
-        
+
         Assert.AreEqual(0, tasks.Count);
         Assert.AreEqual(0, processed.Count);
     }
@@ -244,7 +244,7 @@ public class TaskHelpersTests
         var items = Enumerable.Range(1, 10).ToList();
         var processed = new List<int>();
         var lockObj = new object();
-        
+
         await TaskHelpers.TaskWhenAllForEachAsync(items, async item =>
         {
             await Task.Delay(10);
@@ -253,7 +253,7 @@ public class TaskHelpersTests
                 processed.Add(item);
             }
         }, maxAtOnce: 3);
-        
+
         Assert.AreEqual(10, processed.Count);
         Assert.IsTrue(items.All(i => processed.Contains(i)));
     }
@@ -262,7 +262,7 @@ public class TaskHelpersTests
     public async Task TaskWhenAllForEachAsync_ThrowAggregateException_CollectsExceptions()
     {
         var items = new[] { 1, 2, 3, 4, 5 };
-        
+
         var aggregateEx = await Assert.ThrowsAsync<AggregateException>(async () =>
         {
             await TaskHelpers.TaskWhenAllForEachAsync(items, async item =>
@@ -271,7 +271,7 @@ public class TaskHelpersTests
                 throw new InvalidOperationException($"Error {item}");
             }, maxAtOnce: 2, throwAggregatedException: true);
         });
-        
+
         Assert.AreEqual(5, aggregateEx.InnerExceptions.Count);
     }
 
@@ -279,13 +279,13 @@ public class TaskHelpersTests
     public async Task TaskWhenAllForEachAsync_NoThrow_ReturnsTasksWithExceptions()
     {
         var items = new[] { 1, 2, 3 };
-        
+
         var tasks = await TaskHelpers.TaskWhenAllForEachAsync(items, async item =>
         {
             await Task.Delay(10);
             throw new InvalidOperationException($"Error {item}");
         }, maxAtOnce: 2, throwAggregatedException: false);
-        
+
         Assert.AreEqual(3, tasks.Count);
         Assert.IsTrue(tasks.All(t => t.IsFaulted));
     }
@@ -300,7 +300,7 @@ public class TaskHelpersTests
         var items = new[] { 1, 2, 3, 4, 5 };
         var processed = new List<int>();
         var lockObj = new object();
-        
+
         TaskHelpers.TaskWaitAllForEach(items, async item =>
         {
             await Task.Delay(10);
@@ -309,7 +309,7 @@ public class TaskHelpersTests
                 processed.Add(item);
             }
         });
-        
+
         Assert.AreEqual(5, processed.Count);
     }
 
@@ -318,13 +318,13 @@ public class TaskHelpersTests
     {
         var completed = false;
         var items = new[] { 1 };
-        
+
         TaskHelpers.TaskWaitAllForEach(items, async item =>
         {
             await Task.Delay(100);
             completed = true;
         });
-        
+
         Assert.IsTrue(completed);
     }
 
@@ -337,21 +337,21 @@ public class TaskHelpersTests
     {
         var completed1 = false;
         var completed2 = false;
-        
+
         var task1 = Task.Run(async () =>
         {
             await Task.Delay(50);
             completed1 = true;
         });
-        
+
         var task2 = Task.Run(async () =>
         {
             await Task.Delay(50);
             completed2 = true;
         });
-        
+
         await TaskHelpers.TaskWhenAllThatAreNotNull(task1, task2);
-        
+
         Assert.IsTrue(completed1);
         Assert.IsTrue(completed2);
     }
@@ -360,15 +360,15 @@ public class TaskHelpersTests
     public async Task TaskWhenAllThatAreNotNull_SomeNull_IgnoresNulls()
     {
         var completed = false;
-        
+
         var task1 = Task.Run(async () =>
         {
             await Task.Delay(50);
             completed = true;
         });
-        
+
         await TaskHelpers.TaskWhenAllThatAreNotNull(task1, null, null);
-        
+
         Assert.IsTrue(completed);
     }
 
@@ -395,14 +395,14 @@ public class TaskHelpersTests
     {
         var readOnlyList = new List<int> { 1, 2, 3 }.AsReadOnly();
         var task = Task.FromResult((IReadOnlyList<int>)readOnlyList);
-        
+
         var result = await task.ContinueWithToIList();
-        
+
         Assert.AreEqual(3, result.Count);
         Assert.AreEqual(1, result[0]);
         Assert.AreEqual(2, result[1]);
         Assert.AreEqual(3, result[2]);
-        
+
         // Verify it's mutable
         result.Add(4);
         Assert.AreEqual(4, result.Count);
@@ -413,11 +413,11 @@ public class TaskHelpersTests
     {
         var readOnlyList = new List<string>().AsReadOnly();
         var task = Task.FromResult((IReadOnlyList<string>)readOnlyList);
-        
+
         var result = await task.ContinueWithToIList();
-        
+
         Assert.AreEqual(0, result.Count);
-        
+
         // Verify it's mutable
         result.Add("test");
         Assert.AreEqual(1, result.Count);
@@ -432,23 +432,23 @@ public class TaskHelpersTests
     {
         var cts = new CancellationTokenSource();
         var processedCount = 0;
-        
+
         var workTask = TaskHelpers.TaskWhenAllForEachAsync(
             Enumerable.Range(1, 100),
             async item =>
             {
                 if (cts.Token.IsCancellationRequested)
                     return;
-                    
+
                 await Task.Delay(50, cts.Token);
                 Interlocked.Increment(ref processedCount);
             },
             maxAtOnce: 10);
-        
+
         // Cancel after a short delay
         await Task.Delay(200);
         cts.Cancel();
-        
+
         // Wait for work to complete (with cancellation)
         try
         {
@@ -458,7 +458,7 @@ public class TaskHelpersTests
         {
             // Expected
         }
-        
+
         // Some items should have been processed before cancellation
         Assert.IsTrue(processedCount > 0);
         Assert.IsTrue(processedCount < 100);

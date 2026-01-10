@@ -393,7 +393,7 @@ public static class DateHelpers
     /// <param name="kind">The DateTimeKind to use. Defaults to Unspecified.</param>
     /// <returns>A DateTime combining the date and time.</returns>
     public static DateTime ToDateTime(this DateOnly date, TimeOnly time, DateTimeKind kind = DateTimeKind.Unspecified)
-        => new DateTime(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second, time.Millisecond, kind);
+        => new(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second, time.Millisecond, kind);
 
     /// <summary>
     /// Combines a DateOnly and TimeOnly into a DateTimeOffset with the specified offset.
@@ -403,5 +403,5 @@ public static class DateHelpers
     /// <param name="offset">The time zone offset. Defaults to UTC (zero offset).</param>
     /// <returns>A DateTimeOffset combining the date, time, and offset.</returns>
     public static DateTimeOffset ToDateTimeOffset(this DateOnly date, TimeOnly time, TimeSpan? offset = null)
-        => new DateTimeOffset(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second, time.Millisecond, offset ?? TimeSpan.Zero);
+        => new(date.Year, date.Month, date.Day, time.Hour, time.Minute, time.Second, time.Millisecond, offset ?? TimeSpan.Zero);
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace RevolutionaryStuff.Core.Tests;
@@ -173,11 +172,11 @@ public class StuffTests
     {
         var random1 = new Random(19740409);
         var random2 = Stuff.RandomWithFixedSeed;
-        
+
         // Reset random2 by creating new instance with same seed
         random2 = new Random(19740409);
-        
-        for (int i = 0; i < 10; i++)
+
+        for (var i = 0; i < 10; i++)
         {
             Assert.AreEqual(random1.Next(), random2.Next());
         }
@@ -193,7 +192,7 @@ public class StuffTests
     public void Random_ProducesRandomValues()
     {
         var values = new HashSet<int>();
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             values.Add(Stuff.Random.Next(1000));
         }
@@ -246,11 +245,11 @@ public class StuffTests
     [TestMethod]
     public void Swap_Objects_Succeeds()
     {
-        object a = new object();
-        object b = new object();
+        var a = new object();
+        var b = new object();
         var originalA = a;
         var originalB = b;
-        
+
         Stuff.Swap(ref a, ref b);
         Assert.AreSame(originalB, a);
         Assert.AreSame(originalA, b);
@@ -308,7 +307,7 @@ public class StuffTests
         var tickCount = Environment.TickCount;
         var result = Stuff.TickCount2DateTime(tickCount);
         var now = DateTime.Now;
-        
+
         // Should be within 1 second
         Assert.IsTrue((now - result).TotalSeconds < 1);
     }
@@ -320,7 +319,7 @@ public class StuffTests
         var pastTick = currentTick - 60000; // 1 minute ago
         var result = Stuff.TickCount2DateTime(pastTick);
         var now = DateTime.Now;
-        
+
         var diff = (now - result).TotalSeconds;
         Assert.IsTrue(diff >= 59 && diff <= 61); // Around 1 minute
     }
@@ -464,7 +463,7 @@ public class StuffTests
     public void Cleanup_DeletesMarkedFiles()
     {
         var files = new List<string>();
-        for (int i = 0; i < 3; i++)
+        for (var i = 0; i < 3; i++)
         {
             var tempFile = Path.GetTempFileName();
             files.Add(tempFile);
@@ -505,7 +504,7 @@ public class StuffTests
     public void CreateRandomCode_GeneratesDifferentCodes()
     {
         var codes = new HashSet<string>();
-        for (int i = 0; i < 100; i++)
+        for (var i = 0; i < 100; i++)
         {
             codes.Add(Stuff.CreateRandomCode());
         }

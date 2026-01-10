@@ -5,6 +5,7 @@ using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft.Converters;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
+
 public class SystemTextJsonSerializer(JsonSerializerOptions MyJsonSerializerOptions) : ISystemTextJsonSerializer
 {
     public static readonly IEnumerable<JsonConverter> DefaultConverters =

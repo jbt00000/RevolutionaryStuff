@@ -1,4 +1,5 @@
 ﻿namespace RevolutionaryStuff.Core.Services.CodeStringGenerator;
+
 public interface ICodeStringGenerator
 {
     string CreateCode(IList<char> characterSet, int numChars);

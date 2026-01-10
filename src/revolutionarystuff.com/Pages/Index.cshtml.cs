@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace RevolutionaryStuff.RevolutionaryStuffWebsite.Pages;
+
 public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> _logger;

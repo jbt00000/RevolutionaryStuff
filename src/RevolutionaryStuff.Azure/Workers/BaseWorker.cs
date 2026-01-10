@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Azure.Workers;
+
 public abstract class BaseWorker : BackgroundService
 {
     protected IServiceProvider ServiceProvider { get; private set; }

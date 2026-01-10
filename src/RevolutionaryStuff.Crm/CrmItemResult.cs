@@ -15,6 +15,6 @@ public abstract record CrmItemResult : ICrmItemResult
     protected CrmItemResult(string? id, bool? success = null)
     {
         Id = id;
-        Success = success ?? id != null;
+        Success = success ?? (id != null);
     }
 }

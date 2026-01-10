@@ -492,7 +492,7 @@ public class DateHelpersTests
         var date = new DateOnly(2024, 1, 15);
         var time = new TimeOnly(14, 30, 45);
         var dt = date.ToDateTime(time);
-        
+
         Assert.AreEqual(2024, dt.Year);
         Assert.AreEqual(1, dt.Month);
         Assert.AreEqual(15, dt.Day);
@@ -507,7 +507,7 @@ public class DateHelpersTests
         var date = new DateOnly(2024, 1, 15);
         var time = new TimeOnly(14, 30, 0);
         var dt = date.ToDateTime(time, DateTimeKind.Utc);
-        
+
         Assert.AreEqual(DateTimeKind.Utc, dt.Kind);
     }
 
@@ -521,7 +521,7 @@ public class DateHelpersTests
         var date = new DateOnly(2024, 1, 15);
         var time = new TimeOnly(14, 30, 45);
         var dto = date.ToDateTimeOffset(time);
-        
+
         Assert.AreEqual(2024, dto.Year);
         Assert.AreEqual(1, dto.Month);
         Assert.AreEqual(15, dto.Day);
@@ -538,7 +538,7 @@ public class DateHelpersTests
         var time = new TimeOnly(14, 30, 0);
         var offset = TimeSpan.FromHours(-5);
         var dto = date.ToDateTimeOffset(time, offset);
-        
+
         Assert.AreEqual(offset, dto.Offset);
     }
 
@@ -553,7 +553,7 @@ public class DateHelpersTests
         var dateOnly = original.ToDateOnly();
         var timeOnly = original.ToTimeOnly();
         var roundTrip = dateOnly.ToDateTime(timeOnly, original.Kind);
-        
+
         Assert.AreEqual(original.Year, roundTrip.Year);
         Assert.AreEqual(original.Month, roundTrip.Month);
         Assert.AreEqual(original.Day, roundTrip.Day);
@@ -571,7 +571,7 @@ public class DateHelpersTests
         var dateOnly = original.ToDateOnly();
         var timeOnly = original.ToTimeOnly();
         var roundTrip = dateOnly.ToDateTimeOffset(timeOnly, offset);
-        
+
         Assert.AreEqual(original.Year, roundTrip.Year);
         Assert.AreEqual(original.Month, roundTrip.Month);
         Assert.AreEqual(original.Day, roundTrip.Day);

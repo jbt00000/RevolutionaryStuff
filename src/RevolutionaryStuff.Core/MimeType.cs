@@ -83,52 +83,52 @@ public sealed partial class MimeType
     {
         /// <summary>Wildcard for any application type.</summary>
         public static readonly MimeType Any = "application/*";
-        
+
         /// <summary>JSON data format.</summary>
         public static readonly MimeType Json = new("application/json", ".json");
-        
+
         /// <summary>JSON-LD (Linked Data) format.</summary>
         public static readonly MimeType JsonLd = new("application/ld+json", ".jsonld");
-        
+
         /// <summary>XML data format.</summary>
         public static readonly MimeType Xml = new("application/xml", ".xml");
-        
+
         /// <summary>Generic binary data / unknown file type.</summary>
         public static readonly MimeType OctetStream = "application/octet-stream";
-        
+
         /// <summary>SQL Server Integration Services ETL package.</summary>
         public static readonly MimeType SqlServerIntegrationServicesEtlPackage = new(OctetStream, ".dtsx");
-        
+
         /// <summary>Adobe Portable Document Format.</summary>
         public static readonly MimeType Pdf = new("application/pdf", ".pdf");
-        
+
         /// <summary>Amazon Kindle eBook format.</summary>
         public static readonly MimeType AmazonKindle = new("application/vnd.amazon.ebook", ".azw");
-        
+
         /// <summary>EPUB eBook format.</summary>
         public static readonly MimeType Epub = new("application/epub+zip", ".epub");
-        
+
         /// <summary>JavaScript code.</summary>
         public static readonly MimeType JavaScript = new("application/javascript", "text/javascript", ".js", ".mjs");
-        
+
         /// <summary>TypeScript code.</summary>
         public static readonly MimeType TypeScript = new("application/typescript", ".ts");
-        
+
         /// <summary>WebAssembly binary format.</summary>
         public static readonly MimeType Wasm = new("application/wasm", ".wasm");
-        
+
         /// <summary>Rich Text Format.</summary>
         public static readonly MimeType Rtf = new("application/rtf", ".rtf");
-        
+
         /// <summary>Shell script.</summary>
         public static readonly MimeType Shell = new("application/x-sh", ".sh");
-        
+
         /// <summary>RAR archive.</summary>
         public static readonly MimeType Rar = new("application/vnd.rar", "application/x-rar-compressed", ".rar");
-        
+
         /// <summary>Apple disk image.</summary>
         public static readonly MimeType Dmg = new("application/x-apple-diskimage", ".dmg");
-        
+
         /// <summary>Debian package.</summary>
         public static readonly MimeType Deb = new("application/vnd.debian.binary-package", ".deb");
 
@@ -139,34 +139,34 @@ public sealed partial class MimeType
         {
             /// <summary>7-Zip archive.</summary>
             public static readonly MimeType _7Zip = new("application/x-7z-compressed", ".7z");
-            
+
             /// <summary>FreeArc archive.</summary>
             public static readonly MimeType ArchiveDocument = new("application/x-freearc", ".arc");
-            
+
             /// <summary>BZip archive.</summary>
             public static readonly MimeType BZipArchive = new("application/x-bzip", ".bz");
-            
+
             /// <summary>BZip2 archive.</summary>
             public static readonly MimeType BZip2Archive = new("application/x-bzip2", ".bz2");
-            
+
             /// <summary>Tape Archive (tar).</summary>
             public static readonly MimeType Tar = new("application/x-tar", ".tar");
-            
+
             /// <summary>ZIP archive.</summary>
             public static readonly MimeType Zip = new("application/zip", ".zip");
-            
+
             /// <summary>GZip compressed file.</summary>
             public static readonly MimeType GZip = new("application/gzip", ".gz");
-            
+
             /// <summary>XZ compressed file.</summary>
             public static readonly MimeType Xz = new("application/x-xz", ".xz");
-            
+
             /// <summary>Zstandard compressed file.</summary>
             public static readonly MimeType Zstd = new("application/zstd", ".zst");
-            
+
             /// <summary>ISO disk image.</summary>
             public static readonly MimeType Iso = new("application/x-iso9660-image", ".iso");
-            
+
             internal static readonly IList<MimeType> All = new[] { ArchiveDocument, BZipArchive, BZip2Archive, _7Zip, Tar, Zip, GZip, Xz, Zstd, Iso }.ToList().AsReadOnly();
         }
 
@@ -177,19 +177,19 @@ public sealed partial class MimeType
         {
             /// <summary>OpenType font.</summary>
             public static readonly MimeType OpenTypeFont = new("font/otf", ".otf");
-            
+
             /// <summary>TrueType font.</summary>
             public static readonly MimeType TrueTypeFont = new("font/ttf", ".ttf");
-            
+
             /// <summary>Web Open Font Format.</summary>
             public static readonly MimeType WebOpenFontFormat = new("font/woff", ".woff");
-            
+
             /// <summary>Web Open Font Format 2.</summary>
             public static readonly MimeType WebOpenFontFormat2 = new("font/woff2", ".woff2");
-            
+
             /// <summary>Embedded OpenType font.</summary>
             public static readonly MimeType Eot = new("application/vnd.ms-fontobject", ".eot");
-            
+
             internal static readonly IList<MimeType> All = new[] { OpenTypeFont, TrueTypeFont, WebOpenFontFormat, WebOpenFontFormat2, Eot }.ToList().AsReadOnly();
         }
 
@@ -200,16 +200,16 @@ public sealed partial class MimeType
         {
             /// <summary>Microsoft PowerPoint (.ppt).</summary>
             public static readonly MimeType MicrosoftPowerPoint = new("application/vnd.ms-powerpoint", ".ppt");
-            
+
             /// <summary>Microsoft PowerPoint OpenXML (.pptx).</summary>
             public static readonly MimeType MicrosoftPowerPointOpenXML = new("application/vnd.openxmlformats-officedocument.presentationml.presentation", ".pptx");
-            
+
             /// <summary>OpenDocument Presentation (.odp).</summary>
             public static readonly MimeType OpenDocumentPresentation = new("application/vnd.oasis.opendocument.presentation", ".odp");
-            
+
             /// <summary>Apple Keynote presentation.</summary>
             public static readonly MimeType Keynote = new("application/x-iwork-keynote-sffkey", ".key");
-            
+
             internal static readonly IList<MimeType> All = new[] { MicrosoftPowerPoint, MicrosoftPowerPointOpenXML, OpenDocumentPresentation, Keynote }.ToList().AsReadOnly();
         }
 
@@ -220,16 +220,16 @@ public sealed partial class MimeType
         {
             /// <summary>Microsoft Word (.doc).</summary>
             public static readonly MimeType MicrosoftWord = new("application/msword", ".doc");
-            
+
             /// <summary>Microsoft Word OpenXML (.docx).</summary>
             public static readonly MimeType MicrosoftWordOpenXml = new("application/vnd.openxmlformats-officedocument.wordprocessingml.document", ".docx");
-            
+
             /// <summary>OpenDocument Text (.odt).</summary>
             public static readonly MimeType OpenDocumentTextDocument = new("application/vnd.oasis.opendocument.text", ".odt");
-            
+
             /// <summary>Apple Pages document.</summary>
             public static readonly MimeType Pages = new("application/x-iwork-pages-sffpages", ".pages");
-            
+
             internal static readonly IList<MimeType> All = new[] { MicrosoftWord, MicrosoftWordOpenXml, OpenDocumentTextDocument, Pages }.ToList().AsReadOnly();
         }
 
@@ -240,16 +240,16 @@ public sealed partial class MimeType
         {
             /// <summary>OpenDocument Spreadsheet (.ods).</summary>
             public static readonly MimeType OpenDocumentSpreadsheetDocument = new("application/vnd.oasis.opendocument.spreadsheet", ".ods");
-            
+
             /// <summary>Microsoft Excel (.xls).</summary>
             public static readonly MimeType MicrosoftExcel = new("application/vnd.ms-excel", ".xls");
-            
+
             /// <summary>Microsoft Excel OpenXML (.xlsx).</summary>
             public static readonly MimeType MicrosoftExcelOpenXml = new("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx");
-            
+
             /// <summary>Apple Numbers spreadsheet.</summary>
             public static readonly MimeType Numbers = new("application/x-iwork-numbers-sffnumbers", ".numbers");
-            
+
             internal static readonly IList<MimeType> All = new[] { OpenDocumentSpreadsheetDocument, MicrosoftExcel, MicrosoftExcelOpenXml, Numbers }.ToList().AsReadOnly();
         }
 
@@ -265,13 +265,13 @@ public sealed partial class MimeType
             {
                 /// <summary>PGP encrypted data.</summary>
                 public static readonly MimeType PgpEncrypted = new("application/pgp-encrypted", ".pgp");
-                
+
                 /// <summary>PGP signature.</summary>
                 public static readonly MimeType PgpSignature = new("application/pgp-signature", ".sig", ".asc");
-                
+
                 /// <summary>PGP keys.</summary>
                 public static readonly MimeType PgpKeys = new("application/pgp-keys", ".asc", ".pgp");
-                
+
                 internal static readonly IList<MimeType> All = new[] { PgpEncrypted, PgpSignature, PgpKeys }.ToList().AsReadOnly();
             }
 
@@ -288,76 +288,76 @@ public sealed partial class MimeType
     {
         /// <summary>Wildcard for any image type.</summary>
         public static readonly MimeType Any = new("image/*");
-        
+
         /// <summary>Bitmap image (.bmp).</summary>
         public static readonly MimeType Bmp = new("image/bmp", ".bmp");
-        
+
         /// <summary>Graphics Interchange Format (.gif).</summary>
         public static readonly MimeType Gif = new("image/gif", ".gif");
-        
+
         /// <summary>JPEG image (.jpg, .jpeg).</summary>
         public static readonly MimeType Jpg = new("image/jpeg", ".jpg", ".jpeg", ".jpe");
-        
+
         /// <summary>Portable Network Graphics (.png).</summary>
         public static readonly MimeType Png = new("image/png", ".png");
-        
+
         /// <summary>Scalable Vector Graphics (.svg).</summary>
         public static readonly MimeType Svg = new("image/svg+xml", ".svg");
-        
+
         /// <summary>Tagged Image File Format (.tif, .tiff).</summary>
         public static readonly MimeType Tiff = new("image/tiff", ".tif", ".tiff");
-        
+
         /// <summary>WebP image format (.webp).</summary>
         public static readonly MimeType WebP = new("image/webp", ".webp");
 
         // Modern and advanced image formats
         /// <summary>AV1 Image File Format - next-gen compressed format (.avif).</summary>
         public static readonly MimeType Avif = new("image/avif", ".avif");
-        
+
         /// <summary>High Efficiency Image Container (.heic) - Apple's preferred format.</summary>
         public static readonly MimeType Heic = new("image/heic", ".heic");
-        
+
         /// <summary>High Efficiency Image Format (.heif).</summary>
         public static readonly MimeType Heif = new("image/heif", ".heif");
-        
+
         /// <summary>JPEG XL - next-generation JPEG format (.jxl).</summary>
         public static readonly MimeType Jxl = new("image/jxl", ".jxl");
-        
+
         /// <summary>Icon file (.ico) - typically used for favicons.</summary>
         public static readonly MimeType Icon = new("image/x-icon", ".ico");
-        
+
         /// <summary>Animated PNG (.apng).</summary>
         public static readonly MimeType Apng = new("image/apng", ".apng");
-        
+
         /// <summary>JPEG File Interchange Format (.jfif).</summary>
         public static readonly MimeType Jfif = new("image/jpeg", ".jfif");
-        
+
         /// <summary>Adobe Photoshop Document (.psd).</summary>
         public static readonly MimeType Psd = new("image/vnd.adobe.photoshop", ".psd");
-        
+
         /// <summary>Camera RAW formats (.cr2, .nef, .arw, .dng).</summary>
         public static readonly MimeType Raw = new("image/x-canon-cr2", ".cr2", ".nef", ".arw", ".dng", ".orf", ".rw2");
-        
+
         /// <summary>PC Paintbrush (.pcx).</summary>
         public static readonly MimeType Pcx = new("image/x-pcx", ".pcx");
-        
+
         /// <summary>Truevision TGA (.tga).</summary>
         public static readonly MimeType Tga = new("image/x-targa", ".tga");
-        
+
         /// <summary>X11 Bitmap (.xbm).</summary>
         public static readonly MimeType Xbm = new("image/x-xbitmap", ".xbm");
-        
+
         /// <summary>X11 Pixmap (.xpm).</summary>
         public static readonly MimeType Xpm = new("image/x-xpixmap", ".xpm");
-        
+
         /// <summary>JPEG 2000 (.jp2, .j2k).</summary>
         public static readonly MimeType Jpeg2000 = new("image/jp2", ".jp2", ".j2k", ".jpf", ".jpm", ".jpg2");
-        
+
         /// <summary>Windows Cursor (.cur).</summary>
         public static readonly MimeType Cursor = new("image/x-icon", ".cur");
 
         internal static readonly IList<MimeType> All = new[] { Any, Bmp, Gif, Jpg, Png, Svg, Tiff, WebP, Avif, Heic, Heif, Jxl, Icon, Apng, Jfif, Psd, Raw, Pcx, Tga, Xbm, Xpm, Jpeg2000, Cursor }.ToList().AsReadOnly();
-        
+
         /// <summary>
         /// Determines if a content type or file extension represents an image format.
         /// </summary>
@@ -374,36 +374,36 @@ public sealed partial class MimeType
     {
         /// <summary>Wildcard for any text type.</summary>
         public static readonly MimeType Any = new("text/*");
-        
+
         /// <summary>Comma-Separated Values (.csv).</summary>
         public static readonly MimeType Csv = new("text/csv", ".csv");
-        
+
         /// <summary>HyperText Markup Language (.html, .htm).</summary>
         public static readonly MimeType Html = new("text/html", ".html", ".htm");
-        
+
         /// <summary>Plain text (.txt).</summary>
         public static readonly MimeType Plain = new("text/plain", ".txt", ".text");
-        
+
         /// <summary>Markdown (.md).</summary>
         public static readonly MimeType Markdown = new("text/markdown", ".md", ".markdown");
-        
+
         /// <summary>Cascading Style Sheets (.css).</summary>
         public static readonly MimeType Css = new("text/css", ".css");
-        
+
         /// <summary>Calendar data (.ics).</summary>
         public static readonly MimeType Calendar = new("text/calendar", ".ics");
-        
+
         /// <summary>vCard contact information (.vcf).</summary>
         public static readonly MimeType VCard = new("text/vcard", ".vcf");
-        
+
         /// <summary>YAML data (.yaml, .yml).</summary>
         public static readonly MimeType Yaml = new("text/yaml", "application/x-yaml", ".yaml", ".yml");
-        
+
         /// <summary>TOML configuration (.toml).</summary>
         public static readonly MimeType Toml = new("application/toml", ".toml");
-        
+
         internal static readonly IList<MimeType> All = new[] { Any, Csv, Html, Plain, Markdown, Css, Calendar, VCard, Yaml, Toml }.ToList().AsReadOnly();
-        
+
         /// <summary>
         /// Determines if a content type or file extension represents a text format.
         /// </summary>
@@ -420,85 +420,85 @@ public sealed partial class MimeType
     {
         /// <summary>Wildcard for any audio type.</summary>
         public static readonly MimeType Any = new("audio/*");
-        
+
         /// <summary>Advanced Audio Coding (.aac).</summary>
         public static readonly MimeType Aac = new("audio/aac", ".aac");
-        
+
         /// <summary>Compact Disc Audio (.cda).</summary>
         public static readonly MimeType CompactDiskAudio = new("application/x-cdf", ".cda");
-        
+
         /// <summary>Musical Instrument Digital Interface (.mid, .midi).</summary>
         public static readonly MimeType Midi = new("audio/midi", "audio/x-midi", ".mid", ".midi");
-        
+
         /// <summary>MP3 audio (.mp3).</summary>
         public static readonly MimeType Mp3 = new("audio/mpeg", ".mp3");
-        
+
         /// <summary>Ogg Vorbis audio (.oga).</summary>
         public static readonly MimeType OggAudio = new("audio/ogg", ".oga");
-        
+
         /// <summary>Opus audio codec (.opus).</summary>
         public static readonly MimeType OpusAudio = new("audio/opus", ".opus");
-        
+
         /// <summary>Waveform Audio File (.wav).</summary>
         public static readonly MimeType Waveform = new("audio/wav", ".wav");
-        
+
         /// <summary>WebM audio (.weba).</summary>
         public static readonly MimeType WebmAudio = new("audio/webm", ".weba");
 
         // Modern and lossless formats
         /// <summary>Free Lossless Audio Codec (.flac).</summary>
         public static readonly MimeType Flac = new("audio/flac", ".flac");
-        
+
         /// <summary>MPEG-4 Audio (.m4a).</summary>
         public static readonly MimeType Mp4Audio = new("audio/mp4", ".m4a", ".mp4a");
-        
+
         /// <summary>Apple Lossless Audio Codec (.m4a).</summary>
         public static readonly MimeType AlacAudio = new("audio/x-m4a", ".m4a");
-        
+
         /// <summary>Windows Media Audio (.wma).</summary>
         public static readonly MimeType Wma = new("audio/x-ms-wma", ".wma");
-        
+
         /// <summary>Audio Interchange File Format (.aif, .aiff).</summary>
         public static readonly MimeType Aiff = new("audio/x-aiff", ".aif", ".aiff", ".aifc");
-        
+
         /// <summary>Sun/NeXT audio (.au, .snd).</summary>
         public static readonly MimeType Au = new("audio/basic", ".au", ".snd");
-        
+
         /// <summary>Adaptive Multi-Rate audio codec (.amr).</summary>
         public static readonly MimeType Amr = new("audio/amr", ".amr");
-        
+
         /// <summary>3GPP audio (.3gp).</summary>
         public static readonly MimeType _3gppAudio = new("audio/3gpp", ".3gp");
-        
+
         /// <summary>3GPP2 audio (.3g2).</summary>
         public static readonly MimeType _3gpp2Audio = new("audio/3gpp2", ".3g2");
-        
+
         /// <summary>Direct Stream Digital (.dsf, .dff).</summary>
         public static readonly MimeType Dsd = new("audio/dsd", ".dsf", ".dff");
-        
+
         /// <summary>Monkey's Audio (.ape).</summary>
         public static readonly MimeType Ape = new("audio/x-ape", ".ape");
-        
+
         /// <summary>Matroska Audio (.mka).</summary>
         public static readonly MimeType Mka = new("audio/x-matroska", ".mka");
-        
+
         /// <summary>RealAudio (.ra, .ram).</summary>
         public static readonly MimeType Ra = new("audio/vnd.rn-realaudio", ".ra", ".ram");
-        
+
         /// <summary>Dolby Digital AC-3 (.ac3).</summary>
         public static readonly MimeType Ac3 = new("audio/ac3", ".ac3");
-        
+
         /// <summary>DTS audio (.dts).</summary>
         public static readonly MimeType Dts = new("audio/vnd.dts", ".dts");
-        
+
         /// <summary>TrueHD audio (.thd).</summary>
         public static readonly MimeType TrueHd = new("audio/vnd.dolby.mlp", ".thd", ".mlp");
-        
+
         /// <summary>MPEG-DASH (.mpd).</summary>
         public static readonly MimeType Dash = new("application/dash+xml", ".mpd");
 
         internal static readonly IList<MimeType> All = new[] { Any, Aac, Mp3, Midi, CompactDiskAudio, OggAudio, OpusAudio, Waveform, WebmAudio, Flac, Mp4Audio, AlacAudio, Wma, Aiff, Au, Amr, _3gppAudio, _3gpp2Audio, Dsd, Ape, Mka, Ra, Ac3, Dts, TrueHd, Dash }.ToList().AsReadOnly();
-        
+
         /// <summary>
         /// Determines if a content type or file extension represents an audio format.
         /// </summary>
@@ -515,106 +515,106 @@ public sealed partial class MimeType
     {
         /// <summary>Wildcard for any video type.</summary>
         public static readonly MimeType Any = new("video/*");
-        
+
         /// <summary>3GPP video (.3gp).</summary>
         public static readonly MimeType _3gp = new("video/3gpp", "video/3gp", ".3gp");
-        
+
         /// <summary>Audio Video Interleave (.avi).</summary>
         public static readonly MimeType Avi = new("video/x-msvideo", "video/avi", ".avi");
-        
+
         /// <summary>MPEG-4 video (.mp4).</summary>
         public static readonly MimeType Mp4Video = new("video/mp4", ".mp4");
-        
+
         /// <summary>MPEG video (.mpeg, .mpg).</summary>
         public static readonly MimeType MpegVideo = new("video/mpeg", ".mpeg", ".mpg");
-        
+
         /// <summary>Ogg Theora video (.ogv).</summary>
         public static readonly MimeType OggVideo = new("video/ogg", ".ogv");
-        
+
         /// <summary>MPEG Transport Stream (.ts).</summary>
         public static readonly MimeType MpegTransportStream = new("video/mp2t", ".ts");
-        
+
         /// <summary>WebM video (.webm).</summary>
         public static readonly MimeType WebmVideo = new("video/webm", ".webm");
-        
+
         /// <summary>3GPP2 video (.3g2).</summary>
         public static readonly MimeType _3gp2 = new("video/3gpp2", ".3g2");
-        
+
         /// <summary>Flash Video (.flv).</summary>
         public static readonly MimeType Flv = new("video/x-flv", ".flv");
-        
+
         /// <summary>H.264 video (.h264).</summary>
         public static readonly MimeType H264 = new("video/h264", ".h264");
-        
+
         /// <summary>QuickTime video (.mov, .qt).</summary>
         public static readonly MimeType Quicktime = new("video/quicktime", ".mov", ".qt");
-        
+
         /// <summary>Windows Media Video (.wmv).</summary>
         public static readonly MimeType Wmv = new("video/x-ms-wmv", ".wmv");
 
         // Modern and advanced formats
         /// <summary>Matroska Video (.mkv) - open standard container.</summary>
         public static readonly MimeType Mkv = new("video/x-matroska", ".mkv");
-        
+
         /// <summary>Advanced Systems Format (.asf).</summary>
         public static readonly MimeType Asf = new("video/x-ms-asf", ".asf");
-        
+
         /// <summary>DVD Video Object (.vob).</summary>
         public static readonly MimeType Vob = new("video/dvd", ".vob");
-        
+
         /// <summary>iTunes video (.m4v).</summary>
         public static readonly MimeType M4v = new("video/x-m4v", ".m4v");
-        
+
         /// <summary>RealMedia (.rm).</summary>
         public static readonly MimeType Rm = new("application/vnd.rn-realmedia", ".rm");
-        
+
         /// <summary>RealMedia Variable Bitrate (.rmvb).</summary>
         public static readonly MimeType Rmvb = new("application/vnd.rn-realmedia-vbr", ".rmvb");
-        
+
         /// <summary>Material Exchange Format (.mxf) - professional video.</summary>
         public static readonly MimeType Mxf = new("application/mxf", ".mxf");
-        
+
         /// <summary>Flash MP4 Video (.f4v).</summary>
         public static readonly MimeType F4v = new("video/x-f4v", ".f4v");
-        
+
         /// <summary>DivX video (.divx).</summary>
         public static readonly MimeType Divx = new("video/divx", ".divx");
-        
+
         /// <summary>Xvid video (.xvid).</summary>
         public static readonly MimeType Xvid = new("video/x-msvideo", ".xvid");
-        
+
         /// <summary>H.265/HEVC video (.h265, .hevc).</summary>
         public static readonly MimeType H265 = new("video/h265", ".h265");
-        
+
         /// <summary>High Efficiency Video Coding (.hevc).</summary>
         public static readonly MimeType Hevc = new("video/hevc", ".hevc");
-        
+
         /// <summary>AV1 video codec (.av01) - next-gen compression.</summary>
         public static readonly MimeType Av1 = new("video/av01", ".av01");
-        
+
         /// <summary>VP8 video codec (.vp8).</summary>
         public static readonly MimeType Vp8 = new("video/vp8", ".vp8");
-        
+
         /// <summary>VP9 video codec (.vp9).</summary>
         public static readonly MimeType Vp9 = new("video/vp9", ".vp9");
-        
+
         /// <summary>MPEG-2 Transport Stream (.m2ts, .mts) - Blu-ray format.</summary>
         public static readonly MimeType M2ts = new("video/mp2t", ".m2ts", ".mts");
-        
+
         /// <summary>Digital Video (.dv).</summary>
         public static readonly MimeType Dv = new("video/dv", ".dv");
-        
+
         /// <summary>MPEG-2 video (.mpg2).</summary>
         public static readonly MimeType Mpg2 = new("video/mpeg2", ".mpg2");
-        
+
         /// <summary>MPEG-4 Visual (.mp4v).</summary>
         public static readonly MimeType Mpg4 = new("video/mp4v-es", ".mp4v");
-        
+
         /// <summary>Apple ProRes (.prores).</summary>
         public static readonly MimeType ProRes = new("video/prores", ".prores");
 
         internal static readonly IList<MimeType> All = new[] { Any, _3gp, Avi, Flv, H264, Quicktime, Wmv, Mp4Video, MpegVideo, OggVideo, MpegTransportStream, WebmVideo, _3gp2, Mkv, Asf, Vob, M4v, Rm, Rmvb, Mxf, F4v, Divx, Xvid, H265, Hevc, Av1, Vp8, Vp9, M2ts, Dv, Mpg2, Mpg4, ProRes }.ToList().AsReadOnly();
-        
+
         /// <summary>
         /// Determines if a content type or file extension represents a video format.
         /// </summary>

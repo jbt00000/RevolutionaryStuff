@@ -7,6 +7,7 @@ using Microsoft.Extensions.Primitives;
 using RevolutionaryStuff.Core.Collections;
 
 namespace RevolutionaryStuff.Core;
+
 public static partial class WebHelpers
 {
     public static class CommonSchemes

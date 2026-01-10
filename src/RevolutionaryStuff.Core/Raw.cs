@@ -234,7 +234,7 @@ public static class Raw
             (buf[offset + 3] << 24) |
             (buf[offset + 2] << 16) |
             (buf[offset + 1] << 8) |
-            (buf[offset + 0]);
+            buf[offset + 0];
     }
 
     public static int ReadInt32BeFromBuf(byte[] buf, int offset)
@@ -243,7 +243,7 @@ public static class Raw
             (buf[offset + 0] << 24) |
             (buf[offset + 1] << 16) |
             (buf[offset + 2] << 8) |
-            (buf[offset + 3]);
+            buf[offset + 3];
     }
 
     public static long ReadInt64FromBuf(byte[] buf, int offset)
@@ -429,7 +429,7 @@ public static class Raw
         b = (i >> 8) & 0xff;
         c = (i >> 16) & 0xff;
         d = (i >> 24) & 0xff;
-        return (a << 24) | (b << 16) | (c << 8) | (d);
+        return (a << 24) | (b << 16) | (c << 8) | d;
     }
 
     public static short SwapEndianInt16(short i)
@@ -437,7 +437,7 @@ public static class Raw
         int a, b;
         a = i & 0xff;
         b = (i >> 8) & 0xff;
-        return (short)((a << 8) | (b));
+        return (short)((a << 8) | b);
     }
 
     public static byte[] NetmonText2Buf(string sText)

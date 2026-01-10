@@ -4,6 +4,7 @@ using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Crm.OpenPhone.Apis.OpenPhone;
 
 namespace RevolutionaryStuff.Crm.OpenPhone;
+
 public static class Use
 {
     public class Settings

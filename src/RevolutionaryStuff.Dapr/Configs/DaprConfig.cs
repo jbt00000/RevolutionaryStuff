@@ -1,4 +1,5 @@
 ﻿namespace RevolutionaryStuff.Dapr.Configs;
+
 internal class DaprConfig
 {
     public const string ConfigSectionName = "dapr";

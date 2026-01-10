@@ -3,6 +3,7 @@ using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Crm.MondayCom.Implementation;
 
 namespace RevolutionaryStuff.Crm.MondayCom;
+
 public static class Use
 {
     public class Settings

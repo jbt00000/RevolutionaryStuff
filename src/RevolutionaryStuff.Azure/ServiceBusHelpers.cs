@@ -3,6 +3,7 @@ using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure;
+
 public class ServiceBusHelpers
 {
     public class ServiceBusClientAuthenticationSettings : IValidate
@@ -24,7 +25,7 @@ public class ServiceBusHelpers
             Requires.Text(serviceBusConnectionStringOrFullyQualifiedName);
 
             ServiceBusConnectionStringOrFullyQualifiedName = serviceBusConnectionStringOrFullyQualifiedName;
-            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials ?? AzureTokenCredentialProvider != null;
+            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials ?? (AzureTokenCredentialProvider != null);
             AzureTokenCredentialProvider = azureTokenCredentialProvider;
         }
     }

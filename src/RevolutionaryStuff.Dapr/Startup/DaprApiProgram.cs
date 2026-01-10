@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.ApiCore.Startup;
 
 namespace RevolutionaryStuff.Dapr.Startup;
+
 public abstract class DaprApiProgram(DaprApiProgram.Settings _Settings) : ApiProgram
 {
     public record Settings(bool EnablePubSubSubscriptions)

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RevolutionaryStuff.Core.Collections;
 
 namespace RevolutionaryStuff.Core.Tests;
 
@@ -252,7 +251,7 @@ public class CollectionHelpersTests
     {
         var list = new List<int>();
         var element = list.RandomElement();
-        Assert.AreEqual(default(int), element);
+        Assert.AreEqual(default, element);
     }
 
     #endregion

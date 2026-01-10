@@ -2,6 +2,7 @@
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Crm;
+
 public static class Use
 {
     public class Settings

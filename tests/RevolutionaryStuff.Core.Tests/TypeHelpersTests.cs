@@ -363,16 +363,16 @@ public class TypeHelpersTests
     public void NumericMaxMin_WithInt_ReturnsCorrectBounds()
     {
         TypeHelpers.NumericMaxMin(typeof(int), out var max, out var min);
-        Assert.AreEqual((double)int.MaxValue, max);
-        Assert.AreEqual((double)int.MinValue, min);
+        Assert.AreEqual(int.MaxValue, max);
+        Assert.AreEqual(int.MinValue, min);
     }
 
     [TestMethod]
     public void NumericMaxMin_WithByte_ReturnsCorrectBounds()
     {
         TypeHelpers.NumericMaxMin(typeof(byte), out var max, out var min);
-        Assert.AreEqual((double)byte.MaxValue, max);
-        Assert.AreEqual((double)byte.MinValue, min);
+        Assert.AreEqual(byte.MaxValue, max);
+        Assert.AreEqual(byte.MinValue, min);
     }
 
     [TestMethod]
@@ -395,16 +395,16 @@ public class TypeHelpersTests
     public void NumericMaxMin_WithNInt_ReturnsCorrectBounds()
     {
         TypeHelpers.NumericMaxMin(typeof(nint), out var max, out var min);
-        Assert.AreEqual((double)nint.MaxValue, max);
-        Assert.AreEqual((double)nint.MinValue, min);
+        Assert.AreEqual(nint.MaxValue, max);
+        Assert.AreEqual(nint.MinValue, min);
     }
 
     [TestMethod]
     public void NumericMaxMin_WithNUInt_ReturnsCorrectBounds()
     {
         TypeHelpers.NumericMaxMin(typeof(nuint), out var max, out var min);
-        Assert.AreEqual((double)nuint.MaxValue, max);
-        Assert.AreEqual((double)nuint.MinValue, min);
+        Assert.AreEqual(nuint.MaxValue, max);
+        Assert.AreEqual(nuint.MinValue, min);
     }
 
     [TestMethod]
@@ -621,7 +621,7 @@ public class TypeHelpersTests
     public void MemberWalk_VisitsAllMembers()
     {
         var visitedMembers = new List<string>();
-        
+
         typeof(TestClass).MemberWalk(
             BindingFlags.Public | BindingFlags.Instance,
             (context, type, member) => context,
@@ -636,7 +636,7 @@ public class TypeHelpersTests
     public void MemberWalk_PreventsCycles()
     {
         var visitCount = 0;
-        
+
         typeof(TestClass).MemberWalk(
             BindingFlags.Public | BindingFlags.Instance,
             (context, type, member) => context,

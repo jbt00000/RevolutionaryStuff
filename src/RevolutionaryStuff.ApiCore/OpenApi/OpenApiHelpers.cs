@@ -2,6 +2,7 @@
 using Microsoft.OpenApi.Models;
 
 namespace RevolutionaryStuff.ApiCore.OpenApi;
+
 public static class OpenApiHelpers
 {
     public static RouteHandlerBuilder ExpectsBinaryInputPayload(this RouteHandlerBuilder builder)

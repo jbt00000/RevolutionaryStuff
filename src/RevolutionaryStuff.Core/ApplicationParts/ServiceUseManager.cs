@@ -1,6 +1,7 @@
 ﻿using System.Diagnostics;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
+
 public static class ServiceUseManager
 {
     private class Usage

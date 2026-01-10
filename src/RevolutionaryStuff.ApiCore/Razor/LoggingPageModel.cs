@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.ApiCore.Razor;
+
 public abstract class LoggingPageModel : PageModel
 {
     protected LoggingPageModel(ILogger Logger)

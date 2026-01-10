@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Storage.Implementation.Base;
 
 namespace RevolutionaryStuff.Storage.Providers.LocalFileSystem;
+
 public partial class PhysicalStorageProvider : BaseStorageProvider, IPhysicalStorageProvider
 {
     private readonly IOptions<Config> ConfigOptions;

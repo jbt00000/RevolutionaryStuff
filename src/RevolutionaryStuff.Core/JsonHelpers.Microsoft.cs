@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 
 namespace RevolutionaryStuff.Core;
+
 public static partial class JsonHelpers
 {
     public static string GetString(this IDictionary<string, JsonElement> extensionData, string key, string missing = default)

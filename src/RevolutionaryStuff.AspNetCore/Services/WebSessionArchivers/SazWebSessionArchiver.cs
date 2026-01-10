@@ -3,6 +3,7 @@ using System.IO.Compression;
 using Microsoft.AspNetCore.Http;
 
 namespace RevolutionaryStuff.AspNetCore.Services.SazGenerators;
+
 internal class SazWebSessionArchiver : ISazWebSessionArchiver
 {
     string IWebSessionArchiver.FileExtension => ".saz";

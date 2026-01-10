@@ -24,7 +24,7 @@ public static class CosmosHelpers
             Requires.Text(cosmosClientConnectionStringOrEndpoint);
             CosmosClientConnectionStringOrEndpoint = cosmosClientConnectionStringOrEndpoint;
             AzureTokenCredentialProvider = azureTokenCredentialProvider;
-            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials ?? AzureTokenCredentialProvider != null;
+            AuthenticateWithWithDefaultAzureCredentials = authenticateWithWithDefaultAzureCredentials ?? (AzureTokenCredentialProvider != null);
             WithEncryption = withEncryption;
         }
 

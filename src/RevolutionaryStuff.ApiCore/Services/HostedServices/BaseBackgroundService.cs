@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.ApiCore.Services.HostedServices;
+
 public abstract class BaseBackgroundService : BackgroundService
 {
     protected readonly IServiceProvider ServiceProvider;

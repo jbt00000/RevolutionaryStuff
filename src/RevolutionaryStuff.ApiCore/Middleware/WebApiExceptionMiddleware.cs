@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace RevolutionaryStuff.ApiCore.Middleware;
+
 public class WebApiExceptionMiddleware(IOptions<WebApiExceptionMiddleware.Config> _configOptions, RequestDelegate _next, ILogger<WebApiExceptionMiddleware> _logger)
 {
     public class Config

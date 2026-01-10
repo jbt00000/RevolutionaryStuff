@@ -2,6 +2,7 @@
 using Dapr.Client;
 
 namespace RevolutionaryStuff.Dapr.Services.PubSub;
+
 public interface ITopicPublisher
 {
     /// <summary>

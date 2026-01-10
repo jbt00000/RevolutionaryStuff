@@ -3,6 +3,7 @@ using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure;
+
 public static class KeyVaultHelpers
 {
     public class SecretClientAuthenticationSettings : IValidate

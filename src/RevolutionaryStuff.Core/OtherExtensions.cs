@@ -1,4 +1,5 @@
 ﻿namespace RevolutionaryStuff.Core;
+
 public static class OtherExtensions
 {
     public static DateTime ToTimeZone(this DateTime dt, TimeZoneInfo zoneInfo)

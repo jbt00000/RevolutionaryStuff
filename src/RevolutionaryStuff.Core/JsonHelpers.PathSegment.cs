@@ -1,4 +1,5 @@
 ﻿namespace RevolutionaryStuff.Core;
+
 public partial class JsonHelpers
 {
     public enum PathFormats

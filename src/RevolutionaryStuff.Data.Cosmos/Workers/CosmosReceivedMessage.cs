@@ -3,6 +3,7 @@ using System.Text.Json;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 
 namespace RevolutionaryStuff.Data.Cosmos.Workers;
+
 internal class CosmosReceivedMessage(string Id, JsonElement El, string DatabaseName, string ContainerName, long SequenceNumber, DateTimeOffset TouchedAt, IDictionary<string, object> Properties) : ICosmosReceivedMessage
 {
     string ICosmosReceivedMessage.DatabaseName => DatabaseName;

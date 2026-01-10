@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 
 namespace RevolutionaryStuff.Core;
+
 public static partial class WebHelpers
 {
     /// <summary>

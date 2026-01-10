@@ -5,6 +5,7 @@ using RevolutionaryStuff.Data.JsonStore.Repos;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Data.JsonStore;
+
 public static class Use
 {
     public class Settings

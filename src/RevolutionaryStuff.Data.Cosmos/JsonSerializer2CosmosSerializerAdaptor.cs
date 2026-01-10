@@ -8,21 +8,22 @@ using Microsoft.Azure.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
 namespace RevolutionaryStuff.Data.Cosmos;
+
 public class JsonSerializer2CosmosSerializerAdaptor(IJsonSerializer JsonSerializer, string? TypeDiscriminatorPropertyNameToDedupe = null) : CosmosLinqSerializer
 {
     public override Stream ToStream<T>(T input)
     {
         var json = JsonSerializer.ToJson(input);
-        if (input!=null && TypeDiscriminatorPropertyNameToDedupe != null)
+        if (input != null && TypeDiscriminatorPropertyNameToDedupe != null)
         {
             var tInput = input.GetType();
-            if (!tInput.IsPrimitive && 
+            if (!tInput.IsPrimitive &&
                 !tInput.IsEnum &&
                 tInput != typeof(string) &&
                 tInput != typeof(DateTime) &&
                 tInput != typeof(DateOnly) &&
                 tInput != typeof(TimeOnly) &&
-                tInput != typeof(DateTimeOffset) && 
+                tInput != typeof(DateTimeOffset) &&
                 tInput != typeof(TimeSpan))
             {
                 var propertyFinderExpr = RegexHelpers.Create($"\"{Regex.Escape(TypeDiscriminatorPropertyNameToDedupe)}\"\\s*:\\s*\"[^\"]+\"");

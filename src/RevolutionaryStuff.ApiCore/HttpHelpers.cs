@@ -3,6 +3,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Http;
 
 namespace RevolutionaryStuff.ApiCore;
+
 public static class HttpHelpers
 {
     public static string? GetSingleStringValueFromHeaderOrQueryString(this HttpContext httpContext, string headerName, string? queryStringName = null)

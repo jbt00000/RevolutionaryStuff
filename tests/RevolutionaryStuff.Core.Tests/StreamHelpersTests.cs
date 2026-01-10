@@ -133,7 +133,7 @@ public class StreamHelpersTests
     {
         var filePath = GetTempFilePath();
         var expectedContent = "Test content for file copy";
-        
+
         using var ms = new MemoryStream(Encoding.UTF8.GetBytes(expectedContent));
         ms.CopyTo(filePath);
 
@@ -146,7 +146,7 @@ public class StreamHelpersTests
     {
         var filePath = GetTempFilePath();
         var expectedContent = "Test content for async file copy";
-        
+
         using var ms = new MemoryStream(Encoding.UTF8.GetBytes(expectedContent));
         await ms.CopyToAsync(filePath);
 
@@ -163,7 +163,7 @@ public class StreamHelpersTests
     {
         var testString = "Hello, World!";
         using var stream = StreamHelpers.Create(testString);
-        
+
         var result = new StreamReader(stream).ReadToEnd();
         Assert.AreEqual(testString, result);
     }
@@ -173,7 +173,7 @@ public class StreamHelpersTests
     {
         var testString = "Hello, Wörld! 世界";
         using var stream = StreamHelpers.Create(testString, Encoding.Unicode);
-        
+
         var result = new StreamReader(stream, Encoding.Unicode).ReadToEnd();
         Assert.AreEqual(testString, result);
     }
@@ -190,10 +190,10 @@ public class StreamHelpersTests
     {
         var testString = "Test";
         using var stream = StreamHelpers.CreateUtf8WithoutPreamble(testString);
-        
+
         var bytes = new byte[3];
         stream.Read(bytes, 0, 3);
-        
+
         // UTF-8 BOM is 0xEF, 0xBB, 0xBF - first byte should be 'T' (0x54)
         Assert.AreEqual((byte)'T', bytes[0], "Should not have UTF-8 BOM");
     }
@@ -207,9 +207,9 @@ public class StreamHelpersTests
     {
         var buffer = new byte[] { 1, 2, 3, 4, 5 };
         using var ms = new MemoryStream();
-        
+
         ms.Write(buffer);
-        
+
         CollectionAssert.AreEqual(buffer, ms.ToArray());
     }
 
@@ -218,7 +218,7 @@ public class StreamHelpersTests
     {
         using var ms = new MemoryStream();
         ms.Write((byte[])null);
-        
+
         Assert.AreEqual(0, ms.Length);
     }
 
@@ -230,9 +230,9 @@ public class StreamHelpersTests
     public void SeekViaPos_Begin_SeeksFromStart()
     {
         using var ms = new MemoryStream(new byte[100]);
-        
+
         var newPos = ms.SeekViaPos(50, SeekOrigin.Begin);
-        
+
         Assert.AreEqual(50, newPos);
         Assert.AreEqual(50, ms.Position);
     }
@@ -242,9 +242,9 @@ public class StreamHelpersTests
     {
         using var ms = new MemoryStream(new byte[100]);
         ms.Position = 30;
-        
+
         var newPos = ms.SeekViaPos(20, SeekOrigin.Current);
-        
+
         Assert.AreEqual(50, newPos);
         Assert.AreEqual(50, ms.Position);
     }
@@ -253,9 +253,9 @@ public class StreamHelpersTests
     public void SeekViaPos_End_SeeksFromEnd()
     {
         using var ms = new MemoryStream(new byte[100]);
-        
+
         var newPos = ms.SeekViaPos(-10, SeekOrigin.End);
-        
+
         Assert.AreEqual(90, newPos);
         Assert.AreEqual(90, ms.Position);
     }
@@ -269,10 +269,10 @@ public class StreamHelpersTests
     {
         var sourceData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
         using var ms = new MemoryStream(sourceData);
-        
+
         var buffer = new byte[5];
         ms.ReadExactSize(buffer);
-        
+
         CollectionAssert.AreEqual(new byte[] { 1, 2, 3, 4, 5 }, buffer);
     }
 
@@ -281,10 +281,10 @@ public class StreamHelpersTests
     {
         var sourceData = new byte[] { 1, 2, 3, 4, 5 };
         using var ms = new MemoryStream(sourceData);
-        
+
         var buffer = new byte[10];
         ms.ReadExactSize(buffer, offset: 3, size: 5);
-        
+
         Assert.AreEqual(0, buffer[0]);
         Assert.AreEqual(1, buffer[3]);
         Assert.AreEqual(5, buffer[7]);
@@ -295,10 +295,10 @@ public class StreamHelpersTests
     {
         var sourceData = new byte[] { 1, 2, 3, 4, 5, 6, 7, 8 };
         using var ms = new MemoryStream(sourceData);
-        
+
         var buffer = new byte[10];
         ms.ReadExactSize(buffer, size: 3);
-        
+
         Assert.AreEqual(1, buffer[0]);
         Assert.AreEqual(2, buffer[1]);
         Assert.AreEqual(3, buffer[2]);
@@ -310,7 +310,7 @@ public class StreamHelpersTests
     {
         var sourceData = new byte[] { 1, 2, 3 };
         using var ms = new MemoryStream(sourceData);
-        
+
         var buffer = new byte[10];
         Assert.Throws<IndexOutOfRangeException>(() => ms.ReadExactSize(buffer));
     }
@@ -324,9 +324,9 @@ public class StreamHelpersTests
     {
         var expected = new byte[] { 1, 2, 3, 4, 5 };
         using var ms = new MemoryStream(expected);
-        
+
         var result = await ms.ToBufferAsync();
-        
+
         CollectionAssert.AreEqual(expected, result);
     }
 
@@ -336,10 +336,10 @@ public class StreamHelpersTests
         var expected = new byte[] { 1, 2, 3, 4, 5 };
         var filePath = GetTempFilePath();
         await File.WriteAllBytesAsync(filePath, expected);
-        
+
         using var fileStream = File.OpenRead(filePath);
         var result = await fileStream.ToBufferAsync();
-        
+
         CollectionAssert.AreEqual(expected, result);
     }
 
@@ -352,9 +352,9 @@ public class StreamHelpersTests
     {
         var testString = "Hello, World!";
         using var ms = new MemoryStream();
-        
+
         ms.Write(testString);
-        
+
         var result = Encoding.UTF8.GetString(ms.ToArray());
         Assert.AreEqual(testString, result);
     }
@@ -364,9 +364,9 @@ public class StreamHelpersTests
     {
         var testString = "Hello, 世界!";
         using var ms = new MemoryStream();
-        
+
         ms.Write(testString, Encoding.Unicode);
-        
+
         var result = Encoding.Unicode.GetString(ms.ToArray());
         Assert.AreEqual(testString, result);
     }
@@ -376,7 +376,7 @@ public class StreamHelpersTests
     {
         using var ms = new MemoryStream();
         ms.Write((string)null);
-        
+
         Assert.AreEqual(0, ms.Length);
     }
 
@@ -389,7 +389,7 @@ public class StreamHelpersTests
     {
         var encoding = StreamHelpers.UTF8EncodingWithoutPreamble;
         var preamble = encoding.GetPreamble();
-        
+
         Assert.HasCount(0, preamble);
     }
 
@@ -398,7 +398,7 @@ public class StreamHelpersTests
     {
         var encoding = StreamHelpers.UTF8EncodingWithPreamble;
         var preamble = encoding.GetPreamble();
-        
+
         Assert.IsTrue(preamble.Length > 0);
         Assert.AreEqual(0xEF, preamble[0]);
         Assert.AreEqual(0xBB, preamble[1]);
@@ -413,24 +413,24 @@ public class StreamHelpersTests
     public async Task IntegrationTest_CreateReadWriteRoundTrip()
     {
         var originalText = "Round trip test with special chars: 世界 🌍";
-        
+
         // Create stream from string
         using var stream1 = StreamHelpers.Create(originalText);
-        
+
         // Read it back
         var readText = await stream1.ReadToEndAsync();
         Assert.AreEqual(originalText, readText);
-        
+
         // Write to file
         var filePath = GetTempFilePath();
         stream1.Position = 0;
         await stream1.CopyToAsync(filePath);
-        
+
         // Read from file
         using var stream2 = new MemoryStream();
         await stream2.CopyFromAsync(filePath);
         stream2.Position = 0;
-        
+
         var finalText = await stream2.ReadToEndAsync();
         Assert.AreEqual(originalText, finalText);
     }
@@ -442,17 +442,17 @@ public class StreamHelpersTests
         var largeData = new byte[1024 * 512]; // 512 KB
         Stuff.Random.NextBytes(largeData);
         await File.WriteAllBytesAsync(filePath, largeData);
-        
+
         using var source = File.OpenRead(filePath);
         using var destination = new MemoryStream();
-        
+
         var progressUpdates = 0;
         await source.CopyToAsync(destination, (read, total, length) =>
         {
             progressUpdates++;
             Assert.IsTrue(total <= length, "Total should not exceed length");
         }, bufferSize: 64 * 1024);
-        
+
         Assert.IsTrue(progressUpdates > 0, "Should have progress updates");
         Assert.AreEqual(largeData.Length, destination.Length);
     }

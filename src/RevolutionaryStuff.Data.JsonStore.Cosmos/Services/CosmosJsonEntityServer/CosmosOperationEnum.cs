@@ -1,4 +1,5 @@
 ﻿namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
+
 public enum CosmosOperationEnum
 {
     Create,

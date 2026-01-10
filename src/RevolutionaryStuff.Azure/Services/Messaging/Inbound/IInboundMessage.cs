@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 namespace RevolutionaryStuff.Azure.Services.Messaging.Inbound;
+
 public interface IInboundMessage
 {
     string MessageId { get; }
