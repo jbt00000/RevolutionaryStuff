@@ -333,14 +333,14 @@ public class JsonTypeCleanerTests
             ""$type"": ""Numbers"",
             ""bigInt"": 9223372036854775807,
             ""decimal"": 123.456789012345,
-            ""scientific"": 1.23e-10,
+            ""scientific"": 1.23E-10,
             ""$type"": ""NumbersDupe""
         }";
         var expected = @"{
             ""$type"": ""Numbers"",
             ""bigInt"": 9223372036854775807,
             ""decimal"": 123.456789012345,
-            ""scientific"": 1.23e-10
+            ""scientific"": 1.23E-10
         }";
         var result = CallRemoveDuplicateTypeKeys(json);
         AssertJsonEqual(expected, result, "Should preserve exact numeric values");

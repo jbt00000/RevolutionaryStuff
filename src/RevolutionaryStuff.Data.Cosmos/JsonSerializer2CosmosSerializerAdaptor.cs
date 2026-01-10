@@ -127,13 +127,14 @@ public class JsonSerializer2CosmosSerializerAdaptor(IJsonSerializer JsonSerializ
                         WriteValueOrStart(ref reader, writer, seenTypeStack, contextStack);
                         break;
 
-                    // array‐element literals are valid; but stray literals inside an object are not
+                    // Handle primitives - both at top-level and inside arrays
                     case JsonTokenType.String:
                     case JsonTokenType.Number:
                     case JsonTokenType.True:
                     case JsonTokenType.False:
                     case JsonTokenType.Null:
-                        if (contextStack.Count > 0 && contextStack.Peek() == Context.Array)
+                        // Write primitives if they're at top-level or inside an array
+                        if (contextStack.Count == 0 || contextStack.Peek() == Context.Array)
                         {
                             WritePrimitive(ref reader, writer);
                         }
