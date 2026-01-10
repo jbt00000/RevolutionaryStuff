@@ -3,6 +3,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Azure.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
 
@@ -12,15 +13,27 @@ public class JsonSerializer2CosmosSerializerAdaptor(IJsonSerializer JsonSerializ
     public override Stream ToStream<T>(T input)
     {
         var json = JsonSerializer.ToJson(input);
-        if (TypeDiscriminatorPropertyNameToDedupe == null)
+        if (input!=null && TypeDiscriminatorPropertyNameToDedupe != null)
         {
-            var bytes = Encoding.UTF8.GetBytes(json);
-            return new MemoryStream(bytes, false);
+            var tInput = input.GetType();
+            if (!tInput.IsPrimitive && 
+                !tInput.IsEnum &&
+                tInput != typeof(string) &&
+                tInput != typeof(DateTime) &&
+                tInput != typeof(DateOnly) &&
+                tInput != typeof(TimeOnly) &&
+                tInput != typeof(DateTimeOffset) && 
+                tInput != typeof(TimeSpan))
+            {
+                var propertyFinderExpr = RegexHelpers.Create($"\"{Regex.Escape(TypeDiscriminatorPropertyNameToDedupe)}\"\\s*:\\s*\"[^\"]+\"");
+                if (propertyFinderExpr.IsMatch(json))
+                {
+                    return JsonTypeCleaner.RemoveDuplicateTypeKeys(json, TypeDiscriminatorPropertyNameToDedupe);
+                }
+            }
         }
-        else
-        {
-            return JsonTypeCleaner.RemoveDuplicateTypeKeys(json, TypeDiscriminatorPropertyNameToDedupe);
-        }
+        var bytes = Encoding.UTF8.GetBytes(json);
+        return new MemoryStream(bytes, false);
     }
 
     public override T FromStream<T>(Stream stream)
