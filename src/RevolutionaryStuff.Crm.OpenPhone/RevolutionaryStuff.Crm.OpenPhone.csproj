@@ -19,9 +19,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.131.90.0</FileVersion>
+        <FileVersion>4.132.100.0</FileVersion>
         <AssemblyVersion>4.114.91.0</AssemblyVersion>
-        <Version>4.131.90</Version>
+        <Version>4.132.100</Version>
     </PropertyGroup>
     <ItemGroup>
         <EmbeddedResource Include="appsettings.Development.json">
