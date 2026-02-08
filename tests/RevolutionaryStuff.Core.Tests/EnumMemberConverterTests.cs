@@ -539,11 +539,11 @@ public class EnumMemberConverterTests
         }
 
         var json = System.Text.Encoding.UTF8.GetString(writeStream.ToArray());
-        
+
         // Parse the JSON to extract the property name
         using var doc = JsonDocument.Parse(json);
         var propertyName = doc.RootElement.EnumerateObject().First().Name;
-        
+
         // Read the property name back
         var propertyNameBytes = System.Text.Encoding.UTF8.GetBytes($"\"{propertyName}\"");
         var reader = new Utf8JsonReader(propertyNameBytes);
@@ -619,7 +619,7 @@ public class EnumMemberConverterTests
         // Arrange
         var options = new JsonSerializerOptions();
         options.Converters.Add(new EnumMemberConverter<StatusWithAttribute> { SerializeEnumAsString = true });
-        
+
         // Use a simple object without JsonConverter attribute to ensure our converter is used
         var model = new { Status = StatusWithAttribute.Pending };
 
@@ -636,7 +636,7 @@ public class EnumMemberConverterTests
         // Arrange
         var options = new JsonSerializerOptions();
         options.Converters.Add(new EnumMemberConverter<StatusWithAttribute> { SerializeEnumAsString = false });
-        
+
         // Use a simple object without JsonConverter attribute
         var model = new { Status = StatusWithAttribute.Inactive };
 
