@@ -215,7 +215,12 @@ internal class FolderEntry : BaseFolderEntry<AzureBlobStorageProvider>, IFolderE
             var prefix = Folder.AbsolutePath;
             var delim = Criteria.NestingOption == MatchNestingOptionEnum.CurrentFolderAndChildFolders ? null : storageProvider.InternalFolderSeparatorString;
 Iterate:
-            await foreach (var page in storageProvider.ContainerClient.GetBlobsByHierarchyAsync(delimiter: delim, prefix: prefix).AsPages(NextToken))
+            await foreach (var page in storageProvider.ContainerClient.GetBlobsByHierarchyAsync(
+                traits: BlobTraits.None,
+                states: BlobStates.None,
+                delimiter: delim,
+                prefix: prefix,
+                cancellationToken: default).AsPages(NextToken))
             {
                 var cnt = 0;
                 foreach (var item in page.Values)

@@ -42,7 +42,7 @@
         <PackageReference Include="Azure.Identity" Version="1.17.1" />
         <PackageReference Include="Azure.Security.KeyVault.Keys" Version="4.8.0" />
         <!-- can't upgrade Microsoft.Azure.Cosmos past 3.35.2 while Microsoft.Azure.Cosmos.Encryption is at 2.0.3 -->
-        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.56.0">
+        <PackageReference Include="Microsoft.Azure.Cosmos" Version="3.57.0">
             <TreatAsUsed>true</TreatAsUsed>
         </PackageReference>
     </ItemGroup>
