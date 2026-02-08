@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <LangVersion>Preview</LangVersion>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AssemblyName>RevolutionaryStuff.Core</AssemblyName>
@@ -15,7 +15,7 @@
         <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-        <PackageReleaseNotes>This is now a .NET 9 library</PackageReleaseNotes>
+        <PackageReleaseNotes>This is now a .NET 10 library</PackageReleaseNotes>
         <Authors>jason@jasonthomas.com</Authors>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -68,13 +68,13 @@
         <!--
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         -->
-        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Http" Version="9.0.9" />
-        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="9.0.9" />
-        <PackageReference Include="System.IO.Hashing" Version="9.0.11" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.2" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.2" />
+        <PackageReference Include="System.IO.Hashing" Version="10.0.2" />
     </ItemGroup>
     <ItemGroup>
         <Compile Update="JsonHelpers.Microsoft.cs">

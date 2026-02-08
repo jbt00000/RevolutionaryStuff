@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
     <PropertyGroup>
         <LangVersion>Preview</LangVersion>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <AssemblyName>RevolutionaryStuff.Data.SqlServer</AssemblyName>
         <PackageId>RevolutionaryStuff.SqlServer</PackageId>
         <IsTrimmable>false</IsTrimmable>

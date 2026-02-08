@@ -1,6 +1,7 @@
 ﻿using System.Net;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.OpenApi;
 
 namespace RevolutionaryStuff.ApiCore;
 
@@ -35,34 +36,34 @@ public static class WebApiRouteBuilderHelpers
     internal static RouteHandlerBuilder ProducesFile(this RouteHandlerBuilder builder, HttpStatusCode httpStatusCode, params string[] expectedContentTypes)
         => builder.WithOpenApi(operation =>
         {
-            Dictionary<string, Microsoft.OpenApi.Models.OpenApiMediaType> successContent = new()
+            Dictionary<string, OpenApiMediaType> successContent = new()
             {
-                [MimeType.Application.OctetStream.PrimaryContentType] = new Microsoft.OpenApi.Models.OpenApiMediaType()
+                [MimeType.Application.OctetStream.PrimaryContentType] = new OpenApiMediaType()
                 {
-                    Schema = new Microsoft.OpenApi.Models.OpenApiSchema
+                    Schema = new OpenApiSchema
                     {
-                        Type = "string",
+                        Type = JsonSchemaType.String,
                         Format = "binary"
                     }
                 }
             };
             foreach (var expectedContentType in expectedContentTypes)
             {
-                successContent[expectedContentType] = new Microsoft.OpenApi.Models.OpenApiMediaType()
+                successContent[expectedContentType] = new OpenApiMediaType()
                 {
-                    Schema = new Microsoft.OpenApi.Models.OpenApiSchema
+                    Schema = new OpenApiSchema
                     {
-                        Type = "string",
+                        Type = JsonSchemaType.String,
                         Format = "binary"
                     }
                 };
             }
-            operation.Responses[((int)httpStatusCode).ToString()] = new Microsoft.OpenApi.Models.OpenApiResponse
+            operation.Responses[((int)httpStatusCode).ToString()] = new OpenApiResponse
             {
                 Description = "File downloaded successfully",
                 Content = successContent,
             };
-            operation.Responses[((int)HttpStatusCode.NotFound).ToString()] = new Microsoft.OpenApi.Models.OpenApiResponse
+            operation.Responses[((int)HttpStatusCode.NotFound).ToString()] = new OpenApiResponse
             {
                 Description = "File not found"
             };

@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Builder;
-using Microsoft.OpenApi.Models;
+using Microsoft.OpenApi;
 
 namespace RevolutionaryStuff.ApiCore.OpenApi;
 
@@ -17,9 +17,9 @@ public static class OpenApiHelpers
                 {
                     [MimeType.Application.OctetStream.PrimaryContentType] = new OpenApiMediaType
                     {
-                        Schema = new Microsoft.OpenApi.Models.OpenApiSchema
+                        Schema = new OpenApiSchema
                         {
-                            Type = "string",
+                            Type = JsonSchemaType.String,
                             Format = "binary"
                         }
                     }
@@ -39,9 +39,9 @@ public static class OpenApiHelpers
                 {
                     [MimeType.Image.Any.PrimaryContentType] = new OpenApiMediaType
                     {
-                        Schema = new Microsoft.OpenApi.Models.OpenApiSchema
+                        Schema = new OpenApiSchema
                         {
-                            Type = "string",
+                            Type = JsonSchemaType.String,
                             Format = "binary"
                         }
                     }
