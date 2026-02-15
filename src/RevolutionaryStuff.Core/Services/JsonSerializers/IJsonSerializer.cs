@@ -17,8 +17,24 @@ public interface IJsonSerializer
     void Serialize(object o, Stream st)
         => st.Write(ToJson(o));
 
+    object FromStream(Stream st, Type t)
+    {
+        try
+        {
+            var json = st.ReadToEnd();
+            return FromJson(json, t);
+        }
+        finally
+        {
+            st.Dispose();
+        }
+    }
+
     T FromJson<T>(string json)
         => (T)FromJson(json, typeof(T));
+
+    T FromStream<T>(Stream st)
+        => (T) FromStream(st, typeof(T));
 
     T Clone<T>(T obj)
     {

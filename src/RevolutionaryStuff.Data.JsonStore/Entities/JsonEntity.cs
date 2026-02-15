@@ -5,6 +5,7 @@ using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Caching;
 using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
 using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.JsonStore.Store;
@@ -73,8 +74,7 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonIgnore]
     public bool IsSoftDeleted => SoftDeletedAt != null;
 
-    /// <remarks>Should be the first property to speed deserialization when using JsonPolymorphic</remarks>
-    [JsonPropertyOrder(int.MinValue)]
+    [JsonIgnore]
     [JsonPropertyName(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 
@@ -83,10 +83,23 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
 
     protected JsonEntity()
     {
-        var t = GetType();
-        DataType = JsonEntityPrefixAttribute.GetPrefix(t) + JsonEntityPrefixAttribute.Separator + EntityDataTypeSuffix;
+        DataType = PermaCache.FindOrCreate(GetType(), "__JsonEntityGetDataType", () => GetDataType());
         Id = CreateId();
     }
+
+    protected virtual string GetDataType()
+    {
+        var t = GetType();
+        foreach (var a in t.GetCustomAttributes<JsonDerivedTypeAttribute>(true))
+        {
+            if (a.DerivedType == t)
+            {
+                return t.Name;
+            }
+        }
+        return JsonEntityPrefixAttribute.GetPrefix(GetType()) + JsonEntityPrefixAttribute.Separator + EntityDataTypeSuffix;
+    }
+
 
     public static void ThrowIfNotJsonEntity(Type t)
     {
