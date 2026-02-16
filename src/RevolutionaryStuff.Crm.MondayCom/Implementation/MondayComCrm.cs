@@ -95,11 +95,10 @@ internal class MondayComCrm(IMondayComApi Api, IOptions<MondayComCrm.Config> Con
         return new FindCrmItemResult(res?.ItemId);
     }
 
-    private static readonly HashSet<string> ContactFieldsToIgnoreOnCreate =
-    [
-with(Comparers.CaseInsensitiveStringComparer),
+    private static readonly HashSet<string> ContactFieldsToIgnoreOnCreate = new(Comparers.CaseInsensitiveStringComparer)
+    {
         CrmContactFieldEnum.Name.EnumWithEnumMemberValuesToString(),
-    ];
+    };
 
     protected override async Task<CreateCrmItemResult> OnCreateContactAsync(ICrmContact contact, CreateCrmItemSettings settings)
     {

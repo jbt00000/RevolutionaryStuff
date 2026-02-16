@@ -42,7 +42,7 @@ public static class AssemblySettingsResourceStacking
         HashSet<string> testedAssemblyNames = [];
         TestAssembly(a.GetName());
         List<ResourceInfo> ret = [];
-        HashSet<string> remainingPreds = [with(Comparers.CaseInsensitiveStringComparer)];
+        HashSet<string> remainingPreds = new(Comparers.CaseInsensitiveStringComparer);
         while (nodes.Count > 0)
         {
             remainingPreds.Clear();
@@ -79,7 +79,7 @@ public static class AssemblySettingsResourceStacking
             {
                 return [];
             }
-            HashSet<string> predecessors = [with(Comparers.CaseInsensitiveStringComparer)];
+            HashSet<string> predecessors = new(Comparers.CaseInsensitiveStringComparer);
             foreach (var kid in a.GetReferencedAssemblies())
             {
                 var preds = TestAssembly(kid);
