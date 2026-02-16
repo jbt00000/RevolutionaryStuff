@@ -34,7 +34,7 @@ public interface IJsonSerializer
         => (T)FromJson(json, typeof(T));
 
     T FromStream<T>(Stream st)
-        => (T) FromStream(st, typeof(T));
+        => (T)FromStream(st, typeof(T));
 
     T Clone<T>(T obj)
     {

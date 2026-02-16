@@ -726,7 +726,7 @@ public static class CollectionHelpers
         {
             if (sub == null)
             {
-                sub = new List<T>(sublistSize);
+                sub = [with(sublistSize)];
                 ret.Add(sub);
             }
             sub.Add(i);

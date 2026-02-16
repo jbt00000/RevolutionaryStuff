@@ -202,7 +202,7 @@ public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJson
         else
         {
             Dictionary<Type, IJsonEntityContainer> containerByType = [];
-            List<Task> tasks = new(entities.Count);
+            List<Task> tasks = [with(entities.Count)];
             foreach (var e in entities)
             {
                 var c = containerByType.FindOrCreate(
