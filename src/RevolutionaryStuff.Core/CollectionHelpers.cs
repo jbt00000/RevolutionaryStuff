@@ -295,20 +295,6 @@ public static class CollectionHelpers
     }
 
     /// <summary>
-    /// Returns a random element from a list.
-    /// </summary>
-    /// <typeparam name="T">The type of elements in the list.</typeparam>
-    /// <param name="list">The list to select from.</param>
-    /// <param name="r">The random number generator to use. If null, uses the default random generator.</param>
-    /// <returns>A randomly selected element from the list.</returns>
-    public static T Random<T>(this IList<T> list, Random r = null)
-    {
-        r ??= Stuff.Random;
-        var n = r.Next(list.Count);
-        return list[n];
-    }
-
-    /// <summary>
     /// Randomizes the order of elements in a list using the Fisher-Yates shuffle algorithm.
     /// </summary>
     /// <typeparam name="T">The type of elements in the list.</typeparam>

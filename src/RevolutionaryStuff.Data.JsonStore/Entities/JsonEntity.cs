@@ -11,7 +11,6 @@ using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
-
 public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate, IPrimaryKey<string>, IETagGetter
 {
     public static IJsonEntityIdServices JsonEntityIdServices { get; internal set; } = DefaultJsonEntityServices.Instance;
@@ -28,6 +27,8 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
 
     public static class JsonEntityPropertyNames
     {
+        public const string Type = "$type";
+
         public const string Id = "id";
 
         public const string SoftDeletedAt = "softDeletedAt";
@@ -74,8 +75,10 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonIgnore]
     public bool IsSoftDeleted => SoftDeletedAt != null;
 
-    [JsonIgnore]
-    [JsonPropertyName(JsonEntityPropertyNames.DataType)]
+    // Many JSON serializers expect th $type property to be the first one that is serialized
+    [JsonPropertyOrder(int.MinValue)]
+    [JsonPropertyName(JsonEntityPropertyNames.Type)]
+    [JsonTypeInfoResolverOptions(RemoveWhenPolymorphic = true)]
     public string DataType { get; set; }
 
     [JsonPropertyName(JsonEntityPropertyNames.PartitionKey)]

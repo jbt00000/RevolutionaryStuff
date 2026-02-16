@@ -225,20 +225,6 @@ public class CollectionHelpersTests
     }
 
     [TestMethod]
-    public void RandomTest()
-    {
-        var a = CreateInOrderList(10000);
-        for (var z = 0; z < 10; ++z)
-        {
-            var r1 = a.Random();
-            var r2 = a.Random();
-            Assert.IsTrue(r1 >= 0 && r1 <= a.Count);
-            Assert.IsTrue(r2 >= 0 && r2 <= a.Count);
-            Assert.AreNotEqual(r1, r2);
-        }
-    }
-
-    [TestMethod]
     public void RandomElement_WithItems_ReturnsItem()
     {
         var list = new List<int> { 1, 2, 3 };

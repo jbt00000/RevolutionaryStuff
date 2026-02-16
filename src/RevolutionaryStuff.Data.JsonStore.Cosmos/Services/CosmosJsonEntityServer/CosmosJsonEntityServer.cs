@@ -1,4 +1,7 @@
 ﻿using System.Collections.Concurrent;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.Json.Serialization.Metadata;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -6,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
 using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Store;
@@ -47,10 +51,48 @@ public abstract class CosmosJsonEntityServer : BaseLoggingDisposable, IJsonEntit
         return cco;
     }
 
+    protected class IgnoreDataTypePropertyModifier : IJsonTypeInfoResolver
+    {
+        private readonly IJsonTypeInfoResolver InnerResolver;
+
+        public IgnoreDataTypePropertyModifier(IJsonTypeInfoResolver innerResolver)
+        {
+            InnerResolver = innerResolver;
+        }
+
+        public JsonTypeInfo? GetTypeInfo(Type type, JsonSerializerOptions options)
+        {
+            var typeInfo = InnerResolver.GetTypeInfo(type, options);
+
+            if (typeInfo != null)
+            {
+                var hasPolymorphicAttribute = type.GetCustomAttribute<JsonPolymorphicAttribute>(true) != null;
+                if (hasPolymorphicAttribute)
+                {
+                    foreach (var property in typeInfo.Properties.ToList())
+                    {
+                        var propertyOptions = (property.AttributeProvider?.GetCustomAttributes(typeof(JsonTypeInfoResolverOptionsAttribute), true)?.FirstOrDefault()) as JsonTypeInfoResolverOptionsAttribute;
+                        if (propertyOptions?.RemoveWhenPolymorphic ?? false)
+                        {
+                            typeInfo.Properties.Remove(property);
+                        }
+                    }
+                }
+            }
+
+            return typeInfo;
+        }
+    }
+
     protected virtual void ConfigureCosmosClientOptions(CosmosClientOptions cosmosClientOptions)
     {
         var config = ConfigOptions.Value;
-        cosmosClientOptions.Serializer = new DefaultCosmosEntitySerializer();
+        DefaultJsonTypeInfoResolver resolver = new();
+        JsonSerializerOptions jso = new(SystemTextJsonSerializer.DefaultJsonSerializationSettings)
+        {
+            TypeInfoResolver = new IgnoreDataTypePropertyModifier(resolver)
+        };
+        cosmosClientOptions.Serializer = new DefaultCosmosEntitySerializer(new SystemTextJsonSerializer(jso));
         cosmosClientOptions.ConnectionMode = config.ConnectionMode;
         cosmosClientOptions.ApplicationName = config.ApplicationName ?? RevolutionaryStuffCoreConfig.GetApplicationName(ServiceProvider.GetRequiredService<IConfiguration>());
     }

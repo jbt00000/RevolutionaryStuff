@@ -43,4 +43,3 @@ public class SystemTextJsonSerializer(JsonSerializerOptions MyJsonSerializerOpti
     string IJsonSerializer.GetMemberName(MemberInfo mi)
         => mi.GetCustomAttribute<JsonPropertyNameAttribute>()?.Name ?? mi.Name;
 }
-
