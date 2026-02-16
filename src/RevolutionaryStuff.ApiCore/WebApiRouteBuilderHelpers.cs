@@ -36,6 +36,7 @@ public static class WebApiRouteBuilderHelpers
     internal static RouteHandlerBuilder ProducesFile(this RouteHandlerBuilder builder, HttpStatusCode httpStatusCode, params string[] expectedContentTypes)
         => builder.WithOpenApi(operation =>
         {
+            operation ??= new OpenApiOperation();
             Dictionary<string, OpenApiMediaType> successContent = new()
             {
                 [MimeType.Application.OctetStream.PrimaryContentType] = new OpenApiMediaType()

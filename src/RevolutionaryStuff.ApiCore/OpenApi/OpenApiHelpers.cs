@@ -6,7 +6,7 @@ namespace RevolutionaryStuff.ApiCore.OpenApi;
 public static class OpenApiHelpers
 {
     public static RouteHandlerBuilder ExpectsBinaryInputPayload(this RouteHandlerBuilder builder)
-        => builder.WithOpenApi(operation => new(operation)
+        => builder.WithOpenApi(operation => new(operation ?? new OpenApiOperation())
         {
             Summary = "Upload a binary file",
             Description = "Uploads a binary file to the server.",
@@ -28,7 +28,7 @@ public static class OpenApiHelpers
         });
 
     public static RouteHandlerBuilder ExpectsImageInputPayload(this RouteHandlerBuilder builder)
-        => builder.WithOpenApi(operation => new(operation)
+        => builder.WithOpenApi(operation => new(operation ?? new OpenApiOperation())
         {
             Summary = "Upload an image file",
             Description = "Uploads an image file to the server.",
