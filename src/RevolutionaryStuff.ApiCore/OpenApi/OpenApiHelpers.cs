@@ -13,7 +13,7 @@ public static class OpenApiHelpers
             RequestBody = new OpenApiRequestBody
             {
                 Required = true,
-                Content =
+                Content = new Dictionary<string, OpenApiMediaType>
                 {
                     [MimeType.Application.OctetStream.PrimaryContentType] = new OpenApiMediaType
                     {
@@ -35,7 +35,7 @@ public static class OpenApiHelpers
             RequestBody = new OpenApiRequestBody
             {
                 Required = true,
-                Content =
+                Content = new Dictionary<string, OpenApiMediaType>
                 {
                     [MimeType.Image.Any.PrimaryContentType] = new OpenApiMediaType
                     {
