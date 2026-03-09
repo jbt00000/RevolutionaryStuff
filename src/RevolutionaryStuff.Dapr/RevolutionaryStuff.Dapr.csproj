@@ -19,9 +19,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.140.100.0</FileVersion>
-        <AssemblyVersion>4.140.100.0</AssemblyVersion>
-        <Version>4.140.100</Version>
+        <FileVersion>4.143.100.0</FileVersion>
+        <AssemblyVersion>4.143.100.0</AssemblyVersion>
+        <Version>4.143.100</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -45,7 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Dapr.AspNetCore" Version="1.16.1" />
+        <PackageReference Include="Dapr.AspNetCore" Version="1.17.3" />
         <!--
 		<PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.2" />
 		-->
