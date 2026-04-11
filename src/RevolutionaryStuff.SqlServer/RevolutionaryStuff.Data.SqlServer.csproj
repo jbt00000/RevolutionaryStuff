@@ -23,9 +23,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.144.100.0</FileVersion>
-        <AssemblyVersion>4.144.100.0</AssemblyVersion>
-        <Version>4.144.100</Version>
+        <FileVersion>4.145.100.0</FileVersion>
+        <AssemblyVersion>4.145.100.0</AssemblyVersion>
+        <Version>4.145.100</Version>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
