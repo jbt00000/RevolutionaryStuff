@@ -7,7 +7,7 @@ using RevolutionaryStuff.Core.Services.Tenant;
 namespace RevolutionaryStuff.ApiCore.Services.Tenant;
 
 internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> ConfigOptions, IHttpContextAccessor ContextAccessor, ILogger<HttpTenantIdProvider> logger)
-    : BaseLoggingDisposable(logger), IHttpTenantIdProvider
+    : BaseLoggingDisposable(logger), IHttpTenantIdProvider, ISoftTenantIdProvider
 {
     public class Config : IValidate
     {
@@ -50,6 +50,19 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
     private string? TenantId;
 
     private bool TenantIdFetched;
+
+    string ITenantIdHolder.TenantId 
+    { 
+        get => ((ITenantIdProvider) this).GetTenantId(); 
+        set {
+            if (TenantIdFetched && TenantId != value)
+            {
+                throw new NotNowException($"TenantId has already been set, cannot change it from {TenantId} to {value}.");
+            }
+            TenantIdFetched = true;
+            TenantId = value;
+        } 
+    }
 
     string? ITenantIdProvider.GetTenantId()
     {
