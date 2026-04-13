@@ -115,21 +115,37 @@ internal class FolderEntry : BaseFolderEntry<AzureBlobStorageProvider>, IFolderE
     protected override IStorageProvider OnCreateScopedStorageProvider()
         => new AzureBlobStorageProvider(StorageProvider, AbsolutePath);
 
+    async Task<IFolderEntry> IFolderEntry.OpenOrCreateFolderAsync(string name)
+    {
+        StorageProvider.RequiresForwardOnlyValidPath(name, nameof(name));
+
+        if (StorageProvider.DfsClientUrl != null)
+        {
+            // ADLS Gen2 hierarchical storage supports creating a directory at any depth
+            // in a single REST call (PUT .../{path}?resource=directory), which implicitly
+            // creates all intermediate directories. Use CreateIfNotExistsAsync to issue
+            // one network call instead of the default open-then-create pattern that
+            // requires multiple existence checks (blob + DFS) before attempting creation.
+            var targetPath = StorageProvider.CombinePaths(AbsolutePath, name);
+            var u = new Uri($"{StorageProvider.DfsClientUrl}/{targetPath}");
+            var client = StorageProvider.CreateDataLakeDirectoryClient(u);
+            await client.CreateIfNotExistsAsync();
+            return new FolderEntry(StorageProvider, targetPath);
+        }
+
+        // Non-hierarchical: fall back to open-then-create
+        var f = await I.OpenFolderAsync(name) ?? await I.CreateFolderAsync(name);
+        return f;
+    }
+
     protected override async Task<IFolderEntry> OnCreateFolderAsync(string name)
     {
         var targetPath = StorageProvider.CombinePaths(AbsolutePath, name);
         if (StorageProvider.DfsClientUrl != null)
         {
-            try
-            {
-                var u = new Uri($"{StorageProvider.DfsClientUrl}/{targetPath}");
-                var client = StorageProvider.CreateDataLakeDirectoryClient(u);
-                await client.CreateAsync();
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex);
-            }
+            var u = new Uri($"{StorageProvider.DfsClientUrl}/{targetPath}");
+            var client = StorageProvider.CreateDataLakeDirectoryClient(u);
+            await client.CreateIfNotExistsAsync();
         }
         var folder = new FolderEntry(StorageProvider, targetPath);
         return folder;
