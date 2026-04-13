@@ -36,7 +36,7 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
 
         public const string TenantId = "tenantId";
 
-        public const string DataType = "$type";
+        public const string DataType = "_jet";
 
         public const string PartitionKey = "sk";
 
@@ -76,10 +76,7 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     [JsonIgnore]
     public bool IsSoftDeleted => SoftDeletedAt != null;
 
-    // Many JSON serializers expect th $type property to be the first one that is serialized
-    [JsonPropertyOrder(int.MinValue)]
-    [JsonPropertyName(JsonEntityPropertyNames.Type)]
-    [JsonTypeInfoResolverOptions(RemoveWhenPolymorphic = true)]
+    [JsonPropertyName(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 
     [JsonPropertyName(JsonEntityPropertyNames.PartitionKey)]
