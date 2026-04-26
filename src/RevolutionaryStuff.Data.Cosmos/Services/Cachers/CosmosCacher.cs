@@ -8,7 +8,7 @@ using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Data.Cosmos.Services.Cachers;
 
-public class CosmosCacher(IAzureTokenCredentialProvider AzureTokenCredentialProvider, IConnectionStringProvider ConnectionStringProvider, IOptions<CosmosCacher.Config> ConfigOptions) : BaseCacher, ICosmosCacher
+public class CosmosCacher(IAzureTokenCredentialProvider AzureTokenCredentialProvider, IConnectionStringProvider ConnectionStringProvider, IOptions<CosmosCacher.Config> ConfigOptions) : CacherBase, ICosmosCacher
 {
     public class Config
     {

@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.Core;
 /// This class provides an abstract implementation of IDisposable
 /// That makes it easier for subclasses to handle dispose
 /// </summary>
-public abstract class BaseDisposable : IDisposable
+public abstract class DisposableBase : IDisposable
 {
 #if DEBUG //hmm... As this is a deubg method, may not be visible after being imported via nuget...
 #pragma warning disable IDE0052 // Remove unread private members
@@ -17,7 +17,7 @@ public abstract class BaseDisposable : IDisposable
 #endif
     #region Constructors
 
-    ~BaseDisposable()
+    ~DisposableBase()
     {
         MyDispose(false);
     }

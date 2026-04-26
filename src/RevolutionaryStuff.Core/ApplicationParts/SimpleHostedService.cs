@@ -3,7 +3,7 @@ using Microsoft.Extensions.Hosting;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
 
-public abstract class SimpleHostedService : BaseDisposable, IHostedService
+public abstract class SimpleHostedService : DisposableBase, IHostedService
 {
     private readonly ManualResetEvent ShutdownRequestedEvent = new(false);
     private readonly ManualResetEvent ShutdownCompletedEvent = new(false);

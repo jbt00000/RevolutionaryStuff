@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace RevolutionaryStuff.Core.Threading;
 
-public class PeriodicAction : BaseDisposable
+public class PeriodicAction : DisposableBase
 {
     private readonly Timer T;
 

@@ -8,9 +8,9 @@ namespace RevolutionaryStuff.ApiCore.Services.HostedServices;
 
 public sealed class PeriodicBackgroundService<TRunner>(
     IOptions<PeriodicBackgroundServiceConfig> _configOptions,
-    BaseBackgroundService.BaseBackgroundServiceConstructorArgs _baseConstructorArgs,
+    BackgroundServiceBase.BaseBackgroundServiceConstructorArgs _baseConstructorArgs,
     ILogger<PeriodicBackgroundService<TRunner>> _logger)
-    : BaseBackgroundService(_baseConstructorArgs, _logger)
+    : BackgroundServiceBase(_baseConstructorArgs, _logger)
     where TRunner : IPeriodicServiceRunner
 {
     private async Task GoAsync()

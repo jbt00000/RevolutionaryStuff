@@ -12,7 +12,7 @@ namespace RevolutionaryStuff.Crm.MondayCom.Implementation;
 /// https://developer.monday.com/api-reference/reference/items
 /// https://developer.monday.com/api-reference/reference/column-types-reference
 /// </remarks>
-internal class MondayComApiService : BaseLoggingDisposable, IMondayComApi
+internal class MondayComApiService : LoggingDisposableBase, IMondayComApi
 {
 
     public class Config

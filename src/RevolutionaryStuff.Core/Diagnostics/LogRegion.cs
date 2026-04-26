@@ -4,7 +4,7 @@ using Microsoft.Extensions.Logging;
 
 namespace RevolutionaryStuff.Core.Diagnostics;
 
-public class LogRegion : BaseDisposable
+public class LogRegion : DisposableBase
 {
     public static string DefaultOpeningPrefix = "vvvvvvvvvvvvvvvvvvvv ";
     public static string DefaultClosingPrefix = "^^^^^^^^^^^^^^^^^^^^ ";

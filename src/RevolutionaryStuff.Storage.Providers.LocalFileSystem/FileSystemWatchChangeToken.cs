@@ -73,7 +73,7 @@ internal class FileSystemWatchChangeToken : IChangeToken
         }
     }
 
-    private class CallbackState : BaseDisposable
+    private class CallbackState : DisposableBase
     {
         public readonly Action<object> Callback;
         public readonly FileSystemWatchChangeToken ChangeToken;

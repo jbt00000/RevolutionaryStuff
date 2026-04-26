@@ -5,14 +5,14 @@ using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.ApiCore.Services.HostedServices;
 
-public abstract class BaseBackgroundService : BackgroundService
+public abstract class BackgroundServiceBase : BackgroundService
 {
     protected readonly IServiceProvider ServiceProvider;
 
     public sealed record BaseBackgroundServiceConstructorArgs(IServiceProvider ServiceProvider)
     { }
 
-    protected BaseBackgroundService(BaseBackgroundServiceConstructorArgs constructorArgs, ILogger logger)
+    protected BackgroundServiceBase(BaseBackgroundServiceConstructorArgs constructorArgs, ILogger logger)
     {
         ServiceProvider = constructorArgs.ServiceProvider;
         Logger = logger;

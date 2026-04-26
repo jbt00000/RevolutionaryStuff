@@ -1,6 +1,6 @@
 ﻿namespace RevolutionaryStuff.Storage.Implementation.Base;
 
-public abstract class BaseEntry<SP> : BaseLoggingDisposable, IEntry
+public abstract class BaseEntry<SP> : LoggingDisposableBase, IEntry
     where SP : BaseStorageProvider
 {
     public readonly SP StorageProvider;

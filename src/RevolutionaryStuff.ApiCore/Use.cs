@@ -32,7 +32,7 @@ public static class Use
         services.AddScoped<ISoftClaimsPrincipalAccessor, SoftClaimsPrincipalAccessor>();
 
         services.ConfigureOptions<WebApiExceptionMiddleware.Config>(WebApiExceptionMiddleware.Config.ConfigSectionName);
-        services.AddSingleton<BaseBackgroundService.BaseBackgroundServiceConstructorArgs>(); //Hosted services do NOT run under scoped contexts, thus this must also be registered as a singleton
+        services.AddSingleton<BackgroundServiceBase.BaseBackgroundServiceConstructorArgs>(); //Hosted services do NOT run under scoped contexts, thus this must also be registered as a singleton
         services.AddScoped<ApiService.ApiServiceConstructorArgs>();
 
         services.ConfigureOptions<HttpTenantIdProvider.Config>(settings?.HttpTenantIdProviderConfigSectionName ?? HttpTenantIdProvider.Config.ConfigSectionName);

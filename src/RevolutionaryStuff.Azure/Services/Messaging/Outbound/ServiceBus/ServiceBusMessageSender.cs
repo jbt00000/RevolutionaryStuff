@@ -8,7 +8,7 @@ using RevolutionaryStuff.Core.Caching;
 
 namespace RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus;
 
-public abstract class ServiceBusMessageSender : BaseLoggingDisposable, IServiceBusMessageSender
+public abstract class ServiceBusMessageSender : LoggingDisposableBase, IServiceBusMessageSender
 {
     private readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
     private readonly IConnectionStringProvider ConnectionStringProvider;

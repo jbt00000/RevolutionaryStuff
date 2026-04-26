@@ -4,7 +4,7 @@ using System.Threading;
 
 namespace RevolutionaryStuff.Core.Threading;
 
-public class WorkQueue : BaseDisposable
+public class WorkQueue : DisposableBase
 {
     protected List<Thread> Threads { get; } = [];
     protected ConcurrentQueue<Action> Queue = new();

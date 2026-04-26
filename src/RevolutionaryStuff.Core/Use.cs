@@ -29,44 +29,45 @@ public static class Use
             settings,
             () =>
     {
-        services.AddHttpClient();
+    services.AddHttpClient();
 
-        services.AddSingleton<ILocalCacher>(Cache.DataCacher);
+    services.AddSingleton<ILocalCacher>(Cache.DataCacher);
 
-        services.ConfigureOptions<RevolutionaryStuffCoreConfig>(settings?.RevolutionaryStuffCoreConfigSectionName ?? RevolutionaryStuffCoreConfig.ConfigSectionName);
+    services.ConfigureOptions<RevolutionaryStuffCoreConfig>(settings?.RevolutionaryStuffCoreConfigSectionName ?? RevolutionaryStuffCoreConfig.ConfigSectionName);
 
-        services.ConfigureOptions<RsllcTemporaryStreamFactory.Config>(settings?.TemporaryStreamFactoryConfigSectionName ?? RsllcTemporaryStreamFactory.Config.ConfigSectionName);
-        services.AddSingleton<ITemporaryStreamFactory, RsllcTemporaryStreamFactory>();
+    services.ConfigureOptions<RsllcTemporaryStreamFactory.Config>(settings?.TemporaryStreamFactoryConfigSectionName ?? RsllcTemporaryStreamFactory.Config.ConfigSectionName);
+    services.AddSingleton<ITemporaryStreamFactory, RsllcTemporaryStreamFactory>();
 
-        services.AddSingleton<IServiceCollectionAccessor>(new HardcodedServiceCollectionProvider(services));
-        services.AddScoped<INamedFactory, NamedTypeNamedFactory>();
+    services.AddSingleton<IServiceCollectionAccessor>(new HardcodedServiceCollectionProvider(services));
+    services.AddScoped<INamedFactory, NamedTypeNamedFactory>();
 
 
-        services.ConfigureOptions<CorrelationIdFactory.Config>(CorrelationIdFactory.Config.ConfigSectionName);
-        services.AddSingleton<ICorrelationIdFactory, CorrelationIdFactory>();
-        services.AddScoped<ICorrectionIdFindOrCreate, CorrectionIdFindOrCreate>();
-        services.AddScoped<ICorrelationIdFinder, HardcodedCorrelationIdFinder>();
-        services.AddScoped<HardcodedCorrelationIdFinder>(); //so this can simply be asked for
+    services.ConfigureOptions<CorrelationIdFactory.Config>(CorrelationIdFactory.Config.ConfigSectionName);
+    services.AddSingleton<ICorrelationIdFactory, CorrelationIdFactory>();
+    services.AddScoped<ICorrectionIdFindOrCreate, CorrectionIdFindOrCreate>();
+    services.AddScoped<ICorrelationIdFinder, HardcodedCorrelationIdFinder>();
+    services.AddScoped<HardcodedCorrelationIdFinder>(); //so this can simply be asked for
 
-        services.AddSingleton<IConnectionStringProvider, ServiceProviderConnectionStringProvider>();
+    services.AddSingleton<IConnectionStringProvider, ServiceProviderConnectionStringProvider>();
 
-        services.AddScoped<IHttpMessageSender, HttpClientHttpMessageSender>();
+    services.AddScoped<IHttpMessageSender, HttpClientHttpMessageSender>();
 
-        services.AddSingleton(IJsonSerializer.Default);
+    services.AddSingleton(IJsonSerializer.Default);
 
-        services.ConfigureOptions<BuilderConfig>(settings?.BuilderConfigConfigSectionName ?? BuilderConfig.ConfigSectionName);
+    services.ConfigureOptions<BuilderConfig>(settings?.BuilderConfigConfigSectionName ?? BuilderConfig.ConfigSectionName);
 
-        #region Tenant
-        services.ConfigureOptions<ConfiguredTenantIdProvider.Config>(settings?.ConfiguredTenantIdProviderConfigSectionName ?? ConfiguredTenantIdProvider.Config.ConfigSectionName);
-        services.AddScoped<IConfiguredTenantIdProvider, ConfiguredTenantIdProvider>();
-        services.AddScoped<ISoftTenantIdProvider, SoftTenantIdProvider>();
+    #region Tenant
+    services.ConfigureOptions<ConfiguredTenantIdProvider.Config>(settings?.ConfiguredTenantIdProviderConfigSectionName ?? ConfiguredTenantIdProvider.Config.ConfigSectionName);
+    services.AddScoped<IConfiguredTenantIdProvider, ConfiguredTenantIdProvider>();
+    services.AddScoped<ISoftTenantIdProvider, SoftTenantIdProvider>();
 
-        services.ConfigureOptions<ConfiguredTenantIdEnumerator.Config>(ConfiguredTenantIdEnumerator.Config.ConfigSectionName);
-        services.AddScoped<IConfiguredTenantIdEnumerator, ConfiguredTenantIdEnumerator>();
+    services.ConfigureOptions<ConfiguredTenantIdEnumerator.Config>(ConfiguredTenantIdEnumerator.Config.ConfigSectionName);
+    services.AddScoped<IConfiguredTenantIdEnumerator, ConfiguredTenantIdEnumerator>();
         #endregion
 
-        #region Services
-        services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
-        #endregion
+    #region Services
+    services.AddScoped<RevolutionaryStuffServiceBase.RevolutionaryStuffServiceBaseConstrutorArge>();
+    services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
+    #endregion
     });
 }

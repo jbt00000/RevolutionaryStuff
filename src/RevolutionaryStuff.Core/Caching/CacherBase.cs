@@ -3,7 +3,7 @@ using System.Threading;
 
 namespace RevolutionaryStuff.Core.Caching;
 
-public abstract class BaseCacher : BaseCacher<CacheEntry>
+public abstract class CacherBase : BaseCacher<CacheEntry>
 {
     protected virtual ICacheEntryRetentionPolicy DefaultCacheEntryRetentionPolicy
         => CacheEntryRetentionPolicy.Default;

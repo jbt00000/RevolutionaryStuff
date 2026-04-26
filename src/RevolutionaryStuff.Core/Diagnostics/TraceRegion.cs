@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace RevolutionaryStuff.Core.Diagnostics;
 
-public class TraceRegion : BaseDisposable
+public class TraceRegion : DisposableBase
 {
     private readonly string Name;
     private readonly Stopwatch Stopwatch;

@@ -6,7 +6,7 @@ namespace RevolutionaryStuff.Core.Streams;
 /// <summary>
 /// Allows a stream to be sub-divided into independent logical streams with varying access rights
 /// </summary>
-public class StreamMuxer : BaseDisposable
+public class StreamMuxer : DisposableBase
 {
     private readonly Stream Inner_p;
 

@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
 
-public abstract class DependencyInjectionContainer : BaseDisposable
+public abstract class DependencyInjectionContainer : DisposableBase
 {
     private const string AppSettingsJsonFileName = "appsettings.json";
     public IServiceProvider ServiceProvider { get; private set; }

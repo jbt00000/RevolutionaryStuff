@@ -7,7 +7,7 @@ using RevolutionaryStuff.Core.Services.Tenant;
 namespace RevolutionaryStuff.ApiCore.Services.Tenant;
 
 internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> ConfigOptions, IHttpContextAccessor ContextAccessor, ILogger<HttpTenantIdProvider> logger)
-    : BaseLoggingDisposable(logger), IHttpTenantIdProvider, ISoftTenantIdProvider
+    : LoggingDisposableBase(logger), IHttpTenantIdProvider, ISoftTenantIdProvider
 {
     public class Config : IValidate
     {

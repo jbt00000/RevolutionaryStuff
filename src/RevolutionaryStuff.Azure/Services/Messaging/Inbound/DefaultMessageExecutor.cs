@@ -6,7 +6,7 @@ namespace RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 internal class DefaultMessageExecutor(
     IOptions<DefaultMessageExecutor.Config> ConfigOptions,
     ILogger<DefaultMessageExecutor> logger)
-    : BaseLoggingDisposable(logger), IDefaultMessageExecutor
+    : LoggingDisposableBase(logger), IDefaultMessageExecutor
 {
     public class Config
     {

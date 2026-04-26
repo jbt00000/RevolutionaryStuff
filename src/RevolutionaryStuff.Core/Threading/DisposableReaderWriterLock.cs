@@ -2,7 +2,7 @@
 
 namespace RevolutionaryStuff.Core.Threading;
 
-internal sealed class DisposableReaderWriterLock : BaseDisposable, IDisposableReaderWriterLock
+internal sealed class DisposableReaderWriterLock : DisposableBase, IDisposableReaderWriterLock
 {
     private readonly ReaderWriterLock RWL;
 
@@ -26,7 +26,7 @@ internal sealed class DisposableReaderWriterLock : BaseDisposable, IDisposableRe
     internal IDisposable UseWrite(bool disposeParent)
         => new WriterLock(this, disposeParent);
 
-    private class WriterLock : BaseDisposable
+    private class WriterLock : DisposableBase
     {
         private readonly DisposableReaderWriterLock Parent;
         private LockCookie LockCookie;

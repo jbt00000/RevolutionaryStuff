@@ -15,7 +15,7 @@ using MAC = Microsoft.Azure.Cosmos;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
 
-public class CosmosJsonEntityContainer : BaseLoggingDisposable, ICosmosJsonEntityContainer
+public class CosmosJsonEntityContainer : LoggingDisposableBase, ICosmosJsonEntityContainer
 {
     private readonly ICosmosJsonEntityContainer I;
     protected readonly Container Container;

@@ -76,7 +76,7 @@ public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITempla
     IFileInfo IFileProvider.GetFileInfo(string subpath)
         => TemplateItemByPath.GetValue(subpath);
 
-    private class NullChangeToken : BaseDisposable, IChangeToken
+    private class NullChangeToken : DisposableBase, IChangeToken
     {
         public static readonly IChangeToken Instance = new NullChangeToken();
 

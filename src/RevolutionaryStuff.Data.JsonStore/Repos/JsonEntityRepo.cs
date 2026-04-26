@@ -11,7 +11,7 @@ using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Repos;
 
-public abstract class JsonEntityRepo<TBaseEntity> : BaseLoggingDisposable, IJsonEntityRepo<TBaseEntity>
+public abstract class JsonEntityRepo<TBaseEntity> : LoggingDisposableBase, IJsonEntityRepo<TBaseEntity>
     where TBaseEntity : JsonEntity
 {
     protected readonly IJsonEntityRepo<TBaseEntity> I;

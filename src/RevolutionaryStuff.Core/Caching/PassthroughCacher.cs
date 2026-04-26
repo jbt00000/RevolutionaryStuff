@@ -1,6 +1,6 @@
 ﻿namespace RevolutionaryStuff.Core.Caching;
 
-internal class PassthroughCacher : BaseCacher, ILocalCacher
+internal class PassthroughCacher : CacherBase, ILocalCacher
 {
     protected override Task OnWriteEntryAsync(string key, CacheEntry entry)
         => Task.CompletedTask;

@@ -4,17 +4,26 @@ using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Core;
 
-public abstract class BaseLoggingDisposable : BaseDisposable
+public abstract class LoggingDisposableBase : DisposableBase
 {
-    protected BaseLoggingDisposable(ILogger logger)
+    protected LoggingDisposableBase(ILogger logger)
     {
         ArgumentNullException.ThrowIfNull(logger);
 
         Logger = logger;
     }
+
+    protected LoggingDisposableBase(ILoggerFactory loggerFactory)
+    {
+        ArgumentNullException.ThrowIfNull(loggerFactory);
+        LoggerFactory = loggerFactory;
+    }
+
     #region Logging
 
-    protected readonly ILogger Logger;
+    protected ILogger Logger => field ??= LoggerFactory.CreateLogger(GetType());
+
+    private readonly ILoggerFactory LoggerFactory;
 
     protected void Log(LogLevel level, string message, params object[] args)
         => Logger.Log(level, message, args);

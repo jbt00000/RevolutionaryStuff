@@ -8,7 +8,7 @@ using RevolutionaryStuff.Core.Services.Correlation;
 
 namespace RevolutionaryStuff.Core.Services.Http;
 
-internal class HttpClientHttpMessageSender : BaseLoggingDisposable, IHttpMessageSender
+internal class HttpClientHttpMessageSender : LoggingDisposableBase, IHttpMessageSender
 {
     public class Config
     {

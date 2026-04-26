@@ -2,7 +2,7 @@
 
 namespace RevolutionaryStuff.Storage.Implementation.Base;
 
-public abstract class BaseStorageProvider : BaseLoggingDisposable, IStorageProvider
+public abstract class BaseStorageProvider : LoggingDisposableBase, IStorageProvider
 {
     internal ILogger StorageProviderLogger => Logger;
     protected bool CaseSensitive { get; set; }

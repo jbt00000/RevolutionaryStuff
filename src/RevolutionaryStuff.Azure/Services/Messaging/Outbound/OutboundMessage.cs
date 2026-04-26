@@ -3,7 +3,7 @@ using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure.Services.Messaging.Outbound;
 
-public class OutboundMessage : BaseDisposable, IValidate
+public class OutboundMessage : DisposableBase, IValidate
 {
     public string ContentType { get; set; }
 
