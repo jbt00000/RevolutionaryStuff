@@ -1,7 +1,6 @@
 ﻿using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Caching;
@@ -11,7 +10,7 @@ using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Repos;
 
-public abstract class JsonEntityRepo<TBaseEntity> : LoggingDisposableBase, IJsonEntityRepo<TBaseEntity>
+public abstract class JsonEntityRepo<TBaseEntity> : RevolutionaryStuffService, IJsonEntityRepo<TBaseEntity>
     where TBaseEntity : JsonEntity
 {
     protected readonly IJsonEntityRepo<TBaseEntity> I;
@@ -68,8 +67,8 @@ public abstract class JsonEntityRepo<TBaseEntity> : LoggingDisposableBase, IJson
 
     protected abstract Task<IReadOnlyList<T>> GetAllItemsAsync<T>(IQueryable<T> q, CancellationToken cancellationToken = default) where T : class;
 
-    protected JsonEntityRepo(IList<string> containerIds, JsonEntityRepoConstructorArgs constructorArgs, ILogger logger)
-        : base(logger)
+    protected JsonEntityRepo(IList<string> containerIds, JsonEntityRepoConstructorArgs constructorArgs)
+        : base(constructorArgs.BaseConstructorArgs)
     {
         ArgumentNullException.ThrowIfNull(constructorArgs);
 

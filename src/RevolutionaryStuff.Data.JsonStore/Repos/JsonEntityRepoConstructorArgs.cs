@@ -4,5 +4,9 @@ using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Repos;
 
-public record JsonEntityRepoConstructorArgs(IJsonEntityServer Jes, ILocalCacher Cacher, IOptions<JsonEntityRepoBaseConfig> ConfigOptions)
+public record JsonEntityRepoConstructorArgs(
+    IJsonEntityServer Jes,
+    ILocalCacher Cacher,
+    IOptions<JsonEntityRepoBaseConfig> ConfigOptions,
+    RevolutionaryStuff.Core.RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArge BaseConstructorArgs)
 { }

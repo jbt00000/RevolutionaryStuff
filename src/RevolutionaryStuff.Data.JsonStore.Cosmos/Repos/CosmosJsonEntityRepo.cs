@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Data.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Entities;
 using RevolutionaryStuff.Data.JsonStore.Repos;
@@ -11,8 +10,8 @@ public abstract class CosmosJsonEntityRepo<TBaseEntity> : JsonEntityRepo<TBaseEn
     where TBaseEntity : JsonEntity
 {
 
-    protected CosmosJsonEntityRepo(IList<string> containerIds, CosmosRepoConstructorArgs constructorArgs, ILogger logger)
-    : base(containerIds, constructorArgs.BaseRepoConstructorArgs, logger)
+    protected CosmosJsonEntityRepo(IList<string> containerIds, CosmosRepoConstructorArgs constructorArgs)
+    : base(containerIds, constructorArgs.BaseRepoConstructorArgs)
     { }
 
     protected override Task<IReadOnlyList<T>> GetAllItemsAsync<T>(IQueryable<T> q, CancellationToken cancellationToken)

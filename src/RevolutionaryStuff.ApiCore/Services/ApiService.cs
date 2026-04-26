@@ -1,10 +1,8 @@
-﻿using Microsoft.Extensions.Logging;
+﻿namespace RevolutionaryStuff.ApiCore.Services;
 
-namespace RevolutionaryStuff.ApiCore.Services;
-
-public abstract class ApiService(ApiService.ApiServiceConstructorArgs _constructorArgs, ILogger logger)
-    : LoggingDisposableBase(logger)
+public abstract class ApiService(ApiService.ApiServiceConstructorArgs _constructorArgs)
+    : RevolutionaryStuffService(_constructorArgs.BaseConstrutorArgs)
 {
-    public sealed record ApiServiceConstructorArgs()
+    public sealed record ApiServiceConstructorArgs(RevolutionaryStuffServiceConstrutorArge BaseConstrutorArgs)
     { }
 }

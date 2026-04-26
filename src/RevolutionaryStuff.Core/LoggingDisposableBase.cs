@@ -1,5 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Threading;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.Core;
@@ -21,7 +23,27 @@ public abstract class LoggingDisposableBase : DisposableBase
 
     #region Logging
 
-    protected ILogger Logger => field ??= LoggerFactory.CreateLogger(GetType());
+    protected ILogger Logger
+    {
+        get
+        {
+            if (field == null)
+            {
+                try
+                {
+                    var logger = LoggerFactory?.CreateLogger(GetType());
+                    field = logger;
+                }
+                catch (Exception)
+                {
+                    var logger = LoggerFactory?.CreateLogger(typeof(LoggingDisposableBase)) ?? new NullLogger<LoggingDisposableBase>();
+                    return logger;
+                }
+
+            }
+            return field;            
+        }
+    }
 
     private readonly ILoggerFactory LoggerFactory;
 

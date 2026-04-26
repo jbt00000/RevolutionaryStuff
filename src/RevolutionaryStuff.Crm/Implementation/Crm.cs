@@ -3,7 +3,7 @@
 namespace RevolutionaryStuff.Crm.Implementation;
 
 public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
-    : LoggingDisposableBase(logger), ICrm
+    : RevolutionaryStuffService(MyConstructorArgs.BaseConstructorArgs), ICrm
 {
     private static readonly FindCrmItemSettings DefaultFindCrmItemSettings = new();
     private static readonly CreateCrmItemSettings DefaultCreateCrmItemSettings = new();
@@ -13,7 +13,7 @@ public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
         FindCrmItemSettings = DefaultFindCrmItemSettings
     };
 
-    public sealed record CrmConstructorArgs()
+    public sealed record CrmConstructorArgs(RevolutionaryStuffServiceConstrutorArge BaseConstructorArgs)
     { }
 
     private ICrm I => this;
