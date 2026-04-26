@@ -106,7 +106,7 @@ public static class Base32
 
 #if DEBUG
         var bd = Decode(s);
-        Debug.Assert(CompareHelpers.Compare(bytes, bd));
+        System.Diagnostics.Debug.Assert(CompareHelpers.Compare(bytes, bd));
         //			Debug.Assert(s==Base32Orig.Encode(bytes));
 #endif
         return s;

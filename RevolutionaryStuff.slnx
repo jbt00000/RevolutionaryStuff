@@ -37,47 +37,6 @@
       <BuildType Solution="VSTS-CI|*" Project="Debug" />
     </Project>
   </Folder>
-  <Folder Name="/_Dead/">
-    <Project Path="src/RevolutionaryStuff.ETL/RevolutionaryStuff.Data.ETL.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
-      <BuildType Solution="VSTS-CI|x64" Project="Release" />
-    </Project>
-    <Project Path="src/RevolutionaryStuff.Maui/RevolutionaryStuff.Maui.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
-      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
-    </Project>
-    <Project Path="src/RevolutionaryStuff.SSIS/RevolutionaryStuff.SSIS.csproj" Id="0fd20b12-8248-40aa-89d2-e9109f0d6e88" />
-    <Project Path="src/RevolutionaryStuff.TheLoader/RevolutionaryStuff.TheLoader.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
-      <BuildType Solution="VSTS-CI|x64" Project="Release" />
-    </Project>
-    <Project Path="tests/RevolutionaryStuff.ETL.Tests/RevolutionaryStuff.ETL.Tests.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
-      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
-    </Project>
-  </Folder>
-  <Folder Name="/_Dead/Merger/">
-    <Project Path="src/RevolutionaryStuff.Functions.Merger.Core/RevolutionaryStuff.Functions.Mergers.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
-      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
-    </Project>
-    <Project Path="src/RevolutionaryStuff.Functions.Merger.PdfMerger/RevolutionaryStuff.Functions.Mergers.PdfMerger.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
-      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
-    </Project>
-    <Project Path="src/RevolutionaryStuff.Functions.Merger.PdfMergerTests/RevolutionaryStuff.Functions.Mergers.PdfMergerTests.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
-      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
-    </Project>
-    <Project Path="src/RevolutionaryStuff.Mergers.Core/RevolutionaryStuff.Mergers.Core.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
-      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
-    </Project>
-    <Project Path="src/RevolutionaryStuff.Mergers/RevolutionaryStuff.Mergers.csproj">
-      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
-      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
-    </Project>
-  </Folder>
   <Project Path="src/RevolutionaryStuff.ApiCore/RevolutionaryStuff.ApiCore.csproj">
     <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
     <BuildType Solution="VSTS-CI|x64" Project="Release" />
