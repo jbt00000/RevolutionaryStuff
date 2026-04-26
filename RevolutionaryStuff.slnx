@@ -26,6 +26,7 @@
   <Folder Name="/Solution Items/">
     <File Path=".editorconfig" />
     <File Path=".gitattributes" />
+    <File Path=".github/copilot-instructions.md" />
     <File Path=".gitignore" />
     <File Path="global.json" />
     <File Path="UploadToNuget.ps1" />
