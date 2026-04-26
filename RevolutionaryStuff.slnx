@@ -1,0 +1,152 @@
+<Solution>
+  <Configurations>
+    <BuildType Name="Debug" />
+    <BuildType Name="Release" />
+    <BuildType Name="VSTS-CI" />
+    <Platform Name="Any CPU" />
+    <Platform Name="x64" />
+    <Platform Name="x86" />
+  </Configurations>
+  <Folder Name="/Data Store Scripts/" />
+  <Folder Name="/Data Store Scripts/Databases/" />
+  <Folder Name="/Data Store Scripts/Databases/SQL Azure/" />
+  <Folder Name="/Data Store Scripts/Databases/SQL Azure/Foundations/">
+    <File Path="Data Store Scripts/Databases/SQL Azure/Foundations/0001.ChangeLog.sql" />
+    <File Path="Data Store Scripts/Databases/SQL Azure/Foundations/0002.Print.sql" />
+    <File Path="Data Store Scripts/Databases/SQL Azure/Foundations/0003.Asserts.sql" />
+    <File Path="Data Store Scripts/Databases/SQL Azure/Foundations/0004.Sprocs.sql" />
+    <File Path="Data Store Scripts/Databases/SQL Azure/Foundations/0005.Descriptive.sql" />
+    <File Path="Data Store Scripts/Databases/SQL Azure/Foundations/0006.Types.sql" />
+  </Folder>
+  <Folder Name="/Data Store Scripts/Object Relational Mappings/" />
+  <Folder Name="/Data Store Scripts/Object Relational Mappings/Entity Framework Core/">
+    <File Path="Data Store Scripts/Object Relational Mappings/Entity Framework Core/SchemaMeta2DbContext.t4" />
+    <File Path="Data Store Scripts/Object Relational Mappings/Entity Framework Core/SchemaMeta2DbContext.tt" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path=".gitattributes" />
+    <File Path=".gitignore" />
+    <File Path="global.json" />
+    <File Path="UploadToNuget.ps1" />
+  </Folder>
+  <Folder Name="/src/" />
+  <Folder Name="/Tests/">
+    <Project Path="tests/RevolutionaryStuff.Azure.Tests/RevolutionaryStuff.Azure.Tests.csproj">
+      <BuildType Solution="VSTS-CI|*" Project="Debug" />
+    </Project>
+  </Folder>
+  <Folder Name="/_Dead/">
+    <Project Path="src/RevolutionaryStuff.ETL/RevolutionaryStuff.Data.ETL.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+      <BuildType Solution="VSTS-CI|x64" Project="Release" />
+    </Project>
+    <Project Path="src/RevolutionaryStuff.Maui/RevolutionaryStuff.Maui.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+    </Project>
+    <Project Path="src/RevolutionaryStuff.SSIS/RevolutionaryStuff.SSIS.csproj" Id="0fd20b12-8248-40aa-89d2-e9109f0d6e88" />
+    <Project Path="src/RevolutionaryStuff.TheLoader/RevolutionaryStuff.TheLoader.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+      <BuildType Solution="VSTS-CI|x64" Project="Release" />
+    </Project>
+    <Project Path="tests/RevolutionaryStuff.ETL.Tests/RevolutionaryStuff.ETL.Tests.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+    </Project>
+  </Folder>
+  <Folder Name="/_Dead/Merger/">
+    <Project Path="src/RevolutionaryStuff.Functions.Merger.Core/RevolutionaryStuff.Functions.Mergers.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+    </Project>
+    <Project Path="src/RevolutionaryStuff.Functions.Merger.PdfMerger/RevolutionaryStuff.Functions.Mergers.PdfMerger.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+    </Project>
+    <Project Path="src/RevolutionaryStuff.Functions.Merger.PdfMergerTests/RevolutionaryStuff.Functions.Mergers.PdfMergerTests.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+    </Project>
+    <Project Path="src/RevolutionaryStuff.Mergers.Core/RevolutionaryStuff.Mergers.Core.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+    </Project>
+    <Project Path="src/RevolutionaryStuff.Mergers/RevolutionaryStuff.Mergers.csproj">
+      <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+      <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+    </Project>
+  </Folder>
+  <Project Path="src/RevolutionaryStuff.ApiCore/RevolutionaryStuff.ApiCore.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.AspNetCore/RevolutionaryStuff.AspNetCore.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+    <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Azure/RevolutionaryStuff.Azure.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+    <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+  </Project>
+  <Project Path="src/revolutionarystuff.com/revolutionarystuff.com.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+    <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Core/RevolutionaryStuff.Core.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Crm.MondayCom/RevolutionaryStuff.Crm.MondayCom.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Crm.OpenPhone/RevolutionaryStuff.Crm.OpenPhone.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Crm/RevolutionaryStuff.Crm.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Dapr/RevolutionaryStuff.Dapr.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Data.Cosmos/RevolutionaryStuff.Data.Cosmos.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+    <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Data.JsonStore.Cosmos/RevolutionaryStuff.Data.JsonStore.Cosmos.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+    <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Data.JsonStore/RevolutionaryStuff.Data.JsonStore.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+    <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Data.SqlAzure/RevolutionaryStuff.Data.SqlAzure.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.SqlServer/RevolutionaryStuff.Data.SqlServer.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
+    <BuildType Solution="VSTS-CI|x64" Project="Debug" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Storage.Providers.Azure.Blob/RevolutionaryStuff.Storage.Providers.Azure.Blob.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Storage.Providers.LocalFileSystem/RevolutionaryStuff.Storage.Providers.LocalFileSystem.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Storage/RevolutionaryStuff.Storage.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+  <Project Path="tests/RevolutionaryStuff.Core.Tests/RevolutionaryStuff.Core.Tests.csproj">
+    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
+    <BuildType Solution="VSTS-CI|x64" Project="Release" />
+  </Project>
+</Solution>
