@@ -5,5 +5,5 @@ namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServ
 
 public interface ICosmosJsonEntityServer : IJsonEntityServer
 {
-     CosmosClient CosmosClient { get; }
+    CosmosClient CosmosClient { get; }
 }

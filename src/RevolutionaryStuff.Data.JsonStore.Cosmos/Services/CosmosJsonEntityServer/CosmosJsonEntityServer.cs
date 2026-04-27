@@ -11,6 +11,7 @@ using RevolutionaryStuff.Data.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
+
 public abstract class CosmosJsonEntityServer : LoggingDisposableBase, ICosmosJsonEntityServer
 {
     private static readonly IDictionary<string, CosmosClient> CosmosClientByConnectionString = new ConcurrentDictionary<string, CosmosClient>();

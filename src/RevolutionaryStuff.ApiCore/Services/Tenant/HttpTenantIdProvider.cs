@@ -51,17 +51,18 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
 
     private bool TenantIdFetched;
 
-    string ITenantIdHolder.TenantId 
-    { 
-        get => ((ITenantIdProvider) this).GetTenantId(); 
-        set {
+    string ITenantIdHolder.TenantId
+    {
+        get => ((ITenantIdProvider)this).GetTenantId();
+        set
+        {
             if (TenantIdFetched && TenantId != value)
             {
                 throw new NotNowException($"TenantId has already been set, cannot change it from {TenantId} to {value}.");
             }
             TenantIdFetched = true;
             TenantId = value;
-        } 
+        }
     }
 
     string? ITenantIdProvider.GetTenantId()

@@ -215,12 +215,12 @@ public class LoggingDisposableBaseTests
         sut.LogAll();
 
         var levels = recording.Entries;
-        Assert.AreEqual(LogLevel.Trace,       levels[0].Level);
-        Assert.AreEqual(LogLevel.Debug,       levels[1].Level);
+        Assert.AreEqual(LogLevel.Trace, levels[0].Level);
+        Assert.AreEqual(LogLevel.Debug, levels[1].Level);
         Assert.AreEqual(LogLevel.Information, levels[2].Level);
-        Assert.AreEqual(LogLevel.Warning,     levels[3].Level);
-        Assert.AreEqual(LogLevel.Error,       levels[4].Level);
-        Assert.AreEqual(LogLevel.Critical,    levels[5].Level);
+        Assert.AreEqual(LogLevel.Warning, levels[3].Level);
+        Assert.AreEqual(LogLevel.Error, levels[4].Level);
+        Assert.AreEqual(LogLevel.Critical, levels[5].Level);
     }
 
     #endregion

@@ -37,7 +37,7 @@ public static class WebApiRouteBuilderHelpers
         => builder.WithOpenApi(operation =>
         {
             operation ??= new();
-            operation.Responses ??= new();
+            operation.Responses ??= [];
 
             Dictionary<string, OpenApiMediaType> successContent = new()
             {

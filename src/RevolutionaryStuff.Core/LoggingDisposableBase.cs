@@ -1,5 +1,4 @@
 ﻿using System.Runtime.CompilerServices;
-using System.Threading;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using RevolutionaryStuff.Core.Diagnostics;
@@ -41,7 +40,7 @@ public abstract class LoggingDisposableBase : DisposableBase
                 }
 
             }
-            return field;            
+            return field;
         }
     }
 
