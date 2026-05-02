@@ -37,7 +37,7 @@ public abstract class RevolutionaryStuffBackgroundService : BackgroundService
                 }
                 catch (Exception)
                 { }
-                if (field==null)
+                if (field == null)
                 {
                     var logger = LoggerFactory?.CreateLogger(typeof(RevolutionaryStuffBackgroundService)) ?? new NullLogger<RevolutionaryStuffBackgroundService>();
                     return logger;

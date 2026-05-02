@@ -86,7 +86,7 @@ public class CosmosChangeDataCaptureJsonEntityEventProcessor : RevolutionaryStuf
 
         var id = GetId(cmsg);
         var dataType = GetDataType(cmsg);
-        var infos    = GetProcessorInfosByDataType(dataType);
+        var infos = GetProcessorInfosByDataType(dataType);
 
         Dictionary<Type, object>? actorByType = null;
         object e = null;

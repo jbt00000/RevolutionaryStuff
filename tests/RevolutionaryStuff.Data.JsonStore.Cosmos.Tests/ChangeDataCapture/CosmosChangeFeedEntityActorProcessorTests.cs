@@ -29,7 +29,7 @@ public class CosmosChangeFeedEntityActorProcessorTests
 
     private sealed class TestActor : IChangeDataCaptureJsonEntityController
     {
-        public List<TestJsonEntity> Received { get; } = new();
+        public List<TestJsonEntity> Received { get; } = [];
 
         [ChangeDataCaptureJsonEntityActorAttribute]
         public Task HandleAsync(TestJsonEntity entity)
