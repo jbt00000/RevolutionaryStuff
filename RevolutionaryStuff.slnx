@@ -36,6 +36,9 @@
     <Project Path="tests/RevolutionaryStuff.Azure.Tests/RevolutionaryStuff.Azure.Tests.csproj">
       <BuildType Solution="VSTS-CI|*" Project="Debug" />
     </Project>
+    <Project Path="tests/RevolutionaryStuff.Data.JsonStore.Cosmos.Tests/RevolutionaryStuff.Data.JsonStore.Cosmos.Tests.csproj">
+      <BuildType Solution="VSTS-CI|*" Project="Debug" />
+    </Project>
   </Folder>
   <Project Path="src/RevolutionaryStuff.ApiCore/RevolutionaryStuff.ApiCore.csproj">
     <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
@@ -110,3 +113,4 @@
     <BuildType Solution="VSTS-CI|x64" Project="Release" />
   </Project>
 </Solution>
+

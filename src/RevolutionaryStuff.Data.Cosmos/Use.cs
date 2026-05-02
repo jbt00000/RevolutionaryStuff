@@ -1,7 +1,7 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Azure;
 using RevolutionaryStuff.Core.ApplicationParts;
-using RevolutionaryStuff.Data.Cosmos.Workers;
+using RevolutionaryStuff.Data.Cosmos.BackgroundServices;
 
 namespace RevolutionaryStuff.Data.Cosmos;
 
@@ -17,6 +17,6 @@ public static class Use
             () =>
             {
                 services.UseRevolutionaryStuffAzure();
-                services.ConfigureOptions<CosmosChangeFeedProcessorWorker.Config>(CosmosChangeFeedProcessorWorker.Config.ConfigSectionName);
+                services.ConfigureOptions<CosmosChangeFeedBackgroundServiceConfig>(CosmosChangeFeedBackgroundServiceConfig.ConfigSectionName);
             });
 }

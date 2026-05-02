@@ -2,15 +2,15 @@
 using System.Text.Json;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 
-namespace RevolutionaryStuff.Data.Cosmos.Workers;
+namespace RevolutionaryStuff.Data.Cosmos.BackgroundServices;
 
-internal class CosmosReceivedMessage(string Id, JsonElement El, string DatabaseName, string ContainerName, long SequenceNumber, DateTimeOffset TouchedAt, IDictionary<string, object> Properties) : ICosmosReceivedMessage
+internal class CosmosInboundMessage(string Id, JsonElement El, string DatabaseName, string ContainerName, long SequenceNumber, DateTimeOffset TouchedAt, IDictionary<string, object> Properties) : ICosmosInboundMessage
 {
-    string ICosmosReceivedMessage.DatabaseName => DatabaseName;
+    string ICosmosInboundMessage.DatabaseName => DatabaseName;
 
-    string ICosmosReceivedMessage.ContainerName => ContainerName;
+    string ICosmosInboundMessage.ContainerName => ContainerName;
 
-    JsonElement ICosmosReceivedMessage.DocumentElement => El;
+    JsonElement ICosmosInboundMessage.DocumentElement => El;
 
     string IInboundMessage.MessageId => Id;
 

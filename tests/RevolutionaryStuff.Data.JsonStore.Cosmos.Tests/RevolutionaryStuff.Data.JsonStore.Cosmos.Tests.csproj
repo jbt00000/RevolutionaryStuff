@@ -1,16 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
-    <AssemblyName>RevolutionaryStuff.ApiCore.Tests</AssemblyName>
-    <PackageId>RevolutionaryStuff.ApiCore.Tests</PackageId>
+    <AssemblyName>RevolutionaryStuff.Data.JsonStore.Cosmos.Tests</AssemblyName>
+    <PackageId>RevolutionaryStuff.Data.JsonStore.Cosmos.Tests</PackageId>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='VSTS-CI|AnyCPU'" />
   <ItemGroup>
-    <ProjectReference Include="..\..\src\RevolutionaryStuff.ApiCore\RevolutionaryStuff.ApiCore.csproj" />
+    <ProjectReference Include="..\..\src\RevolutionaryStuff.Data.JsonStore.Cosmos\RevolutionaryStuff.Data.JsonStore.Cosmos.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="18.4.0" />

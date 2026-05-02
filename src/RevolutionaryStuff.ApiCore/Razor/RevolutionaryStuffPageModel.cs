@@ -1,21 +1,50 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.ApiCore.Razor;
 
-public abstract class LoggingPageModel : PageModel
+public abstract class RevolutionaryStuffPageModel : PageModel
 {
-    protected LoggingPageModel(ILogger Logger)
+    public sealed record RevolutionaryStuffPageModelConstructorArgs(ILoggerFactory LoggerFactory)
+    { }
+
+    protected RevolutionaryStuffPageModel(RevolutionaryStuffPageModelConstructorArgs constructorArgs)
     {
-        ArgumentNullException.ThrowIfNull(Logger);
-        this.Logger = Logger;
+        ArgumentNullException.ThrowIfNull(constructorArgs);
+        ArgumentNullException.ThrowIfNull(constructorArgs.LoggerFactory);
+
+        LoggerFactory = constructorArgs.LoggerFactory;
     }
 
     #region Logging
 
-    protected readonly ILogger Logger;
+    protected ILogger Logger
+    {
+        get
+        {
+            if (field == null)
+            {
+                try
+                {
+                    var logger = LoggerFactory?.CreateLogger(GetType());
+                    field = logger;
+                }
+                catch (Exception)
+                { }
+                if (field == null)
+                {
+                    var logger = LoggerFactory?.CreateLogger(typeof(RevolutionaryStuffPageModel)) ?? new NullLogger<RevolutionaryStuffPageModel>();
+                    return logger;
+                }
+            }
+            return field;
+        }
+    }
+
+    private readonly ILoggerFactory LoggerFactory;
 
     protected void Log(LogLevel level, string message, params object[] args)
         => Logger.Log(level, message, args);

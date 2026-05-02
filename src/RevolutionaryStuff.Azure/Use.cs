@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RevolutionaryStuff.Azure.BackgroundServices;
 using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 using RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus;
-using RevolutionaryStuff.Azure.Workers;
 using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Azure;
@@ -23,7 +23,7 @@ public static class Use
     {
         services.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreUseSettings);
 
-        services.AddSingleton<BaseWorker.BaseWorkerConstructorArgs>();
+        services.AddSingleton<RevolutionaryStuffBackgroundService.RevolutionaryStuffBackgroundServiceConstructorArgs>();
 
         services.ConfigureOptions<DefaultAzureTokenCredentialProvider.Config>(DefaultAzureTokenCredentialProvider.Config.ConfigSectionName);
         services.AddSingleton<IAzureTokenCredentialProvider, DefaultAzureTokenCredentialProvider>();
@@ -31,7 +31,7 @@ public static class Use
         services.ConfigureOptions<DefaultMessageExecutor.Config>(DefaultMessageExecutor.Config.ConfigSectionName);
         services.AddScoped<IDefaultMessageExecutor, DefaultMessageExecutor>();
 
-        services.ConfigureOptions<ServiceBusWorker.Config>(settings?.ServiceBusWorkerConfigSectionName ?? ServiceBusWorker.Config.ConfigSectionName);
+        services.ConfigureOptions<ServiceBusBackgroundService.Config>(settings?.ServiceBusWorkerConfigSectionName ?? ServiceBusBackgroundService.Config.ConfigSectionName);
         services.ConfigureOptions<ServiceBusMessageSender.ServiceBusMessageSenderConfig>(settings?.ServiceBusMessageSenderConfigSectionName ?? ServiceBusMessageSender.ServiceBusMessageSenderConfig.ConfigSectionName);
         services.AddScoped<ServiceBusMessageSender.ServiceBusMessageSenderConstructorArgs>();
         services.AddScoped<IServiceBusMessageSender, DefaultServiceBusMessageSender>();

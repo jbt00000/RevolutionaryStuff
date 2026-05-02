@@ -10,9 +10,9 @@ using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
 using RevolutionaryStuff.Core.Threading;
 
-namespace RevolutionaryStuff.Azure.Workers;
+namespace RevolutionaryStuff.Azure.BackgroundServices;
 
-public class ServiceBusWorker : BaseWorker
+public class ServiceBusBackgroundService : RevolutionaryStuffBackgroundService
 {
     private readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
     private readonly IConnectionStringProvider ConnectionStringProvider;
@@ -77,8 +77,8 @@ public class ServiceBusWorker : BaseWorker
         public ServiceBusReceivedMessage Message { get; init; }
     }
 
-    public ServiceBusWorker(IAzureTokenCredentialProvider azureTokenCredentialProvider, IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, BaseWorkerConstructorArgs baseConstructorArgs, ILogger<ServiceBusWorker> logger)
-        : base(baseConstructorArgs, logger)
+    public ServiceBusBackgroundService(IAzureTokenCredentialProvider azureTokenCredentialProvider, IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, RevolutionaryStuffBackgroundServiceConstructorArgs baseConstructorArgs)
+        : base(baseConstructorArgs)
     {
         ArgumentNullException.ThrowIfNull(connectionStringProvider);
         ArgumentNullException.ThrowIfNull(configOptions);
@@ -163,7 +163,7 @@ public class ServiceBusWorker : BaseWorker
             listenerPort = $"{execution.TopicName}.{execution.SubscriptionName}";
             LogWarning(
                 "{Host} listening to {listenerPort} running {messageProcessor} with {concurrentExecutors} executors",
-                nameof(ServiceBusWorker), listenerPort, execution.MessageWorkerTypeName, concurrentExecutors);
+                nameof(ServiceBusBackgroundService), listenerPort, execution.MessageWorkerTypeName, concurrentExecutors);
 
             listener = serviceBusClient.CreateReceiver(execution.TopicName, execution.SubscriptionName, new ServiceBusReceiverOptions
             {
@@ -176,7 +176,7 @@ public class ServiceBusWorker : BaseWorker
             listenerPort = $"{execution.QueueName}";
             LogWarning(
                 "{Host} listening to {listenerPort} running {messageProcessor} with {concurrentExecutors} executors",
-                nameof(ServiceBusWorker), listenerPort, execution.MessageWorkerTypeName, concurrentExecutors);
+                nameof(ServiceBusBackgroundService), listenerPort, execution.MessageWorkerTypeName, concurrentExecutors);
 
             listener = serviceBusClient.CreateReceiver(execution.QueueName, new ServiceBusReceiverOptions
             {

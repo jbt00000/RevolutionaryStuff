@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.ApiCore.Middleware;
+using RevolutionaryStuff.ApiCore.Razor;
 using RevolutionaryStuff.ApiCore.Services;
 using RevolutionaryStuff.ApiCore.Services.HostedServices;
 using RevolutionaryStuff.ApiCore.Services.PrincipalAccessors;
@@ -37,5 +38,7 @@ public static class Use
 
         services.ConfigureOptions<HttpTenantIdProvider.Config>(settings?.HttpTenantIdProviderConfigSectionName ?? HttpTenantIdProvider.Config.ConfigSectionName);
         services.AddScoped<IHttpTenantIdProvider, HttpTenantIdProvider>();
+
+        services.AddScoped<RevolutionaryStuffPageModel.RevolutionaryStuffPageModelConstructorArgs>();
     });
 }

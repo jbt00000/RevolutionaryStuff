@@ -1,8 +1,8 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Data.JsonStore.Cosmos.ChangeDataCapture;
 using RevolutionaryStuff.Data.JsonStore.Cosmos.Repos;
 using RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer;
-using static RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServer.DefaultCosmosJsonEntityServer;
 
 namespace RevolutionaryStuff.Data.JsonStore.Cosmos;
 
@@ -24,7 +24,8 @@ public static class Use
 
                 #endregion
 
-                services.AddScoped<DefaultCosmosJsonEntityServerConstructorArgs>();
+                services.AddScoped<CosmosChangeDataCaptureJsonEntityEventProcessor.CosmosChangeDataCaptureJsonEntityEventProcessorConstructorArgs>();
+                services.AddScoped<DefaultCosmosJsonEntityServer.DefaultCosmosJsonEntityServerConstructorArgs>();
                 services.AddScoped<CosmosRepoConstructorArgs>();
             });
 }

@@ -34,11 +34,12 @@ public abstract class LoggingDisposableBase : DisposableBase
                     field = logger;
                 }
                 catch (Exception)
+                { }
+                if (field == null)
                 {
                     var logger = LoggerFactory?.CreateLogger(typeof(LoggingDisposableBase)) ?? new NullLogger<LoggingDisposableBase>();
                     return logger;
                 }
-
             }
             return field;
         }

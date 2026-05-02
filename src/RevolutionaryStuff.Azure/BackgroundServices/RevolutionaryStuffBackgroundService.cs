@@ -1,29 +1,54 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RevolutionaryStuff.Core.Diagnostics;
 
-namespace RevolutionaryStuff.Azure.Workers;
+namespace RevolutionaryStuff.Azure.BackgroundServices;
 
-public abstract class BaseWorker : BackgroundService
+public abstract class RevolutionaryStuffBackgroundService : BackgroundService
 {
     protected IServiceProvider ServiceProvider { get; private set; }
 
-    public sealed record BaseWorkerConstructorArgs(IServiceProvider ServiceProvider)
+    public sealed record RevolutionaryStuffBackgroundServiceConstructorArgs(IServiceProvider ServiceProvider, ILoggerFactory LoggerFactory)
     { }
 
-    protected BaseWorker(BaseWorkerConstructorArgs constructorArgs, ILogger logger)
+    protected RevolutionaryStuffBackgroundService(RevolutionaryStuffBackgroundServiceConstructorArgs constructorArgs)
     {
         ArgumentNullException.ThrowIfNull(constructorArgs);
-        ArgumentNullException.ThrowIfNull(logger);
+        ArgumentNullException.ThrowIfNull(constructorArgs.LoggerFactory);
 
         ServiceProvider = constructorArgs.ServiceProvider;
-        Logger = logger;
+        LoggerFactory = constructorArgs.LoggerFactory;
     }
 
     #region Logging
 
-    private readonly ILogger Logger;
+    protected ILogger Logger
+    {
+        get
+        {
+            if (field == null)
+            {
+                try
+                {
+                    var logger = LoggerFactory?.CreateLogger(GetType());
+                    field = logger;
+                }
+                catch (Exception)
+                { }
+                if (field==null)
+                {
+                    var logger = LoggerFactory?.CreateLogger(typeof(RevolutionaryStuffBackgroundService)) ?? new NullLogger<RevolutionaryStuffBackgroundService>();
+                    return logger;
+                }
+
+            }
+            return field;
+        }
+    }
+
+    private readonly ILoggerFactory LoggerFactory;
 
     protected void LogTrace(string message, params object[] args)
         => Logger.LogTrace(message, args);

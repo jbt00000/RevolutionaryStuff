@@ -3,78 +3,25 @@ using System.Text.Json;
 using System.Threading;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Azure.BackgroundServices;
 using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
-using RevolutionaryStuff.Azure.Workers;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.ApplicationNameFinders;
-using RevolutionaryStuff.Core.Services.DependencyInjection;
 
-namespace RevolutionaryStuff.Data.Cosmos.Workers;
+namespace RevolutionaryStuff.Data.Cosmos.BackgroundServices;
 
-public class CosmosChangeFeedProcessorWorker : BaseWorker
+public class CosmosChangeFeedBackgroundService<TInboundMessageExecutor, TInboundMessageProcessor> : RevolutionaryStuffBackgroundService
+    where TInboundMessageExecutor : class, IInboundMessageExecutor
+    where TInboundMessageProcessor : class, IInboundMessageProcessor
 {
     private readonly IAzureTokenCredentialProvider AzureTokenCredentialProvider;
     private readonly IConnectionStringProvider ConnectionStringProvider;
-    private readonly IOptions<Config> ConfigOptions;
+    private readonly IOptions<CosmosChangeFeedBackgroundServiceConfig> ConfigOptions;
 
-    public sealed class Config : IValidate, IPostConfigure
-    {
-        public const string ConfigSectionName = "CosmosChangeFeedProcessorWorkerConfig";
-
-        public string ConnectionStringName { get; set; }
-
-        public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
-
-        public IList<Execution> Executions { get; set; }
-
-        public string LeaseContainerName { get; set; }
-
-        public string DatabaseName { get; set; }
-
-        public IDictionary<string, string> DocumentJsonPathToPropertyName { get; set; }
-
-        public string MessageIdFormat { get; set; } = "{0}/{3}";
-
-        public void Validate()
-            => ExceptionHelpers.AggregateExceptionsAndReThrow(
-            () => Executions.ForEach(z => z.Validate())
-            );
-
-        void IPostConfigure.PostConfigure()
-        {
-            Executions ??= [];
-            Executions.ForEach(z => z.PostConfigure());
-        }
-
-
-        public class Execution : IValidate, IPostConfigure
-        {
-            public string Name { get; set; }
-            public bool Enabled { get; set; } = true;
-            public DateTime? StartTime { get; set; }
-            public string MessageWorkerTypeName { get; set; }
-            public string ConnectionStringName { get; set; }
-            public string DatabaseName { get; set; }
-            public string ContainerName { get; set; }
-            public string LeaseContainerName { get; set; }
-            public IDictionary<string, string> DocumentJsonPathToPropertyName { get; set; }
-            public void Validate()
-                => ExceptionHelpers.AggregateExceptionsAndReThrow(
-                () => { if (Enabled) Requires.Text(MessageWorkerTypeName); },
-                () => { if (Enabled) Requires.Text(ContainerName); }
-                );
-
-            public void PostConfigure()
-                => Name ??= $"{MessageWorkerTypeName} on {ContainerName}";
-
-        }
-    }
-
-    public CosmosChangeFeedProcessorWorker(IAzureTokenCredentialProvider azureTokenCredentialProvider, IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, BaseWorkerConstructorArgs baseConstructorArgs, ILogger<CosmosChangeFeedProcessorWorker> logger)
-    : base(baseConstructorArgs, logger)
+    public CosmosChangeFeedBackgroundService(IAzureTokenCredentialProvider azureTokenCredentialProvider, IConnectionStringProvider connectionStringProvider, IOptions<CosmosChangeFeedBackgroundServiceConfig> configOptions, RevolutionaryStuffBackgroundServiceConstructorArgs baseConstructorArgs)
+    : base(baseConstructorArgs)
     {
         ArgumentNullException.ThrowIfNull(connectionStringProvider);
         ArgumentNullException.ThrowIfNull(configOptions);
@@ -106,7 +53,7 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
         }
     }
 
-    private async Task ExecuteAsync(string executionName, Config.Execution execution, CancellationToken stoppingToken)
+    private async Task ExecuteAsync(string executionName, CosmosChangeFeedBackgroundServiceConfig.Execution execution, CancellationToken stoppingToken)
     {
         var config = ConfigOptions.Value;
 
@@ -179,14 +126,13 @@ public class CosmosChangeFeedProcessorWorker : BaseWorker
                         }
                     }
                     id = string.Format(config.MessageIdFormat, id, rid, self, etag);
-                    var m = (IInboundMessage)new CosmosReceivedMessage(id, element, databaseName, execution.ContainerName, docsSeen, touchedAt, properties);
+                    var m = new CosmosInboundMessage(id, element, databaseName, execution.ContainerName, docsSeen, touchedAt, properties);
 
                     using var scope = ServiceProvider.CreateScope();
                     //                    using var loggerScope = CreateLogRegion(LogLevel.Information, $"Processing service bus message on {execution.TopicName}.{execution.SubscriptionName}.{m.SequenceNumber}");
                     var sp = scope.ServiceProvider;
-                    var executor = sp.GetRequiredService<IInboundMessageExecutor>();
-                    var namedFactory = sp.GetRequiredService<INamedFactory>();
-                    var processor = namedFactory.GetServiceByName<IInboundMessageProcessor>(execution.MessageWorkerTypeName);
+                    var executor = sp.GetRequiredService<TInboundMessageExecutor>();
+                    var processor = sp.GetRequiredService<TInboundMessageProcessor>();
                     await executor.ExecuteAsync(m, processor.ProcessInboundMessageAsync);
                     ++successCount;
                 }
