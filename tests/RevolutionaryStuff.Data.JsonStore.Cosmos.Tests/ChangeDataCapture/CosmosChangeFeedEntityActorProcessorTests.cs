@@ -39,7 +39,7 @@ public class CosmosChangeFeedEntityActorProcessorTests
         }
     }
 
-    private sealed class FakeCosmosMessage : ICosmosChangeDataCaptureJsonEntityEvent
+    private sealed class FakeCosmosMessage : ICosmosInboundMessage
     {
         private readonly JsonElement DocumentEl;
         private readonly string DataTypeVal;
@@ -51,12 +51,6 @@ public class CosmosChangeFeedEntityActorProcessorTests
             DataTypeVal = dataType;
             DocumentIdVal = documentId;
         }
-
-        string IChangeDataCaptureJsonEntityEvent.DataType => DataTypeVal;
-        string IChangeDataCaptureJsonEntityEvent.DocumentId => DocumentIdVal;
-        JsonElement IChangeDataCaptureJsonEntityEvent.DocumentElement => DocumentEl;
-        IDictionary<string, object> IChangeDataCaptureJsonEntityEvent.Properties => new Dictionary<string, object>();
-        ChangeDataCaptureEventTypeEnum IChangeDataCaptureJsonEntityEvent.ChangeDataCaptureEventType => ChangeDataCaptureEventTypeEnum.Changed;
 
         string ICosmosInboundMessage.DatabaseName => "testDb";
         string ICosmosInboundMessage.ContainerName => "testContainer";

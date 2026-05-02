@@ -4,7 +4,7 @@ namespace RevolutionaryStuff.Data.Cosmos.BackgroundServices;
 
 public sealed class CosmosChangeFeedBackgroundServiceConfig : IValidate, IPostConfigure
 {
-    public const string ConfigSectionName = "CosmosChangeFeedProcessorWorkerConfig";
+    public const string ConfigSectionName = "CosmosChangeFeedBackgroundService";
 
     public string ConnectionStringName { get; set; }
 
