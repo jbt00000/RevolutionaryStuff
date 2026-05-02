@@ -20,7 +20,6 @@
 - Prefix interfaces with "I" (e.g., IStorageProvider).
 - Use the "Base" suffix for abstract base classes (Microsoft convention), e.g., LoggingDisposableBase, ModifyableBase.
 - When modifying existing code that uses a "Base" prefix, do not rename existing types unless a rename is explicitly in scope; new code should use the "Base" suffix.
-- Prefix abstract base classes with "Base" (e.g., BaseLoggingDisposable, BaseModifyable).
 - Suffix configuration/options classes with "Config" (NOT "Options") (e.g., StorageProviderTypeNameSelectorConfig).
 - Suffix async methods with "Async" (e.g., ExecuteAsync).
 - Prefer explicit interface implementations to hide interface members from the public surface.
