@@ -9,6 +9,9 @@
 - If versions are mismatched across .csproj files, find the highest existing version and use that as the base before incrementing the minor segment.
 - Example: 1.2.3.4 → 1.3.3.4
 
+## C# Code Style
+- Do not use `using static` in C#; it obscures the origin of members and makes code harder to read.
+
 ## Naming & Code Structure Conventions
 - Use PascalCase for public properties and constants (e.g., MyProperty; public const string ConfigSectionName = "...").
 - Use PascalCase for private fields with no underscore prefix (e.g., private readonly ILogger Logger;).
