@@ -24,6 +24,7 @@ public static class Use
 
                 #endregion
 
+                services.AddScoped<CosmosChangeDataCaptureJsonEntityEventProcessor>();
                 services.AddScoped<CosmosChangeDataCaptureJsonEntityEventProcessor.CosmosChangeDataCaptureJsonEntityEventProcessorConstructorArgs>();
                 services.AddScoped<DefaultCosmosJsonEntityServer.DefaultCosmosJsonEntityServerConstructorArgs>();
                 services.AddScoped<CosmosRepoConstructorArgs>();

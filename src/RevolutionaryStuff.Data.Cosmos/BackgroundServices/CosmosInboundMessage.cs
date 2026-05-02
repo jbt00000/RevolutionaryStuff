@@ -43,8 +43,9 @@ internal class CosmosInboundMessage(string Id, JsonElement El, string DatabaseNa
         => $"{DatabaseName}.{ContainerName}";
 
     TVal IInboundMessage.GetConvertedPropertyVal<TVal>(string key, TVal missing, bool throwOnConversionIssue)
-        => missing;
+        => InboundMessage.GetConvertedPropertyVal<TVal>(Properties, key, missing, throwOnConversionIssue);
+
     TVal IInboundMessage.GetPropertyVal<TVal>(string key, TVal missing)
-        => missing;
+        => InboundMessage.GetPropertyVal<TVal>(Properties, key, missing);
 }
 

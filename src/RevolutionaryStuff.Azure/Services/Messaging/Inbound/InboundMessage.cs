@@ -34,24 +34,25 @@ public class InboundMessage : IInboundMessage
 
     public DateTimeOffset EnqueuedTime { get; }
 
-    TVal IInboundMessage.GetPropertyVal<TVal>(string key, TVal missing)
+    public static TVal GetPropertyVal<TVal>(IDictionary<string, object> props, string key, TVal missing)
     {
-        if (I.Properties.ContainsKey(key))
+        if (props != null && props.ContainsKey(key))
         {
             try
             {
-                return (TVal)I.Properties[key];
+                return (TVal)props[key];
             }
             catch (Exception) { }
         }
         return missing;
     }
 
-    TVal IInboundMessage.GetConvertedPropertyVal<TVal>(string key, TVal missing, bool throwOnConversionIssue)
+
+    public static TVal GetConvertedPropertyVal<TVal>(IDictionary<string, object> props, string key, TVal missing, bool throwOnConversionIssue)
     {
-        if (I.Properties.ContainsKey(key))
+        if (props !=null && props.ContainsKey(key))
         {
-            var o = I.Properties[key];
+            var o = props[key];
             try
             {
                 if (o is TVal val) return val;
@@ -66,6 +67,12 @@ public class InboundMessage : IInboundMessage
         }
         return missing;
     }
+
+    TVal IInboundMessage.GetPropertyVal<TVal>(string key, TVal missing)
+        => GetPropertyVal<TVal>(I.Properties, key, missing);
+
+    TVal IInboundMessage.GetConvertedPropertyVal<TVal>(string key, TVal missing, bool throwOnConversionIssue)
+        => GetConvertedPropertyVal<TVal>(I.Properties, key, missing, throwOnConversionIssue);
 
     private static IEnumerable<KeyValuePair<string, object>> PropertiesWithTenantId(IEnumerable<KeyValuePair<string, object>> properties, string tenantId)
     {
