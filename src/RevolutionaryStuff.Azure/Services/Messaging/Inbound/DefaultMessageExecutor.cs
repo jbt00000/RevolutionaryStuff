@@ -1,12 +1,11 @@
-﻿using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Options;
 
 namespace RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 
 internal class DefaultMessageExecutor(
     IOptions<DefaultMessageExecutor.Config> ConfigOptions,
-    ILogger<DefaultMessageExecutor> logger)
-    : LoggingDisposableBase(logger), IDefaultMessageExecutor
+    RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArge BaseConstructorArgs)
+    : RevolutionaryStuffService(BaseConstructorArgs), IDefaultMessageExecutor
 {
     public class Config
     {

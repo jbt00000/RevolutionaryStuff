@@ -82,7 +82,7 @@ public class CosmosChangeDataCaptureJsonEntityEventProcessor : RevolutionaryStuf
                 tf.TenantId = tid;
             }
         }
-        return Task.CompletedTask;    
+        return Task.CompletedTask;
     }
 
     protected virtual string GetId(ICosmosInboundMessage cmsg)

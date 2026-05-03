@@ -50,7 +50,7 @@ public class InboundMessage : IInboundMessage
 
     public static TVal GetConvertedPropertyVal<TVal>(IDictionary<string, object> props, string key, TVal missing, bool throwOnConversionIssue)
     {
-        if (props !=null && props.ContainsKey(key))
+        if (props != null && props.ContainsKey(key))
         {
             var o = props[key];
             try

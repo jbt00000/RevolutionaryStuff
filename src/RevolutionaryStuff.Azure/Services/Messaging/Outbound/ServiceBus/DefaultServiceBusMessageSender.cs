@@ -1,10 +1,7 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using static RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus.ServiceBusMessageSender;
 
 namespace RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus;
 
-public class DefaultServiceBusMessageSender : ServiceBusMessageSender
-{
-    public DefaultServiceBusMessageSender(ServiceBusMessageSenderConstructorArgs constructorArgs, ILogger<DefaultServiceBusMessageSender> logger)
-        : base(constructorArgs, logger)
-    { }
-}
+public class DefaultServiceBusMessageSender(ServiceBusMessageSenderConstructorArgs baseConstructorArgs)
+    : ServiceBusMessageSender(baseConstructorArgs)
+{ }

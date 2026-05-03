@@ -2,13 +2,12 @@
 using System.Net.Http.Headers;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.Services.Correlation;
 
 namespace RevolutionaryStuff.Core.Services.Http;
 
-internal class HttpClientHttpMessageSender : LoggingDisposableBase, IHttpMessageSender
+internal class HttpClientHttpMessageSender : RevolutionaryStuffService, IHttpMessageSender
 {
     public class Config
     {
@@ -23,12 +22,12 @@ internal class HttpClientHttpMessageSender : LoggingDisposableBase, IHttpMessage
     private readonly ICorrectionIdFindOrCreate CorrectionIdFindOrCreate;
     private readonly IOptions<Config> ConfigOptions;
 
-    public HttpClientHttpMessageSender(ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, ILogger<HttpClientHttpMessageSender> logger)
-        : this(null, correctionIdFindOrCreate, serviceProvider, configOptions, logger)
+    public HttpClientHttpMessageSender(ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, RevolutionaryStuffServiceConstrutorArge baseConstructorArgs)
+        : this(null, correctionIdFindOrCreate, serviceProvider, configOptions, baseConstructorArgs)
     { }
 
-    public HttpClientHttpMessageSender(IHttpClientFactory httpClientFactory, ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, ILogger<HttpClientHttpMessageSender> logger)
-        : base(logger)
+    public HttpClientHttpMessageSender(IHttpClientFactory httpClientFactory, ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, RevolutionaryStuffServiceConstrutorArge baseConstructorArgs)
+        : base(baseConstructorArgs)
     {
         ArgumentNullException.ThrowIfNull(correctionIdFindOrCreate);
         ArgumentNullException.ThrowIfNull(serviceProvider);
