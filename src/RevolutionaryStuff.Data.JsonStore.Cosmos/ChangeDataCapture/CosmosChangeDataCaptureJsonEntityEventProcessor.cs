@@ -3,6 +3,7 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 using RevolutionaryStuff.Core.Caching;
+using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.Cosmos.BackgroundServices;
 using RevolutionaryStuff.Data.JsonStore.ChangeDataCapture;
 using RevolutionaryStuff.Data.JsonStore.Entities;
@@ -70,13 +71,28 @@ public class CosmosChangeDataCaptureJsonEntityEventProcessor : RevolutionaryStuf
     /// Called once per CDC event, before any actors are invoked.
     /// </summary>
     protected virtual Task OnPreDispatchAsync(ICosmosInboundMessage cmsg)
-        => Task.CompletedTask;
+    {
+
+        var tid = GetTenantId(cmsg);
+        if (tid != null)
+        {
+            var tf = ServiceProvider.GetRequiredService<ISoftTenantIdProvider>();
+            if (tf != null)
+            {
+                tf.TenantId = tid;
+            }
+        }
+        return Task.CompletedTask;    
+    }
 
     protected virtual string GetId(ICosmosInboundMessage cmsg)
         => cmsg.GetPropertyVal<string>(JsonEntity.JsonEntityPropertyNames.Id);
 
     protected virtual string GetDataType(ICosmosInboundMessage cmsg)
         => cmsg.GetPropertyVal<string>(JsonEntity.JsonEntityPropertyNames.DataType);
+
+    protected virtual string GetTenantId(ICosmosInboundMessage cmsg)
+        => cmsg.GetPropertyVal<string>(JsonEntity.JsonEntityPropertyNames.TenantId);
 
     async Task IInboundMessageProcessor.ProcessInboundMessageAsync(IInboundMessage msg)
     {
