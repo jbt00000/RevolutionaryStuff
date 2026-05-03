@@ -34,13 +34,13 @@ internal class ConfiguredTenantIdEnumerator(IServiceProvider serviceProvider, IO
             using var scope = ServiceProvider.CreateScope();
             var scopedServiceProvider = scope.ServiceProvider;
             var tenantFinder = scopedServiceProvider.GetRequiredService<ITenantIdProvider>();
-            if (tenantFinder is ISoftTenantIdProvider softTenantIdProvider)
+            if (tenantFinder is ITenantIdHolder tenantIdHolder)
             {
-                softTenantIdProvider.TenantId = tenantId;
+                tenantIdHolder.TenantId = tenantId;
             }
             else
             {
-                throw new InvalidOperationException("TenantFinder must implement ISoftTenantIdProvider");
+                throw new InvalidOperationException("TenantFinder must implement ITenantIdHolder");
             }
             await actAsync(new(scopedServiceProvider, tenantId));
         }

@@ -1,8 +1,7 @@
 ﻿namespace RevolutionaryStuff.Core.Services.Tenant;
-
-internal class SoftTenantIdProvider : ISoftTenantIdProvider
+internal class ProgrammaticTenantIdProvider : IProgrammaticTenantIdProvider
 {
-    public SoftTenantIdProvider()
+    public ProgrammaticTenantIdProvider()
     { }
 
     public string TenantId

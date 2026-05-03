@@ -71,28 +71,13 @@ public class CosmosChangeDataCaptureJsonEntityEventProcessor : RevolutionaryStuf
     /// Called once per CDC event, before any actors are invoked.
     /// </summary>
     protected virtual Task OnPreDispatchAsync(ICosmosInboundMessage cmsg)
-    {
-
-        var tid = GetTenantId(cmsg);
-        if (tid != null)
-        {
-            var tf = ServiceProvider.GetRequiredService<ISoftTenantIdProvider>();
-            if (tf != null)
-            {
-                tf.TenantId = tid;
-            }
-        }
-        return Task.CompletedTask;
-    }
+        => Task.CompletedTask;
 
     protected virtual string GetId(ICosmosInboundMessage cmsg)
         => cmsg.GetPropertyVal<string>(JsonEntity.JsonEntityPropertyNames.Id);
 
     protected virtual string GetDataType(ICosmosInboundMessage cmsg)
         => cmsg.GetPropertyVal<string>(JsonEntity.JsonEntityPropertyNames.DataType);
-
-    protected virtual string GetTenantId(ICosmosInboundMessage cmsg)
-        => cmsg.GetPropertyVal<string>(JsonEntity.JsonEntityPropertyNames.TenantId);
 
     async Task IInboundMessageProcessor.ProcessInboundMessageAsync(IInboundMessage msg)
     {

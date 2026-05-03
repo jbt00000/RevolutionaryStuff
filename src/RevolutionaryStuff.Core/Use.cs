@@ -59,7 +59,7 @@ public static class Use
         #region Tenant
         services.ConfigureOptions<ConfiguredTenantIdProvider.Config>(settings?.ConfiguredTenantIdProviderConfigSectionName ?? ConfiguredTenantIdProvider.Config.ConfigSectionName);
         services.AddScoped<IConfiguredTenantIdProvider, ConfiguredTenantIdProvider>();
-        services.AddScoped<ISoftTenantIdProvider, SoftTenantIdProvider>();
+        services.AddScoped<IProgrammaticTenantIdProvider, ProgrammaticTenantIdProvider>();
 
         services.ConfigureOptions<ConfiguredTenantIdEnumerator.Config>(ConfiguredTenantIdEnumerator.Config.ConfigSectionName);
         services.AddScoped<IConfiguredTenantIdEnumerator, ConfiguredTenantIdEnumerator>();

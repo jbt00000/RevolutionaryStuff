@@ -39,12 +39,27 @@ public static class DependencyInjectionHelpers
         }
     }
 
-    public static void AddIndirect<TInt, TImp>(this IServiceCollection services)
+    public static void AddIndirect<TInt, TImp>(this IServiceCollection services, ServiceLifetime fallbackServiceLifetime = ServiceLifetime.Scoped, bool removeExisting = true)
     {
+        var tTInt = typeof(TInt);
         var tTImp = typeof(TImp);
         Requires.True(tTImp.IsInterface);
-        var impDescriptor = services.Where(s => s.ServiceType.IsA<TImp>()).Single();
-        var newServiceDescriptor = new ServiceDescriptor(typeof(TInt), sp => sp.GetRequiredService<TImp>(), impDescriptor.Lifetime);
+
+        if (removeExisting)
+        {
+            services.Remove(z => z.ServiceType == tTInt);
+        }
+
+        var newServiceDescriptor = new ServiceDescriptor(typeof(TInt), sp =>
+        {
+            var ret = sp.GetRequiredService<TImp>();
+            if (ret == null)
+            {
+                throw new Exception($"Could not find required service implementation of {tTImp.Name}, so could not returna {tTInt.Name}");
+            }
+            return ret;
+        }, fallbackServiceLifetime);
+
         services.Add(newServiceDescriptor);
     }
 
