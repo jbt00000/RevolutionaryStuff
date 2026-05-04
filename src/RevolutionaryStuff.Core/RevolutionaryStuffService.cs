@@ -4,10 +4,10 @@ namespace RevolutionaryStuff.Core;
 
 public abstract class RevolutionaryStuffService : LoggingDisposableBase
 {
-    public sealed record RevolutionaryStuffServiceConstrutorArge(ILoggerFactory LoggerFactory)
+    public sealed record RevolutionaryStuffServiceConstrutorArgs(ILoggerFactory LoggerFactory)
     { }
 
-    protected RevolutionaryStuffService(RevolutionaryStuffServiceConstrutorArge constructorArgs)
+    protected RevolutionaryStuffService(RevolutionaryStuffServiceConstrutorArgs constructorArgs)
         : base(constructorArgs.LoggerFactory)
     {
     }

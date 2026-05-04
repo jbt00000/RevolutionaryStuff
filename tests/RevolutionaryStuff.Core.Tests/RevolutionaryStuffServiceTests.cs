@@ -41,7 +41,7 @@ public class RevolutionaryStuffServiceTests
 
     private sealed class ConcreteService : RevolutionaryStuffService
     {
-        public ConcreteService(RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArge args) : base(args) { }
+        public ConcreteService(RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs args) : base(args) { }
 
         public bool PublicIsDisposed => IsDisposed;
 
@@ -60,7 +60,7 @@ public class RevolutionaryStuffServiceTests
         public bool? OnDisposedCalledWith { get; private set; }
     }
 
-    private static RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArge MakeArgs(ILoggerFactory factory)
+    private static RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs MakeArgs(ILoggerFactory factory)
         => new(factory);
 
     #endregion

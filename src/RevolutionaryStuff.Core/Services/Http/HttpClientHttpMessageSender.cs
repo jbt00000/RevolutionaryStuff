@@ -22,11 +22,11 @@ internal class HttpClientHttpMessageSender : RevolutionaryStuffService, IHttpMes
     private readonly ICorrectionIdFindOrCreate CorrectionIdFindOrCreate;
     private readonly IOptions<Config> ConfigOptions;
 
-    public HttpClientHttpMessageSender(ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, RevolutionaryStuffServiceConstrutorArge baseConstructorArgs)
+    public HttpClientHttpMessageSender(ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, RevolutionaryStuffServiceConstrutorArgs baseConstructorArgs)
         : this(null, correctionIdFindOrCreate, serviceProvider, configOptions, baseConstructorArgs)
     { }
 
-    public HttpClientHttpMessageSender(IHttpClientFactory httpClientFactory, ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, RevolutionaryStuffServiceConstrutorArge baseConstructorArgs)
+    public HttpClientHttpMessageSender(IHttpClientFactory httpClientFactory, ICorrectionIdFindOrCreate correctionIdFindOrCreate, IServiceProvider serviceProvider, IOptions<Config> configOptions, RevolutionaryStuffServiceConstrutorArgs baseConstructorArgs)
         : base(baseConstructorArgs)
     {
         ArgumentNullException.ThrowIfNull(correctionIdFindOrCreate);

@@ -66,7 +66,7 @@ public static class Use
         #endregion
 
         #region Services
-        services.AddScoped<RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArge>();
+        services.AddScoped<RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs>();
         services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
         #endregion
     });

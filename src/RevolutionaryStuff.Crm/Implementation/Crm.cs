@@ -13,7 +13,7 @@ public abstract class Crm(CrmConstructorArgs MyConstructorArgs, ILogger logger)
         FindCrmItemSettings = DefaultFindCrmItemSettings
     };
 
-    public sealed record CrmConstructorArgs(RevolutionaryStuffServiceConstrutorArge BaseConstructorArgs)
+    public sealed record CrmConstructorArgs(RevolutionaryStuffServiceConstrutorArgs BaseConstructorArgs)
     { }
 
     private ICrm I => this;

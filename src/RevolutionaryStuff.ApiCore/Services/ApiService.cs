@@ -3,6 +3,6 @@
 public abstract class ApiService(ApiService.ApiServiceConstructorArgs _constructorArgs)
     : RevolutionaryStuffService(_constructorArgs.BaseConstrutorArgs)
 {
-    public sealed record ApiServiceConstructorArgs(RevolutionaryStuffServiceConstrutorArge BaseConstrutorArgs)
+    public sealed record ApiServiceConstructorArgs(RevolutionaryStuffServiceConstrutorArgs BaseConstrutorArgs)
     { }
 }

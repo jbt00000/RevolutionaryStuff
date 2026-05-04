@@ -25,7 +25,7 @@ public abstract class ServiceBusMessageSender : RevolutionaryStuffService, IServ
     public sealed record ServiceBusMessageSenderConstructorArgs(
         IAzureTokenCredentialProvider AzureTokenCredentialProvider,
         IConnectionStringProvider ConnectionStringProvider,
-        RevolutionaryStuffServiceConstrutorArge BaseConstructorArgs,
+        RevolutionaryStuffServiceConstrutorArgs BaseConstructorArgs,
         IOptions<ServiceBusMessageSenderConfig> ConfigOptions);
     protected ServiceBusMessageSender(ServiceBusMessageSenderConstructorArgs constructorArgs)
         : base(constructorArgs.BaseConstructorArgs)

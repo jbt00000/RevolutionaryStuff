@@ -14,7 +14,7 @@ public class CosmosChangeDataCaptureJsonEntityEventProcessor : RevolutionaryStuf
 {
     public record CosmosChangeDataCaptureJsonEntityEventProcessorConstructorArgs(
         IServiceProvider ServiceProvider,
-        RevolutionaryStuffServiceConstrutorArge BaseConstructorArgs)
+        RevolutionaryStuffServiceConstrutorArgs BaseConstructorArgs)
     { }
 
     private readonly IServiceProvider ServiceProvider;

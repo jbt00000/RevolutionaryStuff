@@ -75,7 +75,7 @@ public class CosmosChangeFeedEntityActorProcessorTests
         var loggerFactory = NullLoggerFactory.Instance;
         var args = new CosmosChangeDataCaptureJsonEntityEventProcessor.CosmosChangeDataCaptureJsonEntityEventProcessorConstructorArgs(
             serviceProvider,
-            new RevolutionaryStuffServiceConstrutorArge(loggerFactory));
+            new RevolutionaryStuffServiceConstrutorArgs(loggerFactory));
         return new CosmosChangeDataCaptureJsonEntityEventProcessor(args);
     }
 

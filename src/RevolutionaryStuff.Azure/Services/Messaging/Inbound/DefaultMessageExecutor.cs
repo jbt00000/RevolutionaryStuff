@@ -4,7 +4,7 @@ namespace RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 
 internal class DefaultMessageExecutor(
     IOptions<DefaultMessageExecutor.Config> ConfigOptions,
-    RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArge BaseConstructorArgs)
+    RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs BaseConstructorArgs)
     : RevolutionaryStuffService(BaseConstructorArgs), IDefaultMessageExecutor
 {
     public class Config
