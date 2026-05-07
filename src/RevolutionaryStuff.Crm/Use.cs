@@ -10,8 +10,8 @@ public static class Use
         public RevolutionaryStuff.Core.Use.Settings? RevolutionaryStuffCoreSettings { get; set; }
     }
 
-    public static void UseRevolutionaryStuffCrm(this IServiceCollection services, Settings? settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffCrm(this IServiceCollection services, Settings? settings = null)
+        => services.Use(
             settings,
             () =>
             {

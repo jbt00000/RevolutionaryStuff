@@ -12,8 +12,8 @@ public static class Use
         public RevolutionaryStuff.Crm.Use.Settings? RevolutionaryStuffCrmSettings { get; set; }
     }
 
-    public static void UseRevolutionaryStuffCrmMondayCom(this IServiceCollection services, Settings? settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffCrmMondayCom(this IServiceCollection services, Settings? settings = null)
+        => services.Use(
             settings,
             () =>
             {

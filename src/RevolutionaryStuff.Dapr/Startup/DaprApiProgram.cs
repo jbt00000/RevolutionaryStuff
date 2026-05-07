@@ -6,8 +6,7 @@ namespace RevolutionaryStuff.Dapr.Startup;
 
 public abstract class DaprApiProgram(DaprApiProgram.Settings _Settings) : ApiProgram
 {
-    public record Settings(bool EnablePubSubSubscriptions)
-    { }
+    public sealed record Settings(bool EnablePubSubSubscriptions);
 
     protected override void MapWebEndpoints(WebApplication app)
     {

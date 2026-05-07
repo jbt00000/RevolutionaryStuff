@@ -12,8 +12,8 @@ public static class Use
     {
     }
 
-    public static void UseRevolutionaryStuffAspNetCore(this IServiceCollection services, Settings settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffAspNetCore(this IServiceCollection services, Settings settings = null)
+        => services.Use(
             settings,
             () =>
     {

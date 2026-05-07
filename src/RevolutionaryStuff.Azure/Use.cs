@@ -16,8 +16,8 @@ public static class Use
         public RevolutionaryStuff.Core.Use.Settings RevolutionaryStuffCoreUseSettings { get; set; }
     }
 
-    public static void UseRevolutionaryStuffAzure(this IServiceCollection services, Settings settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffAzure(this IServiceCollection services, Settings settings = null)
+        => services.Use(
             settings,
             () =>
     {

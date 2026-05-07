@@ -21,7 +21,7 @@ public static class Use
     }
 
     public static void UseRevolutionaryStuffApiCore(this IServiceCollection services, Settings? settings = null)
-        => ServiceUseManager.Use(
+        => services.Use(
             settings,
             () =>
     {

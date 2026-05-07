@@ -11,11 +11,10 @@ namespace RevolutionaryStuff.Dapr;
 
 public static class Use
 {
-    public record Settings(bool AddDaprClient = true, ApiCore.Use.Settings? RevolutionaryStuffApiCoreUseSettings = null)
-    { }
+    public sealed record Settings(bool AddDaprClient = true, ApiCore.Use.Settings? RevolutionaryStuffApiCoreUseSettings = null);
 
-    public static void UseRevolutionaryStuffDapr(this IServiceCollection services, Settings? settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffDapr(this IServiceCollection services, Settings? settings = null)
+        => services.Use(
             settings,
             () =>
             {

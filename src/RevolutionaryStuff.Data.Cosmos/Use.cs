@@ -11,8 +11,8 @@ public static class Use
     {
     }
 
-    public static void UseRevolutionaryStuffDataCosmos(this IServiceCollection services, Settings? settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffDataCosmos(this IServiceCollection services, Settings? settings = null)
+        => services.Use(
             settings,
             () =>
             {

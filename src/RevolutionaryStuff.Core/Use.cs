@@ -24,8 +24,8 @@ public static class Use
         public string ConfiguredTenantIdProviderConfigSectionName { get; set; }
     }
 
-    public static void UseRevolutionaryStuffCore(this IServiceCollection services, Settings settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffCore(this IServiceCollection services, Settings settings = null)
+        => services.Use(
             settings,
             () =>
     {

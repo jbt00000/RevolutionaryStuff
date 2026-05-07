@@ -14,8 +14,8 @@ public static class Use
         public string OpenPhoneApiConfigSectionName { get; set; } = "OpenPhoneApi";
     }
 
-    public static void UseRevolutionaryStuffCrmOpenPhone(this IServiceCollection services, Settings? settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffCrmOpenPhone(this IServiceCollection services, Settings? settings = null)
+        => services.Use(
             settings,
             () =>
             {

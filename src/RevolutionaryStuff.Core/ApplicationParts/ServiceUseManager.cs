@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace RevolutionaryStuff.Core.ApplicationParts;
 
@@ -14,7 +15,7 @@ public static class ServiceUseManager
 
     private static readonly IDictionary<Type, Usage> UsageByUseType = new Dictionary<Type, Usage>();
 
-    public static void Use<TSettings>(TSettings settings, Action initialize, PriorUsageRulesEnum rule = PriorUsageRulesEnum.SameSettings)
+    public static IServiceCollection Use<TSettings>(this IServiceCollection services, TSettings settings, Action initialize, PriorUsageRulesEnum rule = PriorUsageRulesEnum.SameSettings)
     {
         ArgumentNullException.ThrowIfNull(initialize);
 
@@ -27,13 +28,13 @@ public static class ServiceUseManager
             switch (rule)
             {
                 case PriorUsageRulesEnum.Allow:
-                    return;
+                    return services;
                 case PriorUsageRulesEnum.Disallow:
                     throw new($"{settingsType} already used and re-usage disallowed.\n{usage.UsedFrom}\n{new StackTrace()}");
                 case PriorUsageRulesEnum.SameSettings:
                     if (usage.SettingsJson == settingsJson)
                     {
-                        return;
+                        return services;
                     }
 
                     throw new($"{settingsType} already used but with different settings.\n{usage.UsedFrom}\n{new StackTrace()}");
@@ -48,5 +49,6 @@ public static class ServiceUseManager
             UsedFrom = new()
         };
         initialize();
+        return services;
     }
 }

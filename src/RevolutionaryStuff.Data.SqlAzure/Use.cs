@@ -6,11 +6,10 @@ namespace RevolutionaryStuff.Dapr;
 
 public static class Use
 {
-    public record Settings(RevolutionaryStuff.Azure.Use.Settings? RevolutionaryStuffAzureUseSettings)
-    { }
+    public sealed record Settings(RevolutionaryStuff.Azure.Use.Settings? RevolutionaryStuffAzureUseSettings);
 
-    public static void UseRevolutionaryStuffDataSqlAzure(this IServiceCollection services, Settings? settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffDataSqlAzure(this IServiceCollection services, Settings? settings = null)
+        => services.Use(
             settings,
             () =>
             {

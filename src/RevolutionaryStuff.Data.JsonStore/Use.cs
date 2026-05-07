@@ -15,8 +15,8 @@ public static class Use
         public IJsonEntityIdServices? JsonEntityIdServices { get; set; }
     }
 
-    public static void UseRevolutionaryStuffDataJsonStore(this IServiceCollection services, Settings? settings = null)
-        => ServiceUseManager.Use(
+    public static IServiceCollection UseRevolutionaryStuffDataJsonStore(this IServiceCollection services, Settings? settings = null)
+        => services.Use(
             settings,
             () =>
             {
