@@ -44,6 +44,12 @@
     <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
     <BuildType Solution="VSTS-CI|x64" Project="Release" />
   </Project>
+  <Project Path="src/RevolutionaryStuff.Applets.Webhooked/RevolutionaryStuff.Applets.Webhooked.csproj">
+    <BuildType Solution="VSTS-CI|*" Project="Release" />
+  </Project>
+  <Project Path="src/RevolutionaryStuff.Applets/RevolutionaryStuff.Applets.csproj" Id="4264a9f9-769c-4fcf-870d-749ff2e085f6">
+    <BuildType Solution="VSTS-CI|*" Project="Release" />
+  </Project>
   <Project Path="src/RevolutionaryStuff.AspNetCore/RevolutionaryStuff.AspNetCore.csproj">
     <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
     <BuildType Solution="VSTS-CI|x64" Project="Debug" />

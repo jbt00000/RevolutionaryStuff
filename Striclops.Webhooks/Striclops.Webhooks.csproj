@@ -1,0 +1,43 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<LangVersion>Preview</LangVersion>
+		<TargetFramework>net10.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Content Remove="appsettings.Development.json" />
+		<Content Remove="appsettings.json" />
+		<Content Remove="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<EmbeddedResource Include="appsettings.Development.json" />
+		<EmbeddedResource Include="appsettings.json" />
+		<EmbeddedResource Include="appsettings.Production.json" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.7" />
+		<PackageReference Include="RevolutionaryStuff.ApiCore" Version="4.156.100" />
+		<PackageReference Include="RevolutionaryStuff.AspNetCore" Version="4.156.100" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\Striclops.Services.Core\Striclops.Services.Core.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<!-- This is in the .csproj file instead of a .cs file so that VS Code Cleanup cannot remove these before they are used -->
+		<Using Include="System" />
+		<Using Include="System.Collections.Generic" />
+		<Using Include="System.Linq" />
+		<Using Include="System.Threading.Tasks" />
+		<Using Include="Microsoft.Extensions.Logging" />
+		<Using Include="RevolutionaryStuff.Core" />
+	</ItemGroup>
+
+</Project>
