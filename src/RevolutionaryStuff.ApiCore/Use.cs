@@ -20,7 +20,7 @@ public static class Use
         public string? HttpTenantIdProviderConfigSectionName { get; set; }
     }
 
-    public static void UseRevolutionaryStuffApiCore(this IServiceCollection services, Settings? settings = null)
+    public static IServiceCollection UseRevolutionaryStuffApiCore(this IServiceCollection services, Settings? settings = null)
         => services.Use(
             settings,
             () =>

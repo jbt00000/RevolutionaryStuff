@@ -6,7 +6,7 @@ namespace RevolutionaryStuff.ApiCore.Services.HostedServices;
 
 public static class PeriodicBackgroundServiceExtensions
 {
-    public static void AddPeriodicHostedService<TRunner>(this IServiceCollection services, IConfiguration config, string configSectionName)
+    public static IServiceCollection AddPeriodicHostedService<TRunner>(this IServiceCollection services, IConfiguration config, string configSectionName)
         where TRunner : class, IPeriodicServiceRunner
     {
         services.AddScoped<TRunner>();
@@ -18,6 +18,7 @@ public static class PeriodicBackgroundServiceExtensions
             var h = sp.Construct<PeriodicBackgroundService<TRunner>>(co);
             return h;
         });
+        return services;
     }
 }
 

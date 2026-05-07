@@ -30,12 +30,13 @@ public static class Use
                 services.AddSingleton<ISharedDaprStateStore>(sp => new SharedDaprStateStore(sp.GetRequiredService<DaprClient>(), sp.GetRequiredService<IOptions<DaprConfig>>().Value.SharedStateStoreName));
             });
 
-    public static void AddDaprRefitRestApi<TIApi>(this IServiceCollection services, string name)
+    public static IServiceCollection AddDaprRefitRestApi<TIApi>(this IServiceCollection services, string name)
     where TIApi : class
     {
         services.AddSingleton(sp =>
         {
             return RestService.For<TIApi>(DaprClient.CreateInvokeHttpClient(name));
         });
+        return services;
     }
 }

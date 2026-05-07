@@ -11,7 +11,7 @@ namespace RevolutionaryStuff.Core;
 
 public static class DependencyInjectionHelpers
 {
-    public static void ConfigureOptions<TOptions>(this IServiceCollection services, string sectionName, bool registerIPostConfigure = true) where TOptions : class
+    public static IServiceCollection ConfigureOptions<TOptions>(this IServiceCollection services, string sectionName, bool registerIPostConfigure = true) where TOptions : class
     {
         services.AddOptions<TOptions>()
                         .Configure<IConfiguration>((settings, configuration) =>
@@ -22,12 +22,13 @@ public static class DependencyInjectionHelpers
         {
             services.PostConfigure<TOptions>(o => ((IPostConfigure)o).PostConfigure());
         }
+        return services;
     }
 
     public static string GetConnectionString(this IServiceProvider serviceProvider, string connectionStringName)
         => serviceProvider.GetService<IConfiguration>().GetConnectionString(connectionStringName);
 
-    public static void Substitute<TInt, TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
+    public static IServiceCollection Substitute<TInt, TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
     {
         var serviceDescriptors = services.Where(s => typeof(TInt).IsA(s.ServiceType) && (existingServiceLifetime == null || s.Lifetime == existingServiceLifetime.Value)).ToList();
         Requires.Positive(serviceDescriptors.Count, nameof(serviceDescriptors));
@@ -37,9 +38,10 @@ public static class DependencyInjectionHelpers
             var newServiceDescriptor = new ServiceDescriptor(oldServiceDescriptor.ServiceType, typeof(TImp), newServiceLifetime.GetValueOrDefault(oldServiceDescriptor.Lifetime));
             services.Add(newServiceDescriptor);
         }
+        return services;
     }
 
-    public static void AddIndirect<TInt, TImp>(this IServiceCollection services, ServiceLifetime fallbackServiceLifetime = ServiceLifetime.Scoped, bool removeExisting = true)
+    public static IServiceCollection AddIndirect<TInt, TImp>(this IServiceCollection services, ServiceLifetime fallbackServiceLifetime = ServiceLifetime.Scoped, bool removeExisting = true)
     {
         var tTInt = typeof(TInt);
         var tTImp = typeof(TImp);
@@ -61,9 +63,10 @@ public static class DependencyInjectionHelpers
         }, fallbackServiceLifetime);
 
         services.Add(newServiceDescriptor);
+        return services;
     }
 
-    public static void Substitute<TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
+    public static IServiceCollection Substitute<TImp>(this IServiceCollection services, ServiceLifetime? newServiceLifetime = null, ServiceLifetime? existingServiceLifetime = null)
         => services.Substitute<TImp, TImp>(newServiceLifetime, existingServiceLifetime);
 
     public static SERVICE_TYPE InstantiateServiceWithOverriddenDependencies<SERVICE_TYPE>(this IServiceProvider serviceProvider, IServiceCollection services, params object[] overriddenLoadedDependencies)
@@ -114,12 +117,13 @@ NextConstructor:
         throw new TypeLoadException($"Could not find a workable constructor to instantiate {t}");
     }
 
-    public static void ConfigureTenantedOptions<TTenantFinder, TOptions>(this IServiceCollection services, string sectionName)
+    public static IServiceCollection ConfigureTenantedOptions<TTenantFinder, TOptions>(this IServiceCollection services, string sectionName)
         where TTenantFinder : ITenantIdProvider
         where TOptions : class, new()
     {
         services.ConfigureOptions<TenantedConfig<TOptions>>(sectionName);
         services.AddScoped<IOptions<TOptions>, TenantedOptionsWrapper<TTenantFinder, TOptions>>();
+        return services;
     }
 
     private class TenantedConfig<TConfig>

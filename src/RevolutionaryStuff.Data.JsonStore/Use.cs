@@ -35,10 +35,11 @@ public static class Use
                 services.ConfigureOptions<JsonEntityRepoBaseConfig>(JsonEntityRepoBaseConfig.ConfigSectionName);
             });
 
-    public static void AddScopedChangeDataCaptureJsonEntityController<TChangeDataCaptureJsonEntityController>(this IServiceCollection services)
+    public static IServiceCollection AddScopedChangeDataCaptureJsonEntityController<TChangeDataCaptureJsonEntityController>(this IServiceCollection services)
             where TChangeDataCaptureJsonEntityController : class, IChangeDataCaptureJsonEntityController
     {
         services.AddScoped<TChangeDataCaptureJsonEntityController>();
         services.AddScoped<IChangeDataCaptureJsonEntityController, TChangeDataCaptureJsonEntityController>();
+        return services;
     }
 }

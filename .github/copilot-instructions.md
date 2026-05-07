@@ -11,6 +11,7 @@
 
 ## C# Code Style
 - Do not use `using static` in C#; it obscures the origin of members and makes code harder to read.
+- All `IServiceCollection` extension methods must return `IServiceCollection` (not `void`) to support fluent chaining. Expression-bodied methods should return the chained call directly; block-bodied methods should end with `return services;`.
 
 ## Naming & Code Structure Conventions
 - Use PascalCase for public properties and constants (e.g., MyProperty; public const string ConfigSectionName = "...").

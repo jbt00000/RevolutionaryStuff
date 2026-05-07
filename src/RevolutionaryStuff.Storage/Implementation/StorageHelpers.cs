@@ -49,7 +49,7 @@ public static class StorageHelpers
         return parts;
     }
 
-    public static void UseStorageProviderConfigTypeNameSelector(this IServiceCollection services, string keyName = null)
+    public static IServiceCollection UseStorageProviderConfigTypeNameSelector(this IServiceCollection services, string keyName = null)
     {
         services.ConfigureOptions<StorageProviderTypeNameSelectorConfig>(keyName ?? StorageProviderTypeNameSelectorConfig.ConfigSectionName);
         services.AddScoped(sp =>
@@ -59,6 +59,7 @@ public static class StorageHelpers
             var serviceDescriptor = serviceDescriptors.FirstOrDefault(sd => sd.ServiceType.Name == config.StorageProviderTypeName);
             return (IStorageProvider)sp.GetService(serviceDescriptor.ServiceType);
         });
+        return services;
     }
 
     public class StorageProviderTypeNameSelectorConfig
