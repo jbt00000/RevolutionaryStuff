@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 
 namespace RevolutionaryStuff.Storage.Implementation;
@@ -73,5 +74,39 @@ public static class StorageHelpers
         Requires.Text(filePath, argName, false, 2);
         if (filePath[0] != ExternalFolderSeparatorChar)
             throw new ArgumentOutOfRangeException(argName, $"Must start with {ExternalFolderSeparatorChar}");
+    }
+
+    public static IServiceCollection AddScopedTypedStorageProvider<TInterface, TImplementation, TConfig>(
+        this IServiceCollection services,
+        string configSectionName)
+        where TInterface : class, IStorageProvider
+        where TImplementation : class, IStorageProvider
+        where TConfig : class, new()
+    {
+        services.ConfigureOptions<TConfig>(configSectionName);
+        services.AddScoped<TInterface>(sp =>
+        {
+            var config = sp.GetRequiredService<IOptions<TConfig>>().Value;
+            var typedOptions = Options.Create(config);
+            var impl = ActivatorUtilities.CreateInstance<TImplementation>(sp, typedOptions);
+            return StorageProviderProxy<TInterface>.Create(impl);
+        });
+        return services;
+    }
+
+    private sealed class StorageProviderProxy<TInterface> : DispatchProxy
+        where TInterface : class, IStorageProvider
+    {
+        private IStorageProvider Inner = null!;
+
+        protected override object? Invoke(MethodInfo? targetMethod, object?[]? args)
+            => targetMethod!.Invoke(Inner, args);
+
+        internal static TInterface Create(IStorageProvider inner)
+        {
+            var proxy = Create<TInterface, StorageProviderProxy<TInterface>>();
+            ((StorageProviderProxy<TInterface>)(object)proxy).Inner = inner;
+            return proxy;
+        }
     }
 }
