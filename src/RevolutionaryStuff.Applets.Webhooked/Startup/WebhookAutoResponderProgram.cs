@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.ApiCore.Startup;
 
 namespace RevolutionaryStuff.Applets.Webhooked;
@@ -11,6 +12,12 @@ public class WebhookAutoResponderProgram<TBlobWriter> : ApiProgram
     public WebhookAutoResponderProgram(WebhookAutoResponderProgramSettings? settings = null)
     {
         Settings = settings;
+    }
+
+    protected override void MapWebEndpoints(WebApplication app)
+    {
+        base.MapWebEndpoints(app);
+        app.MapWebhookAutoResponderWebEndpoints();
     }
 
     protected override void ConfigureServices(IServiceCollection services)
