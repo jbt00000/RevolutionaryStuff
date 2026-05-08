@@ -8,7 +8,7 @@ public interface IWebhookAutoResponder
 {
     Task GoAsync(string serviceName, Func<WebhookAutoResponderWorkerArgs, Task<OutboundMessage>>? workAsync = null);
 
-    public record WebhookAutoResponderWorkerArgs
+    record WebhookAutoResponderWorkerArgs
     {
         public required HttpContext Context { get; init; }
         public required Stream DataStream { get; init; }

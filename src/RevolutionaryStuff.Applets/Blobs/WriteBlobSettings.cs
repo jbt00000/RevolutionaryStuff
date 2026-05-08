@@ -1,6 +1,6 @@
 ﻿namespace RevolutionaryStuff.Applets.Blobs;
 
-public record WriteBlobSettings 
+public record WriteBlobSettings
 {
     /// <summary>
     /// A content type to record if the storage provider supports it

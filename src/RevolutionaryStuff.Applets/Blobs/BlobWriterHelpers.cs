@@ -22,7 +22,7 @@ public static class BlobWriterHelpers
         var machine = Environment.MachineName;
         var codeString = codeStringGenerator.CreateRomanLowerCharactersCode(4);
         var newFileName = System.IO.Path.ChangeExtension(ppa.fileName, $".{now:HHmmssfff}.{machine}.{codeString}{ext}");
-        return $"{appName}/{tenantId}/diagnostics/{now:yyyy}/{now:MM}/{now:dd}/{now:HH}/{newFileName}"; 
+        return $"{appName}/{tenantId}/diagnostics/{now:yyyy}/{now:MM}/{now:dd}/{now:HH}/{newFileName}";
     }
 
     public static IServiceCollection AddBlobWriter<TBlobWriter>(this IServiceCollection services, Func<PathProviderArgs, string> pathProvider)
@@ -33,7 +33,8 @@ public static class BlobWriterHelpers
         where TStorageProvider : IStorageProvider
         where TBlobWriter : class, IBlobWriter
     {
-        services.AddScoped<TBlobWriter>(sp => {
+        services.AddScoped<TBlobWriter>(sp =>
+        {
             var storageProvider = sp.GetRequiredService<TStorageProvider>();
             var inner = new MyBlobWriter(sp, storageProvider, pathProvider);
             return BlobWriterProxy<TBlobWriter>.Create(inner);

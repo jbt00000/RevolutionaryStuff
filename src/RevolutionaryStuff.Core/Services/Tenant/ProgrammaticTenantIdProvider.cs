@@ -1,4 +1,5 @@
 ﻿namespace RevolutionaryStuff.Core.Services.Tenant;
+
 internal class ProgrammaticTenantIdProvider : IProgrammaticTenantIdProvider
 {
     public ProgrammaticTenantIdProvider()

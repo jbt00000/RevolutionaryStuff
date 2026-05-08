@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.AspNetCore;
 using RevolutionaryStuff.Azure;
 using RevolutionaryStuff.Core.ApplicationParts;

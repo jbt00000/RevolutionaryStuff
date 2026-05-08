@@ -3,7 +3,6 @@ using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 using RevolutionaryStuff.Core.Caching;
-using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.Cosmos.BackgroundServices;
 using RevolutionaryStuff.Data.JsonStore.ChangeDataCapture;
 using RevolutionaryStuff.Data.JsonStore.Entities;
