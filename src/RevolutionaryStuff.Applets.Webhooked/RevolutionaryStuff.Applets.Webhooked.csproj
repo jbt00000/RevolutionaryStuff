@@ -19,9 +19,9 @@
       <PackageLicenseFile>package\license.txt</PackageLicenseFile>
 <!--      <PackageReadmeFile>README.md</PackageReadmeFile> -->
       <Copyright>Copyright © 2024</Copyright>
-      <FileVersion>4.156.100.0</FileVersion>
-      <AssemblyVersion>4.156.100.0</AssemblyVersion>
-      <Version>4.156.100</Version>
+      <FileVersion>4.157.100.0</FileVersion>
+      <AssemblyVersion>4.157.100.0</AssemblyVersion>
+      <Version>4.157.100</Version>
   </PropertyGroup>
 
     <ItemGroup>
@@ -41,6 +41,9 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RevolutionaryStuff.Applets\RevolutionaryStuff.Applets.csproj" />
+    <ProjectReference Include="..\RevolutionaryStuff.ApiCore\RevolutionaryStuff.ApiCore.csproj" />
+    <ProjectReference Include="..\RevolutionaryStuff.AspNetCore\RevolutionaryStuff.AspNetCore.csproj" />
+    <ProjectReference Include="..\RevolutionaryStuff.Azure\RevolutionaryStuff.Azure.csproj" />
   </ItemGroup>
 
     <ItemGroup>

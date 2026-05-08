@@ -11,3 +11,4 @@ using RevolutionaryStuff.Core.ApplicationParts;
 
 //For the unit tests
 [assembly: InternalsVisibleTo("RevolutionaryStuff.Applets.Tests")]
+[assembly: InternalsVisibleTo("RevolutionaryStuff.Applets.Webhooked.Tests")]
