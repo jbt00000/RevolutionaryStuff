@@ -7,7 +7,7 @@ using RevolutionaryStuff.Core.ApplicationParts;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RevolutionaryStuff.Core")]
-[assembly: AssemblyDescription("Helpers libraries I've developed and use in all my projects dating back to .NET v1.0 beta 2.\r\n\r\nFeel free to use these, I'll try to keep them fairly stable, but really, they're just for projects developed by me.")]
+[assembly: AssemblyDescription("Foundation utilities and helpers used across all RevolutionaryStuff libraries, including collection helpers, DI extensions, configuration, reflection, and general-purpose abstractions.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Revolutionary Stuff, LLC")]
 [assembly: AssemblyProduct("RevolutionaryStuff.Core")]

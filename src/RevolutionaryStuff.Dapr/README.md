@@ -1,8 +1,8 @@
 # RevolutionaryStuff.Dapr
-Helpers that make Dapr services (and Refit) easier to use reliably.
-Also includes DaprApiProgram to scaffold many api startups.
 
-## What is Revolutionary Stuff and what are these libraries?
+Dapr integration helpers including pub/sub topic publishing, configuration, and Dapr-aware API program scaffolding.
+
+## What is Revolutionary Stuff
 [Revolutionary Stuff](https://revolutionarystuff.com/) is a company [I](https://www.jasonthomas.com/) created a while back to work on creative ideas.
 
 These libraries are a collection of utilities and tools I've created since .NET 1 Beta 2 (don't worry, there have been a few updates since then).

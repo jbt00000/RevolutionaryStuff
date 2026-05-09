@@ -1,7 +1,8 @@
 # RevolutionaryStuff.ApiCore
-Includes ApiProgram to scaffold many api startups.
 
-## What is Revolutionary Stuff and what are these libraries?
+Base classes and startup scaffolding for ASP.NET Core Web API applications, including `ApiProgram`, route builder helpers, and OpenAPI utilities.
+
+## What is Revolutionary Stuff
 [Revolutionary Stuff](https://revolutionarystuff.com/) is a company [I](https://www.jasonthomas.com/) created a while back to work on creative ideas.
 
 These libraries are a collection of utilities and tools I've created since .NET 1 Beta 2 (don't worry, there have been a few updates since then).

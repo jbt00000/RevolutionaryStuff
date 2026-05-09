@@ -1,9 +1,6 @@
-﻿# RevolutionaryStuff.Storage
-Traffk is dead!  It was a nice run...
-The Traffk.Storage.* libraries had been open sourced, but it was increasingly difficult to manage that GitHub repo and the NuGet packages.  
-So I have moved the code to this repo and renamed them to RevolutionaryStuff.Storage.*.
-Traffk.StorageProviders.Providers.PhysicalStorage has been merged into this assembly.
+# RevolutionaryStuff.Storage.Providers.LocalFileSystem
 
+Local file system storage provider implementation for the RevolutionaryStuff Storage abstraction layer.
 ## What is Revolutionary Stuff and what are these libraries?
 [Revolutionary Stuff](https://revolutionarystuff.com/) is a company [I](https://www.jasonthomas.com/) created a while back to work on creative ideas.
 

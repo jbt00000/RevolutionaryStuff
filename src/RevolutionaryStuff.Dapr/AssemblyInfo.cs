@@ -5,7 +5,7 @@ using RevolutionaryStuff.Core.ApplicationParts;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyDescription("Helpers libraries for Dapr and DaprApi programs.")]
+[assembly: AssemblyDescription("Dapr integration helpers including pub/sub topic publishing, configuration, and Dapr-aware API program scaffolding.")]
 
 [assembly: AssemblySettingsResourceAutoDiscovery]
 
