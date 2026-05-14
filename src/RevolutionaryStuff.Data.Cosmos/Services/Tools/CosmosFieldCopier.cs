@@ -1,5 +1,5 @@
-﻿using System.IO;
-using System.Text.Json;
+﻿using System.Text.Json;
+using System.Text.Json.Nodes;
 using System.Threading;
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
@@ -76,20 +76,23 @@ internal class CosmosFieldCopier : RevolutionaryStuff.Core.RevolutionaryStuffSer
                         continue;
                     }
 
-                    var transformed = CopyField(doc, config.SourceFieldName, config.DestFieldName, sourceValue);
                     var pk = BuildPartitionKey(doc, pkPaths);
+                    var patchValue = ExtractPatchValue(sourceValue);
 
-                    using var payload = new MemoryStream(transformed);
-                    using var upsertResp = await container.UpsertItemStreamAsync(payload, pk, cancellationToken: ct);
+                    using var patchResp = await container.PatchItemStreamAsync(
+                        id!,
+                        pk,
+                        [PatchOperation.Add<object?>($"/{config.DestFieldName}", patchValue)],
+                        cancellationToken: ct);
 
-                    if (upsertResp.IsSuccessStatusCode)
+                    if (patchResp.IsSuccessStatusCode)
                     {
                         modified++;
                         Logger.LogDebug("Copied field in {Id} in {Container}", id, container.Id);
                     }
                     else
                     {
-                        var msg = $"{container.Id}/{id}: upsert failed with {upsertResp.StatusCode}";
+                        var msg = $"{container.Id}/{id}: patch failed with {patchResp.StatusCode}";
                         errors.Add(msg);
                         Logger.LogWarning(msg);
                     }
@@ -115,32 +118,20 @@ internal class CosmosFieldCopier : RevolutionaryStuff.Core.RevolutionaryStuffSer
     #region JSON helpers
 
     /// <summary>
-    /// Returns a new JSON byte array based on <paramref name="root"/> with
-    /// <paramref name="destFieldName"/> injected immediately after <paramref name="sourceFieldName"/>
-    /// at the top level, carrying the same value.
+    /// Extracts a patch-safe .NET value from a <see cref="JsonElement"/> so that
+    /// <see cref="PatchOperation.Add{T}"/> serializes it correctly regardless of
+    /// the underlying Cosmos serializer.
     /// </summary>
-    private static byte[] CopyField(JsonElement root, string sourceFieldName, string destFieldName, JsonElement sourceValue)
+    private static object? ExtractPatchValue(JsonElement el) => el.ValueKind switch
     {
-        using var ms = new MemoryStream();
-        using var writer = new Utf8JsonWriter(ms);
-
-        writer.WriteStartObject();
-        foreach (var prop in root.EnumerateObject())
-        {
-            writer.WritePropertyName(prop.Name);
-            prop.Value.WriteTo(writer);
-
-            if (prop.Name == sourceFieldName)
-            {
-                writer.WritePropertyName(destFieldName);
-                sourceValue.WriteTo(writer);
-            }
-        }
-        writer.WriteEndObject();
-        writer.Flush();
-
-        return ms.ToArray();
-    }
+        JsonValueKind.String => el.GetString(),
+        JsonValueKind.Number when el.TryGetInt64(out var l) => l,
+        JsonValueKind.Number => el.GetDouble(),
+        JsonValueKind.True => true,
+        JsonValueKind.False => false,
+        JsonValueKind.Null => null,
+        _ => JsonNode.Parse(el.GetRawText())
+    };
 
     #endregion
 
