@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace RevolutionaryStuff.Data.Cosmos.Services.Tools;
+﻿namespace RevolutionaryStuff.Data.Cosmos.Services.Tools;
 
 /// <summary>
 /// Per-call settings for <see cref="ICosmosFieldCopier"/>.
