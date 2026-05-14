@@ -36,7 +36,7 @@ public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobS
         if (UserDelegationKey == null || expiresOn > UserDelegationKeyExpiration)
         {
             expiresOn = DateTimeOffset.UtcNow.Add(UserDelegationKeyMaxExpiration);
-            UserDelegationKey = await ServiceClient.GetUserDelegationKeyAsync(null, expiresOn);
+            UserDelegationKey = await ServiceClient.GetUserDelegationKeyAsync(null, expiresOn, default);
             UserDelegationKeyExpiration = expiresOn;
         }
         return UserDelegationKey;
