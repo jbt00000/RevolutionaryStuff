@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.ApiCore.Services.HostedServices;
 
 public sealed class PeriodicBackgroundService<TRunner>(
     IOptions<PeriodicBackgroundServiceConfig> _configOptions,
-    BackgroundServiceBase.BaseBackgroundServiceConstructorArgs _baseConstructorArgs)
+    BackgroundServiceBase.BackgroundServiceBaseConstructorArgs _baseConstructorArgs)
     : BackgroundServiceBase(_baseConstructorArgs)
     where TRunner : IPeriodicServiceRunner
 {

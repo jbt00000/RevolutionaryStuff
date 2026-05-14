@@ -62,7 +62,7 @@ public static class Use
         services.AddScoped<IProgrammaticTenantIdProvider, ProgrammaticTenantIdProvider>();
 
         services.ConfigureOptions<ConfiguredTenantIdEnumerator.Config>(ConfiguredTenantIdEnumerator.Config.ConfigSectionName);
-        services.AddScoped<IConfiguredTenantIdEnumerator, ConfiguredTenantIdEnumerator>();
+        services.AddSingleton<IConfiguredTenantIdEnumerator, ConfiguredTenantIdEnumerator>();
         #endregion
 
         #region Services

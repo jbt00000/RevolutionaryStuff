@@ -17,6 +17,8 @@ public static class Use
             settings,
             () =>
             {
+                services.UseRevolutionaryStuffDataJsonStore();
+
                 #region Database
 
                 services.ConfigureOptions<CosmosJsonEntityServerConfig>(CosmosJsonEntityServerConfig.ConfigSectionName);

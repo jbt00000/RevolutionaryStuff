@@ -10,9 +10,9 @@ public abstract class BackgroundServiceBase : BackgroundService
 {
     protected readonly IServiceProvider ServiceProvider;
 
-    public sealed record BaseBackgroundServiceConstructorArgs(IServiceProvider ServiceProvider, ILoggerFactory LoggerFactory);
+    public sealed record BackgroundServiceBaseConstructorArgs(IServiceProvider ServiceProvider, ILoggerFactory LoggerFactory);
 
-    protected BackgroundServiceBase(BaseBackgroundServiceConstructorArgs constructorArgs)
+    protected BackgroundServiceBase(BackgroundServiceBaseConstructorArgs constructorArgs)
     {
         ServiceProvider = constructorArgs.ServiceProvider;
         LoggerFactory = constructorArgs.LoggerFactory;
