@@ -1,6 +1,5 @@
 ﻿using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using NCrontab;
 
@@ -8,9 +7,8 @@ namespace RevolutionaryStuff.ApiCore.Services.HostedServices;
 
 public sealed class PeriodicBackgroundService<TRunner>(
     IOptions<PeriodicBackgroundServiceConfig> _configOptions,
-    BackgroundServiceBase.BaseBackgroundServiceConstructorArgs _baseConstructorArgs,
-    ILogger<PeriodicBackgroundService<TRunner>> _logger)
-    : BackgroundServiceBase(_baseConstructorArgs, _logger)
+    BackgroundServiceBase.BaseBackgroundServiceConstructorArgs _baseConstructorArgs)
+    : BackgroundServiceBase(_baseConstructorArgs)
     where TRunner : IPeriodicServiceRunner
 {
     private async Task GoAsync()
@@ -46,7 +44,7 @@ public sealed class PeriodicBackgroundService<TRunner>(
             }
             catch (Exception ex)
             {
-                LogError(ex);
+                LogException(ex);
             }
         }
     }

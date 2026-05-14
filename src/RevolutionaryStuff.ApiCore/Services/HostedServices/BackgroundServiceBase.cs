@@ -1,6 +1,7 @@
 ﻿using System.Runtime.CompilerServices;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 using RevolutionaryStuff.Core.Diagnostics;
 
 namespace RevolutionaryStuff.ApiCore.Services.HostedServices;
@@ -9,18 +10,43 @@ public abstract class BackgroundServiceBase : BackgroundService
 {
     protected readonly IServiceProvider ServiceProvider;
 
-    public sealed record BaseBackgroundServiceConstructorArgs(IServiceProvider ServiceProvider)
-    { }
+    public sealed record BaseBackgroundServiceConstructorArgs(IServiceProvider ServiceProvider, ILoggerFactory LoggerFactory);
 
-    protected BackgroundServiceBase(BaseBackgroundServiceConstructorArgs constructorArgs, ILogger logger)
+    protected BackgroundServiceBase(BaseBackgroundServiceConstructorArgs constructorArgs)
     {
         ServiceProvider = constructorArgs.ServiceProvider;
-        Logger = logger;
+        LoggerFactory = constructorArgs.LoggerFactory;
     }
 
     #region Logging
 
-    private readonly ILogger Logger;
+    protected ILogger Logger
+    {
+        get
+        {
+            if (field == null)
+            {
+                try
+                {
+                    var logger = LoggerFactory?.CreateLogger(GetType());
+                    field = logger;
+                }
+                catch (Exception)
+                { }
+                if (field == null)
+                {
+                    var logger = LoggerFactory?.CreateLogger(typeof(BackgroundServiceBase)) ?? new NullLogger<BackgroundServiceBase>();
+                    return logger;
+                }
+            }
+            return field;
+        }
+    }
+
+    private readonly ILoggerFactory LoggerFactory;
+
+    protected void Log(LogLevel level, string message, params object[] args)
+        => Logger.Log(level, message, args);
 
     protected void LogTrace(string message, params object[] args)
         => Logger.LogTrace(message, args);
@@ -40,8 +66,8 @@ public abstract class BackgroundServiceBase : BackgroundService
         Logger.LogError(message, args);
     }
 
-    protected void LogError(Exception ex, [CallerMemberName] string? caller = null)
-        => Logger.LogError(ex, ex?.Message);
+    protected void LogException(Exception ex, [CallerMemberName] string caller = null)
+        => Logger.LogError(ex, "Invoked from {caller}", caller);
 
     protected void LogCritical(string message, params object[] args)
         => Logger.LogCritical(message, args);
@@ -55,10 +81,10 @@ public abstract class BackgroundServiceBase : BackgroundService
     protected void LogDebug(string message, params object[] args)
         => Logger.LogDebug(message, args);
 
-    protected IDisposable CreateLogRegion(LogLevel level, [CallerMemberName] string? message = null, params object[] args)
+    protected IDisposable CreateLogRegion(LogLevel level, [CallerMemberName] string message = null, params object[] args)
         => new LogRegion(Logger, level, message, args);
 
-    protected IDisposable CreateLogRegion([CallerMemberName] string? message = null, params object[] args)
+    protected IDisposable CreateLogRegion([CallerMemberName] string message = null, params object[] args)
         => new LogRegion(Logger, message, args);
 
     protected IDisposable LogScopedProperty(string propertyName, object propertyValue, bool decomposeValue = false)

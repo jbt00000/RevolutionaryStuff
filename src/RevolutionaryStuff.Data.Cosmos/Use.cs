@@ -2,6 +2,7 @@
 using RevolutionaryStuff.Azure;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Data.Cosmos.BackgroundServices;
+using RevolutionaryStuff.Data.Cosmos.Services.Tools;
 
 namespace RevolutionaryStuff.Data.Cosmos;
 
@@ -18,5 +19,6 @@ public static class Use
             {
                 services.UseRevolutionaryStuffAzure();
                 services.ConfigureOptions<CosmosChangeFeedBackgroundServiceConfig>(CosmosChangeFeedBackgroundServiceConfig.ConfigSectionName);
+                services.AddTransient<ICosmosFieldCopier, CosmosFieldCopier>();
             });
 }

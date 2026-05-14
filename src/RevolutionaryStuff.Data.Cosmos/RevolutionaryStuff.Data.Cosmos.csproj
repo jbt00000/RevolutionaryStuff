@@ -20,9 +20,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.157.100.0</FileVersion>
-        <AssemblyVersion>4.157.100.0</AssemblyVersion>
-        <Version>4.157.100</Version>
+        <FileVersion>4.158.100.0</FileVersion>
+        <AssemblyVersion>4.158.100.0</AssemblyVersion>
+        <Version>4.158.100</Version>
         <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
     </PropertyGroup>
     <ItemGroup>
@@ -49,5 +49,8 @@
     <ItemGroup>
         <ProjectReference Include="..\RevolutionaryStuff.Azure\RevolutionaryStuff.Azure.csproj" />
         <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Services\Migrators\" />
     </ItemGroup>
 </Project>
