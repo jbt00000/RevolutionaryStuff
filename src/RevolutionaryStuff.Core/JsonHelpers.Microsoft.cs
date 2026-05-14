@@ -4,6 +4,9 @@ namespace RevolutionaryStuff.Core;
 
 public static partial class JsonHelpers
 {
+    public static string GetStringPropertyVal(this JsonElement jel, string propertyName, string fallback=null)
+        => jel.TryGetProperty(propertyName, out var el) ? el.GetString() : fallback;
+
     public static string GetString(this IDictionary<string, JsonElement> extensionData, string key, string missing = default)
         => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.GetString() : missing;
 

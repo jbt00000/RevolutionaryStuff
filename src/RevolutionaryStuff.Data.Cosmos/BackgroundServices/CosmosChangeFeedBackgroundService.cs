@@ -94,10 +94,6 @@ public class CosmosChangeFeedBackgroundService<TInboundMessageExecutor, TInbound
 
         async Task HandleChangesAsync(ChangeFeedProcessorContext context, Stream changes, CancellationToken cancellationToken)
         {
-            static string GetStringVal(JsonElement jel, string name)
-            {
-                return jel.TryGetProperty(name, out var el) ? el.GetString() : null;
-            }
             using var sr = new StreamReader(changes);
             using var jsonDocument = JsonDocument.Parse(sr.ReadToEnd());
             var positionInBatch = 0;
@@ -106,10 +102,10 @@ public class CosmosChangeFeedBackgroundService<TInboundMessageExecutor, TInbound
                 ++docsSeen;
                 try
                 {
-                    var id = GetStringVal(element, CosmosEntityPropertyNames.Id);
-                    var rid = GetStringVal(element, CosmosEntityPropertyNames.Rid);
-                    var self = GetStringVal(element, CosmosEntityPropertyNames.Self);
-                    var etag = GetStringVal(element, CosmosEntityPropertyNames.ETag);
+                    var id = element.GetStringPropertyVal(CosmosEntityPropertyNames.Id);
+                    var rid = element.GetStringPropertyVal(CosmosEntityPropertyNames.Rid);
+                    var self = element.GetStringPropertyVal(CosmosEntityPropertyNames.Self);
+                    var etag = element.GetStringPropertyVal(CosmosEntityPropertyNames.ETag);
                     var touchedAt = DateTimeOffset.UtcNow;
                     if (element.TryGetProperty(CosmosEntityPropertyNames.Timestamp, out var tsElement))
                     {
