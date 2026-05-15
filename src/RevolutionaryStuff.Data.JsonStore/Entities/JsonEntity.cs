@@ -182,10 +182,10 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
 
     protected virtual void OnPreSave(IJsonEntityContainer container)
     {
-        if (container is ITenantIdHolder containerTenantIdHolder && this is ITenantIdHolder myTenantIdHolder)
+        if (container is ITenantIdProvider containerTenantIdProvider && this is ITenantIdHolder myTenantIdHolder)
         {
-            CrossTenantException.ThrowIfCrossTenant(containerTenantIdHolder, myTenantIdHolder);
-            myTenantIdHolder.TenantId = containerTenantIdHolder.TenantId;
+            CrossTenantException.ThrowIfCrossTenant(containerTenantIdProvider, myTenantIdHolder);
+            myTenantIdHolder.TenantId = containerTenantIdProvider.GetTenantId();
         }
     }
 

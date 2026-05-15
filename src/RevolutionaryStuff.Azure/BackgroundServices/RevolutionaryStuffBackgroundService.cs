@@ -10,8 +10,7 @@ public abstract class RevolutionaryStuffBackgroundService : BackgroundService
 {
     protected IServiceProvider ServiceProvider { get; private set; }
 
-    public sealed record RevolutionaryStuffBackgroundServiceConstructorArgs(IServiceProvider ServiceProvider, ILoggerFactory LoggerFactory)
-    { }
+    public sealed record RevolutionaryStuffBackgroundServiceConstructorArgs(IServiceProvider ServiceProvider, ILoggerFactory LoggerFactory);
 
     protected RevolutionaryStuffBackgroundService(RevolutionaryStuffBackgroundServiceConstructorArgs constructorArgs)
     {

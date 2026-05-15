@@ -6,6 +6,5 @@ public interface ITenantIdEnumerator
 
     Task ForEachScopedTenantAsync(Func<ExecuteArgs, Task> executeAsync);
 
-    record ExecuteArgs(IServiceProvider ServiceProvider, string TenantId)
-    { }
+    record ExecuteArgs(IServiceProvider ServiceProvider, string TenantId);
 }

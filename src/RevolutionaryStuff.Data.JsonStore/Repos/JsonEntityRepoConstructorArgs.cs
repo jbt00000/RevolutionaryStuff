@@ -8,5 +8,4 @@ public record JsonEntityRepoConstructorArgs(
     IJsonEntityServer Jes,
     ILocalCacher Cacher,
     IOptions<JsonEntityRepoBaseConfig> ConfigOptions,
-    RevolutionaryStuff.Core.RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs BaseConstructorArgs)
-{ }
+    RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs BaseConstructorArgs);

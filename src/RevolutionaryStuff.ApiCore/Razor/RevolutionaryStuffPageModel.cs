@@ -8,8 +8,7 @@ namespace RevolutionaryStuff.ApiCore.Razor;
 
 public abstract class RevolutionaryStuffPageModel : PageModel
 {
-    public sealed record RevolutionaryStuffPageModelConstructorArgs(ILoggerFactory LoggerFactory)
-    { }
+    public sealed record RevolutionaryStuffPageModelConstructorArgs(ILoggerFactory LoggerFactory);
 
     protected RevolutionaryStuffPageModel(RevolutionaryStuffPageModelConstructorArgs constructorArgs)
     {
