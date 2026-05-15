@@ -6,7 +6,7 @@ using RevolutionaryStuff.Core.Services.Tenant;
 namespace RevolutionaryStuff.ApiCore.Services.Tenant;
 
 internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> ConfigOptions, IHttpContextAccessor ContextAccessor, RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs baseConstructorArgs)
-    : RevolutionaryStuffService(baseConstructorArgs), IHttpTenantIdProvider, ISoftTenantIdProvider
+    : RevolutionaryStuffService(baseConstructorArgs), IHttpTenantIdProvider, ITenantIdHolder
 {
     public class Config : IValidate
     {

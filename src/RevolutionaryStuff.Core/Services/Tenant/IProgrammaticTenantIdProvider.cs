@@ -1,4 +1,4 @@
 ﻿namespace RevolutionaryStuff.Core.Services.Tenant;
 
-public interface IProgrammaticTenantIdProvider : ISoftTenantIdProvider
+public interface IProgrammaticTenantIdProvider : ITenantIdProvider, ITenantIdHolder
 { }
