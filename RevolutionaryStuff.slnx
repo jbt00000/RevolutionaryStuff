@@ -39,6 +39,11 @@
     <Project Path="tests/RevolutionaryStuff.Data.JsonStore.Cosmos.Tests/RevolutionaryStuff.Data.JsonStore.Cosmos.Tests.csproj">
       <BuildType Solution="VSTS-CI|*" Project="Debug" />
     </Project>
+    <Project Path="tests/RevolutionaryStuff.Data.JsonStore.Tests/RevolutionaryStuff.Data.JsonStore.Tests.csproj">
+      <BuildType Solution="VSTS-CI|*" Project="Release" />
+      <Build Solution="Debug|*" Project="false" />
+      <Build Solution="VSTS-CI|*" Project="false" />
+    </Project>
   </Folder>
   <Project Path="src/RevolutionaryStuff.ApiCore/RevolutionaryStuff.ApiCore.csproj">
     <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />

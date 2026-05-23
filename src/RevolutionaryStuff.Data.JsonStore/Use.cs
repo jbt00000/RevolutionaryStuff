@@ -4,6 +4,7 @@ using RevolutionaryStuff.Data.JsonStore.ChangeDataCapture;
 using RevolutionaryStuff.Data.JsonStore.Entities;
 using RevolutionaryStuff.Data.JsonStore.Repos;
 using RevolutionaryStuff.Data.JsonStore.Serialization.Json;
+using RevolutionaryStuff.Data.JsonStore.Store;
 
 namespace RevolutionaryStuff.Data.JsonStore;
 
@@ -33,6 +34,10 @@ public static class Use
 
                 services.AddScoped<JsonEntityRepoConstructorArgs>();
                 services.ConfigureOptions<JsonEntityRepoBaseConfig>(JsonEntityRepoBaseConfig.ConfigSectionName);
+
+                services.ConfigureOptions<JsonEntityContainerResolverConfig>(JsonEntityContainerResolverConfig.ConfigSectionName);
+                services.AddSingleton<IJsonEntityContainerResolver, ConfigJsonEntityContainerResolver>();
+                services.AddSingleton<IJsonEntityContainerResolver, AttributeJsonEntityContainerResolver>();
             });
 
     public static IServiceCollection AddScopedChangeDataCaptureJsonEntityController<TChangeDataCaptureJsonEntityController>(this IServiceCollection services)

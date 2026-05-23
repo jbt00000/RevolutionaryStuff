@@ -3,7 +3,7 @@
 [AttributeUsage(AttributeTargets.Class, AllowMultiple = false)]
 public sealed class JsonEntityContainerIdAttribute : Attribute
 {
-    private readonly string ContainerId;
+    public readonly string ContainerId;
 
     public JsonEntityContainerIdAttribute(string containerId)
     {
@@ -14,5 +14,7 @@ public sealed class JsonEntityContainerIdAttribute : Attribute
         => GetContainerId(typeof(TEntity));
 
     public static string GetContainerId(Type tEntity)
-        => tEntity.GetCustomAttribute<JsonEntityContainerIdAttribute>().ContainerId;
+        => tEntity.GetCustomAttribute<JsonEntityContainerIdAttribute>()?.ContainerId
+           ?? throw new InvalidOperationException(
+               $"No [JsonEntityContainerId] attribute found on '{tEntity.FullName}' or its base classes.");
 }

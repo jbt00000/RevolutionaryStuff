@@ -98,6 +98,31 @@ public abstract class CosmosJsonEntityServer : LoggingDisposableBase, ICosmosJso
     protected virtual string GetTenantId()
         => null;
 
+    #region IJsonEntityServer
+
+    private IReadOnlyList<IJsonEntityContainerResolver> SortedResolvers
+        => field ??= ServiceProvider
+               .GetService<IEnumerable<IJsonEntityContainerResolver>>()
+               ?.OrderBy(r => r.Order)
+               .ToList()
+               .AsReadOnly()
+           ?? [];
+
+    string IJsonEntityServer.ResolveContainerId(Type entityType)
+    {
+        foreach (var resolver in SortedResolvers)
+        {
+            var id = resolver.ResolveContainerId(entityType);
+            if (id != null)
+                return id;
+        }
+
+        throw new InvalidOperationException(
+            $"No container ID could be resolved for type '{entityType.FullName}'. " +
+            $"Add a [JsonEntityContainerId] attribute, register an IJsonEntityContainerResolver, " +
+            $"or add an entry to the '{JsonEntityContainerResolverConfig.ConfigSectionName}' config section.");
+    }
+
     IJsonEntityContainer IJsonEntityServer.GetContainer(string containerId)
     {
         Requires.Text(containerId);
@@ -119,4 +144,6 @@ public abstract class CosmosJsonEntityServer : LoggingDisposableBase, ICosmosJso
             return jec;
         });
     }
+
+    #endregion
 }
