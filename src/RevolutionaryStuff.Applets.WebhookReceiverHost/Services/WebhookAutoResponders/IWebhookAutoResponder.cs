@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using RevolutionaryStuff.Azure.Services.Messaging.Outbound;
 
-namespace RevolutionaryStuff.Applets.Webhooked;
+namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
 public interface IWebhookAutoResponder
 {

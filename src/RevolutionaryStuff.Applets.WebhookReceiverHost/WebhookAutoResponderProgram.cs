@@ -2,7 +2,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.ApiCore.Startup;
 
-namespace RevolutionaryStuff.Applets.Webhooked;
+namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
 public class WebhookAutoResponderProgram<TBlobWriter> : ApiProgram
     where TBlobWriter : class, IWebhookedDiagnosticBlobWriter
@@ -23,7 +23,7 @@ public class WebhookAutoResponderProgram<TBlobWriter> : ApiProgram
     protected override void ConfigureServices(IServiceCollection services)
     {
         base.ConfigureServices(services);
-        services.UseRevolutionaryStuffWebhooked<TBlobWriter>(Settings?.WebhookedUseSettings);
+        services.UseRevolutionaryStuffWebhookReceiverHost<TBlobWriter>(Settings?.WebhookedUseSettings);
         Settings?.ConfigureServices?.Invoke(services);
     }
 }

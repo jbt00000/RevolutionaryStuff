@@ -3,8 +3,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Applets.WebhookReceiverHost;
 
-namespace RevolutionaryStuff.Applets.Webhooked;
+namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
 public static class WebhookAutoResponderHelpers
 {

@@ -1,6 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
-namespace RevolutionaryStuff.Applets.Webhooked;
+namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
 public record WebhookAutoResponderProgramSettings
 {

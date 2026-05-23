@@ -1,6 +1,6 @@
 ﻿using System.Net;
 
-namespace RevolutionaryStuff.Applets.Webhooked;
+namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
 public class WebhookAutoResponderConfig
 {

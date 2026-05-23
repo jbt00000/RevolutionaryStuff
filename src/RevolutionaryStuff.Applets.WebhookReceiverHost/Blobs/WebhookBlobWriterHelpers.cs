@@ -1,6 +1,7 @@
 ﻿using RevolutionaryStuff.Applets.Blobs;
+using RevolutionaryStuff.Applets.WebhookReceiverHost;
 
-namespace RevolutionaryStuff.Applets.Webhooked.Blobs;
+namespace RevolutionaryStuff.Applets.WebhookReceiverHost.Blobs;
 
 public static class WebhookBlobWriterHelpers
 {
