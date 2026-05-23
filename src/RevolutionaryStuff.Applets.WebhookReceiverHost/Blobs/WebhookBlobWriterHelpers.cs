@@ -1,5 +1,4 @@
 ﻿using RevolutionaryStuff.Applets.Blobs;
-using RevolutionaryStuff.Applets.WebhookReceiverHost;
 
 namespace RevolutionaryStuff.Applets.WebhookReceiverHost.Blobs;
 

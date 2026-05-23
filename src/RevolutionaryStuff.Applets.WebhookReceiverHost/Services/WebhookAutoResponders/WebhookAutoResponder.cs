@@ -5,7 +5,6 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.ApiCore.Services;
 using RevolutionaryStuff.Applets.Blobs;
-using RevolutionaryStuff.Applets.WebhookReceiverHost;
 using RevolutionaryStuff.AspNetCore.Services.SazGenerators;
 using RevolutionaryStuff.Azure.Services.Messaging.Outbound;
 using RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus;

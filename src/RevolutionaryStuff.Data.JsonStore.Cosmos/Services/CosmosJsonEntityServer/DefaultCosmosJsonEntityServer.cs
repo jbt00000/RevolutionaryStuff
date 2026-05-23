@@ -10,8 +10,8 @@ namespace RevolutionaryStuff.Data.JsonStore.Cosmos.Services.CosmosJsonEntityServ
 public abstract class DefaultCosmosJsonEntityServer : CosmosJsonEntityServer
 {
     public record DefaultCosmosJsonEntityServerConstructorArgs(
-        IConnectionStringProvider ConnectionStringProvider, 
-        ITenantIdProvider TenantIdProvider, 
+        IConnectionStringProvider ConnectionStringProvider,
+        ITenantIdProvider TenantIdProvider,
         CosmosJsonEntityServerConstructorArgs BaseConstructorArgs);
 
     private readonly IConnectionStringProvider ConnectionStringProvider;
