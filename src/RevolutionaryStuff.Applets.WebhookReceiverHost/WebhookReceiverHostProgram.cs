@@ -2,8 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.ApiCore.Startup;
 using RevolutionaryStuff.Applets.Blobs;
-using RevolutionaryStuff.Applets.WebhookReceiverHost.Services.WebhookAutoResponders;
-using Striclops.Services.Core.Services.Storage;
 
 namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
@@ -21,6 +19,5 @@ public abstract class WebhookReceiverHostProgram(WebhookReceiverHostProgramSetti
     {
         base.ConfigureServices(services);
         services.UseRevolutionaryStuffWebhookReceiverHost(GetWebhookAutoResponderBlobWriterPathProvider(), Settings?.WebhookReceiverHostUseSettings);
-        services.AddBlobWriter<IDiagnosticServicesStorageProvider, IWebhookAutoResponderBlobWriter>(GetWebhookAutoResponderBlobWriterPathProvider());
     }
 }
