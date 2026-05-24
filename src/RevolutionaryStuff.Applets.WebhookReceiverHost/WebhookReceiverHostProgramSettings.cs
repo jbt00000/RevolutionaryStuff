@@ -1,0 +1,3 @@
+﻿namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
+
+public record WebhookReceiverHostProgramSettings(Use.Settings? WebhookReceiverHostUseSettings);

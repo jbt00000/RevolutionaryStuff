@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.ApiCore.Services;
 using RevolutionaryStuff.Applets.Blobs;
+using RevolutionaryStuff.Applets.WebhookReceiverHost.Services.WebhookAutoResponders;
 using RevolutionaryStuff.AspNetCore.Services.SazGenerators;
 using RevolutionaryStuff.Azure.Services.Messaging.Outbound;
 using RevolutionaryStuff.Azure.Services.Messaging.Outbound.ServiceBus;
@@ -12,8 +13,7 @@ using RevolutionaryStuff.Core.Services.TemporaryStreamFactory;
 
 namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
-internal class WebhookAutoResponder<TBlobWriter> : ApiService, IWebhookAutoResponder
-    where TBlobWriter : IWebhookedDiagnosticBlobWriter
+internal class WebhookAutoResponder : ApiService, IWebhookAutoResponder
 {
     private static class WebhookPropertyNames
     {
@@ -21,7 +21,7 @@ internal class WebhookAutoResponder<TBlobWriter> : ApiService, IWebhookAutoRespo
         public const string WebhookServiceName = "webhookServiceName";
     }
 
-    private readonly TBlobWriter BlobWriter;
+    private readonly IWebhookAutoResponderBlobWriter BlobWriter;
     private readonly IWebSessionArchiver WebSessionArchiver;
     private readonly ITemporaryStreamFactory StreamFactory;
     private readonly IServiceBusMessageSender ServiceBusMessageSender;
@@ -29,7 +29,7 @@ internal class WebhookAutoResponder<TBlobWriter> : ApiService, IWebhookAutoRespo
     private readonly IOptions<WebhookAutoResponderConfig> ConfigOptions;
 
     public WebhookAutoResponder(
-        TBlobWriter blobWriter,
+        IWebhookAutoResponderBlobWriter blobWriter,
         IWebSessionArchiver webSessionArchiver,
         ITemporaryStreamFactory streamFactory,
         IServiceBusMessageSender serviceBusMessageSender,

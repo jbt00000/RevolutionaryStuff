@@ -5,7 +5,7 @@ namespace RevolutionaryStuff.Applets.WebhookReceiverHost.Blobs;
 public static class WebhookBlobWriterHelpers
 {
     /// <summary>
-    /// Path provider for <see cref="IWebhookedDiagnosticBlobWriter"/>.
+    /// Path provider for <see cref="IWebhookAutoResponder"/>.
     /// Builds: {FolderHint}/{yyyy/MM/dd/HH}/{guid}/{fileName}
     /// where FolderHint is expected to be "{BaseFolderName}/{StorageFolderName}" as supplied by <see cref="WebhookAutoResponderConfig"/>.
     /// Register via:

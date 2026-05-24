@@ -6,8 +6,10 @@ using Microsoft.Extensions.Options;
 
 namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
-public static class WebhookAutoResponderHelpers
+public static class WebhookReceiverHostProgramHelpers
 {
+    public record MapWebhookAutoResponderWebEndpointsSettings(IList<string>? TagNames);
+
     public static MapWebhookAutoResponderWebEndpointsSettings DefaultSettings { get; } = new(["WebHook"]);
 
     public static void MapWebhookAutoResponderWebEndpoints(this WebApplication app, MapWebhookAutoResponderWebEndpointsSettings? settings = null)
@@ -15,7 +17,7 @@ public static class WebhookAutoResponderHelpers
         settings ??= DefaultSettings;
         var tags = settings.TagNames?.ToArray() ?? [];
         var config = app.Services.GetRequiredService<IOptions<WebhookAutoResponderConfig>>().Value;
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WebhookAutoResponderHelpers));
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WebhookReceiverHostProgramHelpers));
         foreach (var service in config.Services.NullSafeEnumerable().Where(kvp => kvp.Value.Enabled))
         {
             var serviceConfig = service.Value;
@@ -31,6 +33,4 @@ public static class WebhookAutoResponderHelpers
             logger.LogInformation("Mapped webhook auto responder for service {ServiceName} with route {Route}", service.Key, pattern);
         }
     }
-
-    public record MapWebhookAutoResponderWebEndpointsSettings(IList<string>? TagNames);
 }
