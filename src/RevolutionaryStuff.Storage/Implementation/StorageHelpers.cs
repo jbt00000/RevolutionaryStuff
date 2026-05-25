@@ -76,21 +76,24 @@ public static class StorageHelpers
             throw new ArgumentOutOfRangeException(argName, $"Must start with {ExternalFolderSeparatorChar}");
     }
 
-    public static IServiceCollection AddScopedTypedStorageProvider<TInterface, TImplementation, TConfig>(
+    public static IServiceCollection AddTypedStorageProvider<TInterface, TImplementation, TConfig>(
         this IServiceCollection services,
-        string configSectionName)
+        string configSectionName,
+        ServiceLifetime lifetime = ServiceLifetime.Scoped)
         where TInterface : class, IStorageProvider
         where TImplementation : class, IStorageProvider
         where TConfig : class, new()
     {
         services.ConfigureOptions<TConfig>(configSectionName);
-        services.AddScoped<TInterface>(sp =>
+
+        services.Add(new ServiceDescriptor(typeof(TInterface), sp =>
         {
             var config = sp.GetRequiredService<IOptions<TConfig>>().Value;
             var typedOptions = Options.Create(config);
             var impl = ActivatorUtilities.CreateInstance<TImplementation>(sp, typedOptions);
             return StorageProviderProxy<TInterface>.Create(impl);
-        });
+        }, lifetime));
+
         return services;
     }
 

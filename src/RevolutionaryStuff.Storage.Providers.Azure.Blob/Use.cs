@@ -13,9 +13,10 @@ public static class Use
     /// <typeparam name="TIAzureBlobStorageProvider">The typed marker interface for this storage provider instance.</typeparam>
     /// <param name="services">The service collection.</param>
     /// <param name="configSectionName">The configuration section name to bind <see cref="AzureBlobStorageProvider.Config"/> from.</param>
-    public static IServiceCollection AddScopedTypedAzureBlobStorageProvider<TIAzureBlobStorageProvider>(
+    public static IServiceCollection AddTypedAzureBlobStorageProvider<TIAzureBlobStorageProvider>(
         this IServiceCollection services,
-        string configSectionName)
+        string configSectionName,
+        ServiceLifetime lifetime = ServiceLifetime.Scoped)
         where TIAzureBlobStorageProvider : class, IAzureBlobStorageProvider
-        => services.AddScopedTypedStorageProvider<TIAzureBlobStorageProvider, AzureBlobStorageProvider, AzureBlobStorageProvider.Config>(configSectionName);
+        => services.AddTypedStorageProvider<TIAzureBlobStorageProvider, AzureBlobStorageProvider, AzureBlobStorageProvider.Config>(configSectionName, lifetime);
 }
