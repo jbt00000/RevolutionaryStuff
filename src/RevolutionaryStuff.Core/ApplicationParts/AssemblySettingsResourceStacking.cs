@@ -133,8 +133,22 @@ public static class AssemblySettingsResourceStacking
             var st = a.GetEmbeddedResourceAsStream(name);
             if (st != null)
             {
-                builder.AddJsonStream(st);
+
                 logger.LogInformation($"{LoggingPrefix} Stacking json from assembly {a.GetName().Name} of resource {name}");
+                try
+                {
+                    builder.AddJsonStream(st);
+                }
+                catch (Exception ex)
+                {
+                    if (st.CanSeek)
+                    {
+                        st.Position = 0;
+                        var json = st.ReadToEnd();
+                        logger.LogInformation($"The 'bad' {ex} json is {json}");
+                    }
+                    throw;
+                }
             }
             else if (required)
             {
