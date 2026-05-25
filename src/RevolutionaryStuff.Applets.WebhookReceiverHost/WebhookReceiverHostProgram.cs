@@ -2,6 +2,10 @@
 using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.ApiCore.Startup;
 using RevolutionaryStuff.Applets.Blobs;
+using RevolutionaryStuff.Applets.WebhookReceiverHost.Services.WebhookAutoResponders;
+using RevolutionaryStuff.AspNetCore;
+using RevolutionaryStuff.Azure;
+using RevolutionaryStuff.Storage;
 
 namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
@@ -18,6 +22,15 @@ public abstract class WebhookReceiverHostProgram(WebhookReceiverHostProgramSetti
     protected override void ConfigureServices(IServiceCollection services)
     {
         base.ConfigureServices(services);
-        services.UseRevolutionaryStuffWebhookReceiverHost(GetWebhookAutoResponderBlobWriterPathProvider(), Settings?.WebhookReceiverHostUseSettings);
+
+        services.UseRevolutionaryStuffApplets(Settings?.RevolutionaryStuffAppletsUseSettings);
+        services.UseRevolutionaryStuffAspNetCore(Settings?.AspNetCoreUseSettings);
+        services.UseRevolutionaryStuffAzure(Settings?.AzureUseSettings);
+
+        services.AddHttpContextAccessor();
+
+        services.AddScoped<IWebhookAutoResponder, WebhookAutoResponder>();
+        services.ConfigureOptions<WebhookAutoResponderConfig>(WebhookAutoResponderConfig.ConfigSectionName);
+        services.AddBlobWriter<IStorageProvider, IWebhookAutoResponderBlobWriter>(GetWebhookAutoResponderBlobWriterPathProvider());
     }
 }
