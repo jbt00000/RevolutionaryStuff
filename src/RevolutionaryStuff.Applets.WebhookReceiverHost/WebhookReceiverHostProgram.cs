@@ -17,7 +17,9 @@ public abstract class WebhookReceiverHostProgram(WebhookReceiverHostProgramSetti
         app.MapWebhookAutoResponderWebEndpoints();
     }
 
-    protected abstract Func<BlobWriterHelpers.PathProviderArgs, string> GetWebhookAutoResponderBlobWriterPathProvider();
+    protected void RegisterBlobWriter<TStorageProvider>(IServiceCollection services, Func<BlobWriterHelpers.PathProviderArgs, string> pathProvider)
+        where TStorageProvider : IStorageProvider
+        => services.AddBlobWriter<TStorageProvider, IWebhookAutoResponderBlobWriter>(pathProvider);
 
     protected override void ConfigureServices(IServiceCollection services)
     {
@@ -31,6 +33,5 @@ public abstract class WebhookReceiverHostProgram(WebhookReceiverHostProgramSetti
 
         services.AddScoped<IWebhookAutoResponder, WebhookAutoResponder>();
         services.ConfigureOptions<WebhookAutoResponderConfig>(WebhookAutoResponderConfig.ConfigSectionName);
-        services.AddBlobWriter<IStorageProvider, IWebhookAutoResponderBlobWriter>(GetWebhookAutoResponderBlobWriterPathProvider());
     }
 }
