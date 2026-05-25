@@ -79,8 +79,10 @@ public abstract class ApiProgram
     {
         services.ConfigureHttpJsonOptions(options =>
         {
-            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter()); // Forces OpenAPI schema to use strings for enums when the 
-            options.SerializerOptions.Converters.Add(new EnumMemberJsonConverterFactory(true)); // Forces the actual string serialization
+            // In .NET 9+, DefaultJsonTypeInfoResolver takes priority over Converters-registered factories
+            // for statically resolved types. Use TypeInfoResolverChain so EnumMember values are always
+            // honoured on the wire regardless of whether the enum is nested in an inner class.
+            options.SerializerOptions.TypeInfoResolverChain.Insert(0, new EnumMemberJsonTypeInfoResolver());
         });
 
         services.UseRevolutionaryStuffApiCore();

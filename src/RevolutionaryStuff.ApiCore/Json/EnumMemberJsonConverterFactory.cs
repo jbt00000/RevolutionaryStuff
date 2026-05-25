@@ -8,11 +8,13 @@ public class EnumMemberJsonConverterFactory(bool _RequiresJsonConverterAttribute
 {
     public override bool CanConvert(Type typeToConvert)
     {
-        if (typeToConvert.IsEnum)
+        var type = Nullable.GetUnderlyingType(typeToConvert) ?? typeToConvert;
+
+        if (type.IsEnum)
         {
             if (!_RequiresJsonConverterAttribute)
                 return true;
-            var jca = typeToConvert.GetCustomAttribute<JsonConverterAttribute>();
+            var jca = type.GetCustomAttribute<JsonConverterAttribute>();
             if (jca?.ConverterType == typeof(JsonStringEnumConverter))
                 return true;
         }
@@ -21,7 +23,9 @@ public class EnumMemberJsonConverterFactory(bool _RequiresJsonConverterAttribute
 
     public override JsonConverter CreateConverter(Type typeToConvert, JsonSerializerOptions options)
     {
-        var converterType = typeof(EnumMemberJsonConverter<>).MakeGenericType(typeToConvert);
+        var nullableUnderlyingType = Nullable.GetUnderlyingType(typeToConvert);
+        var type = nullableUnderlyingType ?? typeToConvert;
+        var converterType = (nullableUnderlyingType == null ? typeof(EnumMemberJsonConverter<>) : typeof(NullableEnumMemberJsonConverter<>)).MakeGenericType(type);
         return (JsonConverter)Activator.CreateInstance(converterType, [_IgnoreCase])!;
     }
 }
