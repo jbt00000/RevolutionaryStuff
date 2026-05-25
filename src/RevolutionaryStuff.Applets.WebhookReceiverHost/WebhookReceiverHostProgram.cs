@@ -9,7 +9,7 @@ using RevolutionaryStuff.Storage;
 
 namespace RevolutionaryStuff.Applets.WebhookReceiverHost;
 
-public abstract class WebhookReceiverHostProgram(WebhookReceiverHostProgramSettings? Settings=null) : ApiProgram
+public abstract class WebhookReceiverHostProgram(WebhookReceiverHostProgramSettings? Settings = null) : ApiProgram
 {
     protected override void MapWebEndpoints(WebApplication app)
     {
