@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using RevolutionaryStuff.AspNetCore.Services;
 using RevolutionaryStuff.AspNetCore.Services.Correlation;
 using RevolutionaryStuff.AspNetCore.Services.SazGenerators;
 using RevolutionaryStuff.Core.ApplicationParts;
@@ -21,5 +22,6 @@ public static class Use
         services.AddScoped<ICorrelationIdFinder, HttpContextCorrelationIdFinder>();
         services.AddSingleton<IWebSessionArchiver, SazWebSessionArchiver>();
         services.AddSingleton<ISazWebSessionArchiver, SazWebSessionArchiver>();
+        services.AddTextTemplateRenderer<IRazorTextTemplateRenderer, RazorTextTemplateRenderer>(ServiceLifetime.Singleton);
     });
 }

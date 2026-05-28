@@ -70,4 +70,16 @@ public static class Use
         services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
         #endregion
     });
+
+    public static IServiceCollection AddTextTemplateRenderer<TITextTemplateRenderer, TImplementation>(this IServiceCollection services, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+    where TITextTemplateRenderer : ITextTemplateRenderer
+    where TImplementation : class, TITextTemplateRenderer
+    {
+        services.Add(new ServiceDescriptor(typeof(TITextTemplateRenderer), typeof(TImplementation), serviceLifetime));
+        if (typeof(TITextTemplateRenderer) != typeof(ITextTemplateRenderer))
+        {
+            services.Add(new ServiceDescriptor(typeof(ITextTemplateRenderer), typeof(TImplementation), serviceLifetime));
+        }
+        return services;
+    }
 }

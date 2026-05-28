@@ -8,10 +8,12 @@ using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Caching;
+using RevolutionaryStuff.Core.Services.DependencyInjection;
 
 namespace RevolutionaryStuff.AspNetCore.Services;
 
-public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITemplateProcessor
+[NamedService(IRazorTextTemplateRenderer.ServiceName)]
+internal class RazorTextTemplateRenderer : IFileProvider, IDirectoryContents, IRazorTextTemplateRenderer
 {
     private readonly IServiceProvider ServiceProvider;
     private readonly MyController Controller = new();
@@ -19,7 +21,7 @@ public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITempla
 
     public bool PrependNoLayout { get; set; } = true;
 
-    public RazorTemplateProcessor(IServiceProvider serviceProvider)
+    public RazorTextTemplateRenderer(IServiceProvider serviceProvider)
     {
         ServiceProvider = serviceProvider;
     }
@@ -41,7 +43,7 @@ public class RazorTemplateProcessor : IFileProvider, IDirectoryContents, ITempla
             => Task.CompletedTask;
     }
 
-    public async Task<string> ProcessAsync(string template, object model)
+    async Task<string> ITextTemplateRenderer.RenderAsync(string template, object model, RenderOptions renderOptions)
     {
         template = (template ?? "").Trim();
         if (PrependNoLayout)

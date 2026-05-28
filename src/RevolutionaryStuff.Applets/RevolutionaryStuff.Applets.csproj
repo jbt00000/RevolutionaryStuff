@@ -40,6 +40,12 @@
         </EmbeddedResource>
     </ItemGroup>
 
+	<ItemGroup>
+        <PackageReference Include="Scriban" Version="7.2.0" />
+        <PackageReference Include="Stubble.Core" Version="1.10.8" />
+    </ItemGroup>
+
+    
     <ItemGroup>
       <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
       <ProjectReference Include="..\RevolutionaryStuff.Storage\RevolutionaryStuff.Storage.csproj" />

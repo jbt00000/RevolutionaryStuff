@@ -33,6 +33,11 @@
   </Folder>
   <Folder Name="/src/" />
   <Folder Name="/Tests/">
+    <Project Path="tests/RevolutionaryStuff.Applets.Tests/RevolutionaryStuff.Applets.Tests.csproj">
+      <BuildType Solution="VSTS-CI|*" Project="Release" />
+      <Build Solution="Debug|*" Project="false" />
+      <Build Solution="VSTS-CI|*" Project="false" />
+    </Project>
     <Project Path="tests/RevolutionaryStuff.Azure.Tests/RevolutionaryStuff.Azure.Tests.csproj">
       <BuildType Solution="VSTS-CI|*" Project="Debug" />
     </Project>
