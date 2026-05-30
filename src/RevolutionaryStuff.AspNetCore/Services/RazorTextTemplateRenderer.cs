@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Primitives;
-using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
 using RevolutionaryStuff.Core.Caching;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
 

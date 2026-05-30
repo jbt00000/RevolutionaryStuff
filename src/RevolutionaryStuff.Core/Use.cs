@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
 using RevolutionaryStuff.Core.Caching;
 using RevolutionaryStuff.Core.Services.CodeStringGenerator;
 using RevolutionaryStuff.Core.Services.Correlation;

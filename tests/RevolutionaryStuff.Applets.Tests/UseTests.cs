@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using RevolutionaryStuff.Applets.Services.TextTemplateRenderers;
-using RevolutionaryStuff.Core.ApplicationParts;
+using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
 
 #nullable enable
 

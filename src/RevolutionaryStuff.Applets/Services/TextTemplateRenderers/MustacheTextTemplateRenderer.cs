@@ -1,4 +1,4 @@
-﻿using RevolutionaryStuff.Core.ApplicationParts;
+﻿using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
 using Stubble.Core.Builders;
 using Stubble.Core.Interfaces;

@@ -1,4 +1,4 @@
-﻿using RevolutionaryStuff.Core.ApplicationParts;
+﻿using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
 
 namespace RevolutionaryStuff.Applets.Services.TextTemplateRenderers;
 
