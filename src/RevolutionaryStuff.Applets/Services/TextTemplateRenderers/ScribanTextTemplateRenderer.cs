@@ -1,8 +1,8 @@
-﻿using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
+﻿using System.Text.Json;
+using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
 using Scriban;
 using Scriban.Runtime;
-using System.Text.Json;
 
 namespace RevolutionaryStuff.Applets.Services.TextTemplateRenderers;
 

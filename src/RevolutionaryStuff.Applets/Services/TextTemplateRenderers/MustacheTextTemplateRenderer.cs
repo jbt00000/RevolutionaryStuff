@@ -1,8 +1,8 @@
-﻿using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
+﻿using System.Text.Json;
+using RevolutionaryStuff.Core.ApplicationParts.TextTemplates;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
 using Stubble.Core.Builders;
 using Stubble.Core.Interfaces;
-using System.Text.Json;
 
 namespace RevolutionaryStuff.Applets.Services.TextTemplateRenderers;
 

@@ -4,5 +4,5 @@ namespace RevolutionaryStuff.AspNetCore.Services;
 
 public interface IRazorTextTemplateRenderer : ITextTemplateRenderer
 {
-    public const string ServiceName = "razor";
+    const string ServiceName = "razor";
 }

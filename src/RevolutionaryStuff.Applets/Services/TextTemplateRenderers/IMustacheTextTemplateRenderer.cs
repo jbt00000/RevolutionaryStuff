@@ -4,5 +4,5 @@ namespace RevolutionaryStuff.Applets.Services.TextTemplateRenderers;
 
 public interface IMustacheTextTemplateRenderer : ITextTemplateRenderer
 {
-    public const string ServiceName = "mustache";
+    const string ServiceName = "mustache";
 }
