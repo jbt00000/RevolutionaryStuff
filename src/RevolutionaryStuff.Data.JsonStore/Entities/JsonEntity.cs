@@ -4,13 +4,12 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Compliance.Classification;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Caching;
 using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
 using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.JsonStore.Store;
-
-using Microsoft.Extensions.Compliance.Classification;
 
 
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
