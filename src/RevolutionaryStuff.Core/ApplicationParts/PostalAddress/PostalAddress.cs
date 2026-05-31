@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RevolutionaryStuff.Applets.Models;
+namespace RevolutionaryStuff.Core.ApplicationParts.PostalAddress;
 
 /// <summary>
 /// Represents a postal address.

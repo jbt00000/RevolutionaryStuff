@@ -10,7 +10,28 @@ using RevolutionaryStuff.Core.Services.JsonSerializers.Microsoft;
 using RevolutionaryStuff.Core.Services.Tenant;
 using RevolutionaryStuff.Data.JsonStore.Store;
 
+using Microsoft.Extensions.Compliance.Classification;
+
+
 namespace RevolutionaryStuff.Data.JsonStore.Entities;
+
+
+
+public static class JsonEntityDataTaxonomy
+{
+    public const string Name = $"RevolutionaryStuff.{nameof(JsonEntityDataTaxonomy)}.Taxonomy";
+
+    public static readonly DataClassification Operational =
+        new(Name, nameof(Operational));
+}
+
+public sealed class JsonEntityOperationalDataAttribute : DataClassificationAttribute
+{
+    public JsonEntityOperationalDataAttribute()
+        : base(JsonEntityDataTaxonomy.Operational)
+    {
+    }
+}
 
 public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate, IPrimaryKey<string>, IETagGetter
 {
@@ -22,6 +43,7 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
     protected virtual string? OnGetETag()
         => null;
 
+    [JsonEntityOperationalData]
     [JsonIgnore]
     public string? ETag
         => OnGetETag();
@@ -63,22 +85,27 @@ public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate
         return true;
     }
 
+    [JsonEntityOperationalData]
     [Key] //This is required by ODataSources
     [JsonPropertyName(JsonEntityPropertyNames.Id)]
     public string Id { get; set; }
 
+    [JsonEntityOperationalData]
     [JsonPropertyName(JsonEntityPropertyNames.TenantId)]
     public string TenantId { get; set; }
 
+    [JsonEntityOperationalData]
     [JsonPropertyName(JsonEntityPropertyNames.SoftDeletedAt)]
     public DateTimeOffset? SoftDeletedAt { get; set; }
 
     [JsonIgnore]
     public bool IsSoftDeleted => SoftDeletedAt != null;
 
+    [JsonEntityOperationalData]
     [JsonPropertyName(JsonEntityPropertyNames.DataType)]
     public string DataType { get; set; }
 
+    [JsonEntityOperationalData]
     [JsonPropertyName(JsonEntityPropertyNames.PartitionKey)]
     public string? PartitionKey { get; set; }
 

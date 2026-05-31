@@ -1,4 +1,4 @@
-﻿namespace RevolutionaryStuff.Applets.Models;
+﻿namespace RevolutionaryStuff.Core.ApplicationParts.PostalAddress;
 
 public interface IPostalAddress
 {
