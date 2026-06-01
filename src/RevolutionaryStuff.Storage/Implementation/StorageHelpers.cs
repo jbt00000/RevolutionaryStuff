@@ -97,7 +97,10 @@ public static class StorageHelpers
         return services;
     }
 
-    private sealed class StorageProviderProxy<TInterface> : DispatchProxy
+    /// <remarks>
+    /// Types deriving from dispatchProxies cannot be sealed
+    /// </remarks>
+    private class StorageProviderProxy<TInterface> : DispatchProxy
         where TInterface : class, IStorageProvider
     {
         private IStorageProvider Inner = null!;

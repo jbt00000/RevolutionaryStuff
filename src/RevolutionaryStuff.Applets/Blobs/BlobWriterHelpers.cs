@@ -63,7 +63,10 @@ public static class BlobWriterHelpers
         }
     }
 
-    private sealed class BlobWriterProxy<TInterface> : DispatchProxy
+    /// <remarks>
+    /// Types deriving from dispatchProxies cannot be sealed
+    /// </remarks>
+    private class BlobWriterProxy<TInterface> : DispatchProxy
         where TInterface : class, IBlobWriter
     {
         private IBlobWriter Inner = null!;
