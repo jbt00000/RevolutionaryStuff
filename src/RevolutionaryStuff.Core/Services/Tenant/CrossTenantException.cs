@@ -2,13 +2,13 @@
 
 public class CrossTenantException : InvalidOperationException
 {
-    public readonly object ExpectedTenantId;
-    public readonly object ActualTenantId;
+    public readonly string ExpectedTenantId;
+    public readonly string ActualTenantId;
 
     public static void ThrowIfCrossTenant(ITenantIdHolder expectedTenantIdHolder, ITenantIdHolder actualTenantIdHolder, bool permitNullActualTenantId = true)
         => ThrowIfCrossTenant(expectedTenantIdHolder?.TenantId, actualTenantIdHolder?.TenantId, permitNullActualTenantId);
 
-    public static void ThrowIfCrossTenant(object expectedTenantId, object actualTenantId, bool permitNullActualTenantId = true)
+    public static void ThrowIfCrossTenant(string expectedTenantId, string actualTenantId, bool permitNullActualTenantId = true)
     {
         if (!Equals(expectedTenantId, actualTenantId))
         {
@@ -20,10 +20,10 @@ public class CrossTenantException : InvalidOperationException
         }
     }
 
-    public CrossTenantException(object expectedTenantId, object newTenantId)
-        : base($"expectedTenantId={expectedTenantId} actualTenantId={newTenantId}")
+    public CrossTenantException(string expectedTenantId, string actualTenantId)
+        : base($"expectedTenantId={expectedTenantId} actualTenantId={actualTenantId}")
     {
         ExpectedTenantId = expectedTenantId;
-        ActualTenantId = newTenantId;
+        ActualTenantId = actualTenantId;
     }
 }
