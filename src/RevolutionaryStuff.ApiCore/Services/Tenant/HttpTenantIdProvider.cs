@@ -70,7 +70,7 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
         {
             var config = ConfigOptions.Value;
             var context = ContextAccessor.HttpContext;
-            string? val = null;
+            string svals = "";
             if (context != null)
             {
                 foreach (var s in config.Sources.NullSafeEnumerable().Where(z => z.IsUsable))
@@ -80,7 +80,11 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
                         case Config.SourceLocationEnum.HttpHeaders:
                             try
                             {
-                                val = context.Request.Headers[s.KeyName!].SingleOrDefault().TrimOrNull();
+                                var sv = context.Request.Headers[s.KeyName!];
+                                if (sv.Count > 0)
+                                {
+                                    svals = svals + "," + sv.Format(",");
+                                }
                             }
                             catch (InvalidOperationException)
                             { }
@@ -88,7 +92,11 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
                         case Config.SourceLocationEnum.HttpQueryString:
                             try
                             {
-                                val = context.Request.Query[s.KeyName!].SingleOrDefault().TrimOrNull();
+                                var sv = context.Request.Query[s.KeyName!];
+                                if (sv.Count > 0)
+                                {
+                                    svals = svals + "," + sv.Format(",");
+                                }
                             }
                             catch (InvalidOperationException)
                             { }
@@ -96,15 +104,10 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
                         default:
                             throw new UnexpectedSwitchValueException(s.SourceLocation);
                     }
-                    val = val?.TrimOrNull();
-                    if (val != null)
-                    {
-                        break;
-                    }
                 }
             }
-            val ??= config.FallbackTenantId;
-            TenantId = val;
+            var vals = CSV.ParseLine(svals).Select(z => StringHelpers.TrimOrNull(z)).WhereNotNull().Distinct().ToArray();
+            TenantId = vals.Length==1 ? vals[0] : config.FallbackTenantId;
             TenantIdFetched = true;
         }
         return TenantId;
