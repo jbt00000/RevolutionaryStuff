@@ -70,7 +70,7 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
         {
             var config = ConfigOptions.Value;
             var context = ContextAccessor.HttpContext;
-            string svals = "";
+            var svals = "";
             if (context != null)
             {
                 foreach (var s in config.Sources.NullSafeEnumerable().Where(z => z.IsUsable))
@@ -107,7 +107,7 @@ internal class HttpTenantIdProvider(IOptions<HttpTenantIdProvider.Config> Config
                 }
             }
             var vals = CSV.ParseLine(svals).Select(z => StringHelpers.TrimOrNull(z)).WhereNotNull().Distinct().ToArray();
-            TenantId = vals.Length==1 ? vals[0] : config.FallbackTenantId;
+            TenantId = vals.Length == 1 ? vals[0] : config.FallbackTenantId;
             TenantIdFetched = true;
         }
         return TenantId;
