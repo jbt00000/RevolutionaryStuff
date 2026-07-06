@@ -19,9 +19,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.165.100.0</FileVersion>
-        <AssemblyVersion>4.165.100.0</AssemblyVersion>
-        <Version>4.165.100</Version>
+        <FileVersion>4.166c.100.0</FileVersion>
+        <AssemblyVersion>4.166c.100.0</AssemblyVersion>
+        <Version>4.166c.100</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -49,8 +49,8 @@
         <!--
 		<PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.2" />
 		-->
-        <PackageReference Include="Refit" Version="11.2.0" />
-        <PackageReference Include="Refit.HttpClientFactory" Version="11.2.0" />
+        <PackageReference Include="Refit" Version="13.1.0" />
+        <PackageReference Include="Refit.HttpClientFactory" Version="13.1.0" />
     </ItemGroup>
 
     <ItemGroup>

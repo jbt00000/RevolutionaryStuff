@@ -19,9 +19,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.165.100.0</FileVersion>
-        <AssemblyVersion>4.165.100.0</AssemblyVersion>
-        <Version>4.165.100</Version>
+        <FileVersion>4.166c.100.0</FileVersion>
+        <AssemblyVersion>4.166c.100.0</AssemblyVersion>
+        <Version>4.166c.100</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -53,8 +53,8 @@
         <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.7.0" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
         <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.15.2" />
-        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.15.1" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.16.0" />
+        <PackageReference Include="OpenTelemetry.Instrumentation.Http" Version="1.16.0" />
         <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" Version="1.15.1" />
     </ItemGroup>
 
