@@ -34,6 +34,8 @@ public sealed class JsonEntityOperationalDataAttribute : DataClassificationAttri
 
 public abstract partial class JsonEntity : JsonSerializable, IPreSave, IValidate, IPrimaryKey<string>, IETagGetter
 {
+    protected const string ParameterlessConstructorForSerializationOnly = "Usage of this parameterless constructor is only for the usage of the serializers, do NOT use in your code!";
+
     public static IJsonEntityIdServices JsonEntityIdServices { get; internal set; } = DefaultJsonEntityServices.Instance;
 
     protected virtual string EntityDataTypeSuffix
