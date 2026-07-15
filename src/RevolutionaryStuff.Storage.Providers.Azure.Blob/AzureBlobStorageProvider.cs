@@ -1,10 +1,10 @@
 ﻿using Azure.Core;
-using Azure.Identity;
 using Azure.Storage;
 using Azure.Storage.Blobs;
 using Azure.Storage.Files.DataLake;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Storage.Implementation;
 using RevolutionaryStuff.Storage.Implementation.Base;
@@ -18,6 +18,7 @@ public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobS
     private readonly IOptions<Config> ConfigOptions;
     private readonly IConnectionStringProvider ConnectionStringProvider;
 
+    private readonly IAzureTokenCredentialProvider TokenCredentialProvider;
     internal readonly TokenCredential TokenCredential;
     internal readonly StorageSharedKeyCredential StorageSharedKeyCredential;
 
@@ -42,15 +43,15 @@ public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobS
         return UserDelegationKey;
     }
 
-    public AzureBlobStorageProvider(IOptions<Config> configOptions, IConnectionStringProvider connectionStringProvider, ILogger<AzureBlobStorageProvider> logger)
-        : this(configOptions, connectionStringProvider, DefaultRootPath, logger)
+    public AzureBlobStorageProvider(IOptions<Config> configOptions, IConnectionStringProvider connectionStringProvider, IAzureTokenCredentialProvider tokenCredentialProvider, ILogger<AzureBlobStorageProvider> logger)
+        : this(configOptions, connectionStringProvider, tokenCredentialProvider, DefaultRootPath, logger)
     { }
 
     internal AzureBlobStorageProvider(AzureBlobStorageProvider storageProvider, string rootPath)
-        : this(storageProvider.ConfigOptions, storageProvider.ConnectionStringProvider, rootPath, storageProvider.Logger)
+        : this(storageProvider.ConfigOptions, storageProvider.ConnectionStringProvider, storageProvider.TokenCredentialProvider, rootPath, storageProvider.Logger)
     { }
 
-    private AzureBlobStorageProvider(IOptions<Config> configOptions, IConnectionStringProvider connectionStringProvider, string rootPath, ILogger logger)
+    private AzureBlobStorageProvider(IOptions<Config> configOptions, IConnectionStringProvider connectionStringProvider, IAzureTokenCredentialProvider tokenCredentialProvider, string rootPath, ILogger logger)
         : base(logger)
     {
         ArgumentNullException.ThrowIfNull(connectionStringProvider);
@@ -58,6 +59,7 @@ public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobS
 
         ConfigOptions = configOptions;
         ConnectionStringProvider = connectionStringProvider;
+        TokenCredentialProvider = tokenCredentialProvider;
         var config = ConfigOptions.Value;
         Requires.Valid(config);
 
@@ -68,7 +70,7 @@ public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobS
 
         if (config.AuthenticateWithWithDefaultAzureCredentials)
         {
-            TokenCredential = new DefaultAzureCredential(new DefaultAzureCredentialOptions());
+            TokenCredential = tokenCredentialProvider.GetTokenCredential();
             ServiceClient = new BlobServiceClient(new Uri(connectionString), TokenCredential);
             ContainerClient = ServiceClient.GetBlobContainerClient(config.ContainerName);
         }

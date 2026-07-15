@@ -1,11 +1,12 @@
 ﻿using Azure.Core;
 using Azure.Identity;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 using RevolutionaryStuff.Core.Services.ApplicationNameFinders;
 
 namespace RevolutionaryStuff.Azure.Services.Authentication;
 
-internal class DefaultAzureTokenCredentialProvider(IOptions<DefaultAzureTokenCredentialProvider.Config> ConfigOptions, IApplicationNameFinder ApplicationNameFinder) : IAzureTokenCredentialProvider
+internal class DefaultAzureTokenCredentialProvider(IOptions<DefaultAzureTokenCredentialProvider.Config> ConfigOptions, IApplicationNameFinder ApplicationNameFinder, IHostEnvironment HostEnvironment) : IAzureTokenCredentialProvider
 {
     public class Config
     {
@@ -24,6 +25,7 @@ internal class DefaultAzureTokenCredentialProvider(IOptions<DefaultAzureTokenCre
         }
         var options = new DefaultAzureCredentialOptions
         {
+            ExcludeManagedIdentityCredential = HostEnvironment.IsDevelopment(),
             Diagnostics =
             {
                 ApplicationId = name,
