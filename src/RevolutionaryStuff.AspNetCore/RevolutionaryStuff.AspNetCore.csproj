@@ -20,9 +20,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.168.100.0</FileVersion>
-        <AssemblyVersion>4.168.100.0</AssemblyVersion>
-        <Version>4.168.100</Version>
+        <FileVersion>4.169.100.0</FileVersion>
+        <AssemblyVersion>4.169.100.0</AssemblyVersion>
+        <Version>4.169.100</Version>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
@@ -41,6 +41,6 @@
         <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
     </ItemGroup>
     <ItemGroup>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
     </ItemGroup>
 </Project>

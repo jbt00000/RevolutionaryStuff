@@ -19,9 +19,9 @@
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <PackageReadmeFile>README.md</PackageReadmeFile>
         <Copyright>Copyright © 2024</Copyright>
-        <FileVersion>4.168.100.0</FileVersion>
-        <AssemblyVersion>4.168.100.0</AssemblyVersion>
-        <Version>4.168.100</Version>
+        <FileVersion>4.169.100.0</FileVersion>
+        <AssemblyVersion>4.169.100.0</AssemblyVersion>
+        <Version>4.169.100</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -45,12 +45,12 @@
     </ItemGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.9" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.9" />
+        <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.10" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.10" />
         <PackageReference Include="NCrontab" Version="3.4.0" />
         <FrameworkReference Include="Microsoft.AspNetCore.App" />
-        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.7.0" />
-        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.7.0" />
+        <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.8.0" />
+        <PackageReference Include="Microsoft.Extensions.ServiceDiscovery" Version="10.8.0" />
         <PackageReference Include="OpenTelemetry.Exporter.OpenTelemetryProtocol" Version="1.16.0" />
         <PackageReference Include="OpenTelemetry.Extensions.Hosting" Version="1.16.0" />
         <PackageReference Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.16.0" />
