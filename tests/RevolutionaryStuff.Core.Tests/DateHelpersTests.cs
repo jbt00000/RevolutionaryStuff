@@ -67,7 +67,7 @@ public class DateHelpersTests
             var dtoViaDotNetParse = DateTimeOffset.Parse(s);
             Assert.AreEqual(dto, dtoViaDotNetParse);
         }
-        catch (System.FormatException fex)
+        catch (System.FormatException)
         {
             //because this was BUSTED to add in the "Z"
         }

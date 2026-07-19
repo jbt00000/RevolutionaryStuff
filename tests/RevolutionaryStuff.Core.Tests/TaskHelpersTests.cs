@@ -125,7 +125,7 @@ public class TaskHelpersTests
     [TestMethod]
     public void ExecuteSynchronously_FaultedTask_ThrowsException()
     {
-        Func<int> throwingFunc = () => throw new InvalidOperationException("Test exception");
+        int throwingFunc() => throw new InvalidOperationException("Test exception");
         var task = Task.Run(throwingFunc);
 
         Assert.Throws<InvalidOperationException>(() => task.ExecuteSynchronously());
