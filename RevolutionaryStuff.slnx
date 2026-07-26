@@ -76,14 +76,6 @@
     <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
     <BuildType Solution="VSTS-CI|x64" Project="Release" />
   </Project>
-  <Project Path="src/RevolutionaryStuff.Crm.MondayCom/RevolutionaryStuff.Crm.MondayCom.csproj">
-    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
-    <BuildType Solution="VSTS-CI|x64" Project="Release" />
-  </Project>
-  <Project Path="src/RevolutionaryStuff.Crm.OpenPhone/RevolutionaryStuff.Crm.OpenPhone.csproj">
-    <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
-    <BuildType Solution="VSTS-CI|x64" Project="Release" />
-  </Project>
   <Project Path="src/RevolutionaryStuff.Crm/RevolutionaryStuff.Crm.csproj">
     <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
     <BuildType Solution="VSTS-CI|x64" Project="Release" />
