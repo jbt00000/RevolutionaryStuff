@@ -7,7 +7,7 @@ namespace RevolutionaryStuff.Azure;
 
 public static class HierarchicalKeyVaultSecretManagerHelpers
 {
-    public static void SetupProgramWithHierarchicalKeyVaultSecretManager(this IHostApplicationBuilder builder, string vaultConfigName = null)
+    public static void SetupProgramWithHierarchicalKeyVaultSecretManager(this IHostApplicationBuilder builder, string vaultConfigName = null, string keyVaultAppName = null)
     {
         VaultConfig config = new();
         builder.Configuration.Bind(vaultConfigName ?? VaultConfig.ConfigSectionName, config);
@@ -21,7 +21,7 @@ public static class HierarchicalKeyVaultSecretManagerHelpers
             new global::Azure.Extensions.AspNetCore.Configuration.Secrets.AzureKeyVaultConfigurationOptions()
             {
                 ReloadInterval = config.ReloadInterval,
-                Manager = new HierarchicalKeyVaultSecretManager()
+                Manager = new HierarchicalKeyVaultSecretManager(keyVaultAppName)
             });
     }
 

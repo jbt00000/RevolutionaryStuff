@@ -6,8 +6,11 @@ namespace RevolutionaryStuff.Azure;
 
 public class HierarchicalKeyVaultSecretManager : KeyVaultSecretManager
 {
-    private const string PrefixSeparator = "-";
-    private const string SegmentSeparator = "--";
+    public const string DefaultPrefixSeparator = "-";
+    public const string DefaultSegmentSeparator = "--";
+
+    public string PrefixSeparator { get; } = DefaultPrefixSeparator;
+    public string SegmentSeparator { get; } = DefaultSegmentSeparator;
 
     private readonly string AppNamePrefix;
     private readonly Func<string, string> KeyNameTransformer;
