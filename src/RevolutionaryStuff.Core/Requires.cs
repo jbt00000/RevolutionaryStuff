@@ -178,6 +178,21 @@ public static class Requires
     /// <param name="argName">The name of the argument (automatically captured).</param>
     /// <exception cref="ArgumentNullException">Thrown when <paramref name="arg"/> is null.</exception>
     /// <exception cref="ArgumentOutOfRangeException">Thrown when the enumerable is empty.</exception>
+    public static void StringHasData(string arg, [CallerArgumentExpression("arg")] string argName = null)
+    {
+        if (!string.IsNullOrEmpty(arg))
+        {
+            throw new ArgumentOutOfRangeException(argName, "This string is null or empty");
+        }
+    }
+
+    /// <summary>
+    /// Validates that an enumerable contains at least one element.
+    /// </summary>
+    /// <param name="arg">The enumerable to validate.</param>
+    /// <param name="argName">The name of the argument (automatically captured).</param>
+    /// <exception cref="ArgumentNullException">Thrown when <paramref name="arg"/> is null.</exception>
+    /// <exception cref="ArgumentOutOfRangeException">Thrown when the enumerable is empty.</exception>
     public static void HasData(IEnumerable arg, [CallerArgumentExpression("arg")] string argName = null)
     {
         ArgumentNullException.ThrowIfNull(arg, argName);
