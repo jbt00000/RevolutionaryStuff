@@ -19,9 +19,9 @@
       <PackageLicenseFile>package\license.txt</PackageLicenseFile>
       <PackageReadmeFile>README.md</PackageReadmeFile>
       <Copyright>Copyright © 2024</Copyright>
-      <FileVersion>4.173.100</FileVersion>
-      <AssemblyVersion>4.173.100</AssemblyVersion>
-      <Version>4.173.100</Version>
+      <FileVersion>4.174.100</FileVersion>
+      <AssemblyVersion>4.174.100</AssemblyVersion>
+      <Version>4.174.100</Version>
   </PropertyGroup>
 
     <ItemGroup>
