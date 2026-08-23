@@ -262,4 +262,14 @@ Again:
     /// <returns>A new mutable list containing the same items.</returns>
     private static IList<T> ToIList<T>(IReadOnlyList<T> l)
         => [.. l];
+
+
+    public static void FireAndForget(this Task t)
+    {
+        if (t == null) return;
+        if (t.Status == TaskStatus.Created)
+        {
+            t.Start();        
+        }
+    }
 }
