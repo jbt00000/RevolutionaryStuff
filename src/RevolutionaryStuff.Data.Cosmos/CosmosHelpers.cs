@@ -1,5 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 using System.Threading;
+using System.Linq.Expressions;
 //using Azure.Security.KeyVault.Keys.Cryptography;
 using Microsoft.Azure.Cosmos;
 //using Microsoft.Azure.Cosmos.Encryption;
@@ -182,6 +183,112 @@ public static class CosmosHelpers
             // This is expected and suppressed
         }
         return default;
+    }
+
+    public static async Task<int> GetCountAsync<T>(this IQueryable<T> q, CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(q);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            var response = await CosmosLinqExtensions.CountAsync(q, cancellationToken);
+            return response.Resource;
+        }
+        catch (ArgumentOutOfRangeException ex) when (ex.ParamName == "linqQuery")
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return q.Count();
+        }
+    }
+
+    public static Task<int> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, int>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<int?> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, int?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<long> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, long>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<long?> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, long?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<float> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, float>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<float?> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, float?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<double> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, double>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<double?> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, double?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<decimal> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, decimal>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<decimal?> GetSumAsync<T>(this IQueryable<T> q, Expression<Func<T, decimal?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.SumAsync(selected, ct), (source, expression) => source.Sum(expression), cancellationToken);
+
+    public static Task<double> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, int>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<double?> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, int?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<double> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, long>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<double?> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, long?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<float> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, float>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<float?> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, float?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<double> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, double>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<double?> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, double?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<decimal> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, decimal>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<decimal?> GetAverageAsync<T>(this IQueryable<T> q, Expression<Func<T, decimal?>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.AverageAsync(selected, ct), (source, expression) => source.Average(expression), cancellationToken);
+
+    public static Task<TValue> GetMinAsync<T, TValue>(this IQueryable<T> q, Expression<Func<T, TValue>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.MinAsync(selected, ct), (source, expression) => source.Min(expression), cancellationToken);
+
+    public static Task<TValue> GetMaxAsync<T, TValue>(this IQueryable<T> q, Expression<Func<T, TValue>> selector, CancellationToken cancellationToken = default)
+        => ExecuteAggregateAsync(q, selector, (selected, ct) => CosmosLinqExtensions.MaxAsync(selected, ct), (source, expression) => source.Max(expression), cancellationToken);
+
+    private static async Task<TResult> ExecuteAggregateAsync<T, TValue, TResult>(
+        IQueryable<T> q,
+        Expression<Func<T, TValue>> selector,
+        Func<IQueryable<TValue>, CancellationToken, Task<Response<TResult>>> cosmosAggregateAsync,
+        Func<IQueryable<T>, Expression<Func<T, TValue>>, TResult> queryableAggregate,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(q);
+        ArgumentNullException.ThrowIfNull(selector);
+        cancellationToken.ThrowIfCancellationRequested();
+
+        try
+        {
+            var response = await cosmosAggregateAsync(q.Select(selector), cancellationToken);
+            return response.Resource;
+        }
+        catch (ArgumentOutOfRangeException ex) when (ex.ParamName == "linqQuery")
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+            return queryableAggregate(q, selector);
+        }
     }
 
     public static async Task<int> ExecuteForEachAsync<T>(this IQueryable<T> q, Func<T, Task> executeAsync, CancellationToken cancellationToken = default)

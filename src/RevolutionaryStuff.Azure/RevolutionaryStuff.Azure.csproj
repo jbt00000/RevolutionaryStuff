@@ -26,9 +26,9 @@
     <PackageIcon>package\icon.png</PackageIcon>
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
-    <FileVersion>4.178.100</FileVersion>
-    <AssemblyVersion>4.178.100</AssemblyVersion>
-    <Version>4.178.100</Version>
+    <FileVersion>4.179.100</FileVersion>
+    <AssemblyVersion>4.179.100</AssemblyVersion>
+    <Version>4.179.100</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="appsettings.Development.json" />

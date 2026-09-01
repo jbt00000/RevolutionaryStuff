@@ -1,9 +1,11 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using RevolutionaryStuff.Data.Cosmos.Services.Migrators;
+using RevolutionaryStuff.Data.Cosmos.Services.Tools;
 
 namespace RevolutionaryStuff.Data.Cosmos.Tests;
 
@@ -113,7 +115,7 @@ public class CosmosFieldCopierTests
         var srcIdx    = propNames.IndexOf("source");
         var dstIdx    = propNames.IndexOf("dest");
 
-        Assert.IsTrue(srcIdx >= 0, "source should be present");
+        Assert.IsGreaterThanOrEqualTo(0, srcIdx, "source should be present");
         Assert.AreEqual(srcIdx + 1, dstIdx, "dest should be inserted immediately after source");
     }
 
@@ -163,11 +165,9 @@ public class CosmosFieldCopierTests
     // -----------------------------------------------------------------------------------------
 
     [TestMethod]
-    [ExpectedException(typeof(ArgumentNullException))]
-    public void Constructor_NullConfig_Throws()
+    public void Constructor_NullConstructorArgs_Throws()
     {
-        _ = new CosmosFieldCopier(
-            null!,
-            new RevolutionaryStuff.Core.RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs(null!));
+        Assert.ThrowsExactly<ArgumentNullException>(() =>
+            new CosmosFieldCopier(null!));
     }
 }
