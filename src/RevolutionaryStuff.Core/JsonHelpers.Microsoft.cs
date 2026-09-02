@@ -74,7 +74,7 @@ public static partial class JsonHelpers
     private static readonly ToPocoSettings DefaultToPocoSettings = new();
 
     public static object ToPoco(this JsonElement jel, ToPocoSettings settings = default)
-        => ToPoco((object) jel, settings);
+        => ToPoco((object)jel, settings);
 
     public static object ToPoco(object o, ToPocoSettings settings = default)
     {
