@@ -33,21 +33,44 @@ internal class DefaultMessageExecutor(
 
     async Task IInboundMessageExecutor.ExecuteAsync(IInboundMessage message, Func<IInboundMessage, Task> processAsync)
     {
-        var config = ConfigOptions.Value;
-        if (config.LogMessageProperties)
+        var scopes = new Stack<IDisposable>();
+
+        try
         {
-            RegisterDisposableObject(LogScopedProperty($"{config.MessagePropertiesPrefix}{WellKnownPropertyKeys.MessageId}", message.MessageId));
-            RegisterDisposableObject(LogScopedProperty($"{config.MessagePropertiesPrefix}{WellKnownPropertyKeys.ContentType}", message.ContentType));
-            RegisterDisposableObject(LogScopedProperty($"{config.MessagePropertiesPrefix}{WellKnownPropertyKeys.SequenceNumber}", message.SequenceNumber));
-            RegisterDisposableObject(LogScopedProperty($"{config.MessagePropertiesPrefix}{WellKnownPropertyKeys.CorrelationId}", message.CorrelationId));
-            RegisterDisposableObject(LogScopedProperty($"{config.MessagePropertiesPrefix}{WellKnownPropertyKeys.EnqueuedTime}", message.EnqueuedTime));
-            RegisterDisposableObject(LogScopedProperty($"{config.MessagePropertiesPrefix}{WellKnownPropertyKeys.Subject}", message.Subject));
-            foreach (var kvp in message.Properties.NullSafeEnumerable().Where(z => !WellKnownPropertyKeys.All.Contains(z.Key)))
+            var config = ConfigOptions.Value;
+            if (config.LogMessageProperties)
             {
-                RegisterDisposableObject(LogScopedProperty($"{config.MessagePropertiesPrefix}{kvp.Key}", kvp.Value, decomposeValue: true));
+                void AddProperty(string key, object value, bool decomposeValue = false)
+                {
+                    var scope = LogScopedProperty(
+                        $"{config.MessagePropertiesPrefix}{key}", value, decomposeValue);
+                    if (scope != null)
+                    {
+                        scopes.Push(scope);
+                    }
+                }
+
+                AddProperty(WellKnownPropertyKeys.MessageId, message.MessageId);
+                AddProperty(WellKnownPropertyKeys.ContentType, message.ContentType);
+                AddProperty(WellKnownPropertyKeys.SequenceNumber, message.SequenceNumber);
+                AddProperty(WellKnownPropertyKeys.CorrelationId, message.CorrelationId);
+                AddProperty(WellKnownPropertyKeys.EnqueuedTime, message.EnqueuedTime);
+                AddProperty(WellKnownPropertyKeys.Subject, message.Subject);
+                foreach (var kvp in message.Properties.NullSafeEnumerable().Where(z => !WellKnownPropertyKeys.All.Contains(z.Key)))
+                {
+                    AddProperty(kvp.Key, kvp.Value, decomposeValue: true);
+                }
+            }
+
+            await processAsync(message);
+        }
+        finally
+        {
+            while (scopes.Count > 0)
+            {
+                Stuff.Dispose(scopes.Pop());
             }
         }
-        await processAsync(message);
     }
 }
 

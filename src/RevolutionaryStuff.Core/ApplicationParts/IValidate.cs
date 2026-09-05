@@ -1,10 +1,35 @@
-﻿using RevolutionaryStuff.Core.ApplicationParts;
+﻿using System.ComponentModel.DataAnnotations;
+using RevolutionaryStuff.Core.ApplicationParts;
 
 namespace RevolutionaryStuff.Core.ApplicationParts
 {
     public interface IValidate
     {
         void Validate();
+
+        IEnumerable<ValidationResult> GetValidationResults(ValidationContext validationContext)
+        {
+            try
+            {
+                Validate();
+                return [];
+            }
+            catch (AggregateException ex)
+            {
+
+                return ex.InnerExceptions
+                    .Select(z => z is ValidationException vex ? vex.ValidationResult : new ValidationResult(z.Message, [GetType().Name]))
+                    .ToList();
+            }
+            catch (ValidationException vex)
+            {
+                return [vex.ValidationResult];
+            }
+            catch (Exception ex)
+            {
+                return [new ValidationResult(ex.Message, [GetType().Name])];
+            }
+        }
     }
 }
 
