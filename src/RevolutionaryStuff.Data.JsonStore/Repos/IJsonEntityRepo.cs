@@ -20,6 +20,9 @@ public interface IJsonEntityRepo<TBaseEntity>
     Task CreateItemAsync<TItem>(TItem entity)
         where TItem : TBaseEntity;
 
+    Task<bool> CreateItemIfNotExistsAsync<TItem>(TItem entity)
+        where TItem : TBaseEntity;
+
     Task CreateItemsAsync<TItem>(IList<TItem> entities)
         where TItem : TBaseEntity;
 

@@ -1,5 +1,4 @@
 ﻿using System.Threading;
-using Microsoft.Azure.Cosmos;
 using RevolutionaryStuff.Data.Cosmos;
 using RevolutionaryStuff.Data.JsonStore.Entities;
 using RevolutionaryStuff.Data.JsonStore.Repos;
@@ -16,17 +15,4 @@ public abstract class CosmosJsonEntityRepo<TBaseEntity> : JsonEntityRepo<TBaseEn
 
     protected override Task<IReadOnlyList<T>> GetAllItemsAsync<T>(IQueryable<T> q, CancellationToken cancellationToken)
         => CosmosHelpers.GetAllItemsAsync(q, cancellationToken);
-
-    async Task<bool> ICosmosJsonEntityRepo<TBaseEntity>.CreateItemIfNotExistsAsync<TItem>(TItem entity)
-    {
-        try
-        {
-            await I.CreateItemAsync(entity);
-            return true;
-        }
-        catch (CosmosException cex) when (cex.StatusCode == System.Net.HttpStatusCode.Conflict)
-        {
-            return false;
-        }
-    }
 }

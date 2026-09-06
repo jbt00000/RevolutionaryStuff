@@ -217,6 +217,9 @@ public abstract class JsonEntityRepo<TBaseEntity> : RevolutionaryStuffService, I
     Task IJsonEntityRepo<TBaseEntity>.CreateItemAsync<TItem>(TItem entity)
         => GetContainer<TItem>().CreateItemAsync(entity);
 
+    Task<bool> IJsonEntityRepo<TBaseEntity>.CreateItemIfNotExistsAsync<TItem>(TItem entity)
+        => GetContainer<TItem>().CreateItemIfNotExistsAsync(entity);
+
     Task<TItem> IJsonEntityRepo<TBaseEntity>.UpdateItemAsync<TItem>(TItem entity, Func<TItem, Task> amendAsync)
         => GetContainer<TItem>().UpdateItemAsync(entity, amendAsync);
 

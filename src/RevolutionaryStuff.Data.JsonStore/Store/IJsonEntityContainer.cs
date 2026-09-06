@@ -26,6 +26,8 @@ public interface IJsonEntityContainer
 
     Task CreateItemAsync<TItem>(TItem item, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
+    Task<bool> CreateItemIfNotExistsAsync<TItem>(TItem item, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+
     Task<TItem> GetItemByIdAsync<TItem>(string id, string? partitionKey, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
     IQueryable<TItem> GetQueryable<TItem>(QueryOptions? requestOptions = null) where TItem : JsonEntity;

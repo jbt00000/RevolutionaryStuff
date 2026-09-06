@@ -142,6 +142,22 @@ public class CosmosJsonEntityContainer : LoggingDisposableBase, ICosmosJsonEntit
         LogOperationRequestCharge(CosmosOperationEnum.Create, resp.RequestCharge);
     }
 
+    async Task<bool> IJsonEntityContainer.CreateItemIfNotExistsAsync<TItem>(TItem item, CancellationToken cancellationToken)
+    {
+        item = PrepareItem(item);
+        var partitionKey = CreatePartitionKey(item.PartitionKey);
+        try
+        {
+            var resp = await Container.CreateItemAsync(item, partitionKey, CreateItemDefaultItemRequestOptions, cancellationToken);
+            LogOperationRequestCharge(CosmosOperationEnum.Create, resp.RequestCharge);
+            return true;
+        }
+        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            LogOperationRequestCharge(CosmosOperationEnum.Create, ex.RequestCharge);
+            return false;
+        }
+    }
 
     /// <summary>
     /// Override so you can do things such as setting a default integrated gateway cache settings for the application

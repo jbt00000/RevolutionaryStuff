@@ -1,5 +1,4 @@
-﻿using System.Collections.Concurrent;
-using System.Threading;
+﻿using System.Threading;
 using Azure.Messaging.ServiceBus;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -8,7 +7,6 @@ using RevolutionaryStuff.Azure.Services.Authentication;
 using RevolutionaryStuff.Azure.Services.Messaging.Inbound;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.DependencyInjection;
-using RevolutionaryStuff.Core.Threading;
 
 namespace RevolutionaryStuff.Azure.BackgroundServices;
 
@@ -24,10 +22,8 @@ public class ServiceBusBackgroundService : RevolutionaryStuffBackgroundService
         public IList<Execution> Executions { get; set; }
         public string ConnectionStringName { get; set; }
         public bool AuthenticateWithWithDefaultAzureCredentials { get; set; } = true;
-        public TimeSpan MessageLockRenewalTimeout { get; set; } = TimeSpan.FromSeconds(15);
-        public TimeSpan MaxMessageLockTime { get; set; } = TimeSpan.FromMinutes(2);
-        public TimeSpan RenewalTime { get; set; } = TimeSpan.FromSeconds(10);
-        public int MessagePrefetch { get; set; } = 1;
+        public TimeSpan MaxMessageLockTime { get; set; } = Timeout.InfiniteTimeSpan;
+        public int MessagePrefetch { get; set; }
         public int ConcurrentExecutors { get; set; } = 1;
 
         public void Validate()
@@ -64,19 +60,6 @@ public class ServiceBusBackgroundService : RevolutionaryStuffBackgroundService
         }
     }
 
-    private readonly IDictionary<long, MessageSupervisorState> MessageSupervisorStateBySequenceNumber = new ConcurrentDictionary<long, MessageSupervisorState>();
-
-    private class MessageSupervisorState
-    {
-        public readonly DateTimeOffset StartedAt = DateTimeOffset.UtcNow;
-        public DateTimeOffset RenewedAt = DateTimeOffset.UtcNow;
-        public int RenewCount = 0;
-        public bool Abandoned;
-        public Config.Execution Execution { get; init; }
-        public ServiceBusReceiver Listener { get; init; }
-        public ServiceBusReceivedMessage Message { get; init; }
-    }
-
     public ServiceBusBackgroundService(IAzureTokenCredentialProvider azureTokenCredentialProvider, IConnectionStringProvider connectionStringProvider, IOptions<Config> configOptions, RevolutionaryStuffBackgroundServiceConstructorArgs baseConstructorArgs)
         : base(baseConstructorArgs)
     {
@@ -88,50 +71,10 @@ public class ServiceBusBackgroundService : RevolutionaryStuffBackgroundService
         ConfigOptions = configOptions;
     }
 
-    private static readonly TimeSpan SupervisorTimeout = TimeSpan.FromSeconds(5);
-    private static readonly TimeSpan ListenerTimeout = TimeSpan.FromSeconds(5);
-
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         var config = ConfigOptions.Value;
         Requires.Valid(config);
-        using var pa = new PeriodicAction(async () =>
-        {
-            if (MessageSupervisorStateBySequenceNumber.Count == 0) return;
-            var states = MessageSupervisorStateBySequenceNumber.Values.Where(z => !z.Abandoned).ToList();
-            if (states.Count == 0) return;
-            foreach (var mss in states)
-            {
-                var now = DateTimeOffset.UtcNow;
-                var maxMessageLockTime = mss.Execution.MaxMessageLockTime.GetValueOrDefault(config.MaxMessageLockTime);
-                if (now.Subtract(mss.StartedAt) > maxMessageLockTime)
-                {
-                    mss.Abandoned = true;
-                    LogWarning(
-                        "Message {sequenceId} started at {messageFirsSeenAt} and had been executing longer than {maxMessageLockTime}. Will NOT renew service bus message lock.",
-                        mss.Message.SequenceNumber,
-                        mss.StartedAt,
-                        maxMessageLockTime);
-                }
-                else if (now.Subtract(mss.RenewedAt) > config.RenewalTime)
-                {
-                    try
-                    {
-                        await mss.Listener.RenewMessageLockAsync(mss.Message, stoppingToken);
-                        mss.RenewedAt = DateTimeOffset.Now;
-                        mss.RenewCount += 1;
-                        LogWarning(
-                            "Message {sequenceId} started at {messageFirsSeenAt} and we just renewed the message lock.",
-                            mss.Message.SequenceNumber,
-                            mss.StartedAt);
-                    }
-                    catch (Exception ex)
-                    {
-                        LogError(ex, "Problem renewing service bus lease for message {sequenceId}", mss.Message.SequenceNumber);
-                    }
-                }
-            }
-        }, SupervisorTimeout, SupervisorTimeout);
         try
         {
             LogWarning("Will execute the following packages: {executorNames}", config.Executions.Where(z => z.Enabled).Select(z => z.Name));
@@ -147,139 +90,91 @@ public class ServiceBusBackgroundService : RevolutionaryStuffBackgroundService
     private async Task ExecuteAsync(string executionName, Config.Execution execution, CancellationToken stoppingToken)
     {
         var config = ConfigOptions.Value;
-        var concurrentExecutors = execution.ConcurrentExecutors ?? config.ConcurrentExecutors;
-
         var connectionString = ConnectionStringProvider.GetConnectionString(execution.ConnectionStringName ?? config.ConnectionStringName);
-        var serviceBusClient = ServiceBusHelpers.ConstructServiceBusClient(new(connectionString, AzureTokenCredentialProvider, config.AuthenticateWithWithDefaultAzureCredentials));
+        await using var serviceBusClient = ServiceBusHelpers.ConstructServiceBusClient(new(connectionString, AzureTokenCredentialProvider, config.AuthenticateWithWithDefaultAzureCredentials));
 
         using var _ScopeProperty0 = LogScopedProperty("executionName", executionName);
         using var _ScopeProperty1 = LogScopedProperty("serviceBusExecution", execution, true);
 
-        ServiceBusReceiver listener;
-        string listenerPort;
-
-        if (execution.TopicName != null)
+        var processorOptions = CreateProcessorOptions(config, execution);
+        await using var processor = execution.TopicName != null
+            ? serviceBusClient.CreateProcessor(execution.TopicName, execution.SubscriptionName, processorOptions)
+            : execution.QueueName != null
+                ? serviceBusClient.CreateProcessor(execution.QueueName, processorOptions)
+                : throw new NotSupportedException("Must either specify a topic or a queue");
+        processor.ProcessMessageAsync += args => ProcessMessageAsync(execution, args);
+        processor.ProcessErrorAsync += args =>
         {
-            listenerPort = $"{execution.TopicName}.{execution.SubscriptionName}";
-            LogWarning(
-                "{Host} listening to {listenerPort} running {messageProcessor} with {concurrentExecutors} executors",
-                nameof(ServiceBusBackgroundService), listenerPort, execution.MessageWorkerTypeName, concurrentExecutors);
-
-            listener = serviceBusClient.CreateReceiver(execution.TopicName, execution.SubscriptionName, new ServiceBusReceiverOptions
-            {
-                PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,
-                ReceiveMode = ServiceBusReceiveMode.PeekLock,
-            });
-        }
-        else if (execution.QueueName != null)
-        {
-            listenerPort = $"{execution.QueueName}";
-            LogWarning(
-                "{Host} listening to {listenerPort} running {messageProcessor} with {concurrentExecutors} executors",
-                nameof(ServiceBusBackgroundService), listenerPort, execution.MessageWorkerTypeName, concurrentExecutors);
-
-            listener = serviceBusClient.CreateReceiver(execution.QueueName, new ServiceBusReceiverOptions
-            {
-                PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,
-                ReceiveMode = ServiceBusReceiveMode.PeekLock,
-            });
-        }
-        else
-        {
-            throw new NotSupportedException("Must either specify a topic or a queue");
-        }
-
-        long currentlyRunning = 0;
-        long totalRunCount = 0;
-        long totalErrorCount = 0;
-        long totalSuccessCount = 0;
-
-        async Task executeMessageAsync(ServiceBusReceivedMessage m)
-        {
-            MessageSupervisorStateBySequenceNumber[m.SequenceNumber] =
-                new MessageSupervisorState
-                {
-                    Listener = listener,
-                    Message = m,
-                    Execution = execution
-                };
-
-            using var scope = ServiceProvider.CreateScope();
-            using var loggerScope = CreateLogRegion(LogLevel.Information, $"Processing service bus message on {execution.TopicName}.{execution.SubscriptionName}.{m.SequenceNumber}");
-
-            Interlocked.Increment(ref currentlyRunning);
-            Interlocked.Increment(ref totalRunCount);
-
-            try
-            {
-                var sp = scope.ServiceProvider;
-                var executor = sp.GetRequiredService<IInboundMessageExecutor>();
-                var namedFactory = sp.GetRequiredService<INamedFactory>();
-                var processor = namedFactory.GetServiceByName<IInboundMessageProcessor>(execution.MessageWorkerTypeName);
-                await executor.ExecuteAsync(m, processor.ProcessInboundMessageAsync);
-
-                await listener.CompleteMessageAsync(m);
-                Interlocked.Increment(ref totalSuccessCount);
-            }
-            catch (PermanentException ex)
-            {
-                LogError(ex, "Will abandon message {sequenceNumber}", m.SequenceNumber);
-                await listener.DeadLetterMessageAsync(m);
-                Interlocked.Increment(ref totalErrorCount);
-            }
-            catch (BaseCodedException ex) when (ex.IsPermanent)
-            {
-                LogError(ex, "Will abandon message {sequenceNumber}", m.SequenceNumber);
-                await listener.DeadLetterMessageAsync(m);
-                Interlocked.Increment(ref totalErrorCount);
-            }
-            catch (Exception ex)
-            {
-                LogError(ex);
-                await listener.AbandonMessageAsync(m);
-                Interlocked.Increment(ref totalErrorCount);
-            }
-            finally
-            {
-                Interlocked.Decrement(ref currentlyRunning);
-                MessageSupervisorStateBySequenceNumber.Remove(m.SequenceNumber);
-            }
-        }
-
-        for (; !stoppingToken.IsCancellationRequested;)
-        {
-            if (Interlocked.Read(ref currentlyRunning) > concurrentExecutors)
-            {
-                await Task.Delay(100);
-                continue;
-            }
-            ServiceBusReceivedMessage message;
-            try
-            {
-                message = await listener.ReceiveMessageAsync(ListenerTimeout, stoppingToken);
-            }
-            catch (Exception ex)
-            {
-                LogError(ex, "Problem receiving message");
-                await Task.Delay(1000);
-                continue;
-            }
-            if (message != null)
-            {
-                _ = executeMessageAsync(message);
-            }
-        }
-
-        while (currentlyRunning > 0)
-        {
-            await Task.Delay(1000);
-            LogInformation(
-                "Shutting down {listenerPort} {running} with {success}/{error}/{total} ...",
-                listenerPort, currentlyRunning, totalSuccessCount, totalErrorCount, totalRunCount);
-        }
+            LogError(args.Exception, "Service bus {errorSource} error on {entityPath}", args.ErrorSource, args.EntityPath);
+            return Task.CompletedTask;
+        };
 
         LogWarning(
-            "Shut down {listenerPort} {running} with {success}/{error}/{total}",
-            listenerPort, currentlyRunning, totalSuccessCount, totalErrorCount, totalRunCount);
+            "{Host} listening to {listenerPort} running {messageProcessor} with {concurrentExecutors} executors",
+            nameof(ServiceBusBackgroundService), processor.EntityPath, execution.MessageWorkerTypeName, processorOptions.MaxConcurrentCalls);
+
+        await RunProcessorAsync(processor, stoppingToken);
+        LogWarning("Shut down {listenerPort}", processor.EntityPath);
+    }
+
+    internal static ServiceBusProcessorOptions CreateProcessorOptions(Config config, Config.Execution execution)
+        => new()
+        {
+            AutoCompleteMessages = false,
+            ReceiveMode = ServiceBusReceiveMode.PeekLock,
+            PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,
+            MaxConcurrentCalls = execution.ConcurrentExecutors ?? config.ConcurrentExecutors,
+            MaxAutoLockRenewalDuration = execution.MaxMessageLockTime ?? config.MaxMessageLockTime,
+        };
+
+    internal static async Task RunProcessorAsync(ServiceBusProcessor processor, CancellationToken stoppingToken)
+    {
+        try
+        {
+            await processor.StartProcessingAsync(stoppingToken);
+            await Task.Delay(Timeout.InfiniteTimeSpan, stoppingToken);
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        { }
+        finally
+        {
+            // Drain handlers before disposing the processor so their locks can still be renewed.
+            await processor.StopProcessingAsync(CancellationToken.None);
+        }
+    }
+
+    internal async Task ProcessMessageAsync(Config.Execution execution, ProcessMessageEventArgs args)
+    {
+        var message = args.Message;
+        using var scope = ServiceProvider.CreateScope();
+        using var loggerScope = CreateLogRegion(LogLevel.Information, $"Processing service bus message on {execution.QueueName ?? $"{execution.TopicName}.{execution.SubscriptionName}"}.{message.SequenceNumber}");
+
+        try
+        {
+            var sp = scope.ServiceProvider;
+            var executor = sp.GetRequiredService<IInboundMessageExecutor>();
+            var namedFactory = sp.GetRequiredService<INamedFactory>();
+            var processor = namedFactory.GetServiceByName<IInboundMessageProcessor>(execution.MessageWorkerTypeName);
+            await executor.ExecuteAsync(message, processor.ProcessInboundMessageAsync);
+        }
+        catch (Exception ex) when (ex is PermanentException or BaseCodedException { IsPermanent: true })
+        {
+            LogError(ex, "Will dead-letter message {sequenceNumber}", message.SequenceNumber);
+            await args.DeadLetterMessageAsync(message);
+            return;
+        }
+        catch (ServiceBusException ex) when (ex.Reason == ServiceBusFailureReason.MessageLockLost)
+        {
+            LogWarning("Lock lost for message {sequenceNumber}; it can no longer be settled. {error}", message.SequenceNumber, ex?.Message);
+            throw;
+        }
+        catch (Exception ex)
+        {
+            LogError(ex);
+            await args.AbandonMessageAsync(message);
+            return;
+        }
+
+        await args.CompleteMessageAsync(message);
     }
 }
