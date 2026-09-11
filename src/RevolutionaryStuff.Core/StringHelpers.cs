@@ -558,4 +558,10 @@ public static partial class StringHelpers
 
         return NameArgExpr.Replace(format, me => string.Format("{0" + me.Groups["modifiers"].Value + "}", d.GetValue(me.Groups["term"].Value, missingVal)));
     }
+
+    /// <summary>
+    /// Replace all inner whitespaces with a single space
+    /// </summary>
+    public static string CanonicalizeInnerSpacing(this string s)
+        => throw new NotImplementedException();
 }

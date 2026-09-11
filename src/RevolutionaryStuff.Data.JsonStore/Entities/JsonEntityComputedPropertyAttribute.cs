@@ -5,3 +5,4 @@ public sealed class JsonEntityComputedPropertyAttribute : Attribute
 {
 
 }
+
