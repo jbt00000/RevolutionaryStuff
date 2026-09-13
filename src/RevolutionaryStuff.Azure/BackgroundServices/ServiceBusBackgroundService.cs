@@ -120,7 +120,7 @@ public class ServiceBusBackgroundService : RevolutionaryStuffBackgroundService
     internal static ServiceBusProcessorOptions CreateProcessorOptions(Config config, Config.Execution execution)
         => new()
         {
-            AutoCompleteMessages = false,
+            AutoCompleteMessages = true,
             ReceiveMode = ServiceBusReceiveMode.PeekLock,
             PrefetchCount = execution.MessagePrefetch ?? config.MessagePrefetch,
             MaxConcurrentCalls = execution.ConcurrentExecutors ?? config.ConcurrentExecutors,
@@ -174,7 +174,5 @@ public class ServiceBusBackgroundService : RevolutionaryStuffBackgroundService
             await args.AbandonMessageAsync(message);
             return;
         }
-
-        await args.CompleteMessageAsync(message);
     }
 }
