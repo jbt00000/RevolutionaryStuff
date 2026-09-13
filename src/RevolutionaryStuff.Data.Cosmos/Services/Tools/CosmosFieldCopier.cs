@@ -46,7 +46,7 @@ internal class CosmosFieldCopier : RevolutionaryStuff.Core.RevolutionaryStuffSer
             if (!pageResponse.IsSuccessStatusCode)
             {
                 var msg = $"Feed read error on container {container.Id}: {pageResponse.StatusCode}";
-                Logger.LogWarning(msg);
+                LogWarning(msg);
                 errors.Add(msg);
                 continue;
             }
@@ -88,25 +88,25 @@ internal class CosmosFieldCopier : RevolutionaryStuff.Core.RevolutionaryStuffSer
                     if (patchResp.IsSuccessStatusCode)
                     {
                         modified++;
-                        Logger.LogDebug("Copied field in {Id} in {Container}", id, container.Id);
+                        LogDebug("Copied field in {Id} in {Container}", id, container.Id);
                     }
                     else
                     {
                         var msg = $"{container.Id}/{id}: patch failed with {patchResp.StatusCode}";
                         errors.Add(msg);
-                        Logger.LogWarning(msg);
+                        LogWarning(msg);
                     }
                 }
                 catch (Exception ex)
                 {
                     var msg = $"{container.Id}/{id}: {ex.Message}";
                     errors.Add(msg);
-                    Logger.LogError(ex, "Error processing {Id} in {Container}", id, container.Id);
+                    LogError(ex, "Error processing {Id} in {Container}", id, container.Id);
                 }
             }
         }
 
-        Logger.LogInformation(
+        LogInformation(
             "Container {Container}: scanned={Scanned}, modified={Modified}, skipped={Skipped}, errors={Errors}",
             container.Id, scanned, modified, skipped, errors.Count);
 
