@@ -18,9 +18,9 @@
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © 2024</Copyright>
-    <FileVersion>4.190.100</FileVersion>
-    <AssemblyVersion>4.190.100</AssemblyVersion>
-    <Version>4.190.100</Version>
+    <FileVersion>4.191.100</FileVersion>
+    <AssemblyVersion>4.191.100</AssemblyVersion>
+    <Version>4.191.100</Version>
     <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
   </PropertyGroup>
   <ItemGroup>
@@ -42,7 +42,7 @@
     <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="10.0.12" />
     <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="10.0.12" />
     <PackageReference Include="NCrontab" Version="3.4.0" />
-    <PackageReference Include="Scriban" Version="7.4.0" />
+    <PackageReference Include="Scriban" Version="7.5.0" />
     <PackageReference Include="Stubble.Core" Version="1.10.8" />
   </ItemGroup>
   <ItemGroup>
