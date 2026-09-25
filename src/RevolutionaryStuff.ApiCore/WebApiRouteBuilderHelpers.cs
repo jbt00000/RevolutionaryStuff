@@ -1,6 +1,8 @@
 ﻿using System.Net;
+using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace RevolutionaryStuff.ApiCore;
@@ -34,9 +36,20 @@ public static class WebApiRouteBuilderHelpers
     public static RouteHandlerBuilder ProducesCreatedFile(this RouteHandlerBuilder builder, params string[] expectedContentTypes)
         => builder.ProducesFile(HttpStatusCode.Created, expectedContentTypes);
     internal static RouteHandlerBuilder ProducesFile(this RouteHandlerBuilder builder, HttpStatusCode httpStatusCode, params string[] expectedContentTypes)
-        => builder.WithOpenApi(operation =>
+        => builder.WithMetadata(new ProducesFileMetadata(httpStatusCode, expectedContentTypes));
+
+    private sealed record ProducesFileMetadata(HttpStatusCode StatusCode, string[] ContentTypes);
+
+    internal sealed class ProducesFileOperationTransformer : IOpenApiOperationTransformer
+    {
+        public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
         {
-            operation ??= new();
+            var metadata = context.Description.ActionDescriptor.EndpointMetadata
+                .OfType<ProducesFileMetadata>()
+                .FirstOrDefault();
+            if (metadata is null)
+                return Task.CompletedTask;
+
             operation.Responses ??= [];
 
             Dictionary<string, OpenApiMediaType> successContent = new()
@@ -50,7 +63,7 @@ public static class WebApiRouteBuilderHelpers
                     }
                 }
             };
-            foreach (var expectedContentType in expectedContentTypes)
+            foreach (var expectedContentType in metadata.ContentTypes)
             {
                 successContent[expectedContentType] = new OpenApiMediaType()
                 {
@@ -61,15 +74,16 @@ public static class WebApiRouteBuilderHelpers
                     }
                 };
             }
-            operation.Responses[((int)httpStatusCode).ToString()] = new OpenApiResponse
+            operation.Responses[((int)metadata.StatusCode).ToString()] = new OpenApiResponse
             {
                 Description = "File downloaded successfully",
-                Content = successContent,
+                Content = successContent
             };
             operation.Responses[((int)HttpStatusCode.NotFound).ToString()] = new OpenApiResponse
             {
                 Description = "File not found"
             };
-            return operation;
-        });
+            return Task.CompletedTask;
+        }
+    }
 }

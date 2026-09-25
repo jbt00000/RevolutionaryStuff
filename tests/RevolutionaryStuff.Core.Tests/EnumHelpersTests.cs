@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace RevolutionaryStuff.Core.Tests;
@@ -39,7 +40,7 @@ public class EnumHelpersTests
         a = 1,
         b = 2,
         c = 3,
-        [EnumMember(Value = "DDD")]
+        [JsonStringEnumMemberName("DDD")]
         d = 4,
         e = 5,
         f = 6,
@@ -47,5 +48,34 @@ public class EnumHelpersTests
         h = 8,
         i = 9,
         j = 10,
+    }
+
+    private enum EnumWithCustomNames
+    {
+        [EnumMember(Value = "legacy")]
+        [JsonStringEnumMemberName("native")]
+        LegacyAndJsonName,
+
+        [JsonStringEnumMemberName("json-only")]
+        JsonOnly,
+
+        Unannotated
+    }
+
+    [TestMethod]
+    public void EnumWithEnumMemberValuesToStringTest_PrefersLegacyValueAndSupportsJsonNames()
+    {
+        Assert.AreEqual("legacy", EnumWithCustomNames.LegacyAndJsonName.EnumWithEnumMemberValuesToString());
+        Assert.AreEqual("json-only", EnumWithCustomNames.JsonOnly.EnumWithEnumMemberValuesToString());
+        Assert.AreEqual(nameof(EnumWithCustomNames.Unannotated), EnumWithCustomNames.Unannotated.EnumWithEnumMemberValuesToString());
+    }
+
+    [TestMethod]
+    public void ParseEnumWithEnumMemberValuesTest_SupportsLegacyAndJsonNames()
+    {
+        Assert.AreEqual(EnumWithCustomNames.LegacyAndJsonName, Parse.ParseEnumWithEnumMemberValues<EnumWithCustomNames>("legacy"));
+        Assert.AreEqual(EnumWithCustomNames.LegacyAndJsonName, Parse.ParseEnumWithEnumMemberValues<EnumWithCustomNames>("native"));
+        Assert.AreEqual(EnumWithCustomNames.JsonOnly, Parse.ParseEnumWithEnumMemberValues<EnumWithCustomNames>("json-only"));
+        Assert.AreEqual(EnumWithCustomNames.Unannotated, Parse.ParseEnumWithEnumMemberValues<EnumWithCustomNames>(nameof(EnumWithCustomNames.Unannotated)));
     }
 }

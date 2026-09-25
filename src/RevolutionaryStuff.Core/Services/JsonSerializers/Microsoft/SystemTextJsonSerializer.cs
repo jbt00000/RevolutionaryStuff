@@ -10,8 +10,7 @@ public class SystemTextJsonSerializer(JsonSerializerOptions MyJsonSerializerOpti
 {
     public static readonly IEnumerable<JsonConverter> DefaultConverters =
     [
-        EnumMemberConverterFactory.Instance,
-            NullableEnumMemberConverterFactory.Instance,
+        new JsonStringEnumConverter(),
             UndefinedJsonElementConverter.Instance
     ];
 

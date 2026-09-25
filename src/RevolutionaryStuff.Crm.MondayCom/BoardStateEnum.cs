@@ -1,18 +1,19 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 public enum BoardStateEnum
 {
     Unknown = 0,
 
-    [EnumMember(Value = "active")]
+    [JsonStringEnumMemberName("active")]
     Active,
 
-    [EnumMember(Value = "all")]
+    [JsonStringEnumMemberName("all")]
     All,
 
-    [EnumMember(Value = "archived")]
+    [JsonStringEnumMemberName("archived")]
     Archived,
 
-    [EnumMember(Value = "deleted")]
+    [JsonStringEnumMemberName("deleted")]
     Deleted
 }

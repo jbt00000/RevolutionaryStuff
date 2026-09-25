@@ -1,4 +1,5 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace RevolutionaryStuff.Core;
 
@@ -17,9 +18,9 @@ public static class EnumHelpers
 
     public static string EnumWithEnumMemberValuesToString<TEnum>(this TEnum e) where TEnum : Enum
     {
-        var em = e.GetCustomAttribute<EnumMemberAttribute>();
-        var sval = em?.Value ?? e.ToString();
-        return sval;
+        var enumMemberValue = e.GetCustomAttribute<EnumMemberAttribute>()?.Value;
+        var jsonStringEnumMemberName = e.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name;
+        return enumMemberValue ?? jsonStringEnumMemberName ?? e.ToString();
     }
 
     public static bool Any<TEnum>(TEnum e, params Enum[] values)

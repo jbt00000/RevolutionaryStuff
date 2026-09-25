@@ -2,6 +2,9 @@
   <PropertyGroup>
     <LangVersion>Preview</LangVersion>
     <TargetFramework>net10.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);1591</NoWarn>
+    <InterceptorsNamespaces>$(InterceptorsNamespaces);Microsoft.AspNetCore.OpenApi.Generated</InterceptorsNamespaces>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsTrimmable>false</IsTrimmable>
@@ -18,9 +21,9 @@
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © 2024</Copyright>
-    <FileVersion>4.191.100</FileVersion>
-    <AssemblyVersion>4.191.100</AssemblyVersion>
-    <Version>4.191.100</Version>
+    <FileVersion>4.192.100</FileVersion>
+    <AssemblyVersion>4.192.100</AssemblyVersion>
+    <Version>4.192.100</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
@@ -41,7 +44,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
-    <PackageReference Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageReference Include="NCrontab" Version="3.4.0" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0" />
@@ -59,5 +61,9 @@
     <Using Include="System.Linq" />
     <Using Include="System.Threading.Tasks" />
     <Using Include="RevolutionaryStuff.Core" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Json\" />
+    <Folder Include="OpenApi\" />
   </ItemGroup>
 </Project>

@@ -1,18 +1,19 @@
 ﻿using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace RevolutionaryStuff.Crm;
 
 public enum CrmContactFieldEnum
 {
-    [EnumMember(Value = CrmJointFieldNames.ItemName)]
+    [JsonStringEnumMemberName(CrmJointFieldNames.ItemName)]
     Name,
 
-    [EnumMember(Value = CrmJointFieldNames.Email)]
+    [JsonStringEnumMemberName(CrmJointFieldNames.Email)]
     Email,
 
-    [EnumMember(Value = CrmJointFieldNames.Phone)]
+    [JsonStringEnumMemberName(CrmJointFieldNames.Phone)]
     Phone,
 
-    [EnumMember(Value = CrmJointFieldNames.Address)]
+    [JsonStringEnumMemberName(CrmJointFieldNames.Address)]
     Address,
 }

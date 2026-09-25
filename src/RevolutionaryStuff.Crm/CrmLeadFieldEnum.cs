@@ -1,24 +1,24 @@
-﻿using System.Runtime.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace RevolutionaryStuff.Crm;
 
 public enum CrmLeadFieldEnum
 {
-    [EnumMember(Value = CrmJointFieldNames.ItemName)]
+    [JsonStringEnumMemberName(CrmJointFieldNames.ItemName)]
     Name,
 
-    [EnumMember(Value = CrmJointFieldNames.Email)]
+    [JsonStringEnumMemberName(CrmJointFieldNames.Email)]
     Email,
 
-    [EnumMember(Value = CrmJointFieldNames.Phone)]
+    [JsonStringEnumMemberName(CrmJointFieldNames.Phone)]
     Phone,
 
-    [EnumMember(Value = CrmJointFieldNames.Address)]
+    [JsonStringEnumMemberName(CrmJointFieldNames.Address)]
     Address,
 
-    [EnumMember(Value = "firstName")]
+    [JsonStringEnumMemberName("firstName")]
     FirstName,
 
-    [EnumMember(Value = "lastName")]
+    [JsonStringEnumMemberName("lastName")]
     LastName,
 }

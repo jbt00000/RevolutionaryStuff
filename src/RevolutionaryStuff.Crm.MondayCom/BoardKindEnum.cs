@@ -1,15 +1,16 @@
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 public enum BoardKindEnum
 {
     Unknown = 0,
 
-    [EnumMember(Value = "private")]
+    [JsonStringEnumMemberName("private")]
     Private,
 
-    [EnumMember(Value = "public")]
+    [JsonStringEnumMemberName("public")]
     Public,
 
-    [EnumMember(Value = "share")]
+    [JsonStringEnumMemberName("share")]
     Share,
 }

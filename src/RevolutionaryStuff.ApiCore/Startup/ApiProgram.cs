@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.Json.Serialization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -8,9 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using RevolutionaryStuff.ApiCore.Json;
+using Microsoft.OpenApi;
 using RevolutionaryStuff.ApiCore.Middleware;
-using RevolutionaryStuff.ApiCore.OpenApi;
 using RevolutionaryStuff.ApiCore.Services.ServerInfoFinders;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.ApplicationNameFinders;
@@ -78,10 +78,7 @@ public abstract class ApiProgram
     {
         services.ConfigureHttpJsonOptions(options =>
         {
-            // In .NET 9+, DefaultJsonTypeInfoResolver takes priority over Converters-registered factories
-            // for statically resolved types. Use TypeInfoResolverChain so EnumMember values are always
-            // honoured on the wire regardless of whether the enum is nested in an inner class.
-            options.SerializerOptions.TypeInfoResolverChain.Insert(0, new EnumMemberJsonTypeInfoResolver());
+            options.SerializerOptions.Converters.Add(new JsonStringEnumConverter());
         });
 
         services.UseRevolutionaryStuffApiCore();
@@ -109,7 +106,8 @@ public abstract class ApiProgram
 
     protected virtual void OnConfigureOpenApiOptions(OpenApiOptions options)
     {
-        options.AddOperationTransformer(new OpenApiOperationTransformer());
+        options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
+        options.AddOperationTransformer<WebApiRouteBuilderHelpers.ProducesFileOperationTransformer>();
     }
 
     protected virtual void ConfigureBuilder(WebApplicationBuilder builder)

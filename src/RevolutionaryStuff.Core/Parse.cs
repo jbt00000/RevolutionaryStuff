@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 using RevolutionaryStuff.Core.Caching;
 
@@ -40,15 +41,9 @@ public static partial class Parse
                 foreach (var v in Enum.GetValues(t))
                 {
                     var mi = t.GetMember(v.ToString()).First();
-                    var em = mi.GetCustomAttribute<EnumMemberAttribute>();
-                    if (em != null)
-                    {
-                        z[em.Value] = v;
-                    }
-                    else
-                    {
-                        z[mi.Name] = v;
-                    }
+                    var enumMemberValue = mi.GetCustomAttribute<EnumMemberAttribute>()?.Value;
+                    var jsonStringEnumMemberName = mi.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name;
+                    z[enumMemberValue ?? jsonStringEnumMemberName ?? mi.Name] = v;
                 }
                 return z;
             }

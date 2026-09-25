@@ -1,18 +1,19 @@
 using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 public enum BoardTypeEnum
 {
     Unknown = 0,
 
-    [EnumMember(Value = "board")]
+    [JsonStringEnumMemberName("board")]
     Board,
 
-    [EnumMember(Value = "custom_object")]
+    [JsonStringEnumMemberName("custom_object")]
     CustomObject,
 
-    [EnumMember(Value = "document")]
+    [JsonStringEnumMemberName("document")]
     Document,
 
-    [EnumMember(Value = "sub_items_board")]
+    [JsonStringEnumMemberName("sub_items_board")]
     SubItemsBoard
 }

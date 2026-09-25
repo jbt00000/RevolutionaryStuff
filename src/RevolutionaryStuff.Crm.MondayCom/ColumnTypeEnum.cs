@@ -1,121 +1,122 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 public enum ColumnTypeEnum
 {
-    [EnumMember(Value = "auto_number")]
+    [JsonStringEnumMemberName("auto_number")]
     AutoNumber,
 
-    [EnumMember(Value = "board_relation")]
+    [JsonStringEnumMemberName("board_relation")]
     BoardRelation,
 
-    [EnumMember(Value = "button")]
+    [JsonStringEnumMemberName("button")]
     Button,
 
-    [EnumMember(Value = "checkbox")]
+    [JsonStringEnumMemberName("checkbox")]
     Checkbox,
 
-    [EnumMember(Value = "color_picker")]
+    [JsonStringEnumMemberName("color_picker")]
     ColorPicker,
 
-    [EnumMember(Value = "country")]
+    [JsonStringEnumMemberName("country")]
     Country,
 
-    [EnumMember(Value = "creation_log")]
+    [JsonStringEnumMemberName("creation_log")]
     CreationLog,
 
-    [EnumMember(Value = "date")]
+    [JsonStringEnumMemberName("date")]
     Date,
 
-    [EnumMember(Value = "dependency")]
+    [JsonStringEnumMemberName("dependency")]
     Dependency,
 
-    [EnumMember(Value = "doc")]
+    [JsonStringEnumMemberName("doc")]
     Doc,
 
-    [EnumMember(Value = "dropdown")]
+    [JsonStringEnumMemberName("dropdown")]
     Dropdown,
 
-    [EnumMember(Value = "email")]
+    [JsonStringEnumMemberName("email")]
     Email,
 
-    [EnumMember(Value = "file")]
+    [JsonStringEnumMemberName("file")]
     File,
 
-    [EnumMember(Value = "formula")]
+    [JsonStringEnumMemberName("formula")]
     Formula,
 
-    [EnumMember(Value = "hour")]
+    [JsonStringEnumMemberName("hour")]
     Hour,
 
-    [EnumMember(Value = "item_assignees")]
+    [JsonStringEnumMemberName("item_assignees")]
     ItemAssignees,
 
-    [EnumMember(Value = "item_id")]
+    [JsonStringEnumMemberName("item_id")]
     ItemId,
 
-    [EnumMember(Value = "last_updated")]
+    [JsonStringEnumMemberName("last_updated")]
     LastUpdated,
 
-    [EnumMember(Value = "link")]
+    [JsonStringEnumMemberName("link")]
     Link,
 
-    [EnumMember(Value = "location")]
+    [JsonStringEnumMemberName("location")]
     Location,
 
-    [EnumMember(Value = "long_text")]
+    [JsonStringEnumMemberName("long_text")]
     LongText,
 
-    [EnumMember(Value = "mirror")]
+    [JsonStringEnumMemberName("mirror")]
     Mirror,
 
-    [EnumMember(Value = "name")]
+    [JsonStringEnumMemberName("name")]
     Name,
 
-    [EnumMember(Value = "numbers")]
+    [JsonStringEnumMemberName("numbers")]
     Numbers,
 
-    [EnumMember(Value = "people")]
+    [JsonStringEnumMemberName("people")]
     People,
 
-    [EnumMember(Value = "phone")]
+    [JsonStringEnumMemberName("phone")]
     Phone,
 
-    [EnumMember(Value = "progress")]
+    [JsonStringEnumMemberName("progress")]
     Progress,
 
-    [EnumMember(Value = "rating")]
+    [JsonStringEnumMemberName("rating")]
     Rating,
 
-    [EnumMember(Value = "status")]
+    [JsonStringEnumMemberName("status")]
     Status,
 
-    [EnumMember(Value = "subtasks")]
+    [JsonStringEnumMemberName("subtasks")]
     Subtasks,
 
-    [EnumMember(Value = "tags")]
+    [JsonStringEnumMemberName("tags")]
     Tags,
 
-    [EnumMember(Value = "team")]
+    [JsonStringEnumMemberName("team")]
     Team,
 
-    [EnumMember(Value = "text")]
+    [JsonStringEnumMemberName("text")]
     Text,
 
-    [EnumMember(Value = "timeline")]
+    [JsonStringEnumMemberName("timeline")]
     Timeline,
 
-    [EnumMember(Value = "time_tracking")]
+    [JsonStringEnumMemberName("time_tracking")]
     TimeTracking,
 
-    [EnumMember(Value = "unsupported")]
+    [JsonStringEnumMemberName("unsupported")]
     Unsupported,
 
-    [EnumMember(Value = "vote")]
+    [JsonStringEnumMemberName("vote")]
     Vote,
 
-    [EnumMember(Value = "week")]
+    [JsonStringEnumMemberName("week")]
     Week,
 
-    [EnumMember(Value = "world_clock")]
+    [JsonStringEnumMemberName("world_clock")]
     WorldClock
 }

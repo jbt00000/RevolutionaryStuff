@@ -1,12 +1,13 @@
-﻿using System.Runtime.Serialization;
+using System.Runtime.Serialization;
+using System.Text.Json.Serialization;
 
 namespace RevolutionaryStuff.Crm;
 
 public enum CrmRecordTypeEnum
 {
-    [EnumMember(Value = "contact")]
+    [JsonStringEnumMemberName("contact")]
     Contact,
 
-    [EnumMember(Value = "lead")]
+    [JsonStringEnumMemberName("lead")]
     Lead,
 }
