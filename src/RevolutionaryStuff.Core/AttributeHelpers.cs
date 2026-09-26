@@ -6,13 +6,29 @@ using RevolutionaryStuff.Core.Collections;
 
 namespace RevolutionaryStuff.Core;
 
+/// <summary>
+/// Provides helpers for inspecting attributes on types, enum values, and members.
+/// </summary>
 public static class AttributeStuff
 {
+    /// <summary>
+    /// Determines whether a type has an attribute of the specified type.
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type to find.</typeparam>
+    /// <param name="t">The type to inspect.</param>
+    /// <param name="inherit">Whether to search the type's inheritance chain.</param>
+    /// <returns><see langword="true"/> if the type has the attribute; otherwise, <see langword="false"/>.</returns>
     public static bool HasCustomAttribute<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute
     {
         return t.GetCustomAttribute<TAttribute>(inherit) != null;
     }
 
+    /// <summary>
+    /// Gets attributes of the specified type applied to an enum value's member.
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
+    /// <param name="e">The enum value whose member is inspected.</param>
+    /// <returns>The matching attributes, or an empty sequence if the enum member cannot be found.</returns>
     public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Enum e) where TAttribute : Attribute
     {
         var ti = e.GetType().GetTypeInfo();
@@ -26,16 +42,43 @@ public static class AttributeStuff
         return mi.GetCustomAttributes<TAttribute>();
     }
 
+    /// <summary>
+    /// Gets the first attribute of the specified type applied to an enum value's member.
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
+    /// <param name="e">The enum value whose member is inspected.</param>
+    /// <returns>The first matching attribute, or <see langword="null"/> if none is present.</returns>
     public static TAttribute GetCustomAttribute<TAttribute>(this Enum e) where TAttribute : Attribute => e.GetCustomAttributes<TAttribute>().FirstOrDefault();
 
+    /// <summary>
+    /// Gets the first attribute of the specified type applied to a type.
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
+    /// <param name="t">The type to inspect.</param>
+    /// <param name="inherit">Whether to search the type's inheritance chain.</param>
+    /// <returns>The first matching attribute, or <see langword="null"/> if none is present.</returns>
     public static TAttribute GetCustomAttribute<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute => t.GetCustomAttributes<TAttribute>(inherit).FirstOrDefault();
 
+    /// <summary>
+    /// Gets attributes of the specified type applied to a type.
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
+    /// <param name="t">The type to inspect.</param>
+    /// <param name="inherit">Whether to search the type's inheritance chain.</param>
+    /// <returns>The matching attributes.</returns>
     public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute
         => PermaCache.FindOrCreate(
             t, typeof(TAttribute), inherit,
             () => t.GetTypeInfo().GetCustomAttributes(inherit).OfType<TAttribute>().ConvertAll(a => (Attribute)a).AsReadOnly()
             ).OfType<TAttribute>();
 
+    /// <summary>
+    /// Gets the members of a type that have an attribute of the specified type.
+    /// </summary>
+    /// <typeparam name="TAttribute">The attribute type to find.</typeparam>
+    /// <param name="t">The type whose members are inspected.</param>
+    /// <param name="flags">The binding flags used to select members.</param>
+    /// <returns>The members with a matching attribute.</returns>
     public static IEnumerable<MemberInfo> GetAttributedMembers<TAttribute>(this Type t, BindingFlags flags) where TAttribute : Attribute
     {
         foreach (var mi in t.GetMembers(flags))
@@ -45,11 +88,12 @@ public static class AttributeStuff
     }
 
     /// <summary>
-    /// Gets the set of plugins contained in the given assembly
+    /// Gets matching attributes applied to exported types in an assembly.
     /// </summary>
-    /// <param name="typeAttributeTypes">The type of attribute we are expecting</param>
-    /// <param name="assembly">The assembly in question</param>
-    /// <returns>A dictionary.  The key is the Type, The value is the list of attributes of typeAttributeType</returns>
+    /// <param name="typeAttributeTypes">The attribute types to find.</param>
+    /// <param name="assembly">The assembly to inspect.</param>
+    /// <returns>A dictionary mapping each exported type to its matching attributes.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="typeAttributeTypes"/> or <paramref name="assembly"/> is <see langword="null"/>.</exception>
     public static MultipleValueDictionary<Type, Attribute> GetAttributesByPublicType(IEnumerable<Type> typeAttributeTypes,
                                                                                 Assembly assembly)
     {
@@ -72,16 +116,14 @@ public static class AttributeStuff
     }
 
     /// <summary>
-    /// Gets the set of plugins contained in the given assemblies and flls
+    /// Gets matching attributes applied to exported types in assemblies and assembly files.
     /// </summary>
-    /// <param name="typeAttributeTypes">The type of attribute we are expecting</param>
-    /// <param name="assemblies">The list of assemblies to test, may be null</param>
-    /// <param name="dllPaths">The list of full paths to dlls to test, may be null</param>
-    /// <param name="testDllsInSeparateAppDomains">Should we test the dlls in a separate app domain?</param>
-    /// <param name="loadDllsInSeparateAppDomains">Should we load the dlls in a separate app domain?</param>
-    /// <param name="assemblyFilter">The assembly filter.</param>
+    /// <param name="typeAttributeTypes">The attribute types to find.</param>
+    /// <param name="assemblies">Assemblies to inspect, or <see langword="null"/> to skip this source.</param>
+    /// <param name="dllPaths">Paths to assembly files to load and inspect, or <see langword="null"/> to skip this source.</param>
+    /// <param name="assemblyFilter">An optional predicate that selects assemblies for inspection.</param>
     /// <returns>
-    /// A dictionary.  The key is the Type, The value is the list of attributes of typeAttributeType
+    /// A dictionary mapping each exported type to its matching attributes. Assembly files that cannot be loaded are skipped.
     /// </returns>
     public static MultipleValueDictionary<Type, Attribute> GetAttributesByPublicType(
         IEnumerable<Type> typeAttributeTypes,
