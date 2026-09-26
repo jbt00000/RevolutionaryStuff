@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using RevolutionaryStuff.ApiCore.Middleware;
+using RevolutionaryStuff.ApiCore.OpenApi;
 using RevolutionaryStuff.ApiCore.Services.ServerInfoFinders;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.ApplicationNameFinders;
@@ -108,6 +109,7 @@ public abstract class ApiProgram
     {
         options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
         options.AddOperationTransformer<WebApiRouteBuilderHelpers.ProducesFileOperationTransformer>();
+        options.AddOperationTransformer<OpenApiHelpers.InputPayloadOperationTransformer>();
     }
 
     protected virtual void ConfigureBuilder(WebApplicationBuilder builder)

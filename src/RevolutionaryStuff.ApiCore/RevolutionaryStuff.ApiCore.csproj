@@ -64,6 +64,5 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Json\" />
-    <Folder Include="OpenApi\" />
   </ItemGroup>
 </Project>
