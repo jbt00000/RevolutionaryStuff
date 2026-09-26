@@ -2,7 +2,6 @@
 using System.Text.Json.Nodes;
 using System.Threading;
 using Microsoft.Azure.Cosmos;
-using Microsoft.Extensions.Logging;
 
 namespace RevolutionaryStuff.Data.Cosmos.Services.Tools;
 
