@@ -7,7 +7,7 @@
     <IsTrimmable>false</IsTrimmable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>This is now a .NET 10 library</PackageReleaseNotes>
+    <PackageReleaseNotes>This is a .NET 10 library</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>

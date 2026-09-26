@@ -18,7 +18,7 @@
         <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
         <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
         <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-        <PackageReleaseNotes>This is now a .NET 8 library</PackageReleaseNotes>
+        <PackageReleaseNotes>This is a .NET 10 library</PackageReleaseNotes>
         <Authors>jason@jasonthomas.com</Authors>
         <IncludeSymbols>true</IncludeSymbols>
         <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -63,7 +63,6 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="10.0.110" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
