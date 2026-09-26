@@ -25,7 +25,7 @@ public static class Format
             {
                 sb.Append("&");
             }
-            sb.Append(Uri.EscapeUriString(kvp.Key));
+            sb.Append(Uri.EscapeDataString(kvp.Key));
             if (kvp.Value != null)
             {
                 sb.Append("=");

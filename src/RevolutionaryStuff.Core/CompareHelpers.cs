@@ -13,17 +13,8 @@ public static class CompareHelpers
     /// <returns><see langword="true"/> if both references are equal or the arrays have identical contents; otherwise, <see langword="false"/>.</returns>
     public static bool Compare(byte[] b1, byte[] b2)
     {
-        if (b1 == b2) return true;
-        if (b1 == null || b2 == null || b1.Length != b2.Length) return false;
-        var len = b1.Length;
-        for (var x = 0; x < len; ++x)
-        {
-            if (b1[x] != b2[x])
-            {
-                return false;
-            }
-        }
-        return true;
+        if (ReferenceEquals(b1, b2)) return true;
+        return b1 is not null && b2 is not null && b1.AsSpan().SequenceEqual(b2);
     }
 
     /// <summary>
