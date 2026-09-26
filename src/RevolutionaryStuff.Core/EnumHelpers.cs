@@ -43,5 +43,4 @@ public static class EnumHelpers
         }
         return false;
     }
-
 }
