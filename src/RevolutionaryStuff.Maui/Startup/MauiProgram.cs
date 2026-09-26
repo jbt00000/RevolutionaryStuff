@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using Microsoft.Extensions.Configuration;
+﻿using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -72,7 +71,7 @@ public abstract class MauiProgram
     protected virtual void ConfigureBuilder(MauiAppBuilder builder)
     {
         builder.Services.AddSingleton<IHostEnvironment>(builder.Environment);
-//        builder.AddServiceDefaults();
+        //        builder.AddServiceDefaults();
     }
 
     protected virtual void ConfigureServices(IServiceCollection services)

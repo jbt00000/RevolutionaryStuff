@@ -162,7 +162,7 @@ public class JsonHelpersUnJsonElementTests
     public void ToPoco_JsonElementOverload_MatchesObjectOverload()
     {
         var jel = Parse("""{"Name":"Bob"}""");
-        var fromObjectOverload = JsonHelpers.ToPoco((object) jel) as Dictionary<string, object>;
+        var fromObjectOverload = JsonHelpers.ToPoco((object)jel) as Dictionary<string, object>;
         var fromJsonElementOverload = JsonHelpers.ToPoco(jel) as Dictionary<string, object>;
         Assert.IsNotNull(fromObjectOverload);
         Assert.IsNotNull(fromJsonElementOverload);
@@ -241,6 +241,6 @@ public class JsonHelpersUnJsonElementTests
         var jel = Parse($"\"{base64}\"");
         var result = JsonHelpers.ToPoco(jel, settings);
         Assert.IsInstanceOfType(result, typeof(byte[]));
-        CollectionAssert.AreEqual(expected, (byte[]) result);
+        CollectionAssert.AreEqual(expected, (byte[])result);
     }
 }
