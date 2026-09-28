@@ -1,11 +1,11 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Razor">
     <PropertyGroup>
         <TargetFrameworks>net10.0-android;net10.0-ios;net10.0-maccatalyst</TargetFrameworks>
         <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('windows'))">$(TargetFrameworks);net10.0-windows10.0.19041.0</TargetFrameworks>
         <!-- Uncomment to also build the tizen app. You will need to install tizen by following this: https://github.com/Samsung/Tizen.NET -->
         <!-- <TargetFrameworks>$(TargetFrameworks);net8.0-tizen</TargetFrameworks> -->
-        <UseMaui>true</UseMaui>
         <SingleProject>true</SingleProject>
+        <DisableStaticWebAssetEndpointsBuildPropsFileGeneration>true</DisableStaticWebAssetEndpointsBuildPropsFileGeneration>
         <ImplicitUsings>disable</ImplicitUsings>
         <Nullable>disable</Nullable>
         <AssemblyName>RevolutionaryStuff.Maui</AssemblyName>
@@ -63,6 +63,7 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Microsoft.Maui.Controls" Version="10.0.110" />
+        <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
     </ItemGroup>
     <ItemGroup>
       <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
