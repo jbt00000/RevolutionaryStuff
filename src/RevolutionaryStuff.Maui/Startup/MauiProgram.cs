@@ -85,6 +85,9 @@ public abstract class MauiProgram<TApp>
     protected virtual void ConfigureServices(IServiceCollection services)
     {
         services.UseRevolutionaryStuffCore();
+#if DEBUG
+        services.AddBlazorWebViewDeveloperTools();
+#endif
     }
 
     public MauiApp Go()
