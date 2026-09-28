@@ -75,7 +75,8 @@ public abstract class BlazorProgram
     {
         Stuff.NoOp(builder.HostEnvironment);
 
-        //        builder.Services.AddSingleton<IHostEnvironment>(builder.HostEnvironment);
+        builder.Services.AddSingleton<IHostEnvironment>(new BlazorHostEnvironmentAdapter(builder.HostEnvironment));
+
         //        builder.AddServiceDefaults();
 #if DEBUG
         builder.Logging.AddDebug();

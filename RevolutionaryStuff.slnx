@@ -49,6 +49,7 @@
       <Build Solution="Debug|*" Project="false" />
       <Build Solution="VSTS-CI|*" Project="false" />
     </Project>
+    <Project Path="tests/RevolutionaryStuff.BlazorWasm.Tests/RevolutionaryStuff.BlazorWasm.Tests.csproj" />
   </Folder>
   <Project Path="src/RevolutionaryStuff.ApiCore/RevolutionaryStuff.ApiCore.csproj">
     <BuildType Solution="VSTS-CI|Any CPU" Project="Release" />
