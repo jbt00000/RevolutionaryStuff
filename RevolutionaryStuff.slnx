@@ -68,6 +68,9 @@
     <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
     <BuildType Solution="VSTS-CI|x64" Project="Debug" />
   </Project>
+  <Project Path="src/RevolutionaryStuff.BlazorWasm/RevolutionaryStuff.BlazorWasm.csproj" Id="80d1a3fe-78a0-4586-8854-cb1936b7b665">
+    <BuildType Solution="VSTS-CI|*" Project="Release" />
+  </Project>
   <Project Path="src/revolutionarystuff.com/revolutionarystuff.com.csproj">
     <BuildType Solution="VSTS-CI|Any CPU" Project="Debug" />
     <BuildType Solution="VSTS-CI|x64" Project="Debug" />
