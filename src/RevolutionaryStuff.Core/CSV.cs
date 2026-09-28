@@ -344,6 +344,12 @@ L_NextLine:
     public static string[][] ParseText(string sText, char fieldDelim = FieldDelimComma, char? quoteChar = QuoteChar)
         => ParseTextEnumerable(sText, fieldDelim, quoteChar).ToArray();
 
+    public static string[][] ParseTabSeparatedValues(string sText)
+        => ParseText(sText, '\t');
+
+    public static string[][] ParseCommaSeparatedValues(string sText)
+        => ParseText(sText);
+
     /// <summary>
     /// Parses CSV text from a string as an enumerable sequence of rows.
     /// This method provides lazy evaluation, useful for large CSV files.
