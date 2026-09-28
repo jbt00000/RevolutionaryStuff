@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using RevolutionaryStuff.Core.ApplicationParts;
 
@@ -13,7 +14,7 @@ public abstract class BlazorProgram
         public const string ConfigSectionName = "MauiProgram";
     }
 
-    protected IConfiguration Configuration { get; private set; }
+    private IConfiguration Configuration { get; set; }
 
     protected ILogger Logger { get; private set; }
 
@@ -50,9 +51,8 @@ public abstract class BlazorProgram
 
     protected virtual void SetupLogging(ILoggingBuilder loggingBuilder)
     {
-        loggingBuilder.AddConsole();
 #if DEBUG
-//        loggingBuilder.AddDebug();
+        loggingBuilder.AddDebug();
 #endif
 
     }
@@ -63,7 +63,7 @@ public abstract class BlazorProgram
         {
             builder
                 // Write to System.Diagnostics.Debug — shows up in VS Output → Debug
-  //              .AddDebug()
+                .AddDebug()
                 // (optional) capture everything ≥ Trace
                 .SetMinimumLevel(LogLevel.Trace);
         });
@@ -73,10 +73,12 @@ public abstract class BlazorProgram
 
     protected virtual void ConfigureBuilder(WebAssemblyHostBuilder builder)
     {
-//        builder.Services.AddSingleton<IHostEnvironment>(builder.HostEnvironment);
+        Stuff.NoOp(builder.HostEnvironment);
+
+        //        builder.Services.AddSingleton<IHostEnvironment>(builder.HostEnvironment);
         //        builder.AddServiceDefaults();
 #if DEBUG
-  //      builder.Logging.AddDebug();
+        builder.Logging.AddDebug();
 #endif
     }
 
