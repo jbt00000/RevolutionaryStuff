@@ -88,6 +88,7 @@ public abstract class MauiProgram<TApp>
 #if DEBUG
         services.AddBlazorWebViewDeveloperTools();
 #endif
+        services.AddMauiBlazorWebView();
     }
 
     public MauiApp Go()
