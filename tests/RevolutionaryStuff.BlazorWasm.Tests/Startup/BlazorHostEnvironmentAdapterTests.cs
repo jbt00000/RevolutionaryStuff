@@ -39,8 +39,8 @@ public class BlazorHostEnvironmentAdapterTests
 
         services.AddSingleton<IHostEnvironment>(new BlazorHostEnvironmentAdapter(source));
 
-        using ServiceProvider serviceProvider = services.BuildServiceProvider();
-        IHostEnvironment environment = serviceProvider.GetRequiredService<IHostEnvironment>();
+        using var serviceProvider = services.BuildServiceProvider();
+        var environment = serviceProvider.GetRequiredService<IHostEnvironment>();
 
         Assert.AreEqual("Staging", environment.EnvironmentName);
         Assert.AreEqual("https://example.test/", environment.ContentRootPath);

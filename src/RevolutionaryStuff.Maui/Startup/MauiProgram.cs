@@ -16,7 +16,7 @@ public abstract class MauiProgram<TApp>
         public const string ConfigSectionName = "MauiProgram";
     }
 
-    protected IConfiguration Configuration { get; private set; }
+    private IConfiguration Configuration { get; set; }
 
     protected ILogger Logger { get; private set; }
 
@@ -109,7 +109,7 @@ public abstract class MauiProgram<TApp>
         ConfigureBuilder(builder);
 
         ConfigureServices(builder.Services);
-        
+
         var app = builder.Build();
 
         Stuff.LoggerOfLastResort = Logger = (ILogger)app.Services.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
