@@ -26,9 +26,9 @@
         <PackageIcon>package\icon.png</PackageIcon>
         <PackageLicenseFile>package\license.txt</PackageLicenseFile>
         <Copyright>Copyright © 2023</Copyright>
-        <FileVersion>4.201.100</FileVersion>
-        <AssemblyVersion>4.201.100</AssemblyVersion>
-        <Version>4.201.100</Version>
+        <FileVersion>4.202.100</FileVersion>
+        <AssemblyVersion>4.202.100</AssemblyVersion>
+        <Version>4.202.100</Version>
     </PropertyGroup>
 
     <ItemGroup>
@@ -62,8 +62,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.12" />
-      <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.12" />
+      <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.13" />
+      <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.13" />
     </ItemGroup>
 
     <ItemGroup>
