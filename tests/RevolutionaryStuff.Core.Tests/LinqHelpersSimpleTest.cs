@@ -42,11 +42,53 @@ public class LinqHelpersSimpleTest
 
         var map = new Dictionary<int, int> { { 1, 100 }, { 2, 50 }, { 3, 75 } };
 
-        var sorted = items.OrderByField(nameof(TestItem.Value), map).ToList();
+        var q = items.OrderByField(nameof(TestItem.Value), map);
+        var sorted = q.ToList();
 
         Assert.AreEqual(2, sorted[0].Value); // maps to 50
         Assert.AreEqual(3, sorted[1].Value); // maps to 75  
         Assert.AreEqual(1, sorted[2].Value); // maps to 100
+    }
+
+    [TestMethod]
+    public void MappedOrderByField_FilteredSource_UsesPrimaryOrder()
+    {
+        var items = new List<TestItem>
+        {
+            new() { Name = "Charlie", Value = 3 },
+            new() { Name = "Alice", Value = 1 },
+            new() { Name = "Bob", Value = 2 }
+        }.AsQueryable()
+            .Where(item => item.Value > 0);
+
+        var map = new Dictionary<int, int> { { 1, 100 }, { 2, 50 }, { 3, 75 } };
+
+        var sorted = items.OrderByField(nameof(TestItem.Value), map).ToList();
+
+        Assert.AreEqual(2, sorted[0].Value);
+        Assert.AreEqual(3, sorted[1].Value);
+        Assert.AreEqual(1, sorted[2].Value);
+    }
+
+    [TestMethod]
+    public void MappedOrderByField_AfterExistingOrder_UsesSecondaryOrder()
+    {
+        var items = new List<TestItem>
+        {
+            new() { Name = "Cat", Value = 3 },
+            new() { Name = "Dog", Value = 1 },
+            new() { Name = "Fox", Value = 2 }
+        }.AsQueryable();
+
+        var map = new Dictionary<int, int> { { 1, 100 }, { 2, 50 }, { 3, 75 } };
+
+        var sorted = items.OrderBy(item => item.Name.Length)
+            .OrderByField(nameof(TestItem.Value), map)
+            .ToList();
+
+        Assert.AreEqual(2, sorted[0].Value);
+        Assert.AreEqual(3, sorted[1].Value);
+        Assert.AreEqual(1, sorted[2].Value);
     }
 
     [TestMethod]

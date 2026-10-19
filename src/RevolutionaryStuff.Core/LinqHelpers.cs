@@ -52,7 +52,26 @@ public static class LinqHelpers
         public const string Concat = "Concat";
 
         public static string GetSortOrder<T>(IQueryable<T> q, bool isAscending)
-            => q is IOrderedQueryable<T> ? GetThenBy(isAscending) : GetSortOrder(isAscending);
+        {
+            var expression = q.Expression;
+            while (expression is MethodCallExpression methodCall && methodCall.Method.DeclaringType == typeof(Queryable))
+            {
+                if (methodCall.Method.Name is OrderBy or OrderByDescending or ThenBy or ThenByDescending)
+                {
+                    return GetThenBy(isAscending);
+                }
+
+                if (methodCall.Method.Name is nameof(Queryable.Where) or nameof(Queryable.Select) or nameof(Queryable.Skip) or nameof(Queryable.Take))
+                {
+                    expression = methodCall.Arguments[0];
+                    continue;
+                }
+
+                break;
+            }
+
+            return GetSortOrder(isAscending);
+        }
 
         public static string GetSortOrder(bool isAscending)
             => isAscending ? OrderBy : OrderByDescending;
