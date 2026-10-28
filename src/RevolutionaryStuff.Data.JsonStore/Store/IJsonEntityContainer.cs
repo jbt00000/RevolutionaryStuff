@@ -38,7 +38,7 @@ public interface IJsonEntityContainer
 
     Task PatchItemAsync<TItem>(TItem item, Func<TItem, CancellationToken, Task<IList<PatchOperation>>> getPatchesAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
-    Task<TItem> UpdateItemAsync<TItem>(TItem item, Func<TItem, Task<bool>> amendAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
+    Task<TItem> UpdateItemAsync<TItem>(TItem item, Func<TItem, Task<bool>> amendAsync, UpdateOptions? updateOptions, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
     Task<TItem> ReplaceItemAsync<TItem>(TItem item, Func<TItem, Task<TItem>> amendAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity;
 
@@ -75,11 +75,11 @@ public interface IJsonEntityContainer
         }
     }
 
-    Task<TItem> UpdateItemAsync<TItem>(TItem item, Func<TItem, Task> amendAsync, CancellationToken cancellationToken = default) where TItem : JsonEntity
-        => UpdateItemAsync(item, CreateAmendAsync(amendAsync), cancellationToken);
+    Task<TItem> UpdateItemAsync<TItem>(TItem item, Func<TItem, Task> amendAsync, UpdateOptions? updateOptions, CancellationToken cancellationToken = default) where TItem : JsonEntity
+        => UpdateItemAsync(item, CreateAmendAsync(amendAsync), updateOptions, cancellationToken);
 
-    Task<TItem> UpdateItemAsync<TItem>(TItem item, Action<TItem> amend, CancellationToken cancellationToken = default) where TItem : JsonEntity
-        => UpdateItemAsync(item, z => { amend(z); return Task.CompletedTask; }, cancellationToken);
+    Task<TItem> UpdateItemAsync<TItem>(TItem item, Action<TItem> amend, UpdateOptions? updateOptions, CancellationToken cancellationToken = default) where TItem : JsonEntity
+        => UpdateItemAsync(item, z => { amend(z); return Task.CompletedTask; }, updateOptions, cancellationToken);
 
     #endregion
 }

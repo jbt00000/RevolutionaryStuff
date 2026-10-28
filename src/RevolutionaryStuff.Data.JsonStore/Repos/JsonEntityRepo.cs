@@ -220,11 +220,11 @@ public abstract class JsonEntityRepo<TBaseEntity> : RevolutionaryStuffService, I
     Task<bool> IJsonEntityRepo<TBaseEntity>.CreateItemIfNotExistsAsync<TItem>(TItem entity)
         => GetContainer<TItem>().CreateItemIfNotExistsAsync(entity);
 
-    Task<TItem> IJsonEntityRepo<TBaseEntity>.UpdateItemAsync<TItem>(TItem entity, Func<TItem, Task> amendAsync)
-        => GetContainer<TItem>().UpdateItemAsync(entity, amendAsync);
+    Task<TItem> IJsonEntityRepo<TBaseEntity>.UpdateItemAsync<TItem>(TItem entity, Func<TItem, Task> amendAsync, UpdateOptions? updateOptions)
+        => GetContainer<TItem>().UpdateItemAsync(entity, amendAsync, updateOptions);
 
-    Task<TItem> IJsonEntityRepo<TBaseEntity>.UpdateItemAsync<TItem>(TItem entity, Action<TItem> amend)
-        => I.UpdateItemAsync(entity, z => { amend(z); return Task.CompletedTask; });
+    Task<TItem> IJsonEntityRepo<TBaseEntity>.UpdateItemAsync<TItem>(TItem entity, Action<TItem> amend, UpdateOptions? updateOptions)
+        => I.UpdateItemAsync(entity, z => { amend(z); return Task.CompletedTask; }, updateOptions);
 
     Task<TItem> IJsonEntityRepo<TBaseEntity>.ReplaceItemAsync<TItem>(TItem item, Func<TItem, Task<TItem>> amendAsync)
         => GetContainer<TItem>().ReplaceItemAsync(item, amendAsync);

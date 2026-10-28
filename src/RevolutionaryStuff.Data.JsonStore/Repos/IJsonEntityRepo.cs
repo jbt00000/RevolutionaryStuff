@@ -26,10 +26,10 @@ public interface IJsonEntityRepo<TBaseEntity>
     Task CreateItemsAsync<TItem>(IList<TItem> entities)
         where TItem : TBaseEntity;
 
-    Task<TItem> UpdateItemAsync<TItem>(TItem entity, Func<TItem, Task> amendAsync)
+    Task<TItem> UpdateItemAsync<TItem>(TItem entity, Func<TItem, Task> amendAsync, UpdateOptions? updateOptions = null)
         where TItem : TBaseEntity;
 
-    Task<TItem> UpdateItemAsync<TItem>(TItem entity, Action<TItem> amend)
+    Task<TItem> UpdateItemAsync<TItem>(TItem entity, Action<TItem> amend, UpdateOptions? updateOptions = null)
         where TItem : TBaseEntity;
 
     Task<TItem> ReplaceItemAsync<TItem>(TItem item, Func<TItem, Task<TItem>> amendAsync)

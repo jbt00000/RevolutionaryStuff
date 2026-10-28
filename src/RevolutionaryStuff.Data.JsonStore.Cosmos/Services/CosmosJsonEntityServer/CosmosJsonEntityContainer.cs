@@ -330,20 +330,24 @@ public class CosmosJsonEntityContainer : LoggingDisposableBase, ICosmosJsonEntit
             cancellationToken);
     }
 
-    async Task<TItem> IJsonEntityContainer.UpdateItemAsync<TItem>(TItem item, Func<TItem, Task<bool>> amendAsync, CancellationToken cancellationToken)
+    private static readonly UpdateOptions DefaultUpdateOptions = new();
+
+    async Task<TItem> IJsonEntityContainer.UpdateItemAsync<TItem>(TItem item, Func<TItem, Task<bool>> amendAsync, UpdateOptions updateOptions, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(item);
         ArgumentNullException.ThrowIfNull(amendAsync);
         EnsureCorrectContainer<TItem>();
 
-        item = string.IsNullOrWhiteSpace(item.ETag) ? await ReloadItemAsync(item, cancellationToken) : item;
+        updateOptions ??= DefaultUpdateOptions;
+
+        item = (string.IsNullOrWhiteSpace(item.ETag) || updateOptions.ReloadBeforeUpdate) ? await ReloadItemAsync(item, cancellationToken) : item;
         Requires.Text(item.ETag);
 
         return await CosmosRetryItemRefreshFunctionAsync(
             item,
             async (z, token) =>
             {
-                var update = await amendAsync(z);
+                var update = (await amendAsync(z)) || updateOptions.ForceUpdate;
                 if (!update) return;
                 PrepareItem(z);
                 await Container.UpsertItemAsync<TItem>(
