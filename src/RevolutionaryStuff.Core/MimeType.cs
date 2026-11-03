@@ -43,6 +43,9 @@ public sealed partial class MimeType
     public static string GetContentTypeSubType(string contentType)
         => contentType.RightOf("/");
 
+    private static bool HasMatch(IEnumerable<string> contentTypeOrExtensions, IList<MimeType> items)
+        => contentTypeOrExtensions.NullSafeAny(z => (HasMatch(z, items)));
+
     private static bool HasMatch(string contentTypeOrExtension, IList<MimeType> items)
     {
         contentTypeOrExtension = contentTypeOrExtension.TrimOrNull();
@@ -65,16 +68,16 @@ public sealed partial class MimeType
     /// </summary>
     /// <param name="contentTypeOrExtension">Content type string or file extension to test.</param>
     /// <returns>True if the input matches a known image format; otherwise, false.</returns>
-    public static bool IsImage(string contentTypeOrExtension)
-        => Image.HasMatch(contentTypeOrExtension);
+    public static bool IsImage(params IEnumerable<string> contentTypeOrExtensions)
+        => Image.HasMatch(contentTypeOrExtensions);
 
     /// <summary>
     /// Determines if a content type or file extension represents a video format.
     /// </summary>
     /// <param name="contentTypeOrExtension">Content type string or file extension to test.</param>
     /// <returns>True if the input matches a known video format; otherwise, false.</returns>
-    public static bool IsVideo(string contentTypeOrExtension)
-        => Video.HasMatch(contentTypeOrExtension);
+    public static bool IsVideo(params IEnumerable<string> contentTypeOrExtensions)
+        => Video.HasMatch(contentTypeOrExtensions);
 
     /// <summary>
     /// Application-specific MIME types including documents, archives, fonts, and data formats.
@@ -168,6 +171,10 @@ public sealed partial class MimeType
             public static readonly MimeType Iso = new("application/x-iso9660-image", ".iso");
 
             internal static readonly IList<MimeType> All = new[] { ArchiveDocument, BZipArchive, BZip2Archive, _7Zip, Tar, Zip, GZip, Xz, Zstd, Iso }.ToList().AsReadOnly();
+
+            public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+                => MimeType.HasMatch(contentTypeOrExtensions, All);
+
         }
 
         /// <summary>
@@ -191,6 +198,9 @@ public sealed partial class MimeType
             public static readonly MimeType Eot = new("application/vnd.ms-fontobject", ".eot");
 
             internal static readonly IList<MimeType> All = new[] { OpenTypeFont, TrueTypeFont, WebOpenFontFormat, WebOpenFontFormat2, Eot }.ToList().AsReadOnly();
+
+            public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+                => MimeType.HasMatch(contentTypeOrExtensions, All);
         }
 
         /// <summary>
@@ -211,6 +221,9 @@ public sealed partial class MimeType
             public static readonly MimeType Keynote = new("application/x-iwork-keynote-sffkey", ".key");
 
             internal static readonly IList<MimeType> All = new[] { MicrosoftPowerPoint, MicrosoftPowerPointOpenXML, OpenDocumentPresentation, Keynote }.ToList().AsReadOnly();
+
+            public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+                => MimeType.HasMatch(contentTypeOrExtensions, All);
         }
 
         /// <summary>
@@ -231,6 +244,9 @@ public sealed partial class MimeType
             public static readonly MimeType Pages = new("application/x-iwork-pages-sffpages", ".pages");
 
             internal static readonly IList<MimeType> All = new[] { MicrosoftWord, MicrosoftWordOpenXml, OpenDocumentTextDocument, Pages }.ToList().AsReadOnly();
+
+            public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+                => MimeType.HasMatch(contentTypeOrExtensions, All);
         }
 
         /// <summary>
@@ -251,6 +267,9 @@ public sealed partial class MimeType
             public static readonly MimeType Numbers = new("application/x-iwork-numbers-sffnumbers", ".numbers");
 
             internal static readonly IList<MimeType> All = new[] { OpenDocumentSpreadsheetDocument, MicrosoftExcel, MicrosoftExcelOpenXml, Numbers }.ToList().AsReadOnly();
+
+            public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+                => MimeType.HasMatch(contentTypeOrExtensions, All);
         }
 
         /// <summary>
@@ -363,8 +382,8 @@ public sealed partial class MimeType
         /// </summary>
         /// <param name="contentTypeOrExtension">Content type string or file extension to test.</param>
         /// <returns>True if the input matches a known image format; otherwise, false.</returns>
-        public static bool HasMatch(string contentTypeOrExtension)
-            => MimeType.HasMatch(contentTypeOrExtension, All);
+        public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+            => MimeType.HasMatch(contentTypeOrExtensions, All);
     }
 
     /// <summary>
@@ -407,10 +426,10 @@ public sealed partial class MimeType
         /// <summary>
         /// Determines if a content type or file extension represents a text format.
         /// </summary>
-        /// <param name="contentTypeOrExtension">Content type string or file extension to test.</param>
-        /// <returns>True if the input matches a known text format; otherwise, false.</returns>
-        public static bool HasMatch(string contentTypeOrExtension)
-            => MimeType.HasMatch(contentTypeOrExtension, All);
+        /// <param name="contentTypeOrExtensions">Content type strings or file extensions to test.</param>
+        /// <returns>True if any input matches a known text format; otherwise, false.</returns>
+        public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+            => MimeType.HasMatch(contentTypeOrExtensions, All);
     }
 
     /// <summary>
@@ -504,8 +523,8 @@ public sealed partial class MimeType
         /// </summary>
         /// <param name="contentTypeOrExtension">Content type string or file extension to test.</param>
         /// <returns>True if the input matches a known audio format; otherwise, false.</returns>
-        public static bool HasMatch(string contentTypeOrExtension)
-            => MimeType.HasMatch(contentTypeOrExtension, All);
+        public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+            => MimeType.HasMatch(contentTypeOrExtensions, All);
     }
 
     /// <summary>
@@ -620,8 +639,8 @@ public sealed partial class MimeType
         /// </summary>
         /// <param name="contentTypeOrExtension">Content type string or file extension to test.</param>
         /// <returns>True if the input matches a known video format; otherwise, false.</returns>
-        public static bool HasMatch(string contentTypeOrExtension)
-            => MimeType.HasMatch(contentTypeOrExtension, All);
+        public static bool HasMatch(params IEnumerable<string> contentTypeOrExtensions)
+            => MimeType.HasMatch(contentTypeOrExtensions, All);
     }
 
     /// <summary>
@@ -666,10 +685,9 @@ public sealed partial class MimeType
     /// Finds all MIME types that match a given content type.
     /// </summary>
     /// <param name="contentType">The content type to search for.</param>
-    /// <param name="caseSensitive">Whether to perform case-sensitive matching.</param>
     /// <returns>A list of matching MimeType instances.</returns>
-    public static IList<MimeType> FindByContentType(string contentType, bool caseSensitive = false)
-        => AllMimeTypes.Where(m => m.DoesContentTypeMatch(contentType, caseSensitive)).ToList();
+    public static IList<MimeType> FindByContentType(string contentType)
+        => AllMimeTypes.Where(m => m.DoesContentTypeMatch(contentType)).ToList();
 
     /// <summary>
     /// List of content type strings associated with this MIME type.
@@ -747,39 +765,46 @@ public sealed partial class MimeType
         }
     }
 
+    public bool IsMatch(params IEnumerable<string> contentTypeOrExtensions)
+        => DoesContentTypeMatch(contentTypeOrExtensions) || DoesExtensionMatch(contentTypeOrExtensions);
+
     /// <summary>
     /// Determines if this MIME type matches a given content type string.
     /// </summary>
     /// <param name="contentType">The content type to test.</param>
-    /// <param name="caseSensitive">Whether to perform case-sensitive comparison.</param>
     /// <returns>True if the content type matches; otherwise, false.</returns>
-    public bool DoesContentTypeMatch(string contentType, bool caseSensitive = false)
+    public bool DoesContentTypeMatch(string contentType)
     {
         if (contentType == null) return false;
         contentType = contentType.LeftOf(";").TrimOrNull();
         foreach (var ct in ContentTypes)
         {
-            if (0 == string.Compare(ct, contentType, !caseSensitive)) return true;
+            if (0 == string.Compare(ct, contentType, true)) return true;
         }
         return false;
     }
 
+    public bool DoesContentTypeMatch(IEnumerable<string> contentTypes)
+        => contentTypes.NullSafeAny(DoesContentTypeMatch);
+
     /// <summary>
     /// Determines if this MIME type matches a given file extension.
     /// </summary>
-    /// <param name="filename">The filename or extension to test.</param>
     /// <param name="caseSensitive">Whether to perform case-sensitive comparison.</param>
     /// <returns>True if the extension matches; otherwise, false.</returns>
-    public bool DoesExtensionMatch(string filename, bool caseSensitive = false)
+    public bool DoesExtensionMatch(string filename)
     {
         if (filename == null) return false;
         var ext = Path.GetExtension(filename);
         foreach (var e in FileExtensions)
         {
-            if (0 == string.Compare(e, ext, !caseSensitive)) return true;
+            if (0 == string.Compare(e, ext, true)) return true;
         }
         return false;
     }
+
+    public bool DoesExtensionMatch(IEnumerable<string> filenames)
+        => filenames.NullSafeAny(DoesExtensionMatch);
 
     /// <summary>
     /// Determines if one content type "is a" subtype of another.
