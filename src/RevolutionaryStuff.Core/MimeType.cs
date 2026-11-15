@@ -44,7 +44,7 @@ public sealed partial class MimeType
         => contentType.RightOf("/");
 
     private static bool HasMatch(IEnumerable<string> contentTypeOrExtensions, IList<MimeType> items)
-        => contentTypeOrExtensions.NullSafeAny(z => (HasMatch(z, items)));
+        => contentTypeOrExtensions.NullSafeAny(z => HasMatch(z, items));
 
     private static bool HasMatch(string contentTypeOrExtension, IList<MimeType> items)
     {
