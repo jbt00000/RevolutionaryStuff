@@ -43,6 +43,7 @@
     <ProjectReference Include="..\RevolutionaryStuff.Core\RevolutionaryStuff.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="10.0.15" />
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.15" />
     <PackageReference Include="NCrontab" Version="3.4.0" />
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
