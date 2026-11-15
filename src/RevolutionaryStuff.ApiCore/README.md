@@ -2,6 +2,10 @@
 
 Base classes and startup scaffolding for ASP.NET Core Web API applications, including `ApiProgram`, route builder helpers, and OpenAPI utilities.
 
+## Middleware ordering
+
+Register CORS in `SetupMiddleware`. This hook runs before authorization so cross-origin callers can read authorization failures (401/403) as well as successful responses. Keep authorization requirements on endpoints; CORS does not grant access to protected resources.
+
 ## What is Revolutionary Stuff
 [Revolutionary Stuff](https://revolutionarystuff.com/) is a company [I](https://www.jasonthomas.com/) created a while back to work on creative ideas.
 

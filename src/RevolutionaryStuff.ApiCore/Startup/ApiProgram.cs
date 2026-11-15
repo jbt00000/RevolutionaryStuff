@@ -235,9 +235,9 @@ public abstract class ApiProgram
 
         UseHttpsRedirection(app);
 
-        app.UseAuthorization();
-
         SetupMiddleware(app);
+
+        app.UseAuthorization();
 
         MapWebEndpoints(app);
 
