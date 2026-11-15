@@ -40,7 +40,7 @@
     <ProjectReference Include="..\RevolutionaryStuff.ApiCore\RevolutionaryStuff.ApiCore.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Dapr.AspNetCore" Version="1.19.0" />
+    <PackageReference Include="Dapr.AspNetCore" Version="1.19.1" />
     <!--
 		<PackageReference Include="Dapr.Extensions.Configuration" Version="1.15.2" />
 		-->

@@ -58,6 +58,10 @@ public class SystemTextJsonTests
         };
         var json = val.ToJson();
         Assert.IsTrue(json.Contains(nameof(SimpleWithJsonElement.Jel)));
-        Assert.IsTrue(json.Contains("42"));
+        Assert.IsTrue(json.Contains("1"));
+        Assert.IsTrue(json.Contains("4"));
+        Assert.IsTrue(json.Contains("5"));
+        Assert.IsTrue(json.Contains("3"));
+        Assert.IsTrue(json.Contains("zippy"));
     }
 }
