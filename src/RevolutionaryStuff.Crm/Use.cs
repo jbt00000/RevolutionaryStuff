@@ -10,13 +10,16 @@ public static class Use
         public RevolutionaryStuff.Core.Use.Settings? RevolutionaryStuffCoreSettings { get; set; }
     }
 
-    public static IServiceCollection UseRevolutionaryStuffCrm(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
-            {
-                services.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreSettings);
+    extension(IServiceCollection sources)
+    {
+        public IServiceCollection UseRevolutionaryStuffCrm(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+                    {
+                        sources.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreSettings);
 
-                services.AddScoped<Implementation.Crm.CrmConstructorArgs>();
-            });
+                        sources.AddScoped<Implementation.Crm.CrmConstructorArgs>();
+                    });
+    }
 }

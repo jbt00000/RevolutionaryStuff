@@ -10,29 +10,33 @@ namespace RevolutionaryStuff.Storage.Implementation;
 /// </summary>
 public static class FindCriteriaHelpers
 {
-    /// <summary>
-    /// Determines whether or not a test string matches the find criteria.
-    /// </summary>
-    /// <param name="findCriteria">
-    /// An <see cref="IFindCriteria" /> implementation that will be used
-    /// for matching a string.
-    /// </param>
-    /// <param name="test">The string to test a match against.</param>
-    /// <returns>true if the test string matches the criteria.</returns>
-    public static bool IsMatch(this IFindCriteria findCriteria, string test)
-        => IsMatch(findCriteria.MatchPattern, findCriteria.PatternFormat, findCriteria.MatchCasing, test);
-
-    public static bool IsMatch(this IFindCriteria findCriteria, IEntry test)
+    extension(IFindCriteria source)
     {
-        var s = findCriteria.MatchTarget switch
+        /// <summary>
+        /// Determines whether or not a test string matches the find criteria.
+        /// </summary>
+        /// <param name="source">
+        /// An <see cref="IFindCriteria" /> implementation that will be used
+        /// for matching a string.
+        /// </param>
+        /// <param name="test">The string to test a match against.</param>
+        /// <returns>true if the test string matches the criteria.</returns>
+        public bool IsMatch(string test)
+            => IsMatch(source.MatchPattern, source.PatternFormat, source.MatchCasing, test);
+        public bool IsMatch(IEntry test)
         {
-            MatchTargetEnum.Name => test.Name,
-            MatchTargetEnum.RootRelativePath => test.Path,
-            _ => throw new UnexpectedSwitchValueException(findCriteria
-                .MatchTarget)
-        };
-        return IsMatch(findCriteria.MatchPattern, findCriteria.PatternFormat, findCriteria.MatchCasing, s);
+            var s = source.MatchTarget switch
+            {
+                MatchTargetEnum.Name => test.Name,
+                MatchTargetEnum.RootRelativePath => test.Path,
+                _ => throw new UnexpectedSwitchValueException(source
+                    .MatchTarget)
+            };
+            return IsMatch(source.MatchPattern, source.PatternFormat, source.MatchCasing, s);
+        }
     }
+
+
 
 
     /// <summary>

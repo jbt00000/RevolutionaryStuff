@@ -261,14 +261,17 @@ public class ParameterizedMessageException : Exception
 
 public static class ExceptionExtensions
 {
-    public static IEnumerable<Exception> InnerExceptions(this Exception exception)
+    extension(Exception source)
     {
-        var ex = exception;
-
-        while (ex != null)
+        public IEnumerable<Exception> InnerExceptions()
         {
-            yield return ex;
-            ex = ex.InnerException;
+            var ex = source;
+
+            while (ex != null)
+            {
+                yield return ex;
+                ex = ex.InnerException;
+            }
         }
     }
 }

@@ -15,28 +15,37 @@ public static class WebApiRouteBuilderHelpers
         public const string Management = "Management";
         public const string ODataQuery = "ODataQuery";
     }
-    public static IB ManagementApi<IB>(this IB b, string name)
-        where IB : IEndpointConventionBuilder
-        => b.WithTags(TagNames.Management).WithName(name);
+    extension<IB>(IB source) where IB : IEndpointConventionBuilder
+    {
+        public IB ManagementApi(string name)
+                => source.WithTags(TagNames.Management).WithName(name);
+        public IB DevelopmentApi(string name)
+                => source.WithTags(TagNames.Development).WithName(name);
+        internal IB WithTagODataQuery()
+                => source.WithTags(TagNames.ODataQuery);
+    }
 
-    public static IB DevelopmentApi<IB>(this IB b, string name)
-        where IB : IEndpointConventionBuilder
-        => b.WithTags(TagNames.Development).WithName(name);
 
-    internal static IB WithTagODataQuery<IB>(this IB b)
-        where IB : IEndpointConventionBuilder
-        => b.WithTags(TagNames.ODataQuery);
 
-    public static RouteHandlerBuilder ProducesHttpRedirect(this RouteHandlerBuilder builder)
-        => builder.Produces<IResult>((int)HttpStatusCode.Redirect);
-    public static RouteHandlerBuilder ProducesHttpRedirectToImage(this RouteHandlerBuilder builder)
-        => builder.Produces<IResult>((int)HttpStatusCode.Redirect, MimeType.Application.OctetStream.PrimaryContentType);
-    public static RouteHandlerBuilder ProducesExistingFile(this RouteHandlerBuilder builder, params string[] expectedContentTypes)
-        => builder.ProducesFile(HttpStatusCode.OK, expectedContentTypes);
-    public static RouteHandlerBuilder ProducesCreatedFile(this RouteHandlerBuilder builder, params string[] expectedContentTypes)
-        => builder.ProducesFile(HttpStatusCode.Created, expectedContentTypes);
-    internal static RouteHandlerBuilder ProducesFile(this RouteHandlerBuilder builder, HttpStatusCode httpStatusCode, params string[] expectedContentTypes)
-        => builder.WithMetadata(new ProducesFileMetadata(httpStatusCode, expectedContentTypes));
+
+
+    extension(RouteHandlerBuilder source)
+    {
+        public RouteHandlerBuilder ProducesHttpRedirect()
+                => source.Produces<IResult>((int)HttpStatusCode.Redirect);
+        public RouteHandlerBuilder ProducesHttpRedirectToImage()
+                => source.Produces<IResult>((int)HttpStatusCode.Redirect, MimeType.Application.OctetStream.PrimaryContentType);
+        public RouteHandlerBuilder ProducesExistingFile(params string[] expectedContentTypes)
+                => source.ProducesFile(HttpStatusCode.OK, expectedContentTypes);
+        public RouteHandlerBuilder ProducesCreatedFile(params string[] expectedContentTypes)
+                => source.ProducesFile(HttpStatusCode.Created, expectedContentTypes);
+        internal RouteHandlerBuilder ProducesFile(HttpStatusCode httpStatusCode, params string[] expectedContentTypes)
+                => source.WithMetadata(new ProducesFileMetadata(httpStatusCode, expectedContentTypes));
+    }
+
+
+
+
 
     private sealed record ProducesFileMetadata(HttpStatusCode StatusCode, string[] ContentTypes);
 

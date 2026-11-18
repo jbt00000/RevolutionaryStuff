@@ -34,98 +34,116 @@ public static class AspHelpers
 
     #endregion
 
-    public static string GetDisplayName(this Enum value)
-        => value.GetDisplayAttribute()?.GetName() ?? value.ToString();
-
-    public static string GetDescription(this Enum value)
-        => value.GetDisplayAttribute()?.GetDescription();
-
-    private static DisplayAttribute GetDisplayAttribute(this Enum value)
+    extension(Enum source)
     {
-        var type = value.GetType();
-        if (!type.IsEnum) throw new ArgumentException(string.Format("Type '{0}' is not Enum", type));
+        public string GetDisplayName()
+                => source.GetDisplayAttribute()?.GetName() ?? source.ToString();
+        public string GetDescription()
+                => source.GetDisplayAttribute()?.GetDescription();
+        private DisplayAttribute GetDisplayAttribute()
+        {
+            var type = source.GetType();
+            if (!type.IsEnum) throw new ArgumentException(string.Format("Type '{0}' is not Enum", type));
 
-        var members = type.GetMember(value.ToString());
-        if (members.Length == 0) throw new ArgumentException(string.Format("Member '{0}' not found in type '{1}'", value, type.Name));
+            var members = type.GetMember(source.ToString());
+            if (members.Length == 0) throw new ArgumentException(string.Format("Member '{0}' not found in type '{1}'", source, type.Name));
 
-        var member = members[0];
-        var attributes = member.GetCustomAttributes(typeof(DisplayAttribute), false);
-        return (DisplayAttribute)attributes.FirstOrDefault();
+            var member = members[0];
+            var attributes = member.GetCustomAttributes(typeof(DisplayAttribute), false);
+            return (DisplayAttribute)attributes.FirstOrDefault();
+        }
     }
+
+
+
+
 
     #region SelectList
 
-    public static IList<SelectListItem> CreateSelectList(this IEnumerable<SelectListItem> selectListItems)
+    extension(IEnumerable<SelectListItem> sources)
     {
-        var selectList = new List<SelectListItem>();
-
-        foreach (var selectListItem in selectListItems)
+        public IList<SelectListItem> CreateSelectList()
         {
-            selectList.Add(selectListItem);
+            var selectList = new List<SelectListItem>();
+
+            foreach (var selectListItem in sources)
+            {
+                selectList.Add(selectListItem);
+            }
+            return selectList;
         }
-        return selectList;
     }
 
-    public static IList<SelectListItem> CreateSelectList(this System.Collections.IEnumerable itemsToConvert)
+    extension(System.Collections.IEnumerable sources)
     {
-        var stringsSelect = new List<SelectListItem>();
-
-        foreach (var o in itemsToConvert)
+        public IList<SelectListItem> CreateSelectList()
         {
-            if (o == null) continue;
-            var val = o.ToString();
-            stringsSelect.Add(new SelectListItem { Text = val, Value = val });
+            var stringsSelect = new List<SelectListItem>();
+
+            foreach (var o in sources)
+            {
+                if (o == null) continue;
+                var val = o.ToString();
+                stringsSelect.Add(new SelectListItem { Text = val, Value = val });
+            }
+            return stringsSelect;
         }
-        return stringsSelect;
     }
 
     public static IList<SelectListItem> CreateSelectList<TEnum>(bool valAsName = true, bool sortByText = false) where TEnum : Enum
        => ((IEnumerable<TEnum>)Enum.GetValues(typeof(TEnum))).CreateSelectList(valAsName, sortByText);
 
-    public static IList<SelectListItem> CreateSelectList<TEnum>(this IEnumerable<TEnum> enums, bool valAsName = true, bool sortByText = false) where TEnum : Enum
+    extension<TEnum>(IEnumerable<TEnum> sources) where TEnum : Enum
     {
-        var items = new List<SelectListItem>();
+        public IList<SelectListItem> CreateSelectList(bool valAsName = true, bool sortByText = false)
+        {
+            var items = new List<SelectListItem>();
 
-        foreach (var e in enums)
-        {
-            var displayName = e.GetDisplayName();
-            var desc = e.GetDescription();
-            var value = valAsName ? e.ToString() : ((int)Enum.Parse(typeof(TEnum), e.ToString())).ToString();
-            items.Add(new ExtendedSelectListItem { Text = displayName, Value = value, Description = desc });
+            foreach (var e in sources)
+            {
+                var displayName = e.GetDisplayName();
+                var desc = e.GetDescription();
+                var value = valAsName ? e.ToString() : ((int)Enum.Parse(typeof(TEnum), e.ToString())).ToString();
+                items.Add(new ExtendedSelectListItem { Text = displayName, Value = value, Description = desc });
+            }
+            if (sortByText)
+            {
+                items.Sort((a, b) => a.Text.CompareTo(b.Text));
+            }
+            return items;
         }
-        if (sortByText)
-        {
-            items.Sort((a, b) => a.Text.CompareTo(b.Text));
-        }
-        return items;
     }
 
-    public static IList<SelectListItem> SelectItem(this IList<SelectListItem> items, object selectedValue, bool unselectOthers = true, bool ignoreCase = true)
-        => items.SelectItems(new[] { selectedValue }, unselectOthers, ignoreCase);
-
-    public static IList<SelectListItem> SelectItems<TVal>(this IList<SelectListItem> items, IEnumerable<TVal> selectedValues, bool unselectOthers = true, bool ignoreCase = true)
+    extension(IList<SelectListItem> sources)
     {
-        var vals = ignoreCase ? new HashSet<string>(Comparers.CaseInsensitiveStringComparer) : [];
-        if (selectedValues != null)
+        public IList<SelectListItem> SelectItem(object selectedValue, bool unselectOthers = true, bool ignoreCase = true)
+                => sources.SelectItems(new[] { selectedValue }, unselectOthers, ignoreCase);
+        public IList<SelectListItem> SelectItems<TVal>(IEnumerable<TVal> selectedValues, bool unselectOthers = true, bool ignoreCase = true)
         {
-            foreach (var sv in selectedValues)
+            var vals = ignoreCase ? new HashSet<string>(Comparers.CaseInsensitiveStringComparer) : [];
+            if (selectedValues != null)
             {
-                vals.Add(sv?.ToString());
+                foreach (var sv in selectedValues)
+                {
+                    vals.Add(sv?.ToString());
+                }
             }
+            foreach (var item in sources)
+            {
+                if (vals.Contains(item.Value))
+                {
+                    item.Selected = true;
+                }
+                else if (unselectOthers)
+                {
+                    item.Selected = false;
+                }
+            }
+            return sources;
         }
-        foreach (var item in items)
-        {
-            if (vals.Contains(item.Value))
-            {
-                item.Selected = true;
-            }
-            else if (unselectOthers)
-            {
-                item.Selected = false;
-            }
-        }
-        return items;
     }
+
+
 
     #endregion
 
@@ -133,103 +151,119 @@ public static class AspHelpers
 
     private const string LateContentPrefix = "_later_";
     private static long LateContentId = 1;
-    public static void AppendLater(this HttpContext context, object o)
+    extension(HttpContext source)
     {
-        var id = Interlocked.Increment(ref LateContentId);
-        var name = $"{LateContentPrefix}{id:0000000000000}";
-        context.Items[name] = o;
-    }
-
-    /// <remarks>https://rburnham.wordpress.com/2015/03/13/asp-net-mvc-defining-scripts-in-partial-views/</remarks>
-    public static HtmlString Script(this IHtmlHelper htmlHelper, Func<object, Microsoft.AspNetCore.Mvc.Razor.HelperResult> template)
-    {
-        htmlHelper.ViewContext.HttpContext.AppendLater(template);
-        return HtmlString.Empty;
-    }
-
-    /// <remarks>https://rburnham.wordpress.com/2015/03/13/asp-net-mvc-defining-scripts-in-partial-views/</remarks>
-    [Obsolete("Use " + nameof(RenderLaterContent), false)]
-    public static HtmlString RenderPartialViewScripts(this IHtmlHelper htmlHelper)
-        => htmlHelper.RenderLaterContent();
-
-    public static HtmlString RenderLaterContent(this IHtmlHelper htmlHelper)
-    {
-        List<string> orderedKeys = null;
-        foreach (var key in htmlHelper.ViewContext.HttpContext.Items.Keys)
+        public void AppendLater(object o)
         {
-            if (key is string sk && sk.StartsWith(LateContentPrefix))
-            {
-                orderedKeys ??= [];
-                orderedKeys.Add(sk);
-            }
+            var id = Interlocked.Increment(ref LateContentId);
+            var name = $"{LateContentPrefix}{id:0000000000000}";
+            source.Items[name] = o;
         }
-        if (orderedKeys != null)
+    }
+
+    extension(IHtmlHelper source)
+    {
+        /// <remarks>https://rburnham.wordpress.com/2015/03/13/asp-net-mvc-defining-scripts-in-partial-views/</remarks>
+        public HtmlString Script(Func<object, Microsoft.AspNetCore.Mvc.Razor.HelperResult> template)
         {
-            orderedKeys.Sort();
-            foreach (var sk in orderedKeys)
+            source.ViewContext.HttpContext.AppendLater(template);
+            return HtmlString.Empty;
+        }
+        /// <remarks>https://rburnham.wordpress.com/2015/03/13/asp-net-mvc-defining-scripts-in-partial-views/</remarks>
+        [Obsolete("Use " + nameof(RenderLaterContent), false)]
+        public HtmlString RenderPartialViewScripts()
+            => source.RenderLaterContent();
+        public HtmlString RenderLaterContent()
+        {
+            List<string> orderedKeys = null;
+            foreach (var key in source.ViewContext.HttpContext.Items.Keys)
             {
-                var v = htmlHelper.ViewContext.HttpContext.Items[sk];
-                if (v is Func<object, HelperResult> template)
+                if (key is string sk && sk.StartsWith(LateContentPrefix))
                 {
-                    htmlHelper.ViewContext.Writer.Write(template(null));
-                }
-                else if (v is string)
-                {
-                    htmlHelper.ViewContext.Writer.Write(v as string);
+                    orderedKeys ??= [];
+                    orderedKeys.Add(sk);
                 }
             }
+            if (orderedKeys != null)
+            {
+                orderedKeys.Sort();
+                foreach (var sk in orderedKeys)
+                {
+                    var v = source.ViewContext.HttpContext.Items[sk];
+                    if (v is Func<object, HelperResult> template)
+                    {
+                        source.ViewContext.Writer.Write(template(null));
+                    }
+                    else if (v is string)
+                    {
+                        source.ViewContext.Writer.Write(v as string);
+                    }
+                }
+            }
+            return HtmlString.Empty;
         }
-        return HtmlString.Empty;
     }
+
+
+
+
 
     #endregion
 
 
     public static MimeType BodyAsJsonMimeType = MimeType.Application.Json;
 
-    public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpRequest r, bool checkContentType = false)
+    extension(HttpRequest source)
     {
-        var json = await r.BodyAsJsonAsync(checkContentType);
-        return JsonHelpers.FromJson<T>(json);
-    }
-
-    public static async Task<string> BodyAsJsonAsync(this HttpRequest r, bool checkContentType = false)
-    {
-        if (checkContentType && BodyAsJsonMimeType != null)
+        public async Task<T> BodyAsJsonObjectAsync<T>(bool checkContentType = false)
         {
-            if (!BodyAsJsonMimeType.DoesContentTypeMatch(r.ContentType))
+            var json = await source.BodyAsJsonAsync(checkContentType);
+            return JsonHelpers.FromJson<T>(json);
+        }
+        public async Task<string> BodyAsJsonAsync(bool checkContentType = false)
+        {
+            if (checkContentType && BodyAsJsonMimeType != null)
             {
-                throw new ArgumentOutOfRangeException(nameof(r.ContentType), $"Content type does not match {nameof(BodyAsJsonMimeType)}");
+                if (!BodyAsJsonMimeType.DoesContentTypeMatch(source.ContentType))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(source.ContentType), $"Content type does not match {nameof(BodyAsJsonMimeType)}");
+                }
             }
-        }
-        if (r.Body.CanSeek)
-        {
-            r.Body.Seek(0, SeekOrigin.Begin);
-        }
-        var json = await r.Body.ReadToEndAsync();
-        return json;
-    }
-
-    public static async Task<T> BodyAsJsonObjectAsync<T>(this HttpResponse r, bool checkContentType = false)
-    {
-        var json = await r.BodyAsJsonAsync(checkContentType);
-        return JsonHelpers.FromJson<T>(json);
-    }
-
-    public static async Task<string> BodyAsJsonAsync(this HttpResponse r, bool checkContentType = false)
-    {
-        if (checkContentType && BodyAsJsonMimeType != null)
-        {
-            if (!BodyAsJsonMimeType.DoesContentTypeMatch(r.ContentType))
+            if (source.Body.CanSeek)
             {
-                throw new ArgumentOutOfRangeException(nameof(r.ContentType), $"Content type does not match {nameof(BodyAsJsonMimeType)}");
+                source.Body.Seek(0, SeekOrigin.Begin);
             }
+            var json = await source.Body.ReadToEndAsync();
+            return json;
         }
-        if (r.Body.CanSeek)
-        {
-            r.Body.Seek(0, SeekOrigin.Begin);
-        }
-        var json = await r.Body.ReadToEndAsync();
-        return json;
     }
+
+
+
+    extension(HttpResponse source)
+    {
+        public async Task<T> BodyAsJsonObjectAsync<T>(bool checkContentType = false)
+        {
+            var json = await source.BodyAsJsonAsync(checkContentType);
+            return JsonHelpers.FromJson<T>(json);
+        }
+        public async Task<string> BodyAsJsonAsync(bool checkContentType = false)
+        {
+            if (checkContentType && BodyAsJsonMimeType != null)
+            {
+                if (!BodyAsJsonMimeType.DoesContentTypeMatch(source.ContentType))
+                {
+                    throw new ArgumentOutOfRangeException(nameof(source.ContentType), $"Content type does not match {nameof(BodyAsJsonMimeType)}");
+                }
+            }
+            if (source.Body.CanSeek)
+            {
+                source.Body.Seek(0, SeekOrigin.Begin);
+            }
+            var json = await source.Body.ReadToEndAsync();
+            return json;
+        }
+    }
+
+
 }

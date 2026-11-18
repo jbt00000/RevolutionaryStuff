@@ -6,27 +6,29 @@ namespace RevolutionaryStuff.Applets.Services.Runners;
 
 public static class ScheduledRunnerServiceCollectionExtensions
 {
-    public static IServiceCollection AddScheduledRunnerHost<TRunner>(
-        this IServiceCollection services,
-        IConfiguration configuration,
-        string configSectionName)
-        where TRunner : class, IRunner
+    extension(IServiceCollection sources)
     {
-        ArgumentNullException.ThrowIfNull(services);
-        ArgumentNullException.ThrowIfNull(configuration);
-        Requires.Text(configSectionName);
+        public IServiceCollection AddScheduledRunnerHost<TRunner>(
+                IConfiguration configuration,
+                string configSectionName)
+                where TRunner : class, IRunner
+        {
+            ArgumentNullException.ThrowIfNull(sources);
+            ArgumentNullException.ThrowIfNull(configuration);
+            Requires.Text(configSectionName);
 
-        services.AddScoped<TRunner>();
-        services.AddOptions<ScheduledRunnerHostConfig>(GetOptionsName<TRunner>())
-            .Bind(configuration.GetSection(configSectionName))
-            .ValidateDataAnnotations()
-            .Validate(
-                config => TryParseSchedule(config.Schedule),
-                $"The '{configSectionName}' schedule must be a valid five-part cron expression.")
-            .ValidateOnStart();
-        services.AddHostedService<ScheduledRunnerHost<TRunner>>();
+            sources.AddScoped<TRunner>();
+            sources.AddOptions<ScheduledRunnerHostConfig>(GetOptionsName<TRunner>())
+                .Bind(configuration.GetSection(configSectionName))
+                .ValidateDataAnnotations()
+                .Validate(
+                    config => TryParseSchedule(config.Schedule),
+                    $"The '{configSectionName}' schedule must be a valid five-part cron expression.")
+                .ValidateOnStart();
+            sources.AddHostedService<ScheduledRunnerHost<TRunner>>();
 
-        return services;
+            return sources;
+        }
     }
 
     internal static string GetOptionsName<TRunner>()

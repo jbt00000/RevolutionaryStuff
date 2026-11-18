@@ -4,9 +4,13 @@ namespace RevolutionaryStuff.Core.Threading;
 
 public static class ReaderWriterLockHelpers
 {
-    public static IDisposableReaderWriterLock UseRead(this ReaderWriterLock rwl)
-        => new DisposableReaderWriterLock(rwl);
+    extension(ReaderWriterLock source)
+    {
+        public IDisposableReaderWriterLock UseRead()
+                => new DisposableReaderWriterLock(source);
+        public IDisposable UseWrite()
+                => new DisposableReaderWriterLock(source).UseWrite(true);
+    }
 
-    public static IDisposable UseWrite(this ReaderWriterLock rwl)
-        => new DisposableReaderWriterLock(rwl).UseWrite(true);
+
 }

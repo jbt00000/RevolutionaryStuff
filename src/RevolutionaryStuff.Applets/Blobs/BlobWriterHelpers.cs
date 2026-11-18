@@ -25,22 +25,26 @@ public static class BlobWriterHelpers
         return $"{appName}/{tenantId}/diagnostics/{now:yyyy}/{now:MM}/{now:dd}/{now:HH}/{newFileName}";
     }
 
-    public static IServiceCollection AddBlobWriter<TBlobWriter>(this IServiceCollection services, Func<PathProviderArgs, string> pathProvider)
-        where TBlobWriter : class, IBlobWriter
-        => AddBlobWriter<IStorageProvider, TBlobWriter>(services, pathProvider);
-
-    public static IServiceCollection AddBlobWriter<TStorageProvider, TBlobWriter>(this IServiceCollection services, Func<PathProviderArgs, string> pathProvider)
-        where TStorageProvider : IStorageProvider
-        where TBlobWriter : class, IBlobWriter
+    extension(IServiceCollection sources)
     {
-        services.AddScoped<TBlobWriter>(sp =>
+        public IServiceCollection AddBlobWriter<TBlobWriter>(Func<PathProviderArgs, string> pathProvider)
+                where TBlobWriter : class, IBlobWriter
+                => AddBlobWriter<IStorageProvider, TBlobWriter>(sources, pathProvider);
+        public IServiceCollection AddBlobWriter<TStorageProvider, TBlobWriter>(Func<PathProviderArgs, string> pathProvider)
+                where TStorageProvider : IStorageProvider
+                where TBlobWriter : class, IBlobWriter
         {
-            var storageProvider = sp.GetRequiredService<TStorageProvider>();
-            var inner = new MyBlobWriter(sp, storageProvider, pathProvider);
-            return BlobWriterProxy<TBlobWriter>.Create(inner);
-        });
-        return services;
+            sources.AddScoped<TBlobWriter>(sp =>
+            {
+                var storageProvider = sp.GetRequiredService<TStorageProvider>();
+                var inner = new MyBlobWriter(sp, storageProvider, pathProvider);
+                return BlobWriterProxy<TBlobWriter>.Create(inner);
+            });
+            return sources;
+        }
     }
+
+
 
     private class MyBlobWriter(IServiceProvider ServiceProvider, IStorageProvider StorageProvider, Func<PathProviderArgs, string> PathProvider) : IBlobWriter
     {

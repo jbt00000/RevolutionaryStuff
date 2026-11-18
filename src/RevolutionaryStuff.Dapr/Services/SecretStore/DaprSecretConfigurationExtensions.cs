@@ -4,9 +4,12 @@ namespace RevolutionaryStuff.Dapr.Services.SecretStore;
 
 public static class DaprSecretConfigurationExtensions
 {
-    public static IConfigurationBuilder AddDaprSecretStore(this IConfigurationBuilder builder, string storeName)
+    extension(IConfigurationBuilder source)
     {
-        builder.Add(new DaprSecretConfigurationSource(storeName));
-        return builder;
+        public IConfigurationBuilder AddDaprSecretStore(string storeName)
+        {
+            source.Add(new DaprSecretConfigurationSource(storeName));
+            return source;
+        }
     }
 }

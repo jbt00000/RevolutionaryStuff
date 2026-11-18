@@ -12,23 +12,26 @@ public static class Use
     {
     }
 
-    public static IServiceCollection UseRevolutionaryStuffDataJsonStoreCosmos(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
-            {
-                services.UseRevolutionaryStuffDataJsonStore();
+    extension(IServiceCollection sources)
+    {
+        public IServiceCollection UseRevolutionaryStuffDataJsonStoreCosmos(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+                    {
+                        sources.UseRevolutionaryStuffDataJsonStore();
 
-                #region Database
+                        #region Database
 
-                services.ConfigureOptions<CosmosJsonEntityServerConfig>(CosmosJsonEntityServerConfig.ConfigSectionName);
-                services.AddScoped<CosmosJsonEntityServerConstructorArgs>();
+                        sources.ConfigureOptions<CosmosJsonEntityServerConfig>(CosmosJsonEntityServerConfig.ConfigSectionName);
+                        sources.AddScoped<CosmosJsonEntityServerConstructorArgs>();
 
-                #endregion
+                        #endregion
 
-                services.AddScoped<CosmosChangeDataCaptureJsonEntityEventProcessor>();
-                services.AddScoped<CosmosChangeDataCaptureJsonEntityEventProcessor.CosmosChangeDataCaptureJsonEntityEventProcessorConstructorArgs>();
-                services.AddScoped<DefaultCosmosJsonEntityServer.DefaultCosmosJsonEntityServerConstructorArgs>();
-                services.AddScoped<CosmosRepoConstructorArgs>();
-            });
+                        sources.AddScoped<CosmosChangeDataCaptureJsonEntityEventProcessor>();
+                        sources.AddScoped<CosmosChangeDataCaptureJsonEntityEventProcessor.CosmosChangeDataCaptureJsonEntityEventProcessorConstructorArgs>();
+                        sources.AddScoped<DefaultCosmosJsonEntityServer.DefaultCosmosJsonEntityServerConstructorArgs>();
+                        sources.AddScoped<CosmosRepoConstructorArgs>();
+                    });
+    }
 }

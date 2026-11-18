@@ -13,30 +13,34 @@ public static class Use
 {
     public sealed record Settings(bool AddDaprClient = true, ApiCore.Use.Settings? RevolutionaryStuffApiCoreUseSettings = null);
 
-    public static IServiceCollection UseRevolutionaryStuffDapr(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
-            {
-                services.UseRevolutionaryStuffApiCore(settings?.RevolutionaryStuffApiCoreUseSettings);
-
-                services.ConfigureOptions<DaprConfig>(DaprConfig.ConfigSectionName);
-                if (settings.AddDaprClient)
-                {
-                    services.AddDaprClient();
-                    //                    services.AddSingleton(new DaprClientBuilder().Build());
-                }
-                services.AddSingleton<IMyDaprStateStore>(sp => new MyDaprStateStore(sp.GetRequiredService<DaprClient>(), sp.GetRequiredService<IOptions<DaprConfig>>().Value.MyStateStoreName));
-                services.AddSingleton<ISharedDaprStateStore>(sp => new SharedDaprStateStore(sp.GetRequiredService<DaprClient>(), sp.GetRequiredService<IOptions<DaprConfig>>().Value.SharedStateStoreName));
-            });
-
-    public static IServiceCollection AddDaprRefitRestApi<TIApi>(this IServiceCollection services, string name)
-    where TIApi : class
+    extension(IServiceCollection sources)
     {
-        services.AddSingleton(sp =>
+        public IServiceCollection UseRevolutionaryStuffDapr(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+                    {
+                        sources.UseRevolutionaryStuffApiCore(settings?.RevolutionaryStuffApiCoreUseSettings);
+
+                        sources.ConfigureOptions<DaprConfig>(DaprConfig.ConfigSectionName);
+                        if (settings.AddDaprClient)
+                        {
+                            sources.AddDaprClient();
+                            //                    services.AddSingleton(new DaprClientBuilder().Build());
+                        }
+                        sources.AddSingleton<IMyDaprStateStore>(sp => new MyDaprStateStore(sp.GetRequiredService<DaprClient>(), sp.GetRequiredService<IOptions<DaprConfig>>().Value.MyStateStoreName));
+                        sources.AddSingleton<ISharedDaprStateStore>(sp => new SharedDaprStateStore(sp.GetRequiredService<DaprClient>(), sp.GetRequiredService<IOptions<DaprConfig>>().Value.SharedStateStoreName));
+                    });
+        public IServiceCollection AddDaprRefitRestApi<TIApi>(string name)
+            where TIApi : class
         {
-            return RestService.For<TIApi>(DaprClient.CreateInvokeHttpClient(name));
-        });
-        return services;
+            sources.AddSingleton(sp =>
+            {
+                return RestService.For<TIApi>(DaprClient.CreateInvokeHttpClient(name));
+            });
+            return sources;
+        }
     }
+
+
 }

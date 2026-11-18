@@ -26,8 +26,11 @@ public static partial class WebHelpers
             => !IsSecure(scheme);
     }
 
-    public static bool Is200Level(this HttpStatusCode code)
-        => code >= HttpStatusCode.OK && code < HttpStatusCode.Ambiguous;
+    extension(HttpStatusCode source)
+    {
+        public bool Is200Level()
+                => source >= HttpStatusCode.OK && source < HttpStatusCode.Ambiguous;
+    }
 
     public static string CreateBasicAuthorizationHeaderValueParameter(string username, string password)
         => Convert.ToBase64String(Encoding.UTF8.GetBytes($"{username}:{password}"));
@@ -35,19 +38,25 @@ public static partial class WebHelpers
     public static AuthenticationHeaderValue CreateBasicAuthorizationHeaderValue(string username, string password)
         => new("Basic", CreateBasicAuthorizationHeaderValueParameter(username, password));
 
-    public static HttpRequestHeaders AddBasicAuthorization(this HttpRequestHeaders h, string username, string password)
+    extension(HttpRequestHeaders sources)
     {
-        h.Authorization = CreateBasicAuthorizationHeaderValue(username, password);
-        return h;
+        public HttpRequestHeaders AddBasicAuthorization(string username, string password)
+        {
+            sources.Authorization = CreateBasicAuthorizationHeaderValue(username, password);
+            return sources;
+        }
+        public HttpRequestHeaders AddJwtAuthorization(string bearerToken)
+        {
+            sources.Authorization = new AuthenticationHeaderValue(JwtAuthenticationScheme, bearerToken);
+            return sources;
+        }
+        public void AcceptJson()
+                => sources.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
     }
 
     public const string JwtAuthenticationScheme = "Bearer";
 
-    public static HttpRequestHeaders AddJwtAuthorization(this HttpRequestHeaders h, string bearerToken)
-    {
-        h.Authorization = new AuthenticationHeaderValue(JwtAuthenticationScheme, bearerToken);
-        return h;
-    }
+
 
     public static HttpContent CreateJsonContent(string json, Encoding encoding = null)
         => new StringContent(json, encoding ?? Encoding.UTF8, "application/json");
@@ -62,30 +71,40 @@ public static partial class WebHelpers
         return content;
     }
 
-    public static StringValues GetQueryStringParam(this Uri uri, string parameterName, bool caseSensitive = false)
+    extension(Uri source)
     {
-        if (uri == null)
-            throw new ArgumentNullException(nameof(uri));
-        if (string.IsNullOrEmpty(parameterName))
-            throw new ArgumentException("Parameter name cannot be null or empty.", nameof(parameterName));
+        public StringValues GetQueryStringParam(string parameterName, bool caseSensitive = false)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source));
+            if (string.IsNullOrEmpty(parameterName))
+                throw new ArgumentException("Parameter name cannot be null or empty.", nameof(parameterName));
 
-        var queryParameters = HttpUtility.ParseQueryString(uri.Query);
-        if (caseSensitive)
-        {
-            return new StringValues(queryParameters.Get(parameterName));
-        }
-        else
-        {
-            foreach (var key in queryParameters.AllKeys)
+            var queryParameters = HttpUtility.ParseQueryString(source.Query);
+            if (caseSensitive)
             {
-                if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase))
+                return new StringValues(queryParameters.Get(parameterName));
+            }
+            else
+            {
+                foreach (var key in queryParameters.AllKeys)
                 {
-                    return new StringValues(queryParameters.Get(key));
+                    if (string.Equals(key, parameterName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        return new StringValues(queryParameters.Get(key));
+                    }
                 }
             }
-        }
 
-        return StringValues.Empty;
+            return StringValues.Empty;
+        }
+        public Uri AppendParameters(IEnumerable<KeyValuePair<string, string>> nameVals) =>
+                new(AppendParameters(source.ToString(), nameVals));
+        public Uri AppendParameter(string paramName, object val)
+        {
+            var url = AppendParameter(source.ToString(), paramName, val);
+            return new Uri(url, source.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative);
+        }
     }
 
     public static MultipleValueDictionary<string, string> ParseQueryParams(string queryString)
@@ -112,8 +131,7 @@ public static partial class WebHelpers
         return m;
     }
 
-    public static Uri AppendParameters(this Uri uri, IEnumerable<KeyValuePair<string, string>> nameVals) =>
-        new(AppendParameters(uri.ToString(), nameVals));
+
 
     public static string AppendParameters(string url, IEnumerable<KeyValuePair<string, string>> nameVals)
     {
@@ -152,30 +170,31 @@ public static partial class WebHelpers
         return url;
     }
 
-    public static Uri AppendParameter(this Uri u, string paramName, object val)
+
+
+    extension(HttpResponseHeaders sources)
     {
-        var url = AppendParameter(u.ToString(), paramName, val);
-        return new Uri(url, u.IsAbsoluteUri ? UriKind.Absolute : UriKind.Relative);
+        public string GetValueOrDefault(string headerName, string missing = null)
+        {
+            if (sources.TryGetValues(headerName, out var vals))
+            {
+                var e = vals.GetEnumerator();
+                return e.MoveNext() ? e.Current : missing;
+            }
+            return missing;
+        }
     }
 
-    public static string GetValueOrDefault(this HttpResponseHeaders headers, string headerName, string missing = null)
-    {
-        if (headers.TryGetValues(headerName, out var vals))
-        {
-            var e = vals.GetEnumerator();
-            return e.MoveNext() ? e.Current : missing;
-        }
-        return missing;
-    }
-    public static void AcceptJson(this HttpRequestHeaders headers)
-        => headers.Accept.Add(MediaTypeWithQualityHeaderValue.Parse("application/json"));
 
-    public static void Set(this HttpHeaders headers, string name, string val)
+    extension(HttpHeaders sources)
     {
-        if (headers.Contains(name))
+        public void Set(string name, string val)
         {
-            headers.Remove(name);
+            if (sources.Contains(name))
+            {
+                sources.Remove(name);
+            }
+            sources.Add(name, val);
         }
-        headers.Add(name, val);
     }
 }

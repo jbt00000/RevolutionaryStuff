@@ -71,217 +71,246 @@ public static class DataTableHelpers
         return dt;
     }
 
-    public static int GetInt(this DataRow dataRow, string columnName, int fallback = default, Func<object, int> converter = null)
+    extension(DataRow source)
     {
-        try
+        public int GetInt(string columnName, int fallback = default, Func<object, int> converter = null)
         {
-            var o = dataRow[columnName];
-            if (o != DBNull.Value && o != null)
+            try
             {
-                return TypeHelpers.IsNumber(o.GetType())
-                    ? Convert.ToInt32(o)
-                    : converter != null ? converter(o) : Parse.ParseInt32(o.ToString(), fallback);
-            }
-        }
-        catch (Exception)
-        { }
-        return fallback;
-    }
-
-    public static string GetString(this DataRow dataRow, string columnName, Func<object, string> converter = null)
-    {
-        var o = dataRow[columnName];
-        return o == DBNull.Value ? null : o is string sv ? sv : converter != null ? converter(o) : o.ToString();
-    }
-
-    public static void RemoveWhere(this DataRowCollection rows, Predicate<DataRow> removeQualifier)
-    {
-        var removes = new List<DataRow>();
-        foreach (DataRow dr in rows)
-        {
-            if (removeQualifier(dr))
-            {
-                removes.Add(dr);
-            }
-        }
-        foreach (var dr in removes)
-        {
-            rows.Remove(dr);
-        }
-    }
-
-    public static void Sample(this DataRowCollection rows, int size, Random r = null)
-    {
-        r ??= Stuff.Random;
-        while (rows.Count > size)
-        {
-            var n = r.Next(0, rows.Count - 1);
-            rows.RemoveAt(n);
-        }
-    }
-
-    public static void AddRange(this DataColumnCollection dcc, IEnumerable<string> fieldNames)
-    {
-        var existing = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
-        foreach (DataColumn dc in dcc)
-        {
-            existing.Add(dc.ColumnName);
-        }
-        foreach (var colName in fieldNames)
-        {
-            if (existing.Contains(colName)) continue;
-            existing.Add(colName);
-            dcc.Add(colName);
-        }
-    }
-
-    public static IList<DataRow> ToList(this DataRowCollection rowCollection)
-    {
-        var rows = new List<DataRow>();
-        foreach (DataRow dr in rowCollection)
-        {
-            rows.Add(dr);
-        }
-        return rows;
-    }
-
-    internal static DataColumn Xerox(this DataColumn dc)
-    {
-        var c = new DataColumn(dc.ColumnName, dc.DataType, dc.Expression)
-        {
-            AllowDBNull = dc.AllowDBNull,
-            AutoIncrement = dc.AutoIncrement,
-            AutoIncrementSeed = dc.AutoIncrementSeed,
-            AutoIncrementStep = dc.AutoIncrementStep,
-            Caption = dc.Caption,
-            ColumnMapping = dc.ColumnMapping,
-            DateTimeMode = dc.DateTimeMode,
-            DefaultValue = dc.DefaultValue,
-            MaxLength = dc.MaxLength,
-            Namespace = dc.Namespace,
-            Prefix = dc.Prefix,
-            ReadOnly = dc.ReadOnly,
-            Unique = dc.Unique
-        };
-        foreach (var propertyName in dc.ExtendedProperties.Keys)
-        {
-            c.ExtendedProperties[propertyName] = dc.ExtendedProperties[propertyName];
-        }
-        return c;
-    }
-
-    private static T ExtendedProperty<T>(this DataColumn dc, string propertyName, T? val = null, T missingValue = default) where T : struct
-    {
-        if (val != null)
-        {
-            dc.ExtendedProperties[propertyName] = val.Value;
-            return val.Value;
-        }
-
-        try
-        {
-            var p = dc.ExtendedProperties[propertyName];
-            if (p != null)
-            {
-                return (T)p;
-            }
-        }
-        catch (Exception)
-        { }
-        return missingValue;
-    }
-
-    private static int IntegerExtendedProperty(this DataColumn dc, string propertyName, int? val = null, int missingValue = 0)
-        => dc.ExtendedProperty(propertyName, val, missingValue);
-
-    private static bool BooleanExtendedProperty(this DataColumn dc, string propertyName, bool? val = null, bool missingValue = false)
-        => dc.ExtendedProperty(propertyName, val, missingValue);
-
-    public static bool PreserveTypeInformation(this DataColumn dc, bool? preserveTypeInformation = null)
-        => dc.BooleanExtendedProperty(CommonDataColumnExtendedPropertyNames.PreserveTypeInformation, preserveTypeInformation, false);
-
-    public static bool Unicode(this DataColumn dc, bool? isUnicode = null)
-        => dc.BooleanExtendedProperty(CommonDataColumnExtendedPropertyNames.Unicode, isUnicode, true);
-
-    public static int NumericScale(this DataColumn dc, int? val = null)
-        => dc.IntegerExtendedProperty(CommonDataColumnExtendedPropertyNames.NumericScale, val);
-
-    public static int NumericPrecision(this DataColumn dc, int? val = null)
-        => dc.IntegerExtendedProperty(CommonDataColumnExtendedPropertyNames.NumericPrecision, val);
-
-    public static async Task ToCsvAsync(this DataTable dt, StreamWriter sw, char fieldDelimChar = CSV.FieldDelimDefault)
-    {
-        var sb = new StringBuilder();
-        CSV.FormatLine(sb, dt.Columns.OfType<DataColumn>().ConvertAll(z => z.ColumnName), false, fieldDelimChar);
-        await sw.WriteLineAsync(sb.ToString());
-        foreach (DataRow r in dt.Rows)
-        {
-            sb.Clear();
-            CSV.FormatLine(sb, r.ItemArray, false, fieldDelimChar);
-            await sw.WriteLineAsync(sb.ToString());
-        }
-    }
-
-    public static string ToCsv(this DataTable dt)
-    {
-        var sb = new StringBuilder();
-        CSV.FormatLine(sb, dt.Columns.OfType<DataColumn>().ConvertAll(z => z.ColumnName), true);
-        foreach (DataRow r in dt.Rows)
-        {
-            sb.Append(r.ToCsv());
-        }
-        return sb.ToString();
-    }
-
-    public static string ToCsv(this DataRow dr)
-        => CSV.FormatLine(dr.ItemArray, true);
-
-    public static DataColumn Clone(this DataColumn dc)
-    {
-        var c = new DataColumn(dc.ColumnName, dc.DataType, dc.Expression, dc.ColumnMapping);
-        foreach (var propertyName in dc.ExtendedProperties)
-        {
-            var propertyVal = dc.ExtendedProperties[propertyName];
-            c.ExtendedProperties[propertyName] = propertyVal;
-        }
-        return c;
-    }
-
-    public static DataTable UnPivot(this DataTable dt, ICollection<string> dimensionColumnNames, string pivotKeyColumnName, string pivotValueColumnName)
-    {
-        var updt = new DataTable(dt.TableName);
-        var frontCols = new List<DataColumn>();
-        var zippyCols = new List<DataColumn>();
-        var dcn = new HashSet<string>(dimensionColumnNames, Comparers.CaseInsensitiveStringComparer);
-        foreach (DataColumn dc in dt.Columns)
-        {
-            if (dcn.Contains(dc.ColumnName))
-            {
-                updt.Columns.Add(dc.Clone());
-                frontCols.Add(dc);
-            }
-            else
-            {
-                zippyCols.Add(dc);
-            }
-        }
-        Requires.Positive(zippyCols.Count, $"{nameof(zippyCols)}.{nameof(zippyCols.Count)}");
-        updt.Columns.Add(pivotKeyColumnName);
-        updt.Columns.Add(pivotValueColumnName);
-        foreach (DataRow sourceRow in dt.Rows)
-        {
-            foreach (var zippyCol in zippyCols)
-            {
-                var destRow = updt.NewRow();
-                foreach (var dc in frontCols)
+                var o = source[columnName];
+                if (o != DBNull.Value && o != null)
                 {
-                    destRow[dc.ColumnName] = sourceRow[dc];
+                    return TypeHelpers.IsNumber(o.GetType())
+                        ? Convert.ToInt32(o)
+                        : converter != null ? converter(o) : Parse.ParseInt32(o.ToString(), fallback);
                 }
-                destRow[pivotKeyColumnName] = zippyCol.ColumnName;
-                destRow[pivotValueColumnName] = sourceRow[zippyCol];
-                updt.Rows.Add(destRow);
+            }
+            catch (Exception)
+            { }
+            return fallback;
+        }
+        public string GetString(string columnName, Func<object, string> converter = null)
+        {
+            var o = source[columnName];
+            return o == DBNull.Value ? null : o is string sv ? sv : converter != null ? converter(o) : o.ToString();
+        }
+        public string ToCsv()
+                => CSV.FormatLine(source.ItemArray, true);
+    }
+
+
+
+    extension(DataRowCollection sources)
+    {
+        public void RemoveWhere(Predicate<DataRow> removeQualifier)
+        {
+            var removes = new List<DataRow>();
+            foreach (DataRow dr in sources)
+            {
+                if (removeQualifier(dr))
+                {
+                    removes.Add(dr);
+                }
+            }
+            foreach (var dr in removes)
+            {
+                sources.Remove(dr);
             }
         }
-        return updt;
+        public void Sample(int size, Random r = null)
+        {
+            r ??= Stuff.Random;
+            while (sources.Count > size)
+            {
+                var n = r.Next(0, sources.Count - 1);
+                sources.RemoveAt(n);
+            }
+        }
+        public IList<DataRow> ToList()
+        {
+            var rows = new List<DataRow>();
+            foreach (var dr in rows)
+            {
+                rows.Add(dr);
+            }
+            return rows;
+        }
     }
+
+
+
+    extension(DataColumnCollection sources)
+    {
+        public void AddRange(IEnumerable<string> fieldNames)
+        {
+            var existing = new HashSet<string>(Comparers.CaseInsensitiveStringComparer);
+            foreach (DataColumn dc in sources)
+            {
+                existing.Add(dc.ColumnName);
+            }
+            foreach (var colName in fieldNames)
+            {
+                if (existing.Contains(colName)) continue;
+                existing.Add(colName);
+                sources.Add(colName);
+            }
+        }
+    }
+
+
+
+    extension(DataColumn source)
+    {
+        internal DataColumn Xerox()
+        {
+            var c = new DataColumn(source.ColumnName, source.DataType, source.Expression)
+            {
+                AllowDBNull = source.AllowDBNull,
+                AutoIncrement = source.AutoIncrement,
+                AutoIncrementSeed = source.AutoIncrementSeed,
+                AutoIncrementStep = source.AutoIncrementStep,
+                Caption = source.Caption,
+                ColumnMapping = source.ColumnMapping,
+                DateTimeMode = source.DateTimeMode,
+                DefaultValue = source.DefaultValue,
+                MaxLength = source.MaxLength,
+                Namespace = source.Namespace,
+                Prefix = source.Prefix,
+                ReadOnly = source.ReadOnly,
+                Unique = source.Unique
+            };
+            foreach (var propertyName in source.ExtendedProperties.Keys)
+            {
+                c.ExtendedProperties[propertyName] = source.ExtendedProperties[propertyName];
+            }
+            return c;
+        }
+        private T ExtendedProperty<T>(string propertyName, T? val = null, T missingValue = default) where T : struct
+        {
+            if (val != null)
+            {
+                source.ExtendedProperties[propertyName] = val.Value;
+                return val.Value;
+            }
+
+            try
+            {
+                var p = source.ExtendedProperties[propertyName];
+                if (p != null)
+                {
+                    return (T)p;
+                }
+            }
+            catch (Exception)
+            { }
+            return missingValue;
+        }
+        private int IntegerExtendedProperty(string propertyName, int? val = null, int missingValue = 0)
+                => source.ExtendedProperty(propertyName, val, missingValue);
+        private bool BooleanExtendedProperty(string propertyName, bool? val = null, bool missingValue = false)
+                => source.ExtendedProperty(propertyName, val, missingValue);
+        public bool PreserveTypeInformation(bool? preserveTypeInformation = null)
+                => source.BooleanExtendedProperty(CommonDataColumnExtendedPropertyNames.PreserveTypeInformation, preserveTypeInformation, false);
+        public bool Unicode(bool? isUnicode = null)
+                => source.BooleanExtendedProperty(CommonDataColumnExtendedPropertyNames.Unicode, isUnicode, true);
+        public int NumericScale(int? val = null)
+                => source.IntegerExtendedProperty(CommonDataColumnExtendedPropertyNames.NumericScale, val);
+        public int NumericPrecision(int? val = null)
+                => source.IntegerExtendedProperty(CommonDataColumnExtendedPropertyNames.NumericPrecision, val);
+        public DataColumn Clone()
+        {
+            var c = new DataColumn(source.ColumnName, source.DataType, source.Expression, source.ColumnMapping);
+            foreach (var propertyName in source.ExtendedProperties)
+            {
+                var propertyVal = source.ExtendedProperties[propertyName];
+                c.ExtendedProperties[propertyName] = propertyVal;
+            }
+            return c;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    extension(DataTable source)
+    {
+        public async Task ToCsvAsync(StreamWriter sw, char fieldDelimChar = CSV.FieldDelimDefault)
+        {
+            var sb = new StringBuilder();
+            CSV.FormatLine(sb, source.Columns.OfType<DataColumn>().ConvertAll(z => z.ColumnName), false, fieldDelimChar);
+            await sw.WriteLineAsync(sb.ToString());
+            foreach (DataRow r in source.Rows)
+            {
+                sb.Clear();
+                CSV.FormatLine(sb, r.ItemArray, false, fieldDelimChar);
+                await sw.WriteLineAsync(sb.ToString());
+            }
+        }
+        public string ToCsv()
+        {
+            var sb = new StringBuilder();
+            CSV.FormatLine(sb, source.Columns.OfType<DataColumn>().ConvertAll(z => z.ColumnName), true);
+            foreach (DataRow r in source.Rows)
+            {
+                sb.Append(r.ToCsv());
+            }
+            return sb.ToString();
+        }
+        public DataTable UnPivot(ICollection<string> dimensionColumnNames, string pivotKeyColumnName, string pivotValueColumnName)
+        {
+            var updt = new DataTable(source.TableName);
+            var frontCols = new List<DataColumn>();
+            var zippyCols = new List<DataColumn>();
+            var dcn = new HashSet<string>(dimensionColumnNames, Comparers.CaseInsensitiveStringComparer);
+            foreach (DataColumn dc in source.Columns)
+            {
+                if (dcn.Contains(dc.ColumnName))
+                {
+                    updt.Columns.Add(dc.Clone());
+                    frontCols.Add(dc);
+                }
+                else
+                {
+                    zippyCols.Add(dc);
+                }
+            }
+            Requires.Positive(zippyCols.Count, $"{nameof(zippyCols)}.{nameof(zippyCols.Count)}");
+            updt.Columns.Add(pivotKeyColumnName);
+            updt.Columns.Add(pivotValueColumnName);
+            foreach (DataRow sourceRow in source.Rows)
+            {
+                foreach (var zippyCol in zippyCols)
+                {
+                    var destRow = updt.NewRow();
+                    foreach (var dc in frontCols)
+                    {
+                        destRow[dc.ColumnName] = sourceRow[dc];
+                    }
+                    destRow[pivotKeyColumnName] = zippyCol.ColumnName;
+                    destRow[pivotValueColumnName] = sourceRow[zippyCol];
+                    updt.Rows.Add(destRow);
+                }
+            }
+            return updt;
+        }
+    }
+
+
+
+
+
+
+
+
 }

@@ -13,15 +13,18 @@ public static class Use
     {
     }
 
-    public static IServiceCollection UseRevolutionaryStuffAspNetCore(this IServiceCollection services, Settings settings = null)
-        => services.Use(
-            settings,
-            () =>
+    extension(IServiceCollection sources)
     {
-        services.UseRevolutionaryStuffCore();
-        services.AddScoped<ICorrelationIdFinder, HttpContextCorrelationIdFinder>();
-        services.AddSingleton<IWebSessionArchiver, SazWebSessionArchiver>();
-        services.AddSingleton<ISazWebSessionArchiver, SazWebSessionArchiver>();
-        services.AddTextTemplateRenderer<IRazorTextTemplateRenderer, RazorTextTemplateRenderer>(ServiceLifetime.Singleton);
-    });
+        public IServiceCollection UseRevolutionaryStuffAspNetCore(Settings settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+            {
+                sources.UseRevolutionaryStuffCore();
+                sources.AddScoped<ICorrelationIdFinder, HttpContextCorrelationIdFinder>();
+                sources.AddSingleton<IWebSessionArchiver, SazWebSessionArchiver>();
+                sources.AddSingleton<ISazWebSessionArchiver, SazWebSessionArchiver>();
+                sources.AddTextTemplateRenderer<IRazorTextTemplateRenderer, RazorTextTemplateRenderer>(ServiceLifetime.Singleton);
+            });
+    }
 }

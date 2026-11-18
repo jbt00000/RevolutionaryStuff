@@ -12,13 +12,16 @@ public static class Use
     {
     }
 
-    public static IServiceCollection UseRevolutionaryStuffDataCosmos(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
-            {
-                services.UseRevolutionaryStuffAzure();
-                services.ConfigureOptions<CosmosChangeFeedBackgroundServiceConfig>(CosmosChangeFeedBackgroundServiceConfig.ConfigSectionName);
-                services.AddTransient<ICosmosFieldCopier, CosmosFieldCopier>();
-            });
+    extension(IServiceCollection sources)
+    {
+        public IServiceCollection UseRevolutionaryStuffDataCosmos(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+                    {
+                        sources.UseRevolutionaryStuffAzure();
+                        sources.ConfigureOptions<CosmosChangeFeedBackgroundServiceConfig>(CosmosChangeFeedBackgroundServiceConfig.ConfigSectionName);
+                        sources.AddTransient<ICosmosFieldCopier, CosmosFieldCopier>();
+                    });
+    }
 }

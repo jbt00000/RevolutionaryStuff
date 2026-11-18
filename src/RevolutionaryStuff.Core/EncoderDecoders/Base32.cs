@@ -112,8 +112,11 @@ public static class Base32
         return s;
     }
 
-    public static string ToBase32String(this byte[] buf)
-        => Encode(buf);
+    extension(byte[] sources)
+    {
+        public string ToBase32String()
+                => Encode(sources);
+    }
 
     /// <summary>
     /// Decode a Base32 string into a byte array

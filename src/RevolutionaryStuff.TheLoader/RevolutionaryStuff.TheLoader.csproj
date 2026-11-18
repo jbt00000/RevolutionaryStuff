@@ -7,6 +7,9 @@
     <RootNamespace>RevolutionaryStuff.TheLoader</RootNamespace>
     <AssemblyName>TheLoader</AssemblyName>
     <Company>RevolutionaryStuff</Company>
+    <FileVersion>4.207.100</FileVersion>
+    <AssemblyVersion>4.207.100</AssemblyVersion>
+    <Version>4.207.100</Version>
   </PropertyGroup>
 
   <PropertyGroup>

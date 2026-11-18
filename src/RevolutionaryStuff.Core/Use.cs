@@ -25,62 +25,66 @@ public static class Use
         public string ConfiguredTenantIdProviderConfigSectionName { get; set; }
     }
 
-    public static IServiceCollection UseRevolutionaryStuffCore(this IServiceCollection services, Settings settings = null)
-        => services.Use(
-            settings,
-            () =>
+    extension(IServiceCollection sources)
     {
-        services.AddHttpClient();
+        public IServiceCollection UseRevolutionaryStuffCore(Settings settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+            {
+                sources.AddHttpClient();
 
-        services.AddSingleton<ILocalCacher>(Cache.DataCacher);
+                sources.AddSingleton<ILocalCacher>(Cache.DataCacher);
 
-        services.ConfigureOptions<RevolutionaryStuffCoreConfig>(settings?.RevolutionaryStuffCoreConfigSectionName ?? RevolutionaryStuffCoreConfig.ConfigSectionName);
+                sources.ConfigureOptions<RevolutionaryStuffCoreConfig>(settings?.RevolutionaryStuffCoreConfigSectionName ?? RevolutionaryStuffCoreConfig.ConfigSectionName);
 
-        services.ConfigureOptions<RsllcTemporaryStreamFactory.Config>(settings?.TemporaryStreamFactoryConfigSectionName ?? RsllcTemporaryStreamFactory.Config.ConfigSectionName);
-        services.AddSingleton<ITemporaryStreamFactory, RsllcTemporaryStreamFactory>();
+                sources.ConfigureOptions<RsllcTemporaryStreamFactory.Config>(settings?.TemporaryStreamFactoryConfigSectionName ?? RsllcTemporaryStreamFactory.Config.ConfigSectionName);
+                sources.AddSingleton<ITemporaryStreamFactory, RsllcTemporaryStreamFactory>();
 
-        services.AddSingleton<IServiceCollectionAccessor>(new HardcodedServiceCollectionProvider(services));
-        services.AddScoped<INamedFactory, NamedTypeNamedFactory>();
+                sources.AddSingleton<IServiceCollectionAccessor>(new HardcodedServiceCollectionProvider(sources));
+                sources.AddScoped<INamedFactory, NamedTypeNamedFactory>();
 
 
-        services.ConfigureOptions<CorrelationIdFactory.Config>(CorrelationIdFactory.Config.ConfigSectionName);
-        services.AddSingleton<ICorrelationIdFactory, CorrelationIdFactory>();
-        services.AddScoped<ICorrectionIdFindOrCreate, CorrectionIdFindOrCreate>();
-        services.AddScoped<ICorrelationIdFinder, HardcodedCorrelationIdFinder>();
-        services.AddScoped<HardcodedCorrelationIdFinder>(); //so this can simply be asked for
+                sources.ConfigureOptions<CorrelationIdFactory.Config>(CorrelationIdFactory.Config.ConfigSectionName);
+                sources.AddSingleton<ICorrelationIdFactory, CorrelationIdFactory>();
+                sources.AddScoped<ICorrectionIdFindOrCreate, CorrectionIdFindOrCreate>();
+                sources.AddScoped<ICorrelationIdFinder, HardcodedCorrelationIdFinder>();
+                sources.AddScoped<HardcodedCorrelationIdFinder>(); //so this can simply be asked for
 
-        services.AddSingleton<IConnectionStringProvider, ServiceProviderConnectionStringProvider>();
+                sources.AddSingleton<IConnectionStringProvider, ServiceProviderConnectionStringProvider>();
 
-        services.AddScoped<IHttpMessageSender, HttpClientHttpMessageSender>();
+                sources.AddScoped<IHttpMessageSender, HttpClientHttpMessageSender>();
 
-        services.AddSingleton(IJsonSerializer.Default);
+                sources.AddSingleton(IJsonSerializer.Default);
 
-        services.ConfigureOptions<BuilderConfig>(settings?.BuilderConfigConfigSectionName ?? BuilderConfig.ConfigSectionName);
+                sources.ConfigureOptions<BuilderConfig>(settings?.BuilderConfigConfigSectionName ?? BuilderConfig.ConfigSectionName);
 
-        #region Tenant
-        services.ConfigureOptions<ConfiguredTenantIdProvider.Config>(settings?.ConfiguredTenantIdProviderConfigSectionName ?? ConfiguredTenantIdProvider.Config.ConfigSectionName);
-        services.AddScoped<IConfiguredTenantIdProvider, ConfiguredTenantIdProvider>();
-        services.AddScoped<IProgrammaticTenantIdProvider, ProgrammaticTenantIdProvider>();
+                #region Tenant
+                sources.ConfigureOptions<ConfiguredTenantIdProvider.Config>(settings?.ConfiguredTenantIdProviderConfigSectionName ?? ConfiguredTenantIdProvider.Config.ConfigSectionName);
+                sources.AddScoped<IConfiguredTenantIdProvider, ConfiguredTenantIdProvider>();
+                sources.AddScoped<IProgrammaticTenantIdProvider, ProgrammaticTenantIdProvider>();
 
-        services.ConfigureOptions<ConfiguredTenantIdEnumerator.Config>(ConfiguredTenantIdEnumerator.Config.ConfigSectionName);
-        services.AddSingleton<IConfiguredTenantIdEnumerator, ConfiguredTenantIdEnumerator>();
-        #endregion
+                sources.ConfigureOptions<ConfiguredTenantIdEnumerator.Config>(ConfiguredTenantIdEnumerator.Config.ConfigSectionName);
+                sources.AddSingleton<IConfiguredTenantIdEnumerator, ConfiguredTenantIdEnumerator>();
+                #endregion
 
-        #region Services
-        services.AddScoped<RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs>();
-        services.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
-        #endregion
-    });
-
-    public static IServiceCollection AddTextTemplateRenderer<TITextTemplateRenderer, TImplementation>(this IServiceCollection services, ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
-    where TITextTemplateRenderer : ITextTemplateRenderer
-    where TImplementation : class, TITextTemplateRenderer
-    {
-        services.Add(new ServiceDescriptor(typeof(TITextTemplateRenderer), typeof(TImplementation), serviceLifetime));
-        if (typeof(TITextTemplateRenderer) != typeof(ITextTemplateRenderer))
+                #region Services
+                sources.AddScoped<RevolutionaryStuffService.RevolutionaryStuffServiceConstrutorArgs>();
+                sources.AddSingleton<ICodeStringGenerator, DefaultCodeStringGenerator>();
+                #endregion
+            });
+        public IServiceCollection AddTextTemplateRenderer<TITextTemplateRenderer, TImplementation>(ServiceLifetime serviceLifetime = ServiceLifetime.Scoped)
+            where TITextTemplateRenderer : ITextTemplateRenderer
+            where TImplementation : class, TITextTemplateRenderer
         {
-            services.Add(new ServiceDescriptor(typeof(ITextTemplateRenderer), typeof(TImplementation), serviceLifetime));
+            sources.Add(new ServiceDescriptor(typeof(TITextTemplateRenderer), typeof(TImplementation), serviceLifetime));
+            if (typeof(TITextTemplateRenderer) != typeof(ITextTemplateRenderer))
+            {
+                sources.Add(new ServiceDescriptor(typeof(ITextTemplateRenderer), typeof(TImplementation), serviceLifetime));
+            }
+            return sources;
         }
-        return services;
     }
+
+
 }

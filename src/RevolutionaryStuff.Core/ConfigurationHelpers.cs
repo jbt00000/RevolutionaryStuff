@@ -9,51 +9,60 @@ public static class ConfigurationHelpers
     public static string CreateKeyFromSegments(params string[] segments)
         => segments.Format(":");
 
-    public static string GetString(this IConfiguration config, params string[] segments)
-        => config[CreateKeyFromSegments(segments)];
-
-    public static bool GetBool(this IConfiguration config, params string[] segments)
-        => Parse.ParseBool(config.GetString(segments));
-
-    public static void AddJsonString(this IConfigurationBuilder builder, string json)
+    extension(IConfiguration source)
     {
-        ArgumentNullException.ThrowIfNull(builder);
-        Requires.Text(json);
-
-        var buf = Raw.ToUTF8(json);
-        var st = new MemoryStream(buf, false);
-        builder.AddJsonStream(st);
-    }
-
-    public static void AddObject(this IConfigurationBuilder builder, object o, string objectName = null, bool excludeNullMembers = false)
-    {
-        if (o != null)
+        public string GetString(params string[] segments)
+                => source[CreateKeyFromSegments(segments)];
+        public bool GetBool(params string[] segments)
+                => Parse.ParseBool(source.GetString(segments));
+        public T Get<T>(string sectionName) where T : new()
         {
-            var json = JsonHelpers.ToJson(o);
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(sectionName);
 
-            if (excludeNullMembers)
-            {
-                json = RegexHelpers.Common.NullJsonMember().Replace(json, "");
-            }
-
-            if (objectName != null)
-            {
-                json = $"{{\"{objectName}\": {json} }}";
-            }
-
-            builder.AddJsonString(json);
+            var ret = new T();
+            source.Bind(sectionName, ret);
+            (ret as IPostConfigure)?.PostConfigure();
+            (ret as IValidate)?.Validate();
+            return ret;
         }
     }
 
-    public static T Get<T>(this IConfiguration configuration, string sectionName) where T : new()
-    {
-        ArgumentNullException.ThrowIfNull(configuration);
-        Requires.Text(sectionName);
 
-        var ret = new T();
-        configuration.Bind(sectionName, ret);
-        (ret as IPostConfigure)?.PostConfigure();
-        (ret as IValidate)?.Validate();
-        return ret;
+
+    extension(IConfigurationBuilder source)
+    {
+        public void AddJsonString(string json)
+        {
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(json);
+
+            var buf = Raw.ToUTF8(json);
+            var st = new MemoryStream(buf, false);
+            source.AddJsonStream(st);
+        }
+        public void AddObject(object o, string objectName = null, bool excludeNullMembers = false)
+        {
+            if (o != null)
+            {
+                var json = JsonHelpers.ToJson(o);
+
+                if (excludeNullMembers)
+                {
+                    json = RegexHelpers.Common.NullJsonMember().Replace(json, "");
+                }
+
+                if (objectName != null)
+                {
+                    json = $"{{\"{objectName}\": {json} }}";
+                }
+
+                source.AddJsonString(json);
+            }
+        }
     }
+
+
+
+
 }

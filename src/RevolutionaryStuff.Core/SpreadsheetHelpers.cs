@@ -52,59 +52,63 @@ public static class SpreadsheetHelpers
         }
     }
 
-    public static void ToSpreadSheet(this DataSet ds, Stream outputStream, Stream templateSpreadsheetStream = null)
+    extension(DataSet source)
     {
-        var outFn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.MicrosoftExcelOpenXml.PrimaryFileExtension);
-        ds.ToSpreadSheet(outFn, templateSpreadsheetStream);
-        outputStream.CopyFrom(outFn);
-    }
-
-    public static void ToSpreadSheet(this DataSet ds, string outputPath, Stream templateSpreadsheetStream = null)
-    {
-        ArgumentNullException.ThrowIfNull(ds);
-        Requires.Text(outputPath);
-        templateSpreadsheetStream ??= Stuff.ThisAssembly.GetEmbeddedResourceAsStream("Template.xlsx");
-        Requires.ReadableStreamArg(templateSpreadsheetStream);
-
-        var dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-        Directory.CreateDirectory(dir);
-        try
+        public void ToSpreadSheet(Stream outputStream, Stream templateSpreadsheetStream = null)
         {
-            var tfn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.MicrosoftExcelOpenXml.PrimaryFileExtension, dir);
-            templateSpreadsheetStream.CopyTo(tfn);
-            var workDir = Path.Combine(dir, "t");
-            ZipFile.ExtractToDirectory(tfn, workDir);
-            var sharedStringsPath = Path.Combine(workDir, "xl", "sharedStrings.xml");
-            var indexBySharedString = LoadSharedStrings(sharedStringsPath);
+            var outFn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.MicrosoftExcelOpenXml.PrimaryFileExtension);
+            source.ToSpreadSheet(outFn, templateSpreadsheetStream);
+            outputStream.CopyFrom(outFn);
+        }
+        public void ToSpreadSheet(string outputPath, Stream templateSpreadsheetStream = null)
+        {
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(outputPath);
+            templateSpreadsheetStream ??= Stuff.ThisAssembly.GetEmbeddedResourceAsStream("Template.xlsx");
+            Requires.ReadableStreamArg(templateSpreadsheetStream);
 
-            var itemsByType = new MultipleValueDictionary<string, Item>
+            var dir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(dir);
+            try
             {
-                { RelationshipTypeNames.SharedStrings, new Item("sharedStrings.xml") }
-            };
-            _ = new List<Item>();
-            foreach (DataTable dt in ds.Tables)
-            {
-                var fn = RegexHelpers.Common.NonWordChars().Replace(dt.TableName, " ").ToUpperCamelCase();
-                var sheetRelPath = Path.Combine("xl", "worksheets", $"{fn}.xml");
-                var sheetPath = Path.Combine(workDir, sheetRelPath);
-                SaveSheet(sheetPath, indexBySharedString, dt);
-                itemsByType.Add(RelationshipTypeNames.Worksheet, new Item(Path.Combine("worksheets", $"{fn}.xml")) { Name = dt.TableName });
+                var tfn = FileSystemHelpers.GetTempFileName(MimeType.Application.SpreadSheet.MicrosoftExcelOpenXml.PrimaryFileExtension, dir);
+                templateSpreadsheetStream.CopyTo(tfn);
+                var workDir = Path.Combine(dir, "t");
+                ZipFile.ExtractToDirectory(tfn, workDir);
+                var sharedStringsPath = Path.Combine(workDir, "xl", "sharedStrings.xml");
+                var indexBySharedString = LoadSharedStrings(sharedStringsPath);
+
+                var itemsByType = new MultipleValueDictionary<string, Item>
+                    {
+                        { RelationshipTypeNames.SharedStrings, new Item("sharedStrings.xml") }
+                    };
+                _ = new List<Item>();
+                foreach (DataTable dt in source.Tables)
+                {
+                    var fn = RegexHelpers.Common.NonWordChars().Replace(dt.TableName, " ").ToUpperCamelCase();
+                    var sheetRelPath = Path.Combine("xl", "worksheets", $"{fn}.xml");
+                    var sheetPath = Path.Combine(workDir, sheetRelPath);
+                    SaveSheet(sheetPath, indexBySharedString, dt);
+                    itemsByType.Add(RelationshipTypeNames.Worksheet, new Item(Path.Combine("worksheets", $"{fn}.xml")) { Name = dt.TableName });
+                }
+
+                SaveSharedStrings(sharedStringsPath, indexBySharedString);
+
+                SaveRels(Path.Combine(workDir, "xl", "_rels", "workbook.xml.rels"), itemsByType);
+                SaveWorkbook(Path.Combine(workDir, "xl", "workbook.xml"), itemsByType);
+                Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+                FileSystemHelpers.FileTryDelete(outputPath);
+                ZipFile.CreateFromDirectory(workDir, outputPath);
+                Stuff.NoOp(outputPath);
             }
-
-            SaveSharedStrings(sharedStringsPath, indexBySharedString);
-
-            SaveRels(Path.Combine(workDir, "xl", "_rels", "workbook.xml.rels"), itemsByType);
-            SaveWorkbook(Path.Combine(workDir, "xl", "workbook.xml"), itemsByType);
-            Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
-            FileSystemHelpers.FileTryDelete(outputPath);
-            ZipFile.CreateFromDirectory(workDir, outputPath);
-            Stuff.NoOp(outputPath);
-        }
-        finally
-        {
-            Directory.Delete(dir, true);
+            finally
+            {
+                Directory.Delete(dir, true);
+            }
         }
     }
+
+
 
     private static void SaveWorkbook(string relsPath, MultipleValueDictionary<string, Item> itemsByType)
     {
@@ -296,14 +300,17 @@ public static class SpreadsheetHelpers
         return cr;
     }
 
-    internal static int FindOrCreateSharedString(this IDictionary<string, int> indexBySharedString, string s)
+    extension(IDictionary<string, int> sources)
     {
-        if (!indexBySharedString.TryGetValue(s, out var pos))
+        internal int FindOrCreateSharedString(string s)
         {
-            pos = indexBySharedString.Count;
-            indexBySharedString[s] = pos;
+            if (!sources.TryGetValue(s, out var pos))
+            {
+                pos = sources.Count;
+                sources[s] = pos;
+            }
+            return pos;
         }
-        return pos;
     }
 
     private static IDictionary<string, int> LoadSharedStrings(string sharedStringsPath)

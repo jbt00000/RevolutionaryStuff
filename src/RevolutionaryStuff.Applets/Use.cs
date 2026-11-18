@@ -11,17 +11,20 @@ public static class Use
         public RevolutionaryStuff.Core.Use.Settings? RevolutionaryStuffCoreUseSettings { get; set; }
     }
 
-    public static IServiceCollection UseRevolutionaryStuffApplets(this IServiceCollection services, Settings? settings = null)
-        => services.Use<Settings>(
-            settings,
-            () =>
+    extension(IServiceCollection sources)
     {
-        services.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreUseSettings);
+        public IServiceCollection UseRevolutionaryStuffApplets(Settings? settings = null)
+                => sources.Use<Settings>(
+                    settings,
+                    () =>
+            {
+                sources.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreUseSettings);
 
-        #region TextTemplateRenderers
-        services.AddTextTemplateRenderer<IMustacheTextTemplateRenderer, MustacheTextTemplateRenderer>(ServiceLifetime.Singleton);
-        services.AddTextTemplateRenderer<IScribanTextTemplateRenderer, ScribanTextTemplateRenderer>(ServiceLifetime.Singleton);
-        #endregion
+                #region TextTemplateRenderers
+                sources.AddTextTemplateRenderer<IMustacheTextTemplateRenderer, MustacheTextTemplateRenderer>(ServiceLifetime.Singleton);
+                sources.AddTextTemplateRenderer<IScribanTextTemplateRenderer, ScribanTextTemplateRenderer>(ServiceLifetime.Singleton);
+                #endregion
 
-    });
+            });
+    }
 }

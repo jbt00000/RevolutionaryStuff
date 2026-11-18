@@ -9,27 +9,31 @@ public static class OpenApiHelpers
 {
     private sealed record InputPayloadMetadata(string Summary, string Description, string ContentType);
 
-    /// <summary>
-    /// Adds OpenAPI metadata describing a required binary file upload request body.
-    /// </summary>
-    /// <param name="builder">The route handler builder to configure.</param>
-    /// <returns>The route handler builder, to support fluent configuration.</returns>
-    public static RouteHandlerBuilder ExpectsBinaryInputPayload(this RouteHandlerBuilder builder)
-        => builder.WithMetadata(new InputPayloadMetadata(
-            "Upload a binary file",
-            "Uploads a binary file to the server.",
-            MimeType.Application.OctetStream.PrimaryContentType));
+    extension(RouteHandlerBuilder source)
+    {
+        /// <summary>
+        /// Adds OpenAPI metadata describing a required binary file upload request body.
+        /// </summary>
+        /// <param name="source">The route handler builder to configure.</param>
+        /// <returns>The route handler builder, to support fluent configuration.</returns>
+        public RouteHandlerBuilder ExpectsBinaryInputPayload()
+            => source.WithMetadata(new InputPayloadMetadata(
+                "Upload a binary file",
+                "Uploads a binary file to the server.",
+                MimeType.Application.OctetStream.PrimaryContentType));
+        /// <summary>
+        /// Adds OpenAPI metadata describing a required image file upload request body.
+        /// </summary>
+        /// <param name="source">The route handler builder to configure.</param>
+        /// <returns>The route handler builder, to support fluent configuration.</returns>
+        public RouteHandlerBuilder ExpectsImageInputPayload()
+            => source.WithMetadata(new InputPayloadMetadata(
+                "Upload an image file",
+                "Uploads an image file to the server.",
+                MimeType.Image.Any.PrimaryContentType));
+    }
 
-    /// <summary>
-    /// Adds OpenAPI metadata describing a required image file upload request body.
-    /// </summary>
-    /// <param name="builder">The route handler builder to configure.</param>
-    /// <returns>The route handler builder, to support fluent configuration.</returns>
-    public static RouteHandlerBuilder ExpectsImageInputPayload(this RouteHandlerBuilder builder)
-        => builder.WithMetadata(new InputPayloadMetadata(
-            "Upload an image file",
-            "Uploads an image file to the server.",
-            MimeType.Image.Any.PrimaryContentType));
+
 
     internal sealed class InputPayloadOperationTransformer : IOpenApiOperationTransformer
     {

@@ -4,61 +4,67 @@ namespace RevolutionaryStuff.Core;
 
 public static class SynchronizationHelpers
 {
-    public static async Task<T> ExecuteAsync<T>(this SemaphoreSlim semaphore, Func<Task<T>> funcAsync)
+    extension(SemaphoreSlim source)
     {
-        ArgumentNullException.ThrowIfNull(funcAsync);
+        public async Task<T> ExecuteAsync<T>(Func<Task<T>> funcAsync)
+        {
+            ArgumentNullException.ThrowIfNull(funcAsync);
 
-        await semaphore.WaitAsync();
-        try
-        {
-            return await funcAsync();
+            await source.WaitAsync();
+            try
+            {
+                return await funcAsync();
+            }
+            finally
+            {
+                source.Release();
+            }
         }
-        finally
+        public async Task ExecuteAsync(Func<Task> actionAsync)
         {
-            semaphore.Release();
+            ArgumentNullException.ThrowIfNull(actionAsync);
+
+            await source.WaitAsync();
+            try
+            {
+                await actionAsync();
+            }
+            finally
+            {
+                source.Release();
+            }
+        }
+        public async Task<T> ExecuteAsync<T>(Func<T> func)
+        {
+            ArgumentNullException.ThrowIfNull(func);
+
+            await source.WaitAsync();
+            try
+            {
+                return func();
+            }
+            finally
+            {
+                source.Release();
+            }
+        }
+        public async Task ExecuteAsync(Action action)
+        {
+            ArgumentNullException.ThrowIfNull(action);
+
+            await source.WaitAsync();
+            try
+            {
+                action();
+            }
+            finally
+            {
+                source.Release();
+            }
         }
     }
-    public static async Task ExecuteAsync(this SemaphoreSlim semaphore, Func<Task> actionAsync)
-    {
-        ArgumentNullException.ThrowIfNull(actionAsync);
 
-        await semaphore.WaitAsync();
-        try
-        {
-            await actionAsync();
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-    }
 
-    public static async Task<T> ExecuteAsync<T>(this SemaphoreSlim semaphore, Func<T> func)
-    {
-        ArgumentNullException.ThrowIfNull(func);
 
-        await semaphore.WaitAsync();
-        try
-        {
-            return func();
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-    }
-    public static async Task ExecuteAsync(this SemaphoreSlim semaphore, Action action)
-    {
-        ArgumentNullException.ThrowIfNull(action);
 
-        await semaphore.WaitAsync();
-        try
-        {
-            action();
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-    }
 }

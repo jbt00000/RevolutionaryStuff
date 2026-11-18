@@ -15,40 +15,43 @@ public static class ServiceUseManager
 
     private static readonly IDictionary<Type, Usage> UsageByUseType = new Dictionary<Type, Usage>();
 
-    public static IServiceCollection Use<TSettings>(this IServiceCollection services, TSettings settings, Action initialize, PriorUsageRulesEnum rule = PriorUsageRulesEnum.SameSettings)
+    extension(IServiceCollection sources)
     {
-        ArgumentNullException.ThrowIfNull(initialize);
-
-        var settingsType = typeof(TSettings);
-
-        var settingsJson = settings == null ? null : JsonHelpers.ToJson(settings);
-        if (UsageByUseType.ContainsKey(settingsType))
+        public IServiceCollection Use<TSettings>(TSettings settings, Action initialize, PriorUsageRulesEnum rule = PriorUsageRulesEnum.SameSettings)
         {
-            var usage = UsageByUseType[settingsType];
-            switch (rule)
+            ArgumentNullException.ThrowIfNull(initialize);
+
+            var settingsType = typeof(TSettings);
+
+            var settingsJson = settings == null ? null : JsonHelpers.ToJson(settings);
+            if (UsageByUseType.ContainsKey(settingsType))
             {
-                case PriorUsageRulesEnum.Allow:
-                    return services;
-                case PriorUsageRulesEnum.Disallow:
-                    throw new($"{settingsType} already used and re-usage disallowed.\n{usage.UsedFrom}\n{new StackTrace()}");
-                case PriorUsageRulesEnum.SameSettings:
-                    if (usage.SettingsJson == settingsJson)
-                    {
-                        return services;
-                    }
+                var usage = UsageByUseType[settingsType];
+                switch (rule)
+                {
+                    case PriorUsageRulesEnum.Allow:
+                        return sources;
+                    case PriorUsageRulesEnum.Disallow:
+                        throw new($"{settingsType} already used and re-usage disallowed.\n{usage.UsedFrom}\n{new StackTrace()}");
+                    case PriorUsageRulesEnum.SameSettings:
+                        if (usage.SettingsJson == settingsJson)
+                        {
+                            return sources;
+                        }
 
-                    throw new($"{settingsType} already used but with different settings.\n{usage.UsedFrom}\n{new StackTrace()}");
-                default:
-                    throw new UnexpectedSwitchValueException(rule);
+                        throw new($"{settingsType} already used but with different settings.\n{usage.UsedFrom}\n{new StackTrace()}");
+                    default:
+                        throw new UnexpectedSwitchValueException(rule);
+                }
             }
-        }
 
-        UsageByUseType[settingsType] = new()
-        {
-            SettingsJson = settingsJson,
-            UsedFrom = new()
-        };
-        initialize();
-        return services;
+            UsageByUseType[settingsType] = new()
+            {
+                SettingsJson = settingsJson,
+                UsedFrom = new()
+            };
+            initialize();
+            return sources;
+        }
     }
 }

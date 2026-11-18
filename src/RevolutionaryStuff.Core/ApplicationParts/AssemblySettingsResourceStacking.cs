@@ -99,61 +99,65 @@ public static class AssemblySettingsResourceStacking
     }
     public record ApplyOptions(string DefaultBaseResourceName) { }
 
-    public static void DiscoverThenStack(this IConfigurationBuilder builder, string environmentName, Assembly a, DiscoverOptions discoverOptions = null, ILogger logger = null, ApplyOptions applyOptions = null)
+    extension(IConfigurationBuilder source)
     {
-        var items = Discover(a, discoverOptions, logger);
-        builder.Stack(environmentName, items, logger, applyOptions);
-    }
-
-    public static void Stack(this IConfigurationBuilder builder, string environmentName, IEnumerable<ResourceInfo> resourceInfos, ILogger logger = null, ApplyOptions applyOptions = null)
-    {
-        const string LoggingPrefix = $"{nameof(AssemblySettingsResourceStacking)}.{nameof(Stack)}: ";
-        ArgumentNullException.ThrowIfNull(builder);
-        Requires.Text(environmentName);
-        logger ??= Stuff.LoggerOfLastResort;
-        if (!resourceInfos.NullSafeAny())
+        public void DiscoverThenStack(string environmentName, Assembly a, DiscoverOptions discoverOptions = null, ILogger logger = null, ApplyOptions applyOptions = null)
         {
-            logger.LogWarning($"{LoggingPrefix} No resourceInfos were received. Resource stacking will not take place");
-            return;
+            var items = Discover(a, discoverOptions, logger);
+            source.Stack(environmentName, items, logger, applyOptions);
         }
-        applyOptions ??= DefaultApplyOptions;
-        var baseResourceName = applyOptions.DefaultBaseResourceName ?? DefaultBaseResourceName;
-        logger.LogDebug($"{LoggingPrefix} Will use a baseResourceName=[{baseResourceName}] with environment={environmentName}");
-        foreach (var ri in resourceInfos)
+        public void Stack(string environmentName, IEnumerable<ResourceInfo> resourceInfos, ILogger logger = null, ApplyOptions applyOptions = null)
         {
-            var baseName = ri.BaseResourceName ?? baseResourceName;
-            logger.LogDebug($"{LoggingPrefix} stacking {ri} with {baseName}");
-            AddJsonStream(ri.Assembly, $"{baseName}.json", true);
-            AddJsonStream(ri.Assembly, $"{baseName}.{environmentName}.json", false);
-            AddJsonStream(ri.Assembly, $"{baseName}.builder.json", false);
-        }
-
-        void AddJsonStream(Assembly a, string name, bool required)
-        {
-            var st = a.GetEmbeddedResourceAsStream(name);
-            if (st != null)
+            const string LoggingPrefix = $"{nameof(AssemblySettingsResourceStacking)}.{nameof(Stack)}: ";
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(environmentName);
+            logger ??= Stuff.LoggerOfLastResort;
+            if (!resourceInfos.NullSafeAny())
             {
+                logger.LogWarning($"{LoggingPrefix} No resourceInfos were received. Resource stacking will not take place");
+                return;
+            }
+            applyOptions ??= DefaultApplyOptions;
+            var baseResourceName = applyOptions.DefaultBaseResourceName ?? DefaultBaseResourceName;
+            logger.LogDebug($"{LoggingPrefix} Will use a baseResourceName=[{baseResourceName}] with environment={environmentName}");
+            foreach (var ri in resourceInfos)
+            {
+                var baseName = ri.BaseResourceName ?? baseResourceName;
+                logger.LogDebug($"{LoggingPrefix} stacking {ri} with {baseName}");
+                AddJsonStream(ri.Assembly, $"{baseName}.json", true);
+                AddJsonStream(ri.Assembly, $"{baseName}.{environmentName}.json", false);
+                AddJsonStream(ri.Assembly, $"{baseName}.builder.json", false);
+            }
 
-                logger.LogInformation($"{LoggingPrefix} Stacking json from assembly {a.GetName().Name} of resource {name}");
-                try
+            void AddJsonStream(Assembly a, string name, bool required)
+            {
+                var st = a.GetEmbeddedResourceAsStream(name);
+                if (st != null)
                 {
-                    builder.AddJsonStream(st);
-                }
-                catch (Exception ex)
-                {
-                    if (st.CanSeek)
+
+                    logger.LogInformation($"{LoggingPrefix} Stacking json from assembly {a.GetName().Name} of resource {name}");
+                    try
                     {
-                        st.Position = 0;
-                        var json = st.ReadToEnd();
-                        logger.LogInformation($"The 'bad' {ex} json is {json}");
+                        source.AddJsonStream(st);
                     }
-                    throw;
+                    catch (Exception ex)
+                    {
+                        if (st.CanSeek)
+                        {
+                            st.Position = 0;
+                            var json = st.ReadToEnd();
+                            logger.LogInformation($"The 'bad' {ex} json is {json}");
+                        }
+                        throw;
+                    }
                 }
-            }
-            else if (required)
-            {
-                throw new Exception($"{LoggingPrefix} Required json config resource [{name}] not found");
+                else if (required)
+                {
+                    throw new Exception($"{LoggingPrefix} Required json config resource [{name}] not found");
+                }
             }
         }
     }
+
+
 }

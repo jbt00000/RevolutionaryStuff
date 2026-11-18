@@ -12,83 +12,90 @@ public static class SqlServerHelpers
     public static readonly DateTime SqlServerMinDateTime = new(1753, 1, 1);
     public static readonly DateTime SqlServerMaxDateTime = new(9999, 12, 31);
 
-    public static void MakeDateColumnsFitSqlServerBounds(this DataTable dt, DateTime? minDate = null, DateTime? maxDate = null)
+    extension(DataTable source)
     {
-        ArgumentNullException.ThrowIfNull(dt);
-
-        var lower = minDate.GetValueOrDefault(SqlServerMinDateTime);
-        var upper = maxDate.GetValueOrDefault(SqlServerMaxDateTime);
-
-        for (var colNum = 0; colNum < dt.Columns.Count; ++colNum)
+        public void MakeDateColumnsFitSqlServerBounds(DateTime? minDate = null, DateTime? maxDate = null)
         {
-            var dc = dt.Columns[colNum];
-            if (dc.DataType != typeof(DateTime)) continue;
-            var changeCount = 0;
-            for (var rowNum = 0; rowNum < dt.Rows.Count; ++rowNum)
+            ArgumentNullException.ThrowIfNull(source);
+
+            var lower = minDate.GetValueOrDefault(SqlServerMinDateTime);
+            var upper = maxDate.GetValueOrDefault(SqlServerMaxDateTime);
+
+            for (var colNum = 0; colNum < source.Columns.Count; ++colNum)
             {
-                var o = dt.Rows[rowNum][dc];
-                if (o == DBNull.Value) continue;
-                var val = (DateTime)o;
-                if (val < lower)
+                var dc = source.Columns[colNum];
+                if (dc.DataType != typeof(DateTime)) continue;
+                var changeCount = 0;
+                for (var rowNum = 0; rowNum < source.Rows.Count; ++rowNum)
                 {
-                    ++changeCount;
-                    dt.Rows[rowNum][dc] = lower;
+                    var o = source.Rows[rowNum][dc];
+                    if (o == DBNull.Value) continue;
+                    var val = (DateTime)o;
+                    if (val < lower)
+                    {
+                        ++changeCount;
+                        source.Rows[rowNum][dc] = lower;
+                    }
+                    else if (val > upper)
+                    {
+                        ++changeCount;
+                        source.Rows[rowNum][dc] = upper;
+                    }
                 }
-                else if (val > upper)
+                Trace.WriteLine($"MakeDateColumnsFitSqlServerBounds table({source.TableName}) column({dc.ColumnName}) {colNum}/{source.Columns.Count} => {changeCount} changes");
+            }
+        }
+        public void MakeColumnNamesSqlServerFriendly()
+        {
+            ArgumentNullException.ThrowIfNull(source);
+
+            foreach (DataColumn dc in source.Columns)
+            {
+                if (dc.ColumnName.Length > MaxTableColumnNameLength)
                 {
-                    ++changeCount;
-                    dt.Rows[rowNum][dc] = upper;
+                    dc.ColumnName = dc.ColumnName.TruncateWithMidlineEllipsis(MaxTableColumnNameLength);
                 }
             }
-            Trace.WriteLine($"MakeDateColumnsFitSqlServerBounds table({dt.TableName}) column({dc.ColumnName}) {colNum}/{dt.Columns.Count} => {changeCount} changes");
         }
     }
 
-    public static async Task TablePropertySetAsync(this SqlConnection conn, string tableName, string propertyName, object propertyValue, string schemaName = null)
+    extension(SqlConnection source)
     {
-        schemaName = SqlHelpers.SchemaOrDefault(schemaName);
-        var ps = new SqlParameter[]
-            {
-                    new("@propertyName", propertyName){Direction=ParameterDirection.Input},
-                    new("@tableSchema", schemaName){Direction=ParameterDirection.Input},
-                    new("@tableName", tableName){Direction=ParameterDirection.Input},
-                    new("@cnt", SqlDbType.Int){Direction=ParameterDirection.Output},
-            };
-        var cnt = (await conn.ExecuteNonQueryAsync(null, "select @cnt=count(*) from sys.fn_listextendedproperty(@propertyName, N'SCHEMA', @tableSchema, N'TABLE', @tableName, null, null)", null, ps, CommandType.Text)).GetOutputParameterVal<int>();
-        if (cnt > 0)
+        public async Task TablePropertySetAsync(string tableName, string propertyName, object propertyValue, string schemaName = null)
         {
+            schemaName = SqlHelpers.SchemaOrDefault(schemaName);
+            var ps = new SqlParameter[]
+                {
+                            new("@propertyName", propertyName){Direction=ParameterDirection.Input},
+                            new("@tableSchema", schemaName){Direction=ParameterDirection.Input},
+                            new("@tableName", tableName){Direction=ParameterDirection.Input},
+                            new("@cnt", SqlDbType.Int){Direction=ParameterDirection.Output},
+                };
+            var cnt = (await source.ExecuteNonQueryAsync(null, "select @cnt=count(*) from sys.fn_listextendedproperty(@propertyName, N'SCHEMA', @tableSchema, N'TABLE', @tableName, null, null)", null, ps, CommandType.Text)).GetOutputParameterVal<int>();
+            if (cnt > 0)
+            {
+                ps = new SqlParameter[]
+                    {
+                            new("@name", propertyName){Direction=ParameterDirection.Input},
+                            new("@level0name", schemaName){Direction=ParameterDirection.Input},
+                            new("@level1name", tableName){Direction=ParameterDirection.Input},
+                            new("@level0type", "SCHEMA"){Direction=ParameterDirection.Input},
+                            new("@level1type", "TABLE"){Direction=ParameterDirection.Input},
+                    };
+                await source.ExecuteNonQueryAsync(null, "sys.sp_dropextendedproperty", null, ps);
+            }
             ps = new SqlParameter[]
                 {
-                    new("@name", propertyName){Direction=ParameterDirection.Input},
-                    new("@level0name", schemaName){Direction=ParameterDirection.Input},
-                    new("@level1name", tableName){Direction=ParameterDirection.Input},
-                    new("@level0type", "SCHEMA"){Direction=ParameterDirection.Input},
-                    new("@level1type", "TABLE"){Direction=ParameterDirection.Input},
+                            new("@name", propertyName){Direction=ParameterDirection.Input},
+                            new("@level0name", schemaName){Direction=ParameterDirection.Input},
+                            new("@level1name", tableName){Direction=ParameterDirection.Input},
+                            new("@level0type", "SCHEMA"){Direction=ParameterDirection.Input},
+                            new("@level1type", "TABLE"){Direction=ParameterDirection.Input},
+                            new("@value", propertyValue){Direction=ParameterDirection.Input},
                 };
-            await conn.ExecuteNonQueryAsync(null, "sys.sp_dropextendedproperty", null, ps);
-        }
-        ps = new SqlParameter[]
-            {
-                    new("@name", propertyName){Direction=ParameterDirection.Input},
-                    new("@level0name", schemaName){Direction=ParameterDirection.Input},
-                    new("@level1name", tableName){Direction=ParameterDirection.Input},
-                    new("@level0type", "SCHEMA"){Direction=ParameterDirection.Input},
-                    new("@level1type", "TABLE"){Direction=ParameterDirection.Input},
-                    new("@value", propertyValue){Direction=ParameterDirection.Input},
-            };
-        await conn.ExecuteNonQueryAsync(null, "sys.sp_addextendedproperty", null, ps);
-    }
-
-    public static void MakeColumnNamesSqlServerFriendly(this DataTable dt)
-    {
-        ArgumentNullException.ThrowIfNull(dt);
-
-        foreach (DataColumn dc in dt.Columns)
-        {
-            if (dc.ColumnName.Length > MaxTableColumnNameLength)
-            {
-                dc.ColumnName = dc.ColumnName.TruncateWithMidlineEllipsis(MaxTableColumnNameLength);
-            }
+            await source.ExecuteNonQueryAsync(null, "sys.sp_addextendedproperty", null, ps);
         }
     }
+
+
 }

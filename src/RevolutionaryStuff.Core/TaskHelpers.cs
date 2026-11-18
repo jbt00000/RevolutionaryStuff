@@ -19,111 +19,129 @@ public static class TaskHelpers
         return tcs.Task;
     }
 
-    /// <summary>
-    /// Creates a task that completes when the cancellation token is cancelled.
-    /// Useful for await-ing cancellation in async methods.
-    /// </summary>
-    /// <param name="cancellationToken">The cancellation token to monitor.</param>
-    /// <returns>A task that completes (with cancellation) when the token is cancelled.</returns>
-    /// <example>
-    /// <code>
-    /// await cancellationToken.UntilCancelledAsync();
-    /// // Execution continues here after cancellation
-    /// </code>
-    /// </example>
-    public static Task UntilCancelledAsync(this CancellationToken cancellationToken)
-        => AwaitCancellation(cancellationToken);
-
-    /// <summary>
-    /// Executes a task synchronously and returns its result.
-    /// Blocks the calling thread until the task completes.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the task result.</typeparam>
-    /// <param name="task">The task to execute synchronously.</param>
-    /// <returns>The result of the task.</returns>
-    /// <exception cref="Exception">The inner exception from the task if it faulted.</exception>
-    /// <remarks>
-    /// Warning: This can cause deadlocks if used in UI or ASP.NET contexts.
-    /// Prefer async/await when possible.
-    /// </remarks>
-    public static TResult ExecuteSynchronously<TResult>(this Task<TResult> task)
+    extension(CancellationToken source)
     {
-        if (task.IsCompleted)
-        {
-            if (task.Exception != null)
-            {
-                throw task.Exception;
-            }
-        }
-        else
-        {
-            try
-            {
-                Task.WaitAll(task);
-            }
-            catch (AggregateException ae)
-            {
-                throw ae.InnerException;
-            }
-        }
-        return task.Result;
+        /// <summary>
+        /// Creates a task that completes when the cancellation token is cancelled.
+        /// Useful for await-ing cancellation in async methods.
+        /// </summary>
+        /// <param name="source">The cancellation token to monitor.</param>
+        /// <returns>A task that completes (with cancellation) when the token is cancelled.</returns>
+        /// <example>
+        /// <code>
+        /// await cancellationToken.UntilCancelledAsync();
+        /// // Execution continues here after cancellation
+        /// </code>
+        /// </example>
+        public Task UntilCancelledAsync()
+            => AwaitCancellation(source);
     }
 
-    /// <summary>
-    /// Executes a task synchronously without returning a result.
-    /// Blocks the calling thread until the task completes.
-    /// </summary>
-    /// <param name="task">The task to execute synchronously.</param>
-    /// <exception cref="Exception">The inner exception from the task if it faulted.</exception>
-    /// <remarks>
-    /// Warning: This can cause deadlocks if used in UI or ASP.NET contexts.
-    /// Prefer async/await when possible.
-    /// </remarks>
-    public static void ExecuteSynchronously(this Task task)
+    extension<TResult>(Task<TResult> source)
     {
-        if (task.IsCompleted)
+        /// <summary>
+        /// Executes a task synchronously and returns its result.
+        /// Blocks the calling thread until the task completes.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the task result.</typeparam>
+        /// <param name="source">The task to execute synchronously.</param>
+        /// <returns>The result of the task.</returns>
+        /// <exception cref="Exception">The inner exception from the task if it faulted.</exception>
+        /// <remarks>
+        /// Warning: This can cause deadlocks if used in UI or ASP.NET contexts.
+        /// Prefer async/await when possible.
+        /// </remarks>
+        public TResult ExecuteSynchronously()
         {
-            if (task.Exception != null)
+            if (source.IsCompleted)
             {
-                throw task.Exception;
+                if (source.Exception != null)
+                {
+                    throw source.Exception;
+                }
             }
-        }
-        else
-        {
-            try
+            else
             {
-                Task.WaitAll(task);
+                try
+                {
+                    Task.WaitAll(source);
+                }
+                catch (AggregateException ae)
+                {
+                    throw ae.InnerException;
+                }
             }
-            catch (AggregateException ae)
-            {
-                throw ae.InnerException;
-            }
+            return source.Result;
         }
     }
 
-    /// <summary>
-    /// Extracts the non-task result from a potentially nested Task&lt;Task&lt;T&gt;&gt; structure.
-    /// Unwraps nested tasks recursively to get the actual result value.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the expected result.</typeparam>
-    /// <param name="t">The task to unwrap.</param>
-    /// <param name="missing">The default value to return if the result cannot be extracted.</param>
-    /// <returns>The unwrapped result value, or <paramref name="missing"/> if not found.</returns>
-    /// <remarks>
-    /// Uses reflection to navigate nested Task.Result properties.
-    /// </remarks>
-    public static TResult GetNonTaskResult<TResult>(this Task t, TResult missing = default)
+    extension(Task source)
     {
-        object o = t;
+        /// <summary>
+        /// Executes a task synchronously without returning a result.
+        /// Blocks the calling thread until the task completes.
+        /// </summary>
+        /// <param name="source">The task to execute synchronously.</param>
+        /// <exception cref="Exception">The inner exception from the task if it faulted.</exception>
+        /// <remarks>
+        /// Warning: This can cause deadlocks if used in UI or ASP.NET contexts.
+        /// Prefer async/await when possible.
+        /// </remarks>
+        public void ExecuteSynchronously()
+        {
+            if (source.IsCompleted)
+            {
+                if (source.Exception != null)
+                {
+                    throw source.Exception;
+                }
+            }
+            else
+            {
+                try
+                {
+                    Task.WaitAll(source);
+                }
+                catch (AggregateException ae)
+                {
+                    throw ae.InnerException;
+                }
+            }
+        }
+        /// <summary>
+        /// Extracts the non-task result from a potentially nested Task&lt;Task&lt;T&gt;&gt; structure.
+        /// Unwraps nested tasks recursively to get the actual result value.
+        /// </summary>
+        /// <typeparam name="TResult">The type of the expected result.</typeparam>
+        /// <param name="source">The task to unwrap.</param>
+        /// <param name="missing">The default value to return if the result cannot be extracted.</param>
+        /// <returns>The unwrapped result value, or <paramref name="missing"/> if not found.</returns>
+        /// <remarks>
+        /// Uses reflection to navigate nested Task.Result properties.
+        /// </remarks>
+        public TResult GetNonTaskResult<TResult>(TResult missing = default)
+        {
+            object o = source;
 Again:
-        var ot = o.GetType();
-        if (ot == typeof(TResult)) return (TResult)o;
-        var pi = ot.GetProperty("Result");
-        if (pi == null) return missing;
-        o = pi.GetValue(o);
-        if (o == null) return missing;
-        goto Again;
+            var ot = o.GetType();
+            if (ot == typeof(TResult)) return (TResult)o;
+            var pi = ot.GetProperty("Result");
+            if (pi == null) return missing;
+            o = pi.GetValue(o);
+            if (o == null) return missing;
+            goto Again;
+        }
+        public void FireAndForget()
+        {
+            if (source == null) return;
+            if (source.Status == TaskStatus.Created)
+            {
+                source.Start();
+            }
+        }
     }
+
+
 
     /// <summary>
     /// Executes tasks in parallel with controlled concurrency.
@@ -238,20 +256,23 @@ Again:
     public static Task TaskWhenAllThatAreNotNull(params Task[] tasks)
         => Task.WhenAll(tasks.WhereNotNull());
 
-    /// <summary>
-    /// Converts a Task&lt;IReadOnlyList&lt;T&gt;&gt; to a Task&lt;IList&lt;T&gt;&gt;.
-    /// Useful when you need a mutable list interface from a readonly list result.
-    /// </summary>
-    /// <typeparam name="T">The type of items in the list.</typeparam>
-    /// <param name="task">The task returning a readonly list.</param>
-    /// <returns>A task returning a mutable list with the same items.</returns>
-    /// <remarks>
-    /// The returned list is a copy of the original items.
-    /// </remarks>
-    public static async Task<IList<T>> ContinueWithToIList<T>(this Task<IReadOnlyList<T>> task)
+    extension<T>(Task<IReadOnlyList<T>> source)
     {
-        var items = await task;
-        return ToIList<T>(items);
+        /// <summary>
+        /// Converts a Task&lt;IReadOnlyList&lt;T&gt;&gt; to a Task&lt;IList&lt;T&gt;&gt;.
+        /// Useful when you need a mutable list interface from a readonly list result.
+        /// </summary>
+        /// <typeparam name="T">The type of items in the list.</typeparam>
+        /// <param name="source">The task returning a readonly list.</param>
+        /// <returns>A task returning a mutable list with the same items.</returns>
+        /// <remarks>
+        /// The returned list is a copy of the original items.
+        /// </remarks>
+        public async Task<IList<T>> ContinueWithToIList()
+        {
+            var items = await source;
+            return ToIList<T>(items);
+        }
     }
 
     /// <summary>
@@ -264,12 +285,5 @@ Again:
         => [.. l];
 
 
-    public static void FireAndForget(this Task t)
-    {
-        if (t == null) return;
-        if (t.Status == TaskStatus.Created)
-        {
-            t.Start();
-        }
-    }
+
 }

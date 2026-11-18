@@ -65,65 +65,72 @@ public static partial class RegexHelpers
                 );
     }
 
-    public static IList<string> GetMatchesGroupValue(this Regex r, string input, int groupNum = 1)
+    extension(Regex source)
     {
-        var vals = new List<string>();
-        foreach (Match m in r.Matches(input))
+        public IList<string> GetMatchesGroupValue(string input, int groupNum = 1)
         {
-            if (m.Success)
+            var vals = new List<string>();
+            foreach (Match m in source.Matches(input))
             {
-                vals.Add(m.Groups[groupNum].Value);
-            }
-        }
-        return vals;
-    }
-
-    public static string GetGroupValue(this Regex r, string input, string fallback = null, int groupNum = 1)
-    {
-        try
-        {
-            var m = r.Match(input);
-            if (m.Success)
-            {
-                return m.Groups[groupNum].Value;
-            }
-        }
-        catch (Exception) { }
-        return fallback;
-    }
-
-    public static IList<string> GetGroupValues(this Regex r, string input)
-    {
-        try
-        {
-            var m = r.Match(input);
-            if (m.Success)
-            {
-                var ret = new List<string>(m.Groups.Count - 1);
-                for (var z = 1; z < m.Groups.Count; ++z)
+                if (m.Success)
                 {
-                    ret[z - 1] = m.Groups[z].Value;
+                    vals.Add(m.Groups[groupNum].Value);
                 }
-                return ret;
             }
+            return vals;
         }
-        catch (Exception) { }
-        return Empty.StringArray;
+
+        public string GetGroupValue(string input, string fallback = null, int groupNum = 1)
+        {
+            try
+            {
+                var m = source.Match(input);
+                if (m.Success)
+                {
+                    return m.Groups[groupNum].Value;
+                }
+            }
+            catch (Exception) { }
+            return fallback;
+        }
+        public IList<string> GetGroupValues(string input)
+        {
+            try
+            {
+                var m = source.Match(input);
+                if (m.Success)
+                {
+                    var ret = new List<string>(m.Groups.Count - 1);
+                    for (var z = 1; z < m.Groups.Count; ++z)
+                    {
+                        ret[z - 1] = m.Groups[z].Value;
+                    }
+                    return ret;
+                }
+            }
+            catch (Exception) { }
+            return Empty.StringArray;
+        }
     }
 
-    public static string Replace(this string s, Regex r, Func<(Match Match, int Occurrence, string InputString, string CurrentString), string> replacer)
+
+
+    extension(string source)
     {
-        if (string.IsNullOrEmpty(s)) return s;
-        var input = s;
-        var cnt = 0;
-        for (var startAt = 0; ;)
+        public string Replace(Regex r, Func<(Match Match, int Occurrence, string InputString, string CurrentString), string> replacer)
         {
-            var m = r.Match(s, startAt);
-            if (!m.Success) break;
-            var replacement = replacer == null ? "" : replacer((m, cnt++, input, s));
-            s = s[..m.Index] + replacement + s[(m.Index + m.Value.Length)..];
-            startAt = m.Index + replacement.Length;
+            if (string.IsNullOrEmpty(source)) return source;
+            var input = source;
+            var cnt = 0;
+            for (var startAt = 0; ;)
+            {
+                var m = r.Match(source, startAt);
+                if (!m.Success) break;
+                var replacement = replacer == null ? "" : replacer((m, cnt++, input, source));
+                source = source[..m.Index] + replacement + source[(m.Index + m.Value.Length)..];
+                startAt = m.Index + replacement.Length;
+            }
+            return source;
         }
-        return s;
     }
 }

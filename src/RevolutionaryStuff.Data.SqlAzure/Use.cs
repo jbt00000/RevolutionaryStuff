@@ -8,12 +8,15 @@ public static class Use
 {
     public sealed record Settings(RevolutionaryStuff.Azure.Use.Settings? RevolutionaryStuffAzureUseSettings);
 
-    public static IServiceCollection UseRevolutionaryStuffDataSqlAzure(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
-            {
-                services.UseRevolutionaryStuffAzure(settings?.RevolutionaryStuffAzureUseSettings);
+    extension(IServiceCollection sources)
+    {
+        public IServiceCollection UseRevolutionaryStuffDataSqlAzure(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+                    {
+                        sources.UseRevolutionaryStuffAzure(settings?.RevolutionaryStuffAzureUseSettings);
 
-            });
+                    });
+    }
 }

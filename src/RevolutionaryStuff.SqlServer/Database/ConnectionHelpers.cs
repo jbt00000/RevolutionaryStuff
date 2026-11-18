@@ -22,242 +22,256 @@ public static class ConnectionHelpers
         return csb.ConnectionString;
     }
 
-    public static void OpenIfNeeded(this IDbConnection conn)
+    extension(IDbConnection source)
     {
-        ArgumentNullException.ThrowIfNull(conn);
-        if (conn.State == ConnectionState.Closed)
+        public void OpenIfNeeded()
         {
-            conn.Open();
+            ArgumentNullException.ThrowIfNull(source);
+            if (source.State == ConnectionState.Closed)
+            {
+                source.Open();
+            }
         }
-    }
-
-    public static bool TableExists(this IDbConnection conn, string tableName, string schemaName = null)
-    {
-        tableName = tableName.TrimOrNull();
-        if (tableName == null) return false;
-        schemaName = SqlHelpers.SchemaOrDefault(schemaName);
-        var exists = conn.ExecuteScalar<object>($"select 1 from information_schema.tables where table_name='{tableName.EscapeForSql()}' and table_schema='{schemaName.EscapeForSql()}'");
-        return 1.CompareTo(exists) == 0;
-    }
-
-    public static void ExecuteNonQuery(this IDbTransaction trans, string sql)
-    {
-        trans.Connection.ExecuteNonQuery(sql, trans);
-    }
-
-    public static void ExecuteNonQuery(this IDbConnection conn, string sql, IDbTransaction trans = null, bool useNewTransaction = false, TimeSpan? timeout = null)
-    {
-        ArgumentNullException.ThrowIfNull(conn);
-        Requires.Text(sql);
-
-        Debug.WriteLine(sql);
-        if (useNewTransaction)
+        public bool TableExists(string tableName, string schemaName = null)
         {
-            Requires.Null(trans, "t");
+            tableName = tableName.TrimOrNull();
+            if (tableName == null) return false;
+            schemaName = SqlHelpers.SchemaOrDefault(schemaName);
+            var exists = source.ExecuteScalar<object>($"select 1 from information_schema.tables where table_name='{tableName.EscapeForSql()}' and table_schema='{schemaName.EscapeForSql()}'");
+            return 1.CompareTo(exists) == 0;
         }
-        conn.OpenIfNeeded();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandType = CommandType.Text;
-        cmd.CommandText = sql;
-        if (timeout != null)
+        public void ExecuteNonQuery(string sql, IDbTransaction trans = null, bool useNewTransaction = false, TimeSpan? timeout = null)
         {
-            cmd.CommandTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(sql);
+
+            Debug.WriteLine(sql);
+            if (useNewTransaction)
+            {
+                Requires.Null(trans, "t");
+            }
+            source.OpenIfNeeded();
+            using var cmd = source.CreateCommand();
+            cmd.CommandType = CommandType.Text;
+            cmd.CommandText = sql;
+            if (timeout != null)
+            {
+                cmd.CommandTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
+            }
+            if (useNewTransaction)
+            {
+                using var newTrans = source.BeginTransaction();
+                cmd.Transaction = newTrans;
+                cmd.ExecuteNonQuery();
+                newTrans.Commit();
+            }
+            else
+            {
+                cmd.Transaction = trans;
+                cmd.ExecuteNonQuery();
+            }
         }
-        if (useNewTransaction)
+        public Result ExecuteNonQuery(
+                string sql,
+                params SqlParameter[] parameters)
+                => source.ExecuteNonQuery(null, sql, null, parameters);
+        public Result ExecuteNonQuery(
+                IDbTransaction trans,
+                string sql,
+                TimeSpan? timeout,
+                IEnumerable<SqlParameter> parameters
+                )
         {
-            using var newTrans = conn.BeginTransaction();
-            cmd.Transaction = newTrans;
-            cmd.ExecuteNonQuery();
-            newTrans.Commit();
-        }
-        else
-        {
-            cmd.Transaction = trans;
-            cmd.ExecuteNonQuery();
-        }
-    }
-
-    public static void BulkUpload(this SqlConnection conn, DataTable dt, string schema, string table, Action<long, long> notificationCallback = null, int notifyIncrement = 1000, TimeSpan? timeout = null)
-    {
-        ArgumentNullException.ThrowIfNull(conn);
-        ArgumentNullException.ThrowIfNull(dt);
-        Requires.Text(schema);
-        Requires.Text(table);
-
-        var copy = new SqlBulkCopy(conn);
-        if (timeout != null)
-        {
-            copy.BulkCopyTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
-        }
-        copy.DestinationTableName = $"{schema}.{table}";
-        copy.NotifyAfter = notifyIncrement;
-        if (notificationCallback != null)
-        {
-            copy.SqlRowsCopied += (sender, e) => notificationCallback(e.RowsCopied, dt.Rows.Count);
-        }
-        foreach (DataColumn dc in dt.Columns)
-        {
-            copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
-        }
-        copy.WriteToServer(dt.CreateDataReader());
-        copy.Close();
-    }
-
-    public static void AddRange(this SqlParameterCollection pc, IEnumerable<SqlParameter> parameters)
-    {
-        if (parameters == null) return;
-        foreach (var p in parameters)
-        {
-            pc.Add(p);
-        }
-    }
-
-    public static Result ExecuteNonQuery(
-        this IDbConnection conn,
-        string sql,
-        params SqlParameter[] parameters)
-        => conn.ExecuteNonQuery(null, sql, null, parameters);
-
-    public static Result ExecuteNonQuery(
-        this IDbConnection conn,
-        IDbTransaction trans,
-        string sql,
-        TimeSpan? timeout,
-        IEnumerable<SqlParameter> parameters
-        )
-    {
-        ArgumentNullException.ThrowIfNull(conn);
-        Requires.Text(sql);
-        conn.OpenIfNeeded();
-        using var cmd = new SqlCommand(sql, (SqlConnection)conn)
-        {
-            Transaction = (SqlTransaction)trans,
-            CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
-        };
-        cmd.Parameters.AddRange(parameters);
-        cmd.CommandType = cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure;
-        cmd.ExecuteNonQuery();
-        return new Result(cmd.Parameters);
-    }
-
-    public static T ExecuteScalar<T>(
-        this IDbConnection conn,
-        string sql,
-        TimeSpan? timeout = null,
-        IEnumerable<SqlParameter> parameters = null)
-        => (T)conn.ExecuteScalar(null, sql, timeout, parameters);
-
-    public static object ExecuteScalar(
-        this IDbConnection conn,
-        IDbTransaction trans,
-        string sql,
-        TimeSpan? timeout = null,
-        IEnumerable<SqlParameter> parameters = null)
-    {
-        ArgumentNullException.ThrowIfNull(conn);
-        Requires.Text(sql);
-        using var cmd = new SqlCommand(sql, (SqlConnection)conn)
-        {
-            Transaction = (SqlTransaction)trans,
-            CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
-        };
-        cmd.Parameters.AddRange(parameters);
-        cmd.CommandText = sql;
-        cmd.CommandType = CommandType.Text;
-        OpenIfNeeded(conn);
-        return cmd.ExecuteScalar();
-    }
-
-    public static async Task<Result> ExecuteNonQueryAsync(
-        this IDbConnection conn,
-        IDbTransaction trans,
-        string sql,
-        TimeSpan? timeout,
-        IEnumerable<SqlParameter> parameters,
-        CommandType? forcedCommandType = null
-        )
-    {
-        ArgumentNullException.ThrowIfNull(conn);
-        Requires.Text(sql);
-        conn.OpenIfNeeded();
-        await using var cmd = new SqlCommand(sql, (SqlConnection)conn)
-        {
-            Transaction = (SqlTransaction)trans,
-            CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
-        };
-        cmd.Parameters.AddRange(parameters);
-        cmd.CommandType = forcedCommandType.GetValueOrDefault(cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure);
-        await cmd.ExecuteNonQueryAsync();
-        return new Result(cmd.Parameters);
-    }
-
-    public static Result ExecuteReaderForEach(
-        this IDbConnection conn,
-        IDbTransaction trans,
-        string sql,
-        TimeSpan? timeout,
-        IEnumerable<SqlParameter> parameters,
-        params Action<IDataReader>[] actions)
-    {
-        return conn.ExecuteReaderForEachAsync(trans, sql, timeout, parameters, actions).ExecuteSynchronously();
-    }
-
-    public static async Task<Result> ExecuteReaderForEachAsync(
-        this IDbConnection conn,
-        IDbTransaction trans,
-        string sql,
-        TimeSpan? timeout,
-        IEnumerable<SqlParameter> parameters,
-        params Action<IDataReader>[] actions)
-    {
-        ArgumentNullException.ThrowIfNull(conn);
-        Requires.Text(sql);
-        conn.OpenIfNeeded();
-        try
-        {
-            await using var cmd = new SqlCommand(sql, (SqlConnection)conn)
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(sql);
+            source.OpenIfNeeded();
+            using var cmd = new SqlCommand(sql, (SqlConnection)source)
             {
                 Transaction = (SqlTransaction)trans,
                 CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
             };
             cmd.Parameters.AddRange(parameters);
             cmd.CommandType = cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure;
-            await using (var reader = await cmd.ExecuteReaderAsync())
-            {
-                foreach (var action in actions)
-                {
-                    while (await reader.ReadAsync())
-                    {
-                        action(reader);
-                    }
-                    await reader.NextResultAsync();
-                }
-            }
+            cmd.ExecuteNonQuery();
             return new Result(cmd.Parameters);
         }
-        catch (Exception ex)
+        public T ExecuteScalar<T>(
+                string sql,
+                TimeSpan? timeout = null,
+                IEnumerable<SqlParameter> parameters = null)
+                => (T)source.ExecuteScalar(null, sql, timeout, parameters);
+        public object ExecuteScalar(
+                IDbTransaction trans,
+                string sql,
+                TimeSpan? timeout = null,
+                IEnumerable<SqlParameter> parameters = null)
         {
-            Debug.WriteLine(ex);
-            throw;
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(sql);
+            using var cmd = new SqlCommand(sql, (SqlConnection)source)
+            {
+                Transaction = (SqlTransaction)trans,
+                CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
+            };
+            cmd.Parameters.AddRange(parameters);
+            cmd.CommandText = sql;
+            cmd.CommandType = CommandType.Text;
+            OpenIfNeeded(source);
+            return cmd.ExecuteScalar();
+        }
+        public async Task<Result> ExecuteNonQueryAsync(
+                IDbTransaction trans,
+                string sql,
+                TimeSpan? timeout,
+                IEnumerable<SqlParameter> parameters,
+                CommandType? forcedCommandType = null
+                )
+        {
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(sql);
+            source.OpenIfNeeded();
+            await using var cmd = new SqlCommand(sql, (SqlConnection)source)
+            {
+                Transaction = (SqlTransaction)trans,
+                CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
+            };
+            cmd.Parameters.AddRange(parameters);
+            cmd.CommandType = forcedCommandType.GetValueOrDefault(cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure);
+            await cmd.ExecuteNonQueryAsync();
+            return new Result(cmd.Parameters);
+        }
+        public Result ExecuteReaderForEach(
+                IDbTransaction trans,
+                string sql,
+                TimeSpan? timeout,
+                IEnumerable<SqlParameter> parameters,
+                params Action<IDataReader>[] actions)
+        {
+            return source.ExecuteReaderForEachAsync(trans, sql, timeout, parameters, actions).ExecuteSynchronously();
+        }
+        public async Task<Result> ExecuteReaderForEachAsync(
+                IDbTransaction trans,
+                string sql,
+                TimeSpan? timeout,
+                IEnumerable<SqlParameter> parameters,
+                params Action<IDataReader>[] actions)
+        {
+            ArgumentNullException.ThrowIfNull(source);
+            Requires.Text(sql);
+            source.OpenIfNeeded();
+            try
+            {
+                await using var cmd = new SqlCommand(sql, (SqlConnection)source)
+                {
+                    Transaction = (SqlTransaction)trans,
+                    CommandTimeout = Convert.ToInt32(timeout.GetValueOrDefault(DefaultTimeout).TotalSeconds)
+                };
+                cmd.Parameters.AddRange(parameters);
+                cmd.CommandType = cmd.Parameters.Count == 0 ? CommandType.Text : CommandType.StoredProcedure;
+                await using (var reader = await cmd.ExecuteReaderAsync())
+                {
+                    foreach (var action in actions)
+                    {
+                        while (await reader.ReadAsync())
+                        {
+                            action(reader);
+                        }
+                        await reader.NextResultAsync();
+                    }
+                }
+                return new Result(cmd.Parameters);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex);
+                throw;
+            }
+        }
+        public async Task<Result<TItem>> ExecuteReaderAsync<TItem>(
+                IDbTransaction trans,
+                string sql,
+                TimeSpan? timeout,
+                IEnumerable<SqlParameter> parameters) where TItem : new()
+        {
+            var items = new List<TItem>();
+            var map = GetSettersByNameMap<TItem>();
+            var res = await source.ExecuteReaderForEachAsync(trans, sql, timeout, parameters, r =>
+            {
+                var item = r.Get<TItem>(map);
+                items.Add(item);
+            });
+            return new Result<TItem>(res, items);
         }
     }
 
-    public static async Task<Result<TItem>> ExecuteReaderAsync<TItem>(
-        this IDbConnection conn,
-        IDbTransaction trans,
-        string sql,
-        TimeSpan? timeout,
-        IEnumerable<SqlParameter> parameters) where TItem : new()
+
+
+    extension(IDbTransaction source)
     {
-        var items = new List<TItem>();
-        var map = GetSettersByNameMap<TItem>();
-        var res = await conn.ExecuteReaderForEachAsync(trans, sql, timeout, parameters, r =>
+        public void ExecuteNonQuery(string sql)
         {
-            var item = r.Get<TItem>(map);
-            items.Add(item);
-        });
-        return new Result<TItem>(res, items);
+            source.Connection.ExecuteNonQuery(sql, source);
+        }
     }
+
+
+
+    extension(SqlConnection source)
+    {
+        public void BulkUpload(DataTable dt, string schema, string table, Action<long, long> notificationCallback = null, int notifyIncrement = 1000, TimeSpan? timeout = null)
+        {
+            ArgumentNullException.ThrowIfNull(source);
+            ArgumentNullException.ThrowIfNull(dt);
+            Requires.Text(schema);
+            Requires.Text(table);
+
+            var copy = new SqlBulkCopy(source);
+            if (timeout != null)
+            {
+                copy.BulkCopyTimeout = Convert.ToInt32(timeout.Value.TotalSeconds);
+            }
+            copy.DestinationTableName = $"{schema}.{table}";
+            copy.NotifyAfter = notifyIncrement;
+            if (notificationCallback != null)
+            {
+                copy.SqlRowsCopied += (sender, e) => notificationCallback(e.RowsCopied, dt.Rows.Count);
+            }
+            foreach (DataColumn dc in dt.Columns)
+            {
+                copy.ColumnMappings.Add(dc.ColumnName, dc.ColumnName);
+            }
+            copy.WriteToServer(dt.CreateDataReader());
+            copy.Close();
+        }
+    }
+
+    extension(SqlParameterCollection sources)
+    {
+        public void AddRange(IEnumerable<SqlParameter> parameters)
+        {
+            if (parameters == null) return;
+            foreach (var p in parameters)
+            {
+                sources.Add(p);
+            }
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private static IDictionary<string, MemberInfo> GetSettersByNameMap<TItem>()
     {
@@ -279,40 +293,43 @@ public static class ConnectionHelpers
             });
     }
 
-    public static TItem Get<TItem>(this IDataReader reader, IDictionary<string, MemberInfo> map = null) where TItem : new()
+    extension(IDataReader source)
     {
-        map ??= GetSettersByNameMap<TItem>();
-        if (map.Count == 0)
+        public TItem Get<TItem>(IDictionary<string, MemberInfo> map = null) where TItem : new()
         {
-            var val = reader[0];
-            if (val.GetType() == typeof(TItem))
+            map ??= GetSettersByNameMap<TItem>();
+            if (map.Count == 0)
             {
-                return (TItem)val;
+                var val = source[0];
+                if (val.GetType() == typeof(TItem))
+                {
+                    return (TItem)val;
+                }
             }
+            var item = new TItem();
+            var fieldsToSkip = new HashSet<string>();
+            foreach (var kvp in map)
+            {
+                var fieldName = kvp.Key;
+                if (fieldsToSkip.Contains(fieldName)) continue;
+                object val;
+                try
+                {
+                    val = source[fieldName];
+                }
+                catch (IndexOutOfRangeException)
+                {
+                    fieldsToSkip.Add(fieldName);
+                    continue;
+                }
+                if (val == DBNull.Value)
+                {
+                    val = null;
+                }
+                kvp.Value.SetValue(item, val);
+            }
+            return item;
         }
-        var item = new TItem();
-        var fieldsToSkip = new HashSet<string>();
-        foreach (var kvp in map)
-        {
-            var fieldName = kvp.Key;
-            if (fieldsToSkip.Contains(fieldName)) continue;
-            object val;
-            try
-            {
-                val = reader[fieldName];
-            }
-            catch (IndexOutOfRangeException)
-            {
-                fieldsToSkip.Add(fieldName);
-                continue;
-            }
-            if (val == DBNull.Value)
-            {
-                val = null;
-            }
-            kvp.Value.SetValue(item, val);
-        }
-        return item;
     }
 
     public class Result<TItem> : Result, IEnumerable<TItem>

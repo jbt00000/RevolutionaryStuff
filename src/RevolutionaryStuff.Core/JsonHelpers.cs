@@ -15,25 +15,35 @@ public static partial class JsonHelpers
     public static T FromJson<T>(string json)
         => IJsonSerializer.Default.FromJson<T>(json);
 
-    public static async Task<T> FromJsonStreamAsync<T>(this Stream st)
+    extension(Stream source)
     {
-        Requires.ReadableStreamArg(st);
-        var json = await st.ReadToEndAsync();
-        return FromJson<T>(json);
+        public async Task<T> FromJsonStreamAsync<T>()
+        {
+            Requires.ReadableStreamArg(source);
+            var json = await source.ReadToEndAsync();
+            return FromJson<T>(json);
+        }
+        [Obsolete("Use FromJsonStreamAsync instead when possible", false)]
+        public T FromJsonStream<T>()
+        {
+            Requires.ReadableStreamArg(source);
+            var json = source.ReadToEnd();
+            return FromJson<T>(json);
+        }
     }
 
-    [Obsolete("Use FromJsonStreamAsync instead when possible", false)]
-    public static T FromJsonStream<T>(this Stream st)
+
+
+    extension(PropertyInfo source)
     {
-        Requires.ReadableStreamArg(st);
-        var json = st.ReadToEnd();
-        return FromJson<T>(json);
+        public bool HasJsonIgnoreAttribute()
+                => source.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>() != null;
     }
 
-    public static bool HasJsonIgnoreAttribute(this PropertyInfo pi)
-        => pi.GetCustomAttribute<System.Text.Json.Serialization.JsonIgnoreAttribute>() != null;
-
-    public static string GetJsonPropertyName(this MemberInfo mi)
-        => mi.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()?.Name
-        ?? mi.Name;
+    extension(MemberInfo source)
+    {
+        public string GetJsonPropertyName()
+                => source.GetCustomAttribute<System.Text.Json.Serialization.JsonPropertyNameAttribute>()?.Name
+                ?? source.Name;
+    }
 }

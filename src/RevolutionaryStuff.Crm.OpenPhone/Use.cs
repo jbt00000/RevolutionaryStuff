@@ -14,22 +14,25 @@ public static class Use
         public string OpenPhoneApiConfigSectionName { get; set; } = "OpenPhoneApi";
     }
 
-    public static IServiceCollection UseRevolutionaryStuffCrmOpenPhone(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
-            {
-                settings ??= new();
-                services.UseRevolutionaryStuffCrm(settings.RevolutionaryStuffCrmSettings);
-                //                services.ConfigureOptions<MondayComApiService.Config>(MondayComApiService.Config.ConfigSectionName);
-                //               services.AddScoped<IMondayComApi, MondayComApiService>();
-                //              services.ConfigureOptions<MondayComCrm.Config>(MondayComCrm.Config.ConfigSectionName);
-                //            services.AddScoped<IMondayComCrm, MondayComCrm>();
-                if (settings.RegisterOpenPhoneCrmAsICrm == true)
-                    Stuff.NoOp();//                    services.AddScoped<ICrm, MondayComCrm>();
+    extension(IServiceCollection sources)
+    {
+        public IServiceCollection UseRevolutionaryStuffCrmOpenPhone(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+                    {
+                        settings ??= new();
+                        sources.UseRevolutionaryStuffCrm(settings.RevolutionaryStuffCrmSettings);
+                        //                services.ConfigureOptions<MondayComApiService.Config>(MondayComApiService.Config.ConfigSectionName);
+                        //               services.AddScoped<IMondayComApi, MondayComApiService>();
+                        //              services.ConfigureOptions<MondayComCrm.Config>(MondayComCrm.Config.ConfigSectionName);
+                        //            services.AddScoped<IMondayComCrm, MondayComCrm>();
+                        if (settings.RegisterOpenPhoneCrmAsICrm == true)
+                            Stuff.NoOp();//                    services.AddScoped<ICrm, MondayComCrm>();
 
-                #region APIs
-                services.AddRefitClient<IOpenPhonePublicAPI>().ConfigureHttpClientWithApiConfig(settings.OpenPhoneApiConfigSectionName);
-                #endregion
-            });
+                        #region APIs
+                        sources.AddRefitClient<IOpenPhonePublicAPI>().ConfigureHttpClientWithApiConfig(settings.OpenPhoneApiConfigSectionName);
+                        #endregion
+                    });
+    }
 }

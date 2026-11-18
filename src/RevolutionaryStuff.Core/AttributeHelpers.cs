@@ -11,81 +11,91 @@ namespace RevolutionaryStuff.Core;
 /// </summary>
 public static class AttributeStuff
 {
-    /// <summary>
-    /// Determines whether a type has an attribute of the specified type.
-    /// </summary>
-    /// <typeparam name="TAttribute">The attribute type to find.</typeparam>
-    /// <param name="t">The type to inspect.</param>
-    /// <param name="inherit">Whether to search the type's inheritance chain.</param>
-    /// <returns><see langword="true"/> if the type has the attribute; otherwise, <see langword="false"/>.</returns>
-    public static bool HasCustomAttribute<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute
+    extension(Type source)
     {
-        return t.GetCustomAttribute<TAttribute>(inherit) != null;
-    }
-
-    /// <summary>
-    /// Gets attributes of the specified type applied to an enum value's member.
-    /// </summary>
-    /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
-    /// <param name="e">The enum value whose member is inspected.</param>
-    /// <returns>The matching attributes, or an empty sequence if the enum member cannot be found.</returns>
-    public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Enum e) where TAttribute : Attribute
-    {
-        var ti = e.GetType().GetTypeInfo();
-        var members = ti.GetMember(e.ToString());
-        if (members.Length == 0)
+        /// <summary>
+        /// Determines whether a type has an attribute of the specified type.
+        /// </summary>
+        /// <typeparam name="TAttribute">The attribute type to find.</typeparam>
+        /// <param name="source">The type to inspect.</param>
+        /// <param name="inherit">Whether to search the type's inheritance chain.</param>
+        /// <returns><see langword="true"/> if the type has the attribute; otherwise, <see langword="false"/>.</returns>
+        public bool HasCustomAttribute<TAttribute>(bool inherit = true) where TAttribute : Attribute
         {
-            return new TAttribute[0];
+            return source.GetCustomAttribute<TAttribute>(inherit) != null;
         }
-
-        var mi = ti.GetMember(e.ToString())[0];
-        return mi.GetCustomAttributes<TAttribute>();
-    }
-
-    /// <summary>
-    /// Gets the first attribute of the specified type applied to an enum value's member.
-    /// </summary>
-    /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
-    /// <param name="e">The enum value whose member is inspected.</param>
-    /// <returns>The first matching attribute, or <see langword="null"/> if none is present.</returns>
-    public static TAttribute GetCustomAttribute<TAttribute>(this Enum e) where TAttribute : Attribute => e.GetCustomAttributes<TAttribute>().FirstOrDefault();
-
-    /// <summary>
-    /// Gets the first attribute of the specified type applied to a type.
-    /// </summary>
-    /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
-    /// <param name="t">The type to inspect.</param>
-    /// <param name="inherit">Whether to search the type's inheritance chain.</param>
-    /// <returns>The first matching attribute, or <see langword="null"/> if none is present.</returns>
-    public static TAttribute GetCustomAttribute<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute => t.GetCustomAttributes<TAttribute>(inherit).FirstOrDefault();
-
-    /// <summary>
-    /// Gets attributes of the specified type applied to a type.
-    /// </summary>
-    /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
-    /// <param name="t">The type to inspect.</param>
-    /// <param name="inherit">Whether to search the type's inheritance chain.</param>
-    /// <returns>The matching attributes.</returns>
-    public static IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(this Type t, bool inherit = true) where TAttribute : Attribute
-        => PermaCache.FindOrCreate(
-            t, typeof(TAttribute), inherit,
-            () => t.GetTypeInfo().GetCustomAttributes(inherit).OfType<TAttribute>().ConvertAll(a => (Attribute)a).AsReadOnly()
-            ).OfType<TAttribute>();
-
-    /// <summary>
-    /// Gets the members of a type that have an attribute of the specified type.
-    /// </summary>
-    /// <typeparam name="TAttribute">The attribute type to find.</typeparam>
-    /// <param name="t">The type whose members are inspected.</param>
-    /// <param name="flags">The binding flags used to select members.</param>
-    /// <returns>The members with a matching attribute.</returns>
-    public static IEnumerable<MemberInfo> GetAttributedMembers<TAttribute>(this Type t, BindingFlags flags) where TAttribute : Attribute
-    {
-        foreach (var mi in t.GetMembers(flags))
+        /// <summary>
+        /// Gets the first attribute of the specified type applied to a type.
+        /// </summary>
+        /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
+        /// <param name="source">The type to inspect.</param>
+        /// <param name="inherit">Whether to search the type's inheritance chain.</param>
+        /// <returns>The first matching attribute, or <see langword="null"/> if none is present.</returns>
+        public TAttribute GetCustomAttribute<TAttribute>(bool inherit = true) where TAttribute : Attribute => source.GetCustomAttributes<TAttribute>(inherit).FirstOrDefault();
+        /// <summary>
+        /// Gets attributes of the specified type applied to a type.
+        /// </summary>
+        /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
+        /// <param name="source">The type to inspect.</param>
+        /// <param name="inherit">Whether to search the type's inheritance chain.</param>
+        /// <returns>The matching attributes.</returns>
+        public IEnumerable<TAttribute> GetCustomAttributes<TAttribute>(bool inherit = true) where TAttribute : Attribute
+            => PermaCache.FindOrCreate(
+                source, typeof(TAttribute), inherit,
+                () => source.GetTypeInfo().GetCustomAttributes(inherit).OfType<TAttribute>().ConvertAll(a => (Attribute)a).AsReadOnly()
+                ).OfType<TAttribute>();
+        /// <summary>
+        /// Gets the members of a type that have an attribute of the specified type.
+        /// </summary>
+        /// <typeparam name="TAttribute">The attribute type to find.</typeparam>
+        /// <param name="source">The type whose members are inspected.</param>
+        /// <param name="flags">The binding flags used to select members.</param>
+        /// <returns>The members with a matching attribute.</returns>
+        public IEnumerable<MemberInfo> GetAttributedMembers<TAttribute>(BindingFlags flags) where TAttribute : Attribute
         {
-            if (mi.GetCustomAttribute<TAttribute>() != null) yield return mi;
+            foreach (var mi in source.GetMembers(flags))
+            {
+                if (mi.GetCustomAttribute<TAttribute>() != null) yield return mi;
+            }
         }
     }
+
+    extension(Enum source)
+    {
+        /// <summary>
+        /// Gets attributes of the specified type applied to an enum value's member.
+        /// </summary>
+        /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
+        /// <param name="source">The enum value whose member is inspected.</param>
+        /// <returns>The matching attributes, or an empty sequence if the enum member cannot be found.</returns>
+        public IEnumerable<TAttribute> GetCustomAttributes<TAttribute>() where TAttribute : Attribute
+        {
+            var ti = source.GetType().GetTypeInfo();
+            var members = ti.GetMember(source.ToString());
+            if (members.Length == 0)
+            {
+                return new TAttribute[0];
+            }
+
+            var mi = ti.GetMember(source.ToString())[0];
+            return mi.GetCustomAttributes<TAttribute>();
+        }
+        /// <summary>
+        /// Gets the first attribute of the specified type applied to an enum value's member.
+        /// </summary>
+        /// <typeparam name="TAttribute">The attribute type to retrieve.</typeparam>
+        /// <param name="source">The enum value whose member is inspected.</param>
+        /// <returns>The first matching attribute, or <see langword="null"/> if none is present.</returns>
+        public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute => source.GetCustomAttributes<TAttribute>().FirstOrDefault();
+    }
+
+
+
+
+
+
+
+
 
     /// <summary>
     /// Gets matching attributes applied to exported types in an assembly.

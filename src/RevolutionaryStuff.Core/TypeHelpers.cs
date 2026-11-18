@@ -9,63 +9,223 @@ namespace RevolutionaryStuff.Core;
 /// </summary>
 public static class TypeHelpers
 {
-    /// <summary>
-    /// Determines whether the specified type is a value type or a string.
-    /// </summary>
-    /// <param name="t">The type to check.</param>
-    /// <returns><c>true</c> if the type is a value type or string; otherwise, <c>false</c>.</returns>
-    public static bool IsValueTypeOrString(this Type t)
-        => t.IsValueType || t == typeof(string);
-
-    /// <summary>
-    /// Determines whether the specified type is a nullable enum type.
-    /// </summary>
-    /// <param name="t">The type to check.</param>
-    /// <returns><c>true</c> if the type is a nullable enum; otherwise, <c>false</c>.</returns>
-    public static bool IsNullableEnum(this Type t)
+    extension(Type source)
     {
-        if (t.IsValueType)
+        /// <summary>
+        /// Determines whether the specified type is a value type or a string.
+        /// </summary>
+        /// <param name="source">The type to check.</param>
+        /// <returns><c>true</c> if the type is a value type or string; otherwise, <c>false</c>.</returns>
+        public bool IsValueTypeOrString()
+            => source.IsValueType || source == typeof(string);
+        /// <summary>
+        /// Determines whether the specified type is a nullable enum type.
+        /// </summary>
+        /// <param name="source">The type to check.</param>
+        /// <returns><c>true</c> if the type is a nullable enum; otherwise, <c>false</c>.</returns>
+        public bool IsNullableEnum()
         {
-            var u = Nullable.GetUnderlyingType(t);
-            return u is { IsEnum: true };
+            if (source.IsValueType)
+            {
+                var u = Nullable.GetUnderlyingType(source);
+                return u is { IsEnum: true };
+            }
+            return false;
         }
-        return false;
+        /// <summary>
+        /// Determines whether the specified type is nullable (either a reference type or a nullable value type).
+        /// </summary>
+        /// <param name="source">The type to check.</param>
+        /// <returns><c>true</c> if the type is nullable; otherwise, <c>false</c>.</returns>
+        public bool IsNullable()
+        {
+            return !source.IsValueType || (source.IsGenericType && source.GetGenericTypeDefinition() == typeof(Nullable<>));
+        }
+        /// <summary>
+        /// Gets the default value for the specified type.
+        /// </summary>
+        /// <param name="source">The type to get the default value for.</param>
+        /// <returns>The default value for value types, or <c>null</c> for reference types.</returns>
+        public object GetDefaultValue()
+        {
+            return source.GetTypeInfo().IsValueType ? Activator.CreateInstance(source) : null;
+        }
+        /// <summary>
+        /// Constructs an instance of the specified type using its parameterless constructor.
+        /// Special handling for IList&lt;T&gt; and IDictionary&lt;TKey, TValue&gt; interfaces.
+        /// </summary>
+        /// <param name="source">The type to construct.</param>
+        /// <returns>A new instance of the specified type.</returns>
+        public object Construct()
+        {
+            return source.Name == "IList`1"
+                ? ConstructList(source.GenericTypeArguments[0])
+                : source.Name == "IDictionary`2"
+                ? ConstructDictionary(source.GenericTypeArguments[0], source.GenericTypeArguments[1])
+                : Activator.CreateInstance(source);
+        }
+        /// <summary>
+        /// Gets the indexer property from the specified type.
+        /// </summary>
+        /// <param name="source">The type to search for an indexer.</param>
+        /// <returns>The indexer <see cref="PropertyInfo"/> if found; otherwise, <c>null</c>.</returns>
+        public PropertyInfo GetIndexer()
+            => source.GetProperties().SingleOrDefault(pi => pi.GetIndexParameters().Length == 1);
+        /// <summary>
+        /// Determines whether the specified type is a whole number type.
+        /// Supports: byte, sbyte, short, ushort, int, uint, long, ulong, nint, nuint, Int128, UInt128.
+        /// </summary>
+        /// <param name="source">The type to check.</param>
+        /// <returns><c>true</c> if the type is a whole number; otherwise, <c>false</c>.</returns>
+        public bool IsWholeNumber()
+        {
+            return
+                       source == typeof(short) ||
+                       source == typeof(int) ||
+                       source == typeof(long) ||
+                       source == typeof(ushort) ||
+                       source == typeof(uint) ||
+                       source == typeof(ulong) ||
+                       source == typeof(sbyte) ||
+                       source == typeof(byte) ||
+                       source == typeof(nint) ||
+                       source == typeof(nuint) ||
+                       source == typeof(Int128) ||
+                       source == typeof(UInt128);
+        }
+        /// <summary>
+        /// Determines whether the specified type is a real (floating-point) number type.
+        /// Supports: float, double, decimal, Half.
+        /// </summary>
+        /// <param name="source">The type to check.</param>
+        /// <returns><c>true</c> if the type is a real number; otherwise, <c>false</c>.</returns>
+        public bool IsRealNumber()
+        {
+            return
+                       source == typeof(float) ||
+                       source == typeof(double) ||
+                       source == typeof(decimal) ||
+                       source == typeof(Half);
+        }
+        /// <summary>
+        /// Determines whether the specified type is a numeric type (whole number or real number).
+        /// </summary>
+        /// <param name="source">The type to check.</param>
+        /// <returns><c>true</c> if the type is numeric; otherwise, <c>false</c>.</returns>
+        public bool IsNumber()
+        {
+            return IsWholeNumber(source) || IsRealNumber(source);
+        }
+        /// <summary>
+        /// Gets the public parameterless constructor for the specified type.
+        /// </summary>
+        /// <param name="source">The type to search.</param>
+        /// <returns>The <see cref="ConstructorInfo"/> for the parameterless constructor, or <c>null</c> if not found.</returns>
+        public ConstructorInfo GetConstructorNoParameters()
+            => source.GetConstructors(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(ci => ci.GetParameters().Length == 0);
+        /// <summary>
+        /// Gets all public instance properties that can be read.
+        /// </summary>
+        /// <param name="source">The type to search.</param>
+        /// <returns>An array of public readable instance properties.</returns>
+        public PropertyInfo[] GetPropertiesPublicInstanceRead()
+            => source.GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance);
+        /// <summary>
+        /// Gets all public instance properties that can be both read and written.
+        /// </summary>
+        /// <param name="source">The type to search.</param>
+        /// <returns>An array of public read/write instance properties.</returns>
+        public PropertyInfo[] GetPropertiesPublicInstanceReadWrite()
+            => source.GetProperties(BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance);
+        /// <summary>
+        /// Gets all public instance fields that can be read.
+        /// </summary>
+        /// <param name="source">The type to search.</param>
+        /// <returns>An array of public readable instance fields.</returns>
+        public FieldInfo[] GetFieldsPublicInstanceRead()
+            => source.GetFields(BindingFlags.GetField | BindingFlags.Public | BindingFlags.Instance);
+        /// <summary>
+        /// Gets all public instance fields that can be both read and written.
+        /// </summary>
+        /// <param name="source">The type to search.</param>
+        /// <returns>An array of public read/write instance fields.</returns>
+        public FieldInfo[] GetFieldsPublicInstanceReadWrite()
+            => source.GetFields(BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Public | BindingFlags.Instance);
+        /// <summary>
+        /// Determines whether the specified type is assignable to the generic type parameter.
+        /// </summary>
+        /// <typeparam name="T">The potential base type.</typeparam>
+        /// <param name="source">The type to check.</param>
+        /// <returns><c>true</c> if <paramref name="source"/> is assignable to <typeparamref name="T"/>; otherwise, <c>false</c>.</returns>
+        public bool IsA<T>()
+            => IsA(source, typeof(T));
+        /// <summary>
+        /// Determines whether the specified type is assignable to the potential base type.
+        /// </summary>
+        /// <param name="source">The type to check.</param>
+        /// <param name="potentialBaseType">The potential base type.</param>
+        /// <returns><c>true</c> if <paramref name="source"/> is assignable to <paramref name="potentialBaseType"/>; otherwise, <c>false</c>.</returns>
+        public bool IsA(Type potentialBaseType)
+        {
+            return potentialBaseType.GetTypeInfo().IsAssignableFrom(source);
+        }
+        /// <summary>
+        /// Recursively walks through all members of a type using reflection, invoking callbacks at each node.
+        /// </summary>
+        /// <typeparam name="TNodeContext">The type of context object passed through the walk.</typeparam>
+        /// <param name="source">The root type to start walking from.</param>
+        /// <param name="bindingFlags">The binding flags to use when getting members.</param>
+        /// <param name="createContext">Callback to create a new context for each node.</param>
+        /// <param name="visit">Callback invoked for each member visited.</param>
+        /// <param name="recurse">Optional callback to determine if recursion should continue for a member. Defaults to always recurse.</param>
+        /// <param name="parentNodeContext">The parent node's context.</param>
+        /// <param name="depth">The current depth in the walk (starts at 0).</param>
+        /// <param name="loopChecker">Internal set used to prevent infinite recursion.</param>
+        /// <param name="baseTypeMemberInfo">The member info of the parent type.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> or <paramref name="visit"/> is <c>null</c>.</exception>
+        public void MemberWalk<TNodeContext>(
+            BindingFlags bindingFlags,
+            Func<TNodeContext, Type, MemberInfo, TNodeContext> createContext,
+            Action<TNodeContext, Type, MemberInfo> visit,
+            Func<TNodeContext, Type, MemberInfo, bool> recurse = null,
+            TNodeContext parentNodeContext = default,
+            int depth = 0,
+            HashSet<Type> loopChecker = null,
+            MemberInfo baseTypeMemberInfo = null)
+        {
+            ArgumentNullException.ThrowIfNull(source);
+            ArgumentNullException.ThrowIfNull(visit);
+
+            recurse ??= delegate (TNodeContext a, Type b, MemberInfo c) { return true; };
+            var nodeContext = createContext(parentNodeContext, source, baseTypeMemberInfo);
+
+            loopChecker ??= [];
+            if (loopChecker.Contains(source)) return;
+            loopChecker.Add(source);
+            foreach (var mi in source.GetMembers(bindingFlags))
+            {
+                var memberType = (mi as PropertyInfo)?.PropertyType ?? (mi as FieldInfo)?.FieldType;
+                if (memberType != null)
+                {
+                    visit(nodeContext, memberType, mi);
+                    var mti = memberType.GetTypeInfo();
+                    if (memberType.IsNumber() || memberType == typeof(string) || !mti.IsClass) { }
+                    else if (recurse(nodeContext, memberType, mi))
+                    {
+                        MemberWalk(memberType, bindingFlags, createContext, visit, recurse, nodeContext, depth + 1, loopChecker, mi);
+                    }
+                }
+            }
+        }
     }
 
-    /// <summary>
-    /// Determines whether the specified type is nullable (either a reference type or a nullable value type).
-    /// </summary>
-    /// <param name="t">The type to check.</param>
-    /// <returns><c>true</c> if the type is nullable; otherwise, <c>false</c>.</returns>
-    public static bool IsNullable(this Type t)
-    {
-        return !t.IsValueType || (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>));
-    }
 
-    /// <summary>
-    /// Gets the default value for the specified type.
-    /// </summary>
-    /// <param name="t">The type to get the default value for.</param>
-    /// <returns>The default value for value types, or <c>null</c> for reference types.</returns>
-    public static object GetDefaultValue(this Type t)
-    {
-        return t.GetTypeInfo().IsValueType ? Activator.CreateInstance(t) : null;
-    }
 
-    /// <summary>
-    /// Constructs an instance of the specified type using its parameterless constructor.
-    /// Special handling for IList&lt;T&gt; and IDictionary&lt;TKey, TValue&gt; interfaces.
-    /// </summary>
-    /// <param name="t">The type to construct.</param>
-    /// <returns>A new instance of the specified type.</returns>
-    public static object Construct(this Type t)
-    {
-        return t.Name == "IList`1"
-            ? ConstructList(t.GenericTypeArguments[0])
-            : t.Name == "IDictionary`2"
-            ? ConstructDictionary(t.GenericTypeArguments[0], t.GenericTypeArguments[1])
-            : Activator.CreateInstance(t);
-    }
+
+
+
+
+
 
     /// <summary>
     /// Constructs an instance of the specified type using its parameterless constructor.
@@ -98,13 +258,7 @@ public static class TypeHelpers
         return (IList)Construct(gt);
     }
 
-    /// <summary>
-    /// Gets the indexer property from the specified type.
-    /// </summary>
-    /// <param name="itemType">The type to search for an indexer.</param>
-    /// <returns>The indexer <see cref="PropertyInfo"/> if found; otherwise, <c>null</c>.</returns>
-    public static PropertyInfo GetIndexer(this Type itemType)
-        => itemType.GetProperties().SingleOrDefault(pi => pi.GetIndexParameters().Length == 1);
+
 
     /// <summary>
     /// Converts an object to a dictionary of property names and values.
@@ -133,53 +287,11 @@ public static class TypeHelpers
         return Empty.StringObjectDictionary;
     }
 
-    /// <summary>
-    /// Determines whether the specified type is a whole number type.
-    /// Supports: byte, sbyte, short, ushort, int, uint, long, ulong, nint, nuint, Int128, UInt128.
-    /// </summary>
-    /// <param name="t">The type to check.</param>
-    /// <returns><c>true</c> if the type is a whole number; otherwise, <c>false</c>.</returns>
-    public static bool IsWholeNumber(this Type t)
-    {
-        return
-                   t == typeof(short) ||
-                   t == typeof(int) ||
-                   t == typeof(long) ||
-                   t == typeof(ushort) ||
-                   t == typeof(uint) ||
-                   t == typeof(ulong) ||
-                   t == typeof(sbyte) ||
-                   t == typeof(byte) ||
-                   t == typeof(nint) ||
-                   t == typeof(nuint) ||
-                   t == typeof(Int128) ||
-                   t == typeof(UInt128);
-    }
 
-    /// <summary>
-    /// Determines whether the specified type is a real (floating-point) number type.
-    /// Supports: float, double, decimal, Half.
-    /// </summary>
-    /// <param name="t">The type to check.</param>
-    /// <returns><c>true</c> if the type is a real number; otherwise, <c>false</c>.</returns>
-    public static bool IsRealNumber(this Type t)
-    {
-        return
-                   t == typeof(float) ||
-                   t == typeof(double) ||
-                   t == typeof(decimal) ||
-                   t == typeof(Half);
-    }
 
-    /// <summary>
-    /// Determines whether the specified type is a numeric type (whole number or real number).
-    /// </summary>
-    /// <param name="t">The type to check.</param>
-    /// <returns><c>true</c> if the type is numeric; otherwise, <c>false</c>.</returns>
-    public static bool IsNumber(this Type t)
-    {
-        return IsWholeNumber(t) || IsRealNumber(t);
-    }
+
+
+
 
     /// <summary>
     /// Gets the maximum and minimum values for the specified numeric type.
@@ -286,76 +398,97 @@ public static class TypeHelpers
         throw new Exception($"we weren't expectecting a {mi.GetType()}");
     }
 
-    /// <summary>
-    /// Gets the underlying type of a property or field member.
-    /// </summary>
-    /// <param name="mi">The member to get the underlying type from.</param>
-    /// <returns>The property type or field type.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="mi"/> is <c>null</c>.</exception>
-    /// <exception cref="Exception">Thrown when <paramref name="mi"/> is neither a PropertyInfo nor a FieldInfo.</exception>
-    public static Type GetUnderlyingType(this MemberInfo mi)
+    extension(MemberInfo source)
     {
-        RequiresIsPropertyInfoOrFieldInfo(mi);
-        return mi is PropertyInfo pi ? pi.PropertyType : mi is FieldInfo fi ? fi.FieldType : null;
+        /// <summary>
+        /// Gets the underlying type of a property or field member.
+        /// </summary>
+        /// <param name="source">The member to get the underlying type from.</param>
+        /// <returns>The property type or field type.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> is <c>null</c>.</exception>
+        /// <exception cref="Exception">Thrown when <paramref name="source"/> is neither a PropertyInfo nor a FieldInfo.</exception>
+        public Type GetUnderlyingType()
+        {
+            RequiresIsPropertyInfoOrFieldInfo(source);
+            return source is PropertyInfo pi ? pi.PropertyType : source is FieldInfo fi ? fi.FieldType : null;
+        }
+        /// <summary>
+        /// Gets the value of a property or field from the specified object.
+        /// </summary>
+        /// <param name="source">The property or field member.</param>
+        /// <param name="basevar">The object to get the value from.</param>
+        /// <returns>The value of the property or field.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> is <c>null</c>.</exception>
+        /// <exception cref="Exception">Thrown when <paramref name="source"/> is neither a PropertyInfo nor a FieldInfo.</exception>
+        public object GetValue(object basevar)
+        {
+            RequiresIsPropertyInfoOrFieldInfo(source);
+            return source is PropertyInfo pi
+                ? pi.GetValue(basevar, null)
+                : source is FieldInfo fi ? fi.GetValue(basevar) : throw new UnexpectedSwitchValueException(source.GetType().Name);
+        }
+        /// <summary>
+        /// Sets the value of a property or field on the specified object, converting the value if necessary.
+        /// </summary>
+        /// <param name="source">The property or field member.</param>
+        /// <param name="basevar">The object to set the value on.</param>
+        /// <param name="val">The value to set.</param>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> is <c>null</c>.</exception>
+        /// <exception cref="Exception">Thrown when <paramref name="source"/> is neither a PropertyInfo nor a FieldInfo.</exception>
+        public void SetValue(object basevar, object val)
+        {
+            RequiresIsPropertyInfoOrFieldInfo(source);
+            var v = source.ConvertValue(val);
+            if (source is PropertyInfo pi)
+            {
+                pi.SetValue(basevar, v, null);
+            }
+            else if (source is FieldInfo fi)
+            {
+                fi.SetValue(basevar, v);
+            }
+            else
+            {
+                throw new UnexpectedSwitchValueException(source.GetType().Name);
+            }
+        }
+        /// <summary>
+        /// Converts a value to the type of the specified property or field member.
+        /// </summary>
+        /// <param name="source">The property or field member whose type to convert to.</param>
+        /// <param name="val">The value to convert.</param>
+        /// <returns>The converted value.</returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> is <c>null</c>.</exception>
+        /// <exception cref="Exception">Thrown when <paramref name="source"/> is neither a PropertyInfo nor a FieldInfo.</exception>
+        public object ConvertValue(object val)
+        {
+            RequiresIsPropertyInfoOrFieldInfo(source);
+            return source is PropertyInfo pi
+                ? ConvertValue(pi.PropertyType, val)
+                : source is FieldInfo fi ? ConvertValue(fi.FieldType, val) : throw new UnexpectedSwitchValueException(source.GetType().Name);
+        }
+        /// <summary>
+        /// Determines whether a property or field can be written to.
+        /// </summary>
+        /// <param name="source">The property or field member to check.</param>
+        /// <returns>
+        /// <c>true</c> if the member is a writable property or a field that is not readonly or const;
+        /// otherwise, <c>false</c>.
+        /// </returns>
+        /// <exception cref="ArgumentNullException">Thrown when <paramref name="source"/> is <c>null</c>.</exception>
+        /// <exception cref="Exception">Thrown when <paramref name="source"/> is neither a PropertyInfo nor a FieldInfo.</exception>
+        public bool CanWrite()
+        {
+            RequiresIsPropertyInfoOrFieldInfo(source);
+            return source is PropertyInfo pi ? pi.CanWrite : source is FieldInfo fi && !(fi.IsInitOnly || fi.IsLiteral);
+        }
     }
 
-    /// <summary>
-    /// Gets the value of a property or field from the specified object.
-    /// </summary>
-    /// <param name="mi">The property or field member.</param>
-    /// <param name="basevar">The object to get the value from.</param>
-    /// <returns>The value of the property or field.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="mi"/> is <c>null</c>.</exception>
-    /// <exception cref="Exception">Thrown when <paramref name="mi"/> is neither a PropertyInfo nor a FieldInfo.</exception>
-    public static object GetValue(this MemberInfo mi, object basevar)
-    {
-        RequiresIsPropertyInfoOrFieldInfo(mi);
-        return mi is PropertyInfo pi
-            ? pi.GetValue(basevar, null)
-            : mi is FieldInfo fi ? fi.GetValue(basevar) : throw new UnexpectedSwitchValueException(mi.GetType().Name);
-    }
 
-    /// <summary>
-    /// Sets the value of a property or field on the specified object, converting the value if necessary.
-    /// </summary>
-    /// <param name="mi">The property or field member.</param>
-    /// <param name="basevar">The object to set the value on.</param>
-    /// <param name="val">The value to set.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="mi"/> is <c>null</c>.</exception>
-    /// <exception cref="Exception">Thrown when <paramref name="mi"/> is neither a PropertyInfo nor a FieldInfo.</exception>
-    public static void SetValue(this MemberInfo mi, object basevar, object val)
-    {
-        RequiresIsPropertyInfoOrFieldInfo(mi);
-        var v = mi.ConvertValue(val);
-        if (mi is PropertyInfo pi)
-        {
-            pi.SetValue(basevar, v, null);
-        }
-        else if (mi is FieldInfo fi)
-        {
-            fi.SetValue(basevar, v);
-        }
-        else
-        {
-            throw new UnexpectedSwitchValueException(mi.GetType().Name);
-        }
-    }
 
-    /// <summary>
-    /// Converts a value to the type of the specified property or field member.
-    /// </summary>
-    /// <param name="mi">The property or field member whose type to convert to.</param>
-    /// <param name="val">The value to convert.</param>
-    /// <returns>The converted value.</returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="mi"/> is <c>null</c>.</exception>
-    /// <exception cref="Exception">Thrown when <paramref name="mi"/> is neither a PropertyInfo nor a FieldInfo.</exception>
-    public static object ConvertValue(this MemberInfo mi, object val)
-    {
-        RequiresIsPropertyInfoOrFieldInfo(mi);
-        return mi is PropertyInfo pi
-            ? ConvertValue(pi.PropertyType, val)
-            : mi is FieldInfo fi ? ConvertValue(fi.FieldType, val) : throw new UnexpectedSwitchValueException(mi.GetType().Name);
-    }
+
+
+
 
     /// <summary>
     /// Converts a string value to the specified type.
@@ -441,30 +574,19 @@ public static class TypeHelpers
             : t == typeof(Uri) && val is string ? new Uri((string)val) : Convert.ChangeType(val, t, null);
     }
 
-    /// <summary>
-    /// Determines whether a property or field can be written to.
-    /// </summary>
-    /// <param name="mi">The property or field member to check.</param>
-    /// <returns>
-    /// <c>true</c> if the member is a writable property or a field that is not readonly or const;
-    /// otherwise, <c>false</c>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="mi"/> is <c>null</c>.</exception>
-    /// <exception cref="Exception">Thrown when <paramref name="mi"/> is neither a PropertyInfo nor a FieldInfo.</exception>
-    public static bool CanWrite(this MemberInfo mi)
-    {
-        RequiresIsPropertyInfoOrFieldInfo(mi);
-        return mi is PropertyInfo pi ? pi.CanWrite : mi is FieldInfo fi && !(fi.IsInitOnly || fi.IsLiteral);
-    }
 
-    /// <summary>
-    /// Gets assembly attribute information for the specified assembly.
-    /// </summary>
-    /// <param name="a">The assembly to get information from.</param>
-    /// <returns>An <see cref="AssemblyAttributeInfo"/> instance containing assembly metadata.</returns>
-    public static AssemblyAttributeInfo GetInfo(this Assembly a)
+
+    extension(Assembly source)
     {
-        return new AssemblyAttributeInfo(a);
+        /// <summary>
+        /// Gets assembly attribute information for the specified assembly.
+        /// </summary>
+        /// <param name="source">The assembly to get information from.</param>
+        /// <returns>An <see cref="AssemblyAttributeInfo"/> instance containing assembly metadata.</returns>
+        public AssemblyAttributeInfo GetInfo()
+        {
+            return new AssemblyAttributeInfo(source);
+        }
     }
 
     /// <summary>
@@ -493,113 +615,19 @@ Again:
         return [.. d.Values];
     }
 
-    /// <summary>
-    /// Gets the public parameterless constructor for the specified type.
-    /// </summary>
-    /// <param name="test">The type to search.</param>
-    /// <returns>The <see cref="ConstructorInfo"/> for the parameterless constructor, or <c>null</c> if not found.</returns>
-    public static ConstructorInfo GetConstructorNoParameters(this Type test)
-        => test.GetConstructors(BindingFlags.Public | BindingFlags.Instance).FirstOrDefault(ci => ci.GetParameters().Length == 0);
 
-    /// <summary>
-    /// Gets all public instance properties that can be read.
-    /// </summary>
-    /// <param name="test">The type to search.</param>
-    /// <returns>An array of public readable instance properties.</returns>
-    public static PropertyInfo[] GetPropertiesPublicInstanceRead(this Type test)
-        => test.GetProperties(BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance);
 
-    /// <summary>
-    /// Gets all public instance properties that can be both read and written.
-    /// </summary>
-    /// <param name="test">The type to search.</param>
-    /// <returns>An array of public read/write instance properties.</returns>
-    public static PropertyInfo[] GetPropertiesPublicInstanceReadWrite(this Type test)
-        => test.GetProperties(BindingFlags.SetProperty | BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance);
 
-    /// <summary>
-    /// Gets all public instance fields that can be read.
-    /// </summary>
-    /// <param name="test">The type to search.</param>
-    /// <returns>An array of public readable instance fields.</returns>
-    public static FieldInfo[] GetFieldsPublicInstanceRead(this Type test)
-        => test.GetFields(BindingFlags.GetField | BindingFlags.Public | BindingFlags.Instance);
 
-    /// <summary>
-    /// Gets all public instance fields that can be both read and written.
-    /// </summary>
-    /// <param name="test">The type to search.</param>
-    /// <returns>An array of public read/write instance fields.</returns>
-    public static FieldInfo[] GetFieldsPublicInstanceReadWrite(this Type test)
-        => test.GetFields(BindingFlags.SetField | BindingFlags.GetField | BindingFlags.Public | BindingFlags.Instance);
 
-    /// <summary>
-    /// Determines whether the specified type is assignable to the generic type parameter.
-    /// </summary>
-    /// <typeparam name="T">The potential base type.</typeparam>
-    /// <param name="test">The type to check.</param>
-    /// <returns><c>true</c> if <paramref name="test"/> is assignable to <typeparamref name="T"/>; otherwise, <c>false</c>.</returns>
-    public static bool IsA<T>(this Type test)
-        => IsA(test, typeof(T));
 
-    /// <summary>
-    /// Determines whether the specified type is assignable to the potential base type.
-    /// </summary>
-    /// <param name="test">The type to check.</param>
-    /// <param name="potentialBaseType">The potential base type.</param>
-    /// <returns><c>true</c> if <paramref name="test"/> is assignable to <paramref name="potentialBaseType"/>; otherwise, <c>false</c>.</returns>
-    public static bool IsA(this Type test, Type potentialBaseType)
-    {
-        return potentialBaseType.GetTypeInfo().IsAssignableFrom(test);
-    }
 
-    /// <summary>
-    /// Recursively walks through all members of a type using reflection, invoking callbacks at each node.
-    /// </summary>
-    /// <typeparam name="TNodeContext">The type of context object passed through the walk.</typeparam>
-    /// <param name="baseType">The root type to start walking from.</param>
-    /// <param name="bindingFlags">The binding flags to use when getting members.</param>
-    /// <param name="createContext">Callback to create a new context for each node.</param>
-    /// <param name="visit">Callback invoked for each member visited.</param>
-    /// <param name="recurse">Optional callback to determine if recursion should continue for a member. Defaults to always recurse.</param>
-    /// <param name="parentNodeContext">The parent node's context.</param>
-    /// <param name="depth">The current depth in the walk (starts at 0).</param>
-    /// <param name="loopChecker">Internal set used to prevent infinite recursion.</param>
-    /// <param name="baseTypeMemberInfo">The member info of the parent type.</param>
-    /// <exception cref="ArgumentNullException">Thrown when <paramref name="baseType"/> or <paramref name="visit"/> is <c>null</c>.</exception>
-    public static void MemberWalk<TNodeContext>(
-        this Type baseType,
-        BindingFlags bindingFlags,
-        Func<TNodeContext, Type, MemberInfo, TNodeContext> createContext,
-        Action<TNodeContext, Type, MemberInfo> visit,
-        Func<TNodeContext, Type, MemberInfo, bool> recurse = null,
-        TNodeContext parentNodeContext = default,
-        int depth = 0,
-        HashSet<Type> loopChecker = null,
-        MemberInfo baseTypeMemberInfo = null)
-    {
-        ArgumentNullException.ThrowIfNull(baseType);
-        ArgumentNullException.ThrowIfNull(visit);
 
-        recurse ??= delegate (TNodeContext a, Type b, MemberInfo c) { return true; };
-        var nodeContext = createContext(parentNodeContext, baseType, baseTypeMemberInfo);
 
-        loopChecker ??= [];
-        if (loopChecker.Contains(baseType)) return;
-        loopChecker.Add(baseType);
-        foreach (var mi in baseType.GetMembers(bindingFlags))
-        {
-            var memberType = (mi as PropertyInfo)?.PropertyType ?? (mi as FieldInfo)?.FieldType;
-            if (memberType != null)
-            {
-                visit(nodeContext, memberType, mi);
-                var mti = memberType.GetTypeInfo();
-                if (memberType.IsNumber() || memberType == typeof(string) || !mti.IsClass) { }
-                else if (recurse(nodeContext, memberType, mi))
-                {
-                    MemberWalk(memberType, bindingFlags, createContext, visit, recurse, nodeContext, depth + 1, loopChecker, mi);
-                }
-            }
-        }
-    }
+
+
+
+
+
+
 }

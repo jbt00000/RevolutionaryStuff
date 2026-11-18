@@ -2,59 +2,72 @@
 
 public static class CacherHelpers
 {
-    public static TVal GetValue<TVal>(this ICacheEntry cacheEntry)
-        => (TVal)cacheEntry.Value;
-
-    public static ICacher CreateScope(this ICacher inner, params object[] keyParts)
-        => new ScopedCacher(inner, keyParts);
-
-    public static void Remove(this ICacher cacher, string key)
-        => cacher.RemoveAsync(key).ExecuteSynchronously();
-
-    public static async Task<TVal> FindOrCreateValueAsync<TVal>(this ICacher cacher, string key, Func<Task<TVal>> asyncCreator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
+    extension(ICacheEntry source)
     {
-        ArgumentNullException.ThrowIfNull(asyncCreator);
-
-        var entry = await cacher.FindEntryOrCreateValueAsync(
-            key,
-            async k =>
-            {
-                var val = await asyncCreator();
-                return new CacheCreationResult(val, new CacheEntryRetentionPolicy(cacheEntryTimeout));
-            },
-            forceCreate ? FindOrCreateEntrySettings.ForceCreateTrue : FindOrCreateEntrySettings.ForceCreateFalse
-            );
-        return entry.GetValue<TVal>();
+        public TVal GetValue<TVal>()
+                => (TVal)source.Value;
     }
 
-    public static TVal FindValue<TVal>(this ICacher cacher, string key, TVal missing = default)
-        => cacher.FindValueAsync(key, missing).ExecuteSynchronously();
-
-    public static async Task<TVal> FindValueAsync<TVal>(this ICacher cacher, string key, TVal missing = default)
+    extension(ICacher source)
     {
-        var entry = await cacher.FindEntryAsync(key);
-        return entry == null ? missing : entry.GetValue<TVal>();
-    }
-
-    public static Task<ICacheEntry> FindEntryAsync(this ICacher cacher, string key)
-        => cacher.FindEntryOrCreateValueAsync(key);
-
-    public static TVal FindOrCreateValue<TVal>(this ICacher cacher, string key, Func<TVal> creator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
-        => cacher.FindOrCreateValueAsync<TVal>(key, () => Task.FromResult(creator()), cacheEntryTimeout, forceCreate).ExecuteSynchronously();
-
-    public static TVal FindOrPrimeValues<TVal>(this ICacher cacher, string key, Func<IEnumerable<Tuple<string, TVal>>> primer, TimeSpan? cacheEntryTimeout = null)
-    {
-        var entry = cacher.FindEntryAsync(key).ExecuteSynchronously();
-        if (entry != null && !entry.IsExpired) return entry.GetValue<TVal>();
-        TVal ret = default;
-        foreach (var t in primer())
+        public ICacher CreateScope(params object[] keyParts)
+                => new ScopedCacher(source, keyParts);
+        public void Remove(string key)
+                => source.RemoveAsync(key).ExecuteSynchronously();
+        public async Task<TVal> FindOrCreateValueAsync<TVal>(string key, Func<Task<TVal>> asyncCreator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
         {
-            cacher.FindOrCreateValue<TVal>(t.Item1, () => t.Item2, cacheEntryTimeout, true);
-            if (t.Item1 == key)
-            {
-                ret = t.Item2;
-            }
+            ArgumentNullException.ThrowIfNull(asyncCreator);
+
+            var entry = await source.FindEntryOrCreateValueAsync(
+                key,
+                async k =>
+                {
+                    var val = await asyncCreator();
+                    return new CacheCreationResult(val, new CacheEntryRetentionPolicy(cacheEntryTimeout));
+                },
+                forceCreate ? FindOrCreateEntrySettings.ForceCreateTrue : FindOrCreateEntrySettings.ForceCreateFalse
+                );
+            return entry.GetValue<TVal>();
         }
-        return ret;
+        public TVal FindValue<TVal>(string key, TVal missing = default)
+                => source.FindValueAsync(key, missing).ExecuteSynchronously();
+        public async Task<TVal> FindValueAsync<TVal>(string key, TVal missing = default)
+        {
+            var entry = await source.FindEntryAsync(key);
+            return entry == null ? missing : entry.GetValue<TVal>();
+        }
+        public Task<ICacheEntry> FindEntryAsync(string key)
+                => source.FindEntryOrCreateValueAsync(key);
+        public TVal FindOrCreateValue<TVal>(string key, Func<TVal> creator, TimeSpan? cacheEntryTimeout = null, bool forceCreate = false)
+                => source.FindOrCreateValueAsync<TVal>(key, () => Task.FromResult(creator()), cacheEntryTimeout, forceCreate).ExecuteSynchronously();
+        public TVal FindOrPrimeValues<TVal>(string key, Func<IEnumerable<Tuple<string, TVal>>> primer, TimeSpan? cacheEntryTimeout = null)
+        {
+            var entry = source.FindEntryAsync(key).ExecuteSynchronously();
+            if (entry != null && !entry.IsExpired) return entry.GetValue<TVal>();
+            TVal ret = default;
+            foreach (var t in primer())
+            {
+                source.FindOrCreateValue<TVal>(t.Item1, () => t.Item2, cacheEntryTimeout, true);
+                if (t.Item1 == key)
+                {
+                    ret = t.Item2;
+                }
+            }
+            return ret;
+        }
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

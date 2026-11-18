@@ -6,32 +6,38 @@ namespace RevolutionaryStuff.Core;
 
 internal static class XmlHelpers
 {
-    public static XmlAttribute CreateAttributeWithValue(this XmlDocument doc, string name, string ns, string val, string prefix = null)
+    extension(XmlDocument source)
     {
-        var attr = prefix == null ? doc.CreateAttribute(name, ns) : doc.CreateAttribute(prefix, name, ns);
-        attr.Value = val;
-        return attr;
+        public XmlAttribute CreateAttributeWithValue(string name, string ns, string val, string prefix = null)
+        {
+            var attr = prefix == null ? source.CreateAttribute(name, ns) : source.CreateAttribute(prefix, name, ns);
+            attr.Value = val;
+            return attr;
+        }
     }
 
-    public static void WriteElement(this XmlWriter writer, string localName, string ns, string value, object attrs = null)
+    extension(XmlWriter source)
     {
-        writer.WriteStartElement(localName, ns);
-        if (attrs != null)
+        public void WriteElement(string localName, string ns, string value, object attrs = null)
         {
-            var d = TypeHelpers.ToPropertyValueDictionary(attrs);
-            if (d.Count > 0)
+            source.WriteStartElement(localName, ns);
+            if (attrs != null)
             {
-                foreach (var kvp in d)
+                var d = TypeHelpers.ToPropertyValueDictionary(attrs);
+                if (d.Count > 0)
                 {
-                    writer.WriteAttributeString(kvp.Key, null, Stuff.ObjectToString(kvp.Value));
+                    foreach (var kvp in d)
+                    {
+                        source.WriteAttributeString(kvp.Key, null, Stuff.ObjectToString(kvp.Value));
+                    }
                 }
             }
+            if (value != null)
+            {
+                source.WriteString(value);
+            }
+            source.WriteEndElement();
         }
-        if (value != null)
-        {
-            writer.WriteString(value);
-        }
-        writer.WriteEndElement();
     }
 
     /*
@@ -63,13 +69,16 @@ internal static class XmlHelpers
         [External Code]                  
 
      */
-    public static string ToXml(this XmlSerializer ser, object o, bool allowAsync = true)
+    extension(XmlSerializer source)
     {
-        var sb = new StringBuilder();
-        using (var xmlWriter = XmlWriter.Create(sb, new XmlWriterSettings() { Async = allowAsync }))
+        public string ToXml(object o, bool allowAsync = true)
         {
-            ser.Serialize(xmlWriter, o);
+            var sb = new StringBuilder();
+            using (var xmlWriter = XmlWriter.Create(sb, new XmlWriterSettings() { Async = allowAsync }))
+            {
+                source.Serialize(xmlWriter, o);
+            }
+            return sb.ToString();
         }
-        return sb.ToString();
     }
 }

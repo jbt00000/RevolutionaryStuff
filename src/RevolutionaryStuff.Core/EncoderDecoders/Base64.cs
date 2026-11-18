@@ -34,6 +34,9 @@ public static class Base64
         return s == null ? Empty.ByteArray : Convert.FromBase64String(s);
     }
 
-    public static string ToBase64String(this byte[] buf)
-        => Encode(buf);
+    extension(byte[] sources)
+    {
+        public string ToBase64String()
+                => Encode(sources);
+    }
 }

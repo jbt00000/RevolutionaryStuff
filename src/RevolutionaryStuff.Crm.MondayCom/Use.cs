@@ -12,20 +12,23 @@ public static class Use
         public RevolutionaryStuff.Crm.Use.Settings? RevolutionaryStuffCrmSettings { get; set; }
     }
 
-    public static IServiceCollection UseRevolutionaryStuffCrmMondayCom(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
-            {
-                settings ??= new();
-                services.UseRevolutionaryStuffCrm(settings.RevolutionaryStuffCrmSettings);
-                services.ConfigureOptions<MondayComApiService.Config>(MondayComApiService.Config.ConfigSectionName);
-                services.AddScoped<IMondayComApi, MondayComApiService>();
-                services.ConfigureOptions<MondayComCrm.Config>(MondayComCrm.Config.ConfigSectionName);
-                services.AddScoped<IMondayComCrm, MondayComCrm>();
-                if (settings.RegisterMondayComCrmAsICrm == true)
-                {
-                    services.AddScoped<ICrm, MondayComCrm>();
-                }
-            });
+    extension(IServiceCollection sources)
+    {
+        public IServiceCollection UseRevolutionaryStuffCrmMondayCom(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+                    {
+                        settings ??= new();
+                        sources.UseRevolutionaryStuffCrm(settings.RevolutionaryStuffCrmSettings);
+                        sources.ConfigureOptions<MondayComApiService.Config>(MondayComApiService.Config.ConfigSectionName);
+                        sources.AddScoped<IMondayComApi, MondayComApiService>();
+                        sources.ConfigureOptions<MondayComCrm.Config>(MondayComCrm.Config.ConfigSectionName);
+                        sources.AddScoped<IMondayComCrm, MondayComCrm>();
+                        if (settings.RegisterMondayComCrmAsICrm == true)
+                        {
+                            sources.AddScoped<ICrm, MondayComCrm>();
+                        }
+                    });
+    }
 }

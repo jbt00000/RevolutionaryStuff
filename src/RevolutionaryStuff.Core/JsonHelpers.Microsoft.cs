@@ -4,14 +4,29 @@ namespace RevolutionaryStuff.Core;
 
 public static partial class JsonHelpers
 {
-    public static string GetStringPropertyVal(this JsonElement jel, string propertyName, string fallback = null)
-        => jel.TryGetProperty(propertyName, out var el) ? el.GetString() : fallback;
+    extension(JsonElement source)
+    {
+        public string GetStringPropertyVal(string propertyName, string fallback = null)
+                => source.TryGetProperty(propertyName, out var el) ? el.GetString() : fallback;
+        public T FromJsonElement<T>()
+                => FromMicrosoftJson<T>(source.GetRawText());
+        public object ToPoco(ToPocoSettings settings = default)
+                => ToPoco((object)source, settings);
+    }
 
-    public static string GetString(this IDictionary<string, JsonElement> extensionData, string key, string missing = default)
-        => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.GetString() : missing;
+    extension(IDictionary<string, JsonElement> sources)
+    {
+        public string GetString(string key, string missing = default)
+                => sources != null && key != null && sources.TryGetValue(key, out var je) ? je.GetString() : missing;
+        public int GetInt(string key, int missing = default)
+                => sources != null && key != null && sources.TryGetValue(key, out var je) ? je.GetInt32() : missing;
+        public string NullSafeGetJsonPropertyAsString(string key, string fallback = default)
+        {
+            return sources == null || sources.TryGetValue(key, out var je) == false ? fallback : je.GetString();
+        }
+    }
 
-    public static int GetInt(this IDictionary<string, JsonElement> extensionData, string key, int missing = default)
-        => extensionData != null && key != null && extensionData.TryGetValue(key, out var je) ? je.GetInt32() : missing;
+
 
     public static string ToMicrosoftJson(object o)
         => Services.JsonSerializers.Microsoft.SystemTextJsonSerializer.Instance.ToJson(o);
@@ -34,13 +49,9 @@ public static partial class JsonHelpers
     public static JsonElement ToJsonElement(object o)
         => JsonDocument.Parse(ToMicrosoftJson(o)).RootElement;
 
-    public static T FromJsonElement<T>(this JsonElement jsonElement)
-        => FromMicrosoftJson<T>(jsonElement.GetRawText());
 
-    public static string NullSafeGetJsonPropertyAsString(this IDictionary<string, JsonElement> additionalData, string key, string fallback = default)
-    {
-        return additionalData == null || additionalData.TryGetValue(key, out var je) == false ? fallback : je.GetString();
-    }
+
+
 
     public record ToPocoSettings
     {
@@ -73,8 +84,7 @@ public static partial class JsonHelpers
 
     private static readonly ToPocoSettings DefaultToPocoSettings = new();
 
-    public static object ToPoco(this JsonElement jel, ToPocoSettings settings = default)
-        => ToPoco((object)jel, settings);
+
 
     public static object ToPoco(object o, ToPocoSettings settings = default)
     {

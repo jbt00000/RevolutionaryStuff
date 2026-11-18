@@ -16,24 +16,27 @@ public static class Use
         public RevolutionaryStuff.Core.Use.Settings RevolutionaryStuffCoreUseSettings { get; set; }
     }
 
-    public static IServiceCollection UseRevolutionaryStuffAzure(this IServiceCollection services, Settings settings = null)
-        => services.Use(
-            settings,
-            () =>
+    extension(IServiceCollection sources)
     {
-        services.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreUseSettings);
+        public IServiceCollection UseRevolutionaryStuffAzure(Settings settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+            {
+                sources.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreUseSettings);
 
-        services.AddSingleton<RevolutionaryStuffBackgroundService.RevolutionaryStuffBackgroundServiceConstructorArgs>();
+                sources.AddSingleton<RevolutionaryStuffBackgroundService.RevolutionaryStuffBackgroundServiceConstructorArgs>();
 
-        services.ConfigureOptions<DefaultAzureTokenCredentialProvider.Config>(DefaultAzureTokenCredentialProvider.Config.ConfigSectionName);
-        services.AddSingleton<IAzureTokenCredentialProvider, DefaultAzureTokenCredentialProvider>();
+                sources.ConfigureOptions<DefaultAzureTokenCredentialProvider.Config>(DefaultAzureTokenCredentialProvider.Config.ConfigSectionName);
+                sources.AddSingleton<IAzureTokenCredentialProvider, DefaultAzureTokenCredentialProvider>();
 
-        services.ConfigureOptions<DefaultMessageExecutor.Config>(DefaultMessageExecutor.Config.ConfigSectionName);
-        services.AddScoped<IDefaultMessageExecutor, DefaultMessageExecutor>();
+                sources.ConfigureOptions<DefaultMessageExecutor.Config>(DefaultMessageExecutor.Config.ConfigSectionName);
+                sources.AddScoped<IDefaultMessageExecutor, DefaultMessageExecutor>();
 
-        services.ConfigureOptions<ServiceBusBackgroundService.Config>(settings?.ServiceBusWorkerConfigSectionName ?? ServiceBusBackgroundService.Config.ConfigSectionName);
-        services.ConfigureOptions<ServiceBusMessageSender.ServiceBusMessageSenderConfig>(settings?.ServiceBusMessageSenderConfigSectionName ?? ServiceBusMessageSender.ServiceBusMessageSenderConfig.ConfigSectionName);
-        services.AddScoped<ServiceBusMessageSender.ServiceBusMessageSenderConstructorArgs>();
-        services.AddScoped<IServiceBusMessageSender, DefaultServiceBusMessageSender>();
-    });
+                sources.ConfigureOptions<ServiceBusBackgroundService.Config>(settings?.ServiceBusWorkerConfigSectionName ?? ServiceBusBackgroundService.Config.ConfigSectionName);
+                sources.ConfigureOptions<ServiceBusMessageSender.ServiceBusMessageSenderConfig>(settings?.ServiceBusMessageSenderConfigSectionName ?? ServiceBusMessageSender.ServiceBusMessageSenderConfig.ConfigSectionName);
+                sources.AddScoped<ServiceBusMessageSender.ServiceBusMessageSenderConstructorArgs>();
+                sources.AddScoped<IServiceBusMessageSender, DefaultServiceBusMessageSender>();
+            });
+    }
 }

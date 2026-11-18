@@ -1,6 +1,9 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
+    <FileVersion>4.207.100</FileVersion>
+    <AssemblyVersion>4.207.100</AssemblyVersion>
+    <Version>4.207.100</Version>
     <AzureFunctionsVersion>v3</AzureFunctionsVersion>
   </PropertyGroup>
   <ItemGroup>

@@ -50,17 +50,39 @@ public static class StorageHelpers
         return parts;
     }
 
-    public static IServiceCollection UseStorageProviderConfigTypeNameSelector(this IServiceCollection services, string keyName = null)
+    extension(IServiceCollection sources)
     {
-        services.ConfigureOptions<StorageProviderTypeNameSelectorConfig>(keyName ?? StorageProviderTypeNameSelectorConfig.ConfigSectionName);
-        services.AddScoped(sp =>
+        public IServiceCollection UseStorageProviderConfigTypeNameSelector(string keyName = null)
         {
-            var config = sp.GetRequiredService<IOptions<StorageProviderTypeNameSelectorConfig>>().Value;
-            var serviceDescriptors = services.Where(s => s.ServiceType.IsA<IStorageProvider>()).ToList();
-            var serviceDescriptor = serviceDescriptors.FirstOrDefault(sd => sd.ServiceType.Name == config.StorageProviderTypeName);
-            return (IStorageProvider)sp.GetService(serviceDescriptor.ServiceType);
-        });
-        return services;
+            sources.ConfigureOptions<StorageProviderTypeNameSelectorConfig>(keyName ?? StorageProviderTypeNameSelectorConfig.ConfigSectionName);
+            sources.AddScoped(sp =>
+            {
+                var config = sp.GetRequiredService<IOptions<StorageProviderTypeNameSelectorConfig>>().Value;
+                var serviceDescriptors = sources.Where(s => s.ServiceType.IsA<IStorageProvider>()).ToList();
+                var serviceDescriptor = serviceDescriptors.FirstOrDefault(sd => sd.ServiceType.Name == config.StorageProviderTypeName);
+                return (IStorageProvider)sp.GetService(serviceDescriptor.ServiceType);
+            });
+            return sources;
+        }
+        public IServiceCollection AddTypedStorageProvider<TInterface, TImplementation, TConfig>(
+                string configSectionName,
+                ServiceLifetime lifetime = ServiceLifetime.Scoped)
+                where TInterface : class, IStorageProvider
+                where TImplementation : class, IStorageProvider
+                where TConfig : class, new()
+        {
+            sources.ConfigureOptions<TConfig>(configSectionName);
+
+            sources.Add(new ServiceDescriptor(typeof(TInterface), sp =>
+            {
+                var config = sp.GetRequiredService<IOptions<TConfig>>().Value;
+                var typedOptions = Options.Create(config);
+                var impl = ActivatorUtilities.CreateInstance<TImplementation>(sp, typedOptions);
+                return StorageProviderProxy<TInterface>.Create(impl);
+            }, lifetime));
+
+            return sources;
+        }
     }
 
     public class StorageProviderTypeNameSelectorConfig
@@ -76,26 +98,7 @@ public static class StorageHelpers
             throw new ArgumentOutOfRangeException(argName, $"Must start with {ExternalFolderSeparatorChar}");
     }
 
-    public static IServiceCollection AddTypedStorageProvider<TInterface, TImplementation, TConfig>(
-        this IServiceCollection services,
-        string configSectionName,
-        ServiceLifetime lifetime = ServiceLifetime.Scoped)
-        where TInterface : class, IStorageProvider
-        where TImplementation : class, IStorageProvider
-        where TConfig : class, new()
-    {
-        services.ConfigureOptions<TConfig>(configSectionName);
 
-        services.Add(new ServiceDescriptor(typeof(TInterface), sp =>
-        {
-            var config = sp.GetRequiredService<IOptions<TConfig>>().Value;
-            var typedOptions = Options.Create(config);
-            var impl = ActivatorUtilities.CreateInstance<TImplementation>(sp, typedOptions);
-            return StorageProviderProxy<TInterface>.Create(impl);
-        }, lifetime));
-
-        return services;
-    }
 
     /// <remarks>
     /// Types deriving from dispatchProxies cannot be sealed

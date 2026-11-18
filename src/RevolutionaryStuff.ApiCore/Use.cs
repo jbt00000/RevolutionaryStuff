@@ -20,26 +20,29 @@ public static class Use
         public string? HttpTenantIdProviderConfigSectionName { get; set; }
     }
 
-    public static IServiceCollection UseRevolutionaryStuffApiCore(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
+    extension(IServiceCollection sources)
     {
-        services.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreUseSettings);
-        services.AddSingleton<IServerInfoFinder, ServerInfoFinder>();
-        services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+        public IServiceCollection UseRevolutionaryStuffApiCore(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+            {
+                sources.UseRevolutionaryStuffCore(settings?.RevolutionaryStuffCoreUseSettings);
+                sources.AddSingleton<IServerInfoFinder, ServerInfoFinder>();
+                sources.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-        services.AddScoped<IHttpContextClaimsPrincipalAccessor, HttpContextClaimsPrincipalAccessor>();
-        services.AddScoped<ISoftClaimsPrincipalAccessor, SoftClaimsPrincipalAccessor>();
+                sources.AddScoped<IHttpContextClaimsPrincipalAccessor, HttpContextClaimsPrincipalAccessor>();
+                sources.AddScoped<ISoftClaimsPrincipalAccessor, SoftClaimsPrincipalAccessor>();
 
-        services.ConfigureOptions<WebApiExceptionMiddleware.Config>(WebApiExceptionMiddleware.Config.ConfigSectionName);
+                sources.ConfigureOptions<WebApiExceptionMiddleware.Config>(WebApiExceptionMiddleware.Config.ConfigSectionName);
 
-        services.AddSingleton<BackgroundServiceBase.BackgroundServiceBaseConstructorArgs>(); //Hosted services do NOT run under scoped contexts, thus this must also be registered as a singleton
-        services.AddScoped<ApiService.ApiServiceConstructorArgs>();
+                sources.AddSingleton<BackgroundServiceBase.BackgroundServiceBaseConstructorArgs>(); //Hosted services do NOT run under scoped contexts, thus this must also be registered as a singleton
+                sources.AddScoped<ApiService.ApiServiceConstructorArgs>();
 
-        services.ConfigureOptions<HttpTenantIdProvider.Config>(settings?.HttpTenantIdProviderConfigSectionName ?? HttpTenantIdProvider.Config.ConfigSectionName);
-        services.AddScoped<IHttpTenantIdProvider, HttpTenantIdProvider>();
+                sources.ConfigureOptions<HttpTenantIdProvider.Config>(settings?.HttpTenantIdProviderConfigSectionName ?? HttpTenantIdProvider.Config.ConfigSectionName);
+                sources.AddScoped<IHttpTenantIdProvider, HttpTenantIdProvider>();
 
-        services.AddScoped<RevolutionaryStuffPageModel.RevolutionaryStuffPageModelConstructorArgs>();
-    });
+                sources.AddScoped<RevolutionaryStuffPageModel.RevolutionaryStuffPageModelConstructorArgs>();
+            });
+    }
 }

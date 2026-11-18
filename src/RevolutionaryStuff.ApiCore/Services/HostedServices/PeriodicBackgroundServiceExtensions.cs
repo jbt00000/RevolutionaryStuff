@@ -6,19 +6,22 @@ namespace RevolutionaryStuff.ApiCore.Services.HostedServices;
 
 public static class PeriodicBackgroundServiceExtensions
 {
-    public static IServiceCollection AddPeriodicHostedService<TRunner>(this IServiceCollection services, IConfiguration config, string configSectionName)
-        where TRunner : class, IPeriodicServiceRunner
+    extension(IServiceCollection sources)
     {
-        services.AddScoped<TRunner>();
-        services.ConfigureOptions<PeriodicBackgroundServiceConfig>(configSectionName);
-        services.AddHostedService(sp =>
+        public IServiceCollection AddPeriodicHostedService<TRunner>(IConfiguration config, string configSectionName)
+                where TRunner : class, IPeriodicServiceRunner
         {
-            var c = config.Get<PeriodicBackgroundServiceConfig>(configSectionName);
-            IOptions<PeriodicBackgroundServiceConfig> co = new OptionsWrapper<PeriodicBackgroundServiceConfig>(c);
-            var h = sp.Construct<PeriodicBackgroundService<TRunner>>(co);
-            return h;
-        });
-        return services;
+            sources.AddScoped<TRunner>();
+            sources.ConfigureOptions<PeriodicBackgroundServiceConfig>(configSectionName);
+            sources.AddHostedService(sp =>
+            {
+                var c = config.Get<PeriodicBackgroundServiceConfig>(configSectionName);
+                IOptions<PeriodicBackgroundServiceConfig> co = new OptionsWrapper<PeriodicBackgroundServiceConfig>(c);
+                var h = sp.Construct<PeriodicBackgroundService<TRunner>>(co);
+                return h;
+            });
+            return sources;
+        }
     }
 }
 

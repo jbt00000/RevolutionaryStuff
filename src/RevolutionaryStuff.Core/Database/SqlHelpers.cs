@@ -7,15 +7,25 @@ public static class SqlHelpers
     public static string SchemaOrDefault(string schemaName)
         => schemaName.TrimOrNull() ?? DefaultSchema;
 
-    public static string EscapeForSql(this string source)
-        => source.Replace("'", "''");
+    extension(string source)
+    {
+        public string EscapeForSql()
+                => source.Replace("'", "''");
+        public string PlaceInSqlStatement()
+                => source == null ? " null " : " '" + source.EscapeForSql() + "' ";
+    }
 
-    public static string PlaceInSqlStatement(this string source)
-        => source == null ? " null " : " '" + source.EscapeForSql() + "' ";
 
-    public static string PlaceInSqlStatement(this int? source)
-        => source == null ? " null " : $" {source} ";
 
-    public static string PlaceInSqlStatement(this bool? source)
-        => source == null ? " null " : source.Value ? " 1 " : " 0 ";
+    extension(int? source)
+    {
+        public string PlaceInSqlStatement()
+                => source == null ? " null " : $" {source} ";
+    }
+
+    extension(bool? source)
+    {
+        public string PlaceInSqlStatement()
+                => source == null ? " null " : source.Value ? " 1 " : " 0 ";
+    }
 }

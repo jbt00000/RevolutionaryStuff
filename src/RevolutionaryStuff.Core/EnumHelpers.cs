@@ -8,16 +8,30 @@ namespace RevolutionaryStuff.Core;
 /// </summary>
 public static class EnumHelpers
 {
-    /// <summary>
-    /// Determines whether an enum value matches any of the specified values.
-    /// </summary>
-    /// <typeparam name="TEnum">The enum type.</typeparam>
-    /// <param name="o">The value to test.</param>
-    /// <param name="vals">The values to compare against.</param>
-    /// <returns><see langword="true"/> if <paramref name="o"/> is in <paramref name="vals"/>; otherwise, <see langword="false"/>.</returns>
-    public static bool In<TEnum>(this TEnum o, params TEnum[] vals)
-        where TEnum : Enum
-        => vals != null && vals.Contains(o);
+    extension<TEnum>(TEnum source) where TEnum : Enum
+    {
+        /// <summary>
+        /// Determines whether an enum value matches any of the specified values.
+        /// </summary>
+        /// <typeparam name="TEnum">The enum type.</typeparam>
+        /// <param name="source">The value to test.</param>
+        /// <param name="vals">The values to compare against.</param>
+        /// <returns><see langword="true"/> if <paramref name="source"/> is in <paramref name="vals"/>; otherwise, <see langword="false"/>.</returns>
+        public bool In(params TEnum[] vals)
+            => vals != null && vals.Contains(source);
+        /// <summary>
+        /// Gets the serialized name associated with an enum value, if present, or its standard enum name.
+        /// </summary>
+        /// <typeparam name="TEnum">The enum type.</typeparam>
+        /// <param name="source">The enum value to format.</param>
+        /// <returns>The <see cref="EnumMemberAttribute"/> value, then the <see cref="JsonStringEnumMemberNameAttribute"/> name, or the enum value's standard name.</returns>
+        public string EnumWithEnumMemberValuesToString()
+        {
+            var enumMemberValue = source.GetCustomAttribute<EnumMemberAttribute>()?.Value;
+            var jsonStringEnumMemberName = source.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name;
+            return enumMemberValue ?? jsonStringEnumMemberName ?? source.ToString();
+        }
+    }
 
     /// <summary>
     /// Selects a random value defined by an enum type.
@@ -32,18 +46,7 @@ public static class EnumHelpers
         return (T)a.GetValue(n);
     }
 
-    /// <summary>
-    /// Gets the serialized name associated with an enum value, if present, or its standard enum name.
-    /// </summary>
-    /// <typeparam name="TEnum">The enum type.</typeparam>
-    /// <param name="e">The enum value to format.</param>
-    /// <returns>The <see cref="EnumMemberAttribute"/> value, then the <see cref="JsonStringEnumMemberNameAttribute"/> name, or the enum value's standard name.</returns>
-    public static string EnumWithEnumMemberValuesToString<TEnum>(this TEnum e) where TEnum : Enum
-    {
-        var enumMemberValue = e.GetCustomAttribute<EnumMemberAttribute>()?.Value;
-        var jsonStringEnumMemberName = e.GetCustomAttribute<JsonStringEnumMemberNameAttribute>()?.Name;
-        return enumMemberValue ?? jsonStringEnumMemberName ?? e.ToString();
-    }
+
 
     /// <summary>
     /// Determines whether an enum value equals any of the specified values.

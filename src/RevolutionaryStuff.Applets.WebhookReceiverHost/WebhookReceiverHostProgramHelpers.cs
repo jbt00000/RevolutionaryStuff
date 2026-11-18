@@ -12,25 +12,28 @@ public static class WebhookReceiverHostProgramHelpers
 
     public static MapWebhookAutoResponderWebEndpointsSettings DefaultSettings { get; } = new(["WebHook"]);
 
-    public static void MapWebhookAutoResponderWebEndpoints(this WebApplication app, MapWebhookAutoResponderWebEndpointsSettings? settings = null)
+    extension(WebApplication source)
     {
-        settings ??= DefaultSettings;
-        var tags = settings.TagNames?.ToArray() ?? [];
-        var config = app.Services.GetRequiredService<IOptions<WebhookAutoResponderConfig>>().Value;
-        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WebhookReceiverHostProgramHelpers));
-        foreach (var service in config.Services.NullSafeEnumerable().Where(kvp => kvp.Value.Enabled))
+        public void MapWebhookAutoResponderWebEndpoints(MapWebhookAutoResponderWebEndpointsSettings? settings = null)
         {
-            var serviceConfig = service.Value;
-            var pattern = serviceConfig.WebRoute ?? service.Key;
-            var b = app.MapMethods(pattern, serviceConfig.AllowedMethods ?? [WebHelpers.Methods.Post], async (IWebhookAutoResponder webhookAutoResponder) =>
+            settings ??= DefaultSettings;
+            var tags = settings.TagNames?.ToArray() ?? [];
+            var config = source.Services.GetRequiredService<IOptions<WebhookAutoResponderConfig>>().Value;
+            var logger = source.Services.GetRequiredService<ILoggerFactory>().CreateLogger(nameof(WebhookReceiverHostProgramHelpers));
+            foreach (var service in config.Services.NullSafeEnumerable().Where(kvp => kvp.Value.Enabled))
             {
-                await webhookAutoResponder.GoAsync(service.Key);
-            }).WithName(service.Key);
-            if (tags.Length > 0)
-            {
-                b = b.WithTags(tags);
+                var serviceConfig = service.Value;
+                var pattern = serviceConfig.WebRoute ?? service.Key;
+                var b = source.MapMethods(pattern, serviceConfig.AllowedMethods ?? [WebHelpers.Methods.Post], async (IWebhookAutoResponder webhookAutoResponder) =>
+                {
+                    await webhookAutoResponder.GoAsync(service.Key);
+                }).WithName(service.Key);
+                if (tags.Length > 0)
+                {
+                    b = b.WithTags(tags);
+                }
+                logger.LogInformation("Mapped webhook auto responder for service {ServiceName} with route {Route}", service.Key, pattern);
             }
-            logger.LogInformation("Mapped webhook auto responder for service {ServiceName} with route {Route}", service.Key, pattern);
         }
     }
 }

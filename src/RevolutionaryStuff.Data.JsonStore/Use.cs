@@ -16,35 +16,39 @@ public static class Use
         public IJsonEntityIdServices? JsonEntityIdServices { get; set; }
     }
 
-    public static IServiceCollection UseRevolutionaryStuffDataJsonStore(this IServiceCollection services, Settings? settings = null)
-        => services.Use(
-            settings,
-            () =>
-            {
-                services.UseRevolutionaryStuffCore();
-
-                if (settings?.JsonSerializer != null)
-                {
-                    JsonSerializable.Serializer = settings.JsonSerializer;
-                }
-                if (settings?.JsonEntityIdServices != null)
-                {
-                    JsonEntity.JsonEntityIdServices = settings.JsonEntityIdServices;
-                }
-
-                services.AddScoped<JsonEntityRepoConstructorArgs>();
-                services.ConfigureOptions<JsonEntityRepoBaseConfig>(JsonEntityRepoBaseConfig.ConfigSectionName);
-
-                services.ConfigureOptions<JsonEntityContainerResolverConfig>(JsonEntityContainerResolverConfig.ConfigSectionName);
-                services.AddSingleton<IJsonEntityContainerResolver, ConfigJsonEntityContainerResolver>();
-                services.AddSingleton<IJsonEntityContainerResolver, AttributeJsonEntityContainerResolver>();
-            });
-
-    public static IServiceCollection AddScopedChangeDataCaptureJsonEntityController<TChangeDataCaptureJsonEntityController>(this IServiceCollection services)
-            where TChangeDataCaptureJsonEntityController : class, IChangeDataCaptureJsonEntityController
+    extension(IServiceCollection sources)
     {
-        services.AddScoped<TChangeDataCaptureJsonEntityController>();
-        services.AddScoped<IChangeDataCaptureJsonEntityController, TChangeDataCaptureJsonEntityController>();
-        return services;
+        public IServiceCollection UseRevolutionaryStuffDataJsonStore(Settings? settings = null)
+                => sources.Use(
+                    settings,
+                    () =>
+                    {
+                        sources.UseRevolutionaryStuffCore();
+
+                        if (settings?.JsonSerializer != null)
+                        {
+                            JsonSerializable.Serializer = settings.JsonSerializer;
+                        }
+                        if (settings?.JsonEntityIdServices != null)
+                        {
+                            JsonEntity.JsonEntityIdServices = settings.JsonEntityIdServices;
+                        }
+
+                        sources.AddScoped<JsonEntityRepoConstructorArgs>();
+                        sources.ConfigureOptions<JsonEntityRepoBaseConfig>(JsonEntityRepoBaseConfig.ConfigSectionName);
+
+                        sources.ConfigureOptions<JsonEntityContainerResolverConfig>(JsonEntityContainerResolverConfig.ConfigSectionName);
+                        sources.AddSingleton<IJsonEntityContainerResolver, ConfigJsonEntityContainerResolver>();
+                        sources.AddSingleton<IJsonEntityContainerResolver, AttributeJsonEntityContainerResolver>();
+                    });
+        public IServiceCollection AddScopedChangeDataCaptureJsonEntityController<TChangeDataCaptureJsonEntityController>()
+                    where TChangeDataCaptureJsonEntityController : class, IChangeDataCaptureJsonEntityController
+        {
+            sources.AddScoped<TChangeDataCaptureJsonEntityController>();
+            sources.AddScoped<IChangeDataCaptureJsonEntityController, TChangeDataCaptureJsonEntityController>();
+            return sources;
+        }
     }
+
+
 }

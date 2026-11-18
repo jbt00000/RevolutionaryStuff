@@ -7,22 +7,25 @@ namespace RevolutionaryStuff.Azure;
 
 public static class HierarchicalKeyVaultSecretManagerHelpers
 {
-    public static void SetupProgramWithHierarchicalKeyVaultSecretManager(this IHostApplicationBuilder builder, string vaultConfigName = null, string keyVaultAppName = null)
+    extension(IHostApplicationBuilder source)
     {
-        VaultConfig config = new();
-        builder.Configuration.Bind(vaultConfigName ?? VaultConfig.ConfigSectionName, config);
-        Requires.Valid(config);
-        builder.Configuration.AddAzureKeyVault(
-            new Uri(config.Url),
-            new DefaultAzureCredential(new DefaultAzureCredentialOptions
-            {
-                ExcludeManagedIdentityCredential = builder.Environment.IsDevelopment()
-            }),
-            new global::Azure.Extensions.AspNetCore.Configuration.Secrets.AzureKeyVaultConfigurationOptions()
-            {
-                ReloadInterval = config.ReloadInterval,
-                Manager = new HierarchicalKeyVaultSecretManager(keyVaultAppName)
-            });
+        public void SetupProgramWithHierarchicalKeyVaultSecretManager(string vaultConfigName = null, string keyVaultAppName = null)
+        {
+            VaultConfig config = new();
+            source.Configuration.Bind(vaultConfigName ?? VaultConfig.ConfigSectionName, config);
+            Requires.Valid(config);
+            source.Configuration.AddAzureKeyVault(
+                new Uri(config.Url),
+                new DefaultAzureCredential(new DefaultAzureCredentialOptions
+                {
+                    ExcludeManagedIdentityCredential = source.Environment.IsDevelopment()
+                }),
+                new global::Azure.Extensions.AspNetCore.Configuration.Secrets.AzureKeyVaultConfigurationOptions()
+                {
+                    ReloadInterval = config.ReloadInterval,
+                    Manager = new HierarchicalKeyVaultSecretManager(keyVaultAppName)
+                });
+        }
     }
 
     internal class VaultConfig : IValidate

@@ -17,12 +17,15 @@ public static class CompareHelpers
         return b1 is not null && b2 is not null && b1.AsSpan().SequenceEqual(b2);
     }
 
-    /// <summary>
-    /// Determines whether an array contains a specified value.
-    /// </summary>
-    /// <typeparam name="T">The element type.</typeparam>
-    /// <param name="items">The array to search.</param>
-    /// <param name="test">The value to find.</param>
-    /// <returns><see langword="true"/> if the array contains <paramref name="test"/>; otherwise, <see langword="false"/>.</returns>
-    public static bool Contains<T>(this T[] items, T test) => ((ICollection<T>)items).Contains(test);
+    extension<T>(T[] sources)
+    {
+        /// <summary>
+        /// Determines whether an array contains a specified value.
+        /// </summary>
+        /// <typeparam name="T">The element type.</typeparam>
+        /// <param name="sources">The array to search.</param>
+        /// <param name="test">The value to find.</param>
+        /// <returns><see langword="true"/> if the array contains <paramref name="test"/>; otherwise, <see langword="false"/>.</returns>
+        public bool Contains(T test) => ((ICollection<T>)sources).Contains(test);
+    }
 }

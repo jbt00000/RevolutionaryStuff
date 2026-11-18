@@ -70,15 +70,18 @@ public static class CSV
         return s.IndexOfAny(escapeTriggers) >= 0 ? '"' + s.Replace("\"", "\"\"") + '"' : s;
     }
 
-    /// <summary>
-    /// Converts a collection of strings to a CSV line.
-    /// </summary>
-    /// <param name="l">The collection of strings to format as CSV.</param>
-    /// <param name="eol">If <c>true</c>, appends a line ending (CRLF) to the output.</param>
-    /// <returns>A CSV-formatted string.</returns>
-    public static string ToCsv(this IEnumerable<string> l, bool eol = false)
+    extension(IEnumerable<string> sources)
     {
-        return FormatLine(l, eol);
+        /// <summary>
+        /// Converts a collection of strings to a CSV line.
+        /// </summary>
+        /// <param name="sources">The collection of strings to format as CSV.</param>
+        /// <param name="eol">If <c>true</c>, appends a line ending (CRLF) to the output.</param>
+        /// <returns>A CSV-formatted string.</returns>
+        public string ToCsv(bool eol = false)
+        {
+            return FormatLine(sources, eol);
+        }
     }
 
     /// <summary>

@@ -4,17 +4,23 @@ namespace RevolutionaryStuff.Core;
 
 public static class LoggerHelpers
 {
-    public static void LogError(this ILogger logger, Exception ex)
-        => logger.LogError(ex, ex?.Message);
+    extension(ILogger source)
+    {
+        public void LogError(Exception ex)
+                => source.LogError(ex, ex?.Message);
+        public IDisposable CreateLogRegion(string message, params object[] scopeArgs)
+                => new RevolutionaryStuff.Core.Diagnostics.LogRegion(source, message, scopeArgs);
+        public IDisposable CreateLogRegion(LogLevel logLevel, string message, params object[] scopeArgs)
+                => new RevolutionaryStuff.Core.Diagnostics.LogRegion(source, logLevel, message, scopeArgs);
+        public IDisposable LogScopedProperty(string propertyName, object propertyValue, bool decomposeValue = false)
+                => decomposeValue ?
+                    source.BeginScope($"{{@{propertyName}}}", propertyValue) :
+                    source.BeginScope("{propertyName}:{propertyValue}", propertyName, propertyValue);
+    }
 
-    public static IDisposable CreateLogRegion(this ILogger logger, string message, params object[] scopeArgs)
-        => new RevolutionaryStuff.Core.Diagnostics.LogRegion(logger, message, scopeArgs);
 
-    public static IDisposable CreateLogRegion(this ILogger logger, LogLevel logLevel, string message, params object[] scopeArgs)
-        => new RevolutionaryStuff.Core.Diagnostics.LogRegion(logger, logLevel, message, scopeArgs);
 
-    public static IDisposable LogScopedProperty(this ILogger logger, string propertyName, object propertyValue, bool decomposeValue = false)
-        => decomposeValue ?
-            logger.BeginScope($"{{@{propertyName}}}", propertyValue) :
-            logger.BeginScope("{propertyName}:{propertyValue}", propertyName, propertyValue);
+
+
+
 }

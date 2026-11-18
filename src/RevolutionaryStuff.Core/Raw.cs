@@ -10,7 +10,10 @@ namespace RevolutionaryStuff.Core;
 /// </summary>
 public static class Raw
 {
-    public static TItem[] Xerox<TItem>(this TItem[] items) => (TItem[])items.Clone();
+    extension<TItem>(TItem[] sources)
+    {
+        public TItem[] Xerox() => (TItem[])sources.Clone();
+    }
 
     /// <summary>
     /// Create a new buffer that is a duplicate of the passed in buffer
@@ -122,8 +125,11 @@ public static class Raw
     public static byte[] String2Buf(string s, Encoding e = null)
         => (e ?? Encoding.UTF8).GetBytes(s);
 
-    public static byte[] ToUTF8(this string s)
-        => Encoding.UTF8.GetBytes(s);
+    extension(string source)
+    {
+        public byte[] ToUTF8()
+                => Encoding.UTF8.GetBytes(source);
+    }
 
     public static string Buf2String(byte[] buf)
     {

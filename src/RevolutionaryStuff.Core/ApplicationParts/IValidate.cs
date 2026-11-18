@@ -37,25 +37,31 @@ namespace RevolutionaryStuff.Core
 {
     public static class IValidateExtensions
     {
-        public static void ValidateAll(this IEnumerable<IValidate> validators)
+        extension(IEnumerable<IValidate> sources)
         {
-            foreach (var v in validators)
+            public void ValidateAll()
             {
-                v.Validate();
+                foreach (var v in sources)
+                {
+                    v.Validate();
+                }
             }
         }
 
-        public static bool IsValid(this IValidate v)
+        extension(IValidate source)
         {
-            ArgumentNullException.ThrowIfNull(v, "v");
-            try
+            public bool IsValid()
             {
-                v.Validate();
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
+                ArgumentNullException.ThrowIfNull(source, "v");
+                try
+                {
+                    source.Validate();
+                    return true;
+                }
+                catch (Exception)
+                {
+                    return false;
+                }
             }
         }
     }

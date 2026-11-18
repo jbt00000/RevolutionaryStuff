@@ -7,33 +7,37 @@ namespace RevolutionaryStuff.Core;
 /// </summary>
 public static class RandomHelpers
 {
-    /// <summary>
-    /// Generates a string by selecting characters from a supplied character set.
-    /// </summary>
-    /// <param name="r">The random number generator to use.</param>
-    /// <param name="characterCount">The number of characters to generate.</param>
-    /// <param name="characterSet">The characters from which each output character is selected.</param>
-    /// <returns>A string containing <paramref name="characterCount"/> randomly selected characters.</returns>
-    public static string NextString(this Random r, int characterCount, string characterSet)
+    extension(Random source)
     {
-        Requires.NonNegative(characterCount);
-        Requires.Text(characterSet);
-
-        var sb = new StringBuilder(characterCount);
-        for (var z = 0; z < characterCount; ++z)
+        /// <summary>
+        /// Generates a string by selecting characters from a supplied character set.
+        /// </summary>
+        /// <param name="source">The random number generator to use.</param>
+        /// <param name="characterCount">The number of characters to generate.</param>
+        /// <param name="characterSet">The characters from which each output character is selected.</param>
+        /// <returns>A string containing <paramref name="characterCount"/> randomly selected characters.</returns>
+        public string NextString(int characterCount, string characterSet)
         {
-            var i = r.Next(characterSet.Length);
-            var ch = characterSet[i];
-            sb.Append(ch);
+            Requires.NonNegative(characterCount);
+            Requires.Text(characterSet);
+
+            var sb = new StringBuilder(characterCount);
+            for (var z = 0; z < characterCount; ++z)
+            {
+                var i = source.Next(characterSet.Length);
+                var ch = characterSet[i];
+                sb.Append(ch);
+            }
+            return sb.ToString();
         }
-        return sb.ToString();
+        /// <summary>
+        /// Generates a random boolean value.
+        /// </summary>
+        /// <param name="source">The random number generator to use.</param>
+        /// <returns>A randomly selected <see langword="true"/> or <see langword="false"/> value.</returns>
+        public bool NextBoolean()
+            => source.Next(2) == 1;
     }
 
-    /// <summary>
-    /// Generates a random boolean value.
-    /// </summary>
-    /// <param name="r">The random number generator to use.</param>
-    /// <returns>A randomly selected <see langword="true"/> or <see langword="false"/> value.</returns>
-    public static bool NextBoolean(this Random r)
-        => r.Next(2) == 1;
+
 }

@@ -57,8 +57,11 @@ public static class Base16
         return sb.ToString();
     }
 
-    public static string ToBase16String(this byte[] buf)
-        => Encode(buf);
+    extension(byte[] sources)
+    {
+        public string ToBase16String()
+                => Encode(sources);
+    }
 
     /// <summary>
     /// Decode a hex string into a byte array

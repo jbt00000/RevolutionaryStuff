@@ -6,9 +6,12 @@ namespace RevolutionaryStuff.ApiCore;
 
 public static class HttpHelpers
 {
-    public static string? GetSingleStringValueFromHeaderOrQueryString(this HttpContext httpContext, string headerName, string? queryStringName = null)
-        => httpContext.Request.Headers[headerName].SingleOrDefault()
-           ?? httpContext.Request.Query[queryStringName ?? headerName].SingleOrDefault();
+    extension(HttpContext source)
+    {
+        public string? GetSingleStringValueFromHeaderOrQueryString(string headerName, string? queryStringName = null)
+                => source.Request.Headers[headerName].SingleOrDefault()
+                   ?? source.Request.Query[queryStringName ?? headerName].SingleOrDefault();
+    }
 
     public static void Throw404IfNull(object? o)
     {
@@ -16,26 +19,32 @@ public static class HttpHelpers
             throw new HttpRequestException(null, null, System.Net.HttpStatusCode.NotFound);
     }
 
-    public static IHeaderDictionary SetContentDisposition(this IHeaderDictionary headers, string fileName, bool asAttachment = true)
+    extension(IHeaderDictionary sources)
     {
-        headers.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue(asAttachment ? "attachment" : "inline")
+        public IHeaderDictionary SetContentDisposition(string fileName, bool asAttachment = true)
         {
-            FileName = $"\"{fileName}\""
-        }.ToString();
-        return headers;
+            sources.ContentDisposition = new System.Net.Http.Headers.ContentDispositionHeaderValue(asAttachment ? "attachment" : "inline")
+            {
+                FileName = $"\"{fileName}\""
+            }.ToString();
+            return sources;
+        }
     }
 
-    public static Task SendStreamAsync(this HttpResponse resp, Stream st, string fileName, string contentType, bool asAttachment = true)
+    extension(HttpResponse source)
     {
-        Requires.ReadableStreamArg(st);
-        if (contentType != null)
+        public Task SendStreamAsync(Stream st, string fileName, string contentType, bool asAttachment = true)
         {
-            resp.ContentType = contentType;
+            Requires.ReadableStreamArg(st);
+            if (contentType != null)
+            {
+                source.ContentType = contentType;
+            }
+            if (fileName != null)
+            {
+                source.Headers.SetContentDisposition(fileName, asAttachment);
+            }
+            return st.CopyToAsync(source.Body);
         }
-        if (fileName != null)
-        {
-            resp.Headers.SetContentDisposition(fileName, asAttachment);
-        }
-        return st.CopyToAsync(resp.Body);
     }
 }
