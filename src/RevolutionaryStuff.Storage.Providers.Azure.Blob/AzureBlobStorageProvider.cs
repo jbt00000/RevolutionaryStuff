@@ -30,18 +30,25 @@ public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobS
 
     private global::Azure.Storage.Blobs.Models.UserDelegationKey UserDelegationKey;
     private DateTimeOffset UserDelegationKeyExpiration;
-    private TimeSpan UserDelegationKeyMaxExpiration = TimeSpan.FromDays(6);
+    private DateTimeOffset UserDelegationKeyRefreshAt;
+
+    // Azure rejects user delegation keys valid for more than 7 days, so stay safely under that
+    private static readonly TimeSpan UserDelegationKeyLifetime = TimeSpan.FromDays(6);
 
     internal async Task<global::Azure.Storage.Blobs.Models.UserDelegationKey> GetUserDelegationKeyAsync(DateTimeOffset expiresOn)
     {
-        if (UserDelegationKey == null || expiresOn > UserDelegationKeyExpiration)
+        var now = DateTimeOffset.UtcNow;
+        if (UserDelegationKey == null || now >= UserDelegationKeyRefreshAt || expiresOn > UserDelegationKeyExpiration)
         {
-            expiresOn = DateTimeOffset.UtcNow.Add(UserDelegationKeyMaxExpiration);
-            UserDelegationKey = await ServiceClient.GetUserDelegationKeyAsync(null, expiresOn, default);
-            UserDelegationKeyExpiration = expiresOn;
+            var keyExpiresOn = now.Add(UserDelegationKeyLifetime);
+            UserDelegationKey = await ServiceClient.GetUserDelegationKeyAsync(now, keyExpiresOn, default);
+            UserDelegationKeyExpiration = keyExpiresOn;
+            UserDelegationKeyRefreshAt = now.Add(2 * UserDelegationKeyLifetime / 3);
         }
         return UserDelegationKey;
     }
+
+
 
     public AzureBlobStorageProvider(IOptions<Config> configOptions, IConnectionStringProvider connectionStringProvider, IAzureTokenCredentialProvider tokenCredentialProvider, ILogger<AzureBlobStorageProvider> logger)
         : this(configOptions, connectionStringProvider, tokenCredentialProvider, DefaultRootPath, logger)
