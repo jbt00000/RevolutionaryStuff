@@ -30,7 +30,7 @@ public partial class AzureBlobStorageProvider : BaseStorageProvider, IAzureBlobS
 
     private global::Azure.Storage.Blobs.Models.UserDelegationKey UserDelegationKey;
     private DateTimeOffset UserDelegationKeyExpiration;
-    private TimeSpan UserDelegationKeyMaxExpiration = TimeSpan.FromDays(7);
+    private TimeSpan UserDelegationKeyMaxExpiration = TimeSpan.FromDays(6);
 
     internal async Task<global::Azure.Storage.Blobs.Models.UserDelegationKey> GetUserDelegationKeyAsync(DateTimeOffset expiresOn)
     {
