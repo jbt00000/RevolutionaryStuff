@@ -62,7 +62,7 @@ ORPHANED:
         return Task.CompletedTask;
     }
 
-    private void CollectReferencedSchemas(IDictionary<string, OpenApiMediaType> content, HashSet<string> referencedSchemas)
+    private void CollectReferencedSchemas(IDictionary<string, IOpenApiMediaType> content, HashSet<string> referencedSchemas)
     {
         if (content == null) return;
 

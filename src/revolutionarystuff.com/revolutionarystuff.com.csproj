@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
     <PropertyGroup>
         <LangVersion>Preview</LangVersion>
-        <TargetFramework>net10.0</TargetFramework>
-        <FileVersion>4.207.100</FileVersion>
-        <AssemblyVersion>4.207.100</AssemblyVersion>
-        <Version>4.207.100</Version>
+        <TargetFramework>net11.0</TargetFramework>
+        <FileVersion>4.208.110</FileVersion>
+        <AssemblyVersion>4.208.110</AssemblyVersion>
+        <Version>4.208.110</Version>
         <Nullable>disable</Nullable>
         <RootNamespace>RevolutionaryStuff.RevolutionaryStuffWebsite</RootNamespace>
         <ImplicitUsings>enable</ImplicitUsings>

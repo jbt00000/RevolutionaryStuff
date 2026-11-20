@@ -55,7 +55,7 @@ public class OpenApiEnumSchemaTests
             response.EnsureSuccessStatusCode();
             using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
 
-            Assert.AreEqual("3.1.1", document.RootElement.GetProperty("openapi").GetString());
+            Assert.AreEqual("3.1.2", document.RootElement.GetProperty("openapi").GetString());
             var schemas = document.RootElement.GetProperty("components").GetProperty("schemas");
             var responseSchema = ResolveSchema(document.RootElement.GetProperty("paths").GetProperty("/enum").GetProperty("get")
                 .GetProperty("responses").GetProperty("200").GetProperty("content").GetProperty("application/json").GetProperty("schema"), schemas);

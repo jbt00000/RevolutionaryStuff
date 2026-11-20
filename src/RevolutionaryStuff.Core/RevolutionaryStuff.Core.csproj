@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <LangVersion>Preview</LangVersion>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>disable</Nullable>
     <AssemblyName>RevolutionaryStuff.Core</AssemblyName>
@@ -15,7 +15,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>This is a .NET 10 library</PackageReleaseNotes>
+    <PackageReleaseNotes>This is a .NET 11 library</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -26,9 +26,9 @@
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © 2024</Copyright>
-    <FileVersion>4.207.100</FileVersion>
-    <AssemblyVersion>4.207.100</AssemblyVersion>
-    <Version>4.207.100</Version>
+    <FileVersion>4.208.110</FileVersion>
+    <AssemblyVersion>4.208.110</AssemblyVersion>
+    <Version>4.208.110</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />
@@ -68,13 +68,13 @@
     <!--
         <PackageReference Include="Microsoft.AspNetCore.Http.Abstractions" Version="2.2.0" />
         -->
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="10.0.15" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="10.0.15" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="10.0.15" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.15" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="10.0.15" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.15" />
-    <PackageReference Include="System.IO.Hashing" Version="10.0.15" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="11.0.0" />
+    <PackageReference Include="System.IO.Hashing" Version="11.0.0" />
   </ItemGroup>
   <ItemGroup>
     <Compile Update="JsonHelpers.Microsoft.cs">

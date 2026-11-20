@@ -1,8 +1,6 @@
 ﻿using System.Net;
-using System.Threading;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.OpenApi;
 using Microsoft.OpenApi;
 
 namespace RevolutionaryStuff.ApiCore;
@@ -15,6 +13,9 @@ public static class WebApiRouteBuilderHelpers
         public const string Management = "Management";
         public const string ODataQuery = "ODataQuery";
     }
+
+    private sealed record ProducesFileMetadata(HttpStatusCode StatusCode, string[] ContentTypes);
+
     extension<IB>(IB source) where IB : IEndpointConventionBuilder
     {
         public IB ManagementApi(string name)
@@ -40,28 +41,17 @@ public static class WebApiRouteBuilderHelpers
         public RouteHandlerBuilder ProducesCreatedFile(params string[] expectedContentTypes)
                 => source.ProducesFile(HttpStatusCode.Created, expectedContentTypes);
         internal RouteHandlerBuilder ProducesFile(HttpStatusCode httpStatusCode, params string[] expectedContentTypes)
-                => source.WithMetadata(new ProducesFileMetadata(httpStatusCode, expectedContentTypes));
-    }
-
-
-
-
-
-    private sealed record ProducesFileMetadata(HttpStatusCode StatusCode, string[] ContentTypes);
-
-    internal sealed class ProducesFileOperationTransformer : IOpenApiOperationTransformer
-    {
-        public Task TransformAsync(OpenApiOperation operation, OpenApiOperationTransformerContext context, CancellationToken cancellationToken)
         {
-            var metadata = context.Description.ActionDescriptor.EndpointMetadata
-                .OfType<ProducesFileMetadata>()
-                .FirstOrDefault();
-            if (metadata is null)
+            var metadata = new ProducesFileMetadata(httpStatusCode, expectedContentTypes);
+            source.WithMetadata(metadata);
+            return source.AddOpenApiOperationTransformer((operation, context, cancellationToken) =>
+        {
+            if (!ReferenceEquals(metadata, context.Description.ActionDescriptor.EndpointMetadata.OfType<ProducesFileMetadata>().FirstOrDefault()))
                 return Task.CompletedTask;
 
             operation.Responses ??= [];
 
-            Dictionary<string, OpenApiMediaType> successContent = new()
+            Dictionary<string, IOpenApiMediaType> successContent = new()
             {
                 [MimeType.Application.OctetStream.PrimaryContentType] = new OpenApiMediaType()
                 {
@@ -72,7 +62,7 @@ public static class WebApiRouteBuilderHelpers
                     }
                 }
             };
-            foreach (var expectedContentType in metadata.ContentTypes)
+            foreach (var expectedContentType in expectedContentTypes)
             {
                 successContent[expectedContentType] = new OpenApiMediaType()
                 {
@@ -83,7 +73,7 @@ public static class WebApiRouteBuilderHelpers
                     }
                 };
             }
-            operation.Responses[((int)metadata.StatusCode).ToString()] = new OpenApiResponse
+            operation.Responses[((int)httpStatusCode).ToString()] = new OpenApiResponse
             {
                 Description = "File downloaded successfully",
                 Content = successContent
@@ -93,6 +83,7 @@ public static class WebApiRouteBuilderHelpers
                 Description = "File not found"
             };
             return Task.CompletedTask;
+        });
         }
     }
 }

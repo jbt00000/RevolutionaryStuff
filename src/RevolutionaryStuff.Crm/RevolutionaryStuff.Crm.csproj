@@ -1,14 +1,14 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <LangVersion>Preview</LangVersion>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <ImplicitUsings>disable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <PackageId>RevolutionaryStuff.Crm</PackageId>
     <IsTrimmable>false</IsTrimmable>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>This is a .NET 10 library</PackageReleaseNotes>
+    <PackageReleaseNotes>This is a .NET 11 library</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -19,9 +19,9 @@
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © 2024</Copyright>
-    <FileVersion>4.207.100</FileVersion>
-    <AssemblyVersion>4.207.100</AssemblyVersion>
-    <Version>4.207.100</Version>
+    <FileVersion>4.208.110</FileVersion>
+    <AssemblyVersion>4.208.110</AssemblyVersion>
+    <Version>4.208.110</Version>
   </PropertyGroup>
   <ItemGroup>
     <EmbeddedResource Include="appsettings.Development.json">
