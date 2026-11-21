@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "RevolutionaryStuff.TheLoader": {
-      "commandName": "Project",
-      "commandLineArgs": "-m:import -Filename:\"C:\\Users\\JasonThomas\\Downloads\\WCF 262 Test File.xlsx\" -SinkType:SqlServer -SinkCSN:\"PersonalJason\" -Profile:ZZAAQQ -Table:\"PegasysObligationsStatusReportItems\" -SkipRawRows:3"
-    }
-  }
-}
