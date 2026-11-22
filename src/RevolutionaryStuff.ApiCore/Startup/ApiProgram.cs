@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -33,6 +34,7 @@ public abstract class ApiProgram
         public bool EnableMgmtEchoRoute { get; set; }
         public bool EnableMgmtLogRoute { get; set; }
         public bool EnableMicrosoftServiceDefaultEndpoints { get; set; }
+        public bool EnableResponseCompression { get; set; }
     }
 
     protected IConfiguration? Configuration { get; private set; }
@@ -98,6 +100,16 @@ public abstract class ApiProgram
         {
             services.AddOpenApi();
             services.Configure<OpenApiOptions>(null, OnConfigureOpenApiOptions);
+        }
+
+        if (c.EnableResponseCompression)
+        {
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.Providers.Add<BrotliCompressionProvider>();
+                options.Providers.Add<GzipCompressionProvider>();
+            });
         }
 
         // Add services to the container.
@@ -227,6 +239,11 @@ public abstract class ApiProgram
         Stuff.LoggerOfLastResort = Logger = (ILogger)app.Services.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
 
         Logger.LogInformation("Starting up - app created");
+
+        if (Configuration.GetValue<bool>("ApiProgram:EnableResponseCompression"))
+        {
+            app.UseResponseCompression();
+        }
 
         app.UseExceptionHandler();
 
