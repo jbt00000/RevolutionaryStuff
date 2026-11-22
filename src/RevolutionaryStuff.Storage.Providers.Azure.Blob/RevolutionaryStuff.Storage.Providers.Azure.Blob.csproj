@@ -40,7 +40,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.28.0" />
+    <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.28.1" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\RevolutionaryStuff.Azure\RevolutionaryStuff.Azure.csproj" />

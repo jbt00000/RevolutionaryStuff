@@ -36,7 +36,7 @@ public static class Use
         {
             sources.AddSingleton(sp =>
             {
-                return RestService.For<TIApi>(DaprClient.CreateInvokeHttpClient(name));
+                return RestService.ForGenerated<TIApi>(DaprClient.CreateInvokeHttpClient(name));
             });
             return sources;
         }
