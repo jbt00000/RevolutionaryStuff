@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <LangVersion>Preview</LangVersion>
-    <TargetFramework>net10.0</TargetFramework>
+    <TargetFramework>net11.0</TargetFramework>
     <AssemblyName>RevolutionaryStuff.Data.SqlServer</AssemblyName>
     <PackageId>RevolutionaryStuff.SqlServer</PackageId>
     <IsTrimmable>false</IsTrimmable>
@@ -13,7 +13,7 @@
     <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
-    <PackageReleaseNotes>This is a .NET 10 library</PackageReleaseNotes>
+    <PackageReleaseNotes>This is a .NET 11 library</PackageReleaseNotes>
     <Authors>jason@jasonthomas.com</Authors>
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
@@ -23,9 +23,9 @@
     <PackageIcon>package\icon.png</PackageIcon>
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
     <Copyright>Copyright © 2024</Copyright>
-    <FileVersion>4.207.100</FileVersion>
-    <AssemblyVersion>4.207.100</AssemblyVersion>
-    <Version>4.207.100</Version>
+    <FileVersion>4.208.110</FileVersion>
+    <AssemblyVersion>4.208.110</AssemblyVersion>
+    <Version>4.208.110</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Include="..\..\package\icon.png" Pack="true" PackagePath="\package" />

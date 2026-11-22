@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OpenApi;
+using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,7 +12,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Microsoft.OpenApi;
 using RevolutionaryStuff.ApiCore.Middleware;
-using RevolutionaryStuff.ApiCore.OpenApi;
 using RevolutionaryStuff.ApiCore.Services.ServerInfoFinders;
 using RevolutionaryStuff.Core.ApplicationParts;
 using RevolutionaryStuff.Core.Services.ApplicationNameFinders;
@@ -34,6 +34,7 @@ public abstract class ApiProgram
         public bool EnableMgmtEchoRoute { get; set; }
         public bool EnableMgmtLogRoute { get; set; }
         public bool EnableMicrosoftServiceDefaultEndpoints { get; set; }
+        public bool EnableResponseCompression { get; set; }
     }
 
     protected IConfiguration? Configuration { get; private set; }
@@ -101,6 +102,16 @@ public abstract class ApiProgram
             services.Configure<OpenApiOptions>(null, OnConfigureOpenApiOptions);
         }
 
+        if (c.EnableResponseCompression)
+        {
+            services.AddResponseCompression(options =>
+            {
+                options.EnableForHttps = true;
+                options.Providers.Add<BrotliCompressionProvider>();
+                options.Providers.Add<GzipCompressionProvider>();
+            });
+        }
+
         // Add services to the container.
         services.AddProblemDetails();
     }
@@ -108,8 +119,6 @@ public abstract class ApiProgram
     protected virtual void OnConfigureOpenApiOptions(OpenApiOptions options)
     {
         options.OpenApiVersion = OpenApiSpecVersion.OpenApi3_1;
-        options.AddOperationTransformer<WebApiRouteBuilderHelpers.ProducesFileOperationTransformer>();
-        options.AddOperationTransformer<OpenApiHelpers.InputPayloadOperationTransformer>();
     }
 
     protected virtual void ConfigureBuilder(WebApplicationBuilder builder)
@@ -230,6 +239,11 @@ public abstract class ApiProgram
         Stuff.LoggerOfLastResort = Logger = (ILogger)app.Services.GetRequiredService(typeof(ILogger<>).MakeGenericType(GetType()));
 
         Logger.LogInformation("Starting up - app created");
+
+        if (Configuration.GetValue<bool>("ApiProgram:EnableResponseCompression"))
+        {
+            app.UseResponseCompression();
+        }
 
         app.UseExceptionHandler();
 
