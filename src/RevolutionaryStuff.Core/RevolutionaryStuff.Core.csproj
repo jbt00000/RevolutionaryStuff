@@ -71,7 +71,6 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="11.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Http" Version="11.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="11.0.0" />
     <PackageReference Include="System.IO.Hashing" Version="11.0.0" />
