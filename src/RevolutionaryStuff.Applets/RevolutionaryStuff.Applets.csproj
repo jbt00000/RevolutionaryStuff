@@ -18,9 +18,9 @@
     <PackageLicenseFile>package\license.txt</PackageLicenseFile>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <Copyright>Copyright © 2024</Copyright>
-    <FileVersion>4.208.110</FileVersion>
-    <AssemblyVersion>4.208.110</AssemblyVersion>
-    <Version>4.208.110</Version>
+    <FileVersion>4.209.110</FileVersion>
+    <AssemblyVersion>4.209.110</AssemblyVersion>
+    <Version>4.209.110</Version>
     <AzureCosmosDisableNewtonsoftJsonCheck>true</AzureCosmosDisableNewtonsoftJsonCheck>
   </PropertyGroup>
   <ItemGroup>
